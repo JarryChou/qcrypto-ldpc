@@ -13,7 +13,9 @@ sudo bash ./compile.sh
 if [ $1 = "1" ] || [ $1 = "3" ]
 then
     printf "\n\nAlice: mkdir & symbolic links\n"
+    # Make the directories
     sudo bash ./mkdir_alice.sh
+    # Make the symbolic links
     sudo bash ./create_symbolic_links_alice.sh
     # Copy scripts from execution dir to build dir
     cp -R ../execution/alice ../../build/scripts
