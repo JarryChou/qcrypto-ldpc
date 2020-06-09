@@ -37,8 +37,8 @@
                   [-e ec_in_pipe -E ec_out_pipe ]
                   [-k]
                   [-m messagesource -M messagedestintion ]
-                  [-p portnumber]
-                  [-P targetportnumber]
+                  [-p portNumber]
+                  [-P targetPortNumber]
                   [-v verbosity]
                   [-b debuglogs]
 
@@ -53,10 +53,10 @@
   -l notify:        if a packet arrives and has been saved, a notification
                     (the file name itself) is sent to the file or pipe named
                     in the parameter of this option
-  -s sourceIP:      listen to connections on the local ip identified by the
+  -s srcIP:         listen to connections on the local ip identified by the
                     paremeter. By default, the system listens on all ip
                     addresses of the machine.
-  -k:               killoption. If this is activated, a file gets destroyed in
+  -k killoption:    If this is activated, a file gets destroyed in
                     the source directory after it has been sent.
   -m src:           message source pipe. this opens a local fifo in the file
                     tree where commands can be tunneled over to the other side.
@@ -115,8 +115,8 @@ To Do:
 #include <sys/types.h>
 #include <unistd.h>
 
-#undef DEBUG
 #define DEBUG 1
+#undef DEBUG
 
 extern int h_errno;
 
@@ -156,11 +156,36 @@ typedef struct errc_header {
   unsigned int length;
 } eh;
 
+// Enumerators 
+// Introducing enumerators has very little overhead, and it also makes it much more readable
+// Refactor TypeMode to HasParam
+enum HasParamParameter { 
+  //0 d       //1 c        //2 t
+  arg_srcdir, arg_cmdpipe, arg_target, 
+  //3 D        //4 l        //5 s
+  arg_destdir, arg_notify, arg_srcIP, 
+  //6 m        //7 M        //8 e
+  arg_msg_src, arg_msg_dest, arg_ec_in_pipe, 
+  //9 E            //10 b
+  arg_ec_out_pipe, arg_debuglogs 
+}
+enum ReceiveMode {
+  rcvmode_waiting_to_read_next = 0,
+  rcvmode_peer_terminated = 0,
+  rcvmode_beginning_with_header = 0,
+  rcvmode_finishing_header = 1,
+  rcvmode_got_header_start_reading_data = 3,
+  rcvmode_finished_reading_a_packet = 4,
+}
+enum receiveHeader {
+  rhead_file, rhead_message, rhead_errc_packet
+}
+
 /* global variables for IO handling */
 char fname[11][FNAMELENGTH] = {"", "", "", "", "", "",
                                "", "", "", "", ""}; /* stream files */
 char ffnam[11][FNAMELENGTH + 11], ffn2[FNAMELENGTH + 11];
-char f3tmpname[FNAMELENGTH + 11]; /* stores temporary file name */
+char tempFileName[FNAMELENGTH + 11]; /* stores temporary file name */
 int killmode = DEFAULT_KILLMODE;  /* if !=1, delete infile after use */
 int handle[11];                   /* global handles for packet streams */
 FILE *debuglog;
@@ -251,6 +276,8 @@ int emsg(int code) {
   fprintf(debuglog, "err msg: %s\n", errormessage[code]);
   fflush(debuglog);
 
+  //Use exit instead of return to reduce clutter
+  //exit(-code);
   return code;
 };
 
@@ -269,167 +296,174 @@ void atohex(char *target, unsigned int v) {
   target[9] = 0;
 }
 
-int main(int argc, char *argv[]) {
-  int verbosity = DEFAULT_VERBOSITY;
-  int opt, i, retval; /* general parameters */
+// global variables because
+int verbosity = DEFAULT_VERBOSITY;
+int opt, i, retval; /* general parameters */
 #ifdef DEBUG
-  int ii;
+int ii;
 #endif
-  int typemode[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  /* sockets and destination structures */
-  int sendskt, recskt, commskt;
-  socklen_t socklen;
-  FILE *cmdhandle;
-  int portnumber = DEFAULT_PORT; /* defines communication port */
-  int targetportnumber = DEFAULT_PORT;
-  int msginhandle = 0;
-  int ercinhandle = 0, ercouthandle = 0; /* error correction pipes */
-  unsigned int remotelen;
-  struct sockaddr_in sendadr, recadr, remoteadr;
-  struct hostent *remoteinfo;
-  /* file handles */
-  int srcfile, destfile;
-  FILE *loghandle, *msgouthandle;
-  struct stat dirstat; /* for checking directories */
-  struct stat srcfilestat;
-  fd_set readqueue, writequeue;
-  struct timeval timeout;         /* for select command */
-  struct stream_header shead;     /* for sending */
-  struct stream_header rhead;     /* for receiving */
-  char *recbf, *filebf, *ercbf;   /* send- and receive buffers, ercin buffer */
-  char *sendbf;                   /* for write procedure */
-  char transfername[FNAMELENGTH]; /* read transfer file name */
-  char ftnam[FNAMELENGTH];        /* full transfer file name */
-  unsigned int srcepoch;
-  unsigned oldsrcepoch = 0;
-  int receivemode; /* for filling input buffer */
-  unsigned int receiveindex;
-  int packinmode;            /* for reading errc packets from pipe */
-  unsigned int erci_idx = 0; /* initialize to keep compiler happy */
-  struct errc_header *ehead; /* for reading packets */
-  /* flags for select mechanism */
-  int writemode, writeindex, cmdmode, messagemode;
-  char message[MESSAGELENGTH];
-  /* int keepawake_handle; */
-  int keepawake_h2; /* avoid the input pipe seeing EOF */
-  int keepawake_h3;
-  int ignorefileerror = DEFAULT_IGNOREFILEERROR;
-  int noshutdown;
-  FILE *cmdinhandle;
+int hasParam[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+/* sockets and destination structures */
+int sendskt, recskt, activeSocket;
+socklen_t socklen;
+FILE *cmdhandle;
+int portNumber = DEFAULT_PORT; /* defines communication port */
+int targetPortNumber = DEFAULT_PORT;
+int msginhandle = 0;
+int ercinhandle = 0, ercouthandle = 0; /* error correction pipes */
+unsigned int remotelen;
+struct sockaddr_in sendadr, recadr, remoteadr;
+struct hostent *remoteinfo;
+/* file handles */
+int srcfile, destfile;
+FILE *loghandle, *msgouthandle;
+struct stat dirstat; /* for checking directories */
+struct stat srcfilestat;
+fd_set readqueue, writequeue;
+struct timeval timeout;         /* for select command */
+struct stream_header shead;     /* for sending */
+struct stream_header rhead;     /* for receiving */
+char *receivedDataBuffer, *fileBuffer, *errorCorrectionInBuffer;   /* send- and receive buffers, ercin buffer */
+char *dataToSendBuffer;                   /* for write procedure */
+char transfername[FNAMELENGTH]; /* read transfer file name */
+char ftnam[FNAMELENGTH];        /* full transfer file name */
+unsigned int srcepoch;
+unsigned oldsrcepoch = 0;
+int receivemode; /* for filling input buffer */
+unsigned int receiveindex;
+int packinmode;            /* for reading errc packets from pipe */
+unsigned int erci_idx = 0; /* initialize to keep compiler happy */
+struct errc_header *ehead; /* for reading packets */
+/* flags for select mechanism */
+int writemode, writeindex, cmdmode, messagemode;
+char message[MESSAGELENGTH];
+/* int keepawake_handle; */
+int keepawake_handle_arg_msg_src; /* avoid the input pipe seeing EOF */
+int keepawake_handle_arg_ec_in_pipe;
+int ignorefileerror = DEFAULT_IGNOREFILEERROR;
+// WARNING: "running" is always 1
+int running;
+FILE *cmdinhandle;
 
+int main(int argc, char *argv[]) {
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
   while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:e:E:b:")) != EOF) {
     i = 0; /* for setinf names/modes commonly */
     switch (opt) {
-      case 'b':
-        i++;
-      case 'E':
-        i++;
-      case 'e':
-        i++;
-      case 'M':
-        i++; /* funky way of saving file names */
-      case 'm':
-        i++;
-      case 's':
-        i++;
-      case 'l':
-        i++;
-      case 'D':
-        i++;
-      case 't':
-        i++;
-      case 'c':
-        i++;
+      case 'b': i++;
+      case 'E': i++;
+      case 'e': i++;
+      case 'M': i++; /* funky way of saving file names */
+      case 'm': i++;
+      case 's': i++;
+      case 'l': i++;
+      case 'D': i++;
+      case 't': i++;
+      case 'c': i++;
       case 'd':
         /* stream number is in i now */
         if (1 != sscanf(optarg, FNAMFORMAT, fname[i])) return -emsg(1 + i);
         fname[i][FNAMELENGTH - 1] = 0;        /* security termination */
-        if (typemode[i]) return -emsg(1 + i); /* already defined mode */
-        typemode[i] = 1;
+        if (hasParam[i]) return -emsg(1 + i); /* already defined mode */
+        hasParam[i] = 1;
         break;
       case 'k': /* killmode */
         killmode = 1;
         break;
-      case 'p': /* set origin portnumber */
-        if (sscanf(optarg, "%d", &portnumber) != 1) return -emsg(65);
-        if ((portnumber < MINPORT) || (portnumber > MAXPORT)) return -emsg(66);
-      case 'P':  // targetportnumber
-        if (sscanf(optarg, "%d", &targetportnumber) != 1) return -emsg(65);
-        if ((targetportnumber < MINPORT) || (targetportnumber > MAXPORT))
+      case 'p': /* set origin portNumber */
+        if (sscanf(optarg, "%d", &portNumber) != 1) return -emsg(65);
+        if ((portNumber < MINPORT) || (portNumber > MAXPORT)) return -emsg(66);
+      case 'P':  // targetPortNumber
+        if (sscanf(optarg, "%d", &targetPortNumber) != 1) return -emsg(65);
+        if ((targetPortNumber < MINPORT) || (targetPortNumber > MAXPORT))
           return -emsg(66);
         break;
     }
   }
 
   /* check argument completeness */
-  for (i = 0; i < 5; i++)
-    if (typemode[i] == 0) return -emsg(i + 67);
-  if (typemode[6] != typemode[7]) return -emsg(15); /* not same message mode */
+  for (i = 0; i < 5; i++) {
+    if (hasParam[i] == 0) {
+      return -emsg(i + 67);
+    }
+  }
+  if (hasParam[arg_msg_src] != hasParam[arg_msg_dest]) {
+    return -emsg(15); /* not same message mode */
+  }
   /* add directory slash for sourcefile if missing */
-  if (fname[0][strlen(fname[0]) - 1] != '/') {
-    strncat(fname[0], "/", FNAMELENGTH);
-    fname[0][FNAMELENGTH - 1] = 0;
+  if (fname[arg_srcdir][strlen(fname[arg_srcdir]) - 1] != '/') {
+    strncat(fname[arg_srcdir], "/", FNAMELENGTH);
+    fname[arg_srcdir][FNAMELENGTH - 1] = 0;
   }
   cmdinhandle = fopen("/tmp/cryptostuff/cmdins", "w+");
-
-  // debuglog=fopen("/tmp/cryptostuff/debuglog","w+");
-
+  
   /* get all sockets */
-  sendskt = socket(AF_INET, SOCK_STREAM, 0); /* outgoing packets */
-  recskt = socket(AF_INET, SOCK_STREAM, 0);  /* incoming packets */
-  if (!sendskt || !recskt) return -emsg(16);
-
-  /* command pipe */
-  if (access(fname[1], F_OK) == -1) { /* fifo does not exist */
-    if (mkfifo(fname[1], FIFOPERMISSIONS)) return -emsg(17);
+  if ((sendskt = socket(AF_INET, SOCK_STREAM, 0)) == 0 ||  /* outgoing packets */
+    (recskt = socket(AF_INET, SOCK_STREAM, 0)) == 0) {  /* incoming packets */
+    return -emsg(16);
   }
 
-  cmdhandle = fopen(fname[1], "r+");
-  if (!cmdhandle) return -emsg(18);
-  /*cmdhandle=open(fname[1],FIFOMODE);
+  /* command pipe */
+  if (access(fname[arg_cmdpipe], F_OK) == -1) { /* fifo does not exist */
+    if (mkfifo(fname[arg_cmdpipe], FIFOPERMISSIONS)) {
+      return -emsg(17);
+    }
+  }
+
+  if ((cmdhandle = fopen(fname[arg_cmdpipe], "r+")) == 0) { return -emsg(18); }
+  /*cmdhandle=open(fname[arg_cmdpipe],FIFOMODE);
 if (cmdhandle==-1) return -emsg(18);
-keepawake_handle= open(fname[1],DUMMYMODE); */
+keepawake_handle= open(fname[arg_cmdpipe],DUMMYMODE); */
   /* keep server alive */
 
   /* message pipe */
-  if (typemode[6]) {                    /* message pipes exist */
-    if (access(fname[6], F_OK) == -1) { /* fifo does not exist */
-      if (mkfifo(fname[6], FIFOPERMISSIONS)) return -emsg(19);
+  if (hasParam[arg_msg_src]) {                    /* message pipes exist */
+    if (access(fname[arg_msg_src], F_OK) == -1) { /* fifo does not exist */
+      if (mkfifo(fname[arg_msg_src], FIFOPERMISSIONS)) {
+        return -emsg(19);
+      }
     }
-    msginhandle = open(fname[6], FIFOMODE);
-    if (msginhandle == -1) return -emsg(20);  /* cannot open FIFO */
-    keepawake_h2 = open(fname[6], DUMMYMODE); /* avoid message congestion */
+    if ((msginhandle = open(fname[arg_msg_src], FIFOMODE)) == -1) {
+      return -emsg(20);  /* cannot open FIFO */
+    }
+    keepawake_handle_arg_msg_src = open(fname[arg_msg_src], DUMMYMODE); /* avoid message congestion */
   };
 
   /* errc_in pipe */
-  if (typemode[8]) {                    /* listen to it */
-    if (access(fname[8], F_OK) == -1) { /* fifo does not exist */
-      if (mkfifo(fname[8], FIFOPERMISSIONS)) return -emsg(11);
+  if (hasParam[arg_ec_in_pipe]) {                    /* listen to it */
+    if (access(fname[arg_ec_in_pipe], F_OK) == -1) { /* fifo does not exist */
+      if (mkfifo(fname[arg_ec_in_pipe], FIFOPERMISSIONS)) {
+        return -emsg(11);
+      }
     }
-    ercinhandle = open(fname[8], FIFOMODE);
-    if (ercinhandle == -1) return -emsg(12);  /* cannot open FIFO */
-    keepawake_h3 = open(fname[8], DUMMYMODE); /* avoid message congestion */
+    if ((ercinhandle = open(fname[arg_ec_in_pipe], FIFOMODE)) == -1) {
+      return -emsg(12);  /* cannot open FIFO */
+    }
+    keepawake_handle_arg_ec_in_pipe = open(fname[arg_ec_in_pipe], DUMMYMODE); /* avoid message congestion */
   };
   /* errc_out pipe */
-  if (typemode[9]) {                    /* open it */
-    if (access(fname[9], F_OK) == -1) { /* fifo does not exist */
-      if (mkfifo(fname[9], FIFOPERMISSIONS)) return -emsg(13);
+  if (hasParam[arg_ec_out_pipe]) {                    /* open it */
+    if (access(fname[arg_ec_out_pipe], F_OK) == -1) { /* fifo does not exist */
+      if (mkfifo(fname[arg_ec_out_pipe], FIFOPERMISSIONS)) {
+        return -emsg(13);
+      }
     }
-    ercouthandle = open(fname[9], FIFOOUTMODE);
-    if (ercouthandle == -1) return -emsg(14); /* cannot open FIFO */
+    ercouthandle = open(fname[arg_ec_out_pipe], FIFOOUTMODE);
+    if (ercouthandle == -1) {
+      return -emsg(14); /* cannot open FIFO */
+    }
   };
 
   // Debug logs
-  if (typemode[10]) { /* open it */
-    printf("Opening debuglog: %s\n", fname[10]);
-    debuglog = fopen(fname[10], "w+");
+  if (hasParam[10]) { /* open it */
+    printf("Opening debuglog: %s\n", fname[arg_debuglogs]);
+    debuglog = fopen(fname[arg_debuglogs], "w+");
   };
 
   /* client socket for sending data */
   sendadr.sin_family = AF_INET;
-  remoteinfo = gethostbyname(fname[2]);
+  remoteinfo = gethostbyname(fname[arg_target]);
   if (!remoteinfo) {
     switch (h_errno) {
       case HOST_NOT_FOUND:
@@ -444,16 +478,16 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
   }
   /* extract host-IP */
   sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
-  sendadr.sin_port = htons(targetportnumber);
+  sendadr.sin_port = htons(targetPortNumber);
 
   /* create socket for server / receiving files */
   recadr.sin_family = AF_INET;
-  if (fname[5][0]) { /* port defined */
-    if (inet_aton(fname[5], &recadr.sin_addr)) return -emsg(25);
+  if (fname[arg_srcIP][0]) { /* port defined */
+    if (inet_aton(fname[arg_srcIP], &recadr.sin_addr)) return -emsg(25);
   } else {
     recadr.sin_addr.s_addr = htonl(INADDR_ANY);
   }
-  recadr.sin_port = htons(portnumber);
+  recadr.sin_port = htons(portNumber);
   /* try to reuse address */
   i = 1;
   retval = setsockopt(recskt, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
@@ -468,28 +502,28 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
   if (listen(recskt, RECEIVE_BACKLOG)) return -emsg(32);
 
   /* try to test directory existence */
-  if (stat(fname[0], &dirstat)) return -emsg(27); /* src directory */
+  if (stat(fname[arg_srcdir], &dirstat)) return -emsg(27); /* src directory */
   if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(28); /* no dir */
 
-  if (stat(fname[3], &dirstat)) return -emsg(29); /* src directory */
+  if (stat(fname[arg_destdir], &dirstat)) return -emsg(29); /* src directory */
   if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(30); /* no dir */
 
   /* try to get send/receive buffers */
-  filebf = (char *)malloc(LOC_BUFSIZE);
-  recbf = (char *)malloc(LOC_BUFSIZE);
-  ercbf = (char *)malloc(LOC_BUFSIZE2);
-  if (!filebf || !recbf || !ercbf) return -emsg(41);
-  ehead = (struct errc_header *)ercbf; /* for header */
+  fileBuffer = (char *)malloc(LOC_BUFSIZE);
+  receivedDataBuffer = (char *)malloc(LOC_BUFSIZE);
+  errorCorrectionInBuffer = (char *)malloc(LOC_BUFSIZE2);
+  if (!fileBuffer || !receivedDataBuffer || !errorCorrectionInBuffer) return -emsg(41);
+  ehead = (struct errc_header *)errorCorrectionInBuffer; /* for header */
 
   /* prepare file name for temporary file storage */
-  strncpy(f3tmpname, fname[3], FNAMELENGTH);
-  strcpy(&f3tmpname[strlen(f3tmpname)], tmpfileext);
+  strncpy(tempFileName, fname[arg_destdir], FNAMELENGTH);
+  strcpy(&tempFileName[strlen(tempFileName)], tmpfileext);
 
-  /* prepare shutdown */
-  noshutdown = 1;
+  /* prepare shutdown...never? */
+  running = 1;
 
   do {           /* while link should be maintained */
-    commskt = 0; /* mark unsuccessful connection attempt */
+    activeSocket = 0; /* mark unsuccessful connection attempt */
     /* wait half a second for a server connection */
     FD_ZERO(&readqueue);
     timeout = HALFSECOND;
@@ -497,7 +531,9 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
     retval = select(FD_SETSIZE, &readqueue, (fd_set *)0, (fd_set *)0, &timeout);
     if (retval == -1) return -emsg(33);
     if (retval) { /* there is a request */
-      if (!FD_ISSET(recskt, &readqueue)) return -emsg(34); /* cannot be?*/
+      if (!FD_ISSET(recskt, &readqueue)) {
+        return -emsg(34); /* cannot be?*/
+      }
       /* accept connection */
       remotelen = sizeof(remoteadr);
       retval = accept(recskt, (struct sockaddr *)&remoteadr, &remotelen);
@@ -506,7 +542,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
         return -emsg(35);
       }
       /* use new socket */
-      commskt = retval;
+      activeSocket = retval;
     } else { /* timeout has occured. attempt to make client connection */
       fcntl(sendskt, F_SETFL, O_NONBLOCK); /* prepare nonblock mode */
       retval = connect(sendskt, (struct sockaddr *)&sendadr, sizeof(sendadr));
@@ -537,83 +573,76 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
               return -emsg(38);
             }
             /* Weee! we succeeded geting a connection */
-            commskt = sendskt;
+            activeSocket = sendskt;
           } else { /* a timeout has occured */
-            commskt = 0;
+            activeSocket = 0;
           }
         }
       } else { /* it worked in the first place */
-        commskt = sendskt;
+        activeSocket = sendskt;
       }
     }
 
-    if (commskt)
+    // If there is a connection, just printf
+    if (activeSocket) {
       if (verbosity > 0) {
         printf("connected.\n");
         fflush(stdout);
+#ifdef DEBUG
         fprintf(debuglog, "connected.\n");
         fflush(debuglog);
+#endif
       }
+    }
 
-    receivemode = 0; /* wait for a header */
+    // Begin communications
+    receivemode = rcvmode_waiting_to_read_next; //0; /* wait for a header */
     receiveindex = 0;
     writemode = 0;
     writeindex = 0;
-    sendbf = NULL;
+    dataToSendBuffer = NULL;
     packinmode = 0; /* waiting for header */
     cmdmode = 0;
     messagemode = 0;  /* finish eah thing */
-    while (commskt) { /* link is active,  wait on input sockets */
+    while (activeSocket) { /* link is active,  wait on input sockets */
       FD_ZERO(&readqueue);
       FD_ZERO(&writequeue);
-      fprintf(debuglog, "1\n");
-      fflush(debuglog);
-      FD_SET(commskt, &readqueue);
-      fprintf(debuglog, "2\n");
-      fflush(debuglog);
+      FD_SET(activeSocket, &readqueue);
       if (!cmdmode) FD_SET(fileno(cmdhandle), &readqueue);
-      fprintf(debuglog, "3\n");
-      fflush(debuglog);
-      if (sendbf) FD_SET(commskt, &writequeue); /* if we need to write */
-      fprintf(debuglog, "4\n");
-      fflush(debuglog);
-      if (typemode[6] && !messagemode) FD_SET(msginhandle, &readqueue);
-      fprintf(debuglog, "5\n");
-      fflush(debuglog);
-      if (typemode[8] && (packinmode != 4)) FD_SET(ercinhandle, &readqueue);
-      fprintf(debuglog, "6\n");
-      fflush(debuglog);
+      if (dataToSendBuffer) FD_SET(activeSocket, &writequeue); /* if we need to write */
+      if (hasParam[arg_msg_src] && !messagemode) FD_SET(msginhandle, &readqueue);
+      if (hasParam[arg_ec_in_pipe] && (packinmode != 4)) FD_SET(ercinhandle, &readqueue);
       timeout = HALFSECOND;
       retval = select(FD_SETSIZE, &readqueue, &writequeue, NULL, NULL);
-      fprintf(debuglog, "7\n");
-      fflush(debuglog);
       if (retval < 0) return -emsg(39);
         /* eat through set */
 #ifdef DEBUG
       fprintf(debuglog, "select returned %d\n", retval);
       fflush(debuglog);
 #endif
-      if (FD_ISSET(commskt, &readqueue)) { /* something's coming... */
+      // If there is something to read from the active socket
+      if (FD_ISSET(activeSocket, &readqueue)) {
 #ifdef DEBUG
         fprintf(debuglog, "tcp read received event\n");
 #endif
         switch (receivemode) {
-          case 0: /* beginning with header */
-            receivemode = 1;
-          case 1: /* finishing header */
-            retval = read(commskt, &((char *)&rhead)[receiveindex],
+          case rcvmode_waiting_to_read_next: /* beginning with header */
+            receivemode = rcvmode_finishing_header;
+          case rcvmode_finishing_header: /* finishing header */
+            retval = read(activeSocket, &((char *)&rhead)[receiveindex],
                           sizeof(rhead) - receiveindex);
 #ifdef DEBUG
             fprintf(debuglog, "tcp receive stage 1:%d bytes\n", retval);
             fflush(debuglog);
 #endif
             if (retval == 0) { /* end of file, peer terminated */
-              receivemode = 0;
+              receivemode = rcvmode_peer_terminated;
               goto reconnect;
               break;
-            }
-            if (retval == -1) {
-              if (errno == EAGAIN) break;
+            } else if (retval == -1) {
+              if (errno == EAGAIN) {
+                break;
+              }
               fprintf(stderr, "errno: %d ", errno);
 #ifdef DEBUG
               fprintf(debuglog, "error st1: %d\n", errno);
@@ -626,7 +655,10 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
             fflush(debuglog);
 #endif
             receiveindex += retval;
-            if (receiveindex < sizeof(rhead)) break;
+            // Drop packet if the data received is less than a header
+            if (receiveindex < sizeof(rhead)) {
+              break;
+            }
 #ifdef DEBUG
             fprintf(debuglog, "p4, len:%d\n", rhead.length);
             for (i = 0; i < 12; i++)
@@ -635,23 +667,28 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
             fflush(debuglog);
 #endif
             /* got header, start reading data */
-            if (rhead.length > LOC_BUFSIZE) return -emsg(59);
+            // If data exceeds buffer size, throw error
+            if (rhead.length > LOC_BUFSIZE) {
+              return -emsg(59);
+            }
             receiveindex = 0;
-            receivemode = 3;
+            receivemode = rcvmode_got_header_start_reading_data;
 #ifdef DEBUG
             fprintf(debuglog, "tcp receive before stage3, expect %d bytes\n",
                     rhead.length);
             fflush(debuglog);
 #endif
             break;
-          case 3: /* read more */
-            retval = read(commskt, &recbf[receiveindex],
+          case rcvmode_got_header_start_reading_data: 
+            // Based on the header info, read in the body data
+            retval = read(activeSocket, &receivedDataBuffer[receiveindex],
                           MIN(LOC_BUFSIZE, rhead.length) - receiveindex);
 #ifdef DEBUG
             fprintf(debuglog, "tcp rec stage 3:%d bytes, wanted:%d\n", retval,
                     MIN(LOC_BUFSIZE, rhead.length) - receiveindex);
             fflush(debuglog);
 #endif
+            // If fail to read body
             if (retval == -1) {
               if (errno == EAGAIN) break;
               fprintf(stderr, "errno: %d ", errno);
@@ -663,8 +700,9 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
               return -emsg(42);
             }
             receiveindex += retval;
+            // If read the entire body (based on header)
             if (receiveindex >= rhead.length) {
-              receivemode = 4; /* done */
+              receivemode = rcvmode_finished_reading_a_packet; /* done */
 #ifdef DEBUG
               fprintf(debuglog, "tcp receive stage 4 reached\n");
               fflush(debuglog);
@@ -672,41 +710,42 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
             }
             break;
         }
-        if (receivemode == 4) { /* stream read complete */
+        if (receivemode == rcvmode_finished_reading_a_packet) { /* stream read complete */
           switch (rhead.type) {
-            case 0: /* incoming long stream */
-                    /*if (verbosity >1) */
+            case rhead_file: 
+            /* we got a file */
+            /*if (verbosity >1) */
 #ifdef DEBUG
               fprintf(debuglog, "got file via tcp, len:%d\n", rhead.length);
               fflush(debuglog);
 #endif
               /* open target file */
-              strncpy(ffnam[3], fname[3], FNAMELENGTH);
-              atohex(&ffnam[3][strlen(ffnam[3])], rhead.epoch);
-              destfile = open(f3tmpname, TARGETFILEMODE, FILE_PERMISSIONS);
+              strncpy(ffnam[arg_destdir], fname[arg_destdir], FNAMELENGTH);
+              atohex(&ffnam[arg_destdir][strlen(ffnam[arg_destdir])], rhead.epoch);
+              destfile = open(tempFileName, TARGETFILEMODE, FILE_PERMISSIONS);
               if (destfile < 0) {
                 fprintf(debuglog, "destfile  val: %x\n", destfile);
-                fprintf(debuglog, "file name: %s, len: %d\n", ffnam[3],
+                fprintf(debuglog, "file name: %s, len: %d\n", ffnam[arg_destdir],
                         rhead.length);
                 fprintf(debuglog, "errno on opening: %d\n", errno);
                 fflush(debuglog);
                 destfile = open("transferdump", O_WRONLY);
                 if (destfile != -1) {
-                  write(destfile, recbf, rhead.length);
+                  write(destfile, receivedDataBuffer, rhead.length);
                   close(destfile);
                 }
                 return -emsg(43);
               }
-              if ((int)rhead.length != write(destfile, recbf, rhead.length))
+              if ((int)rhead.length != write(destfile, receivedDataBuffer, rhead.length))
                 return -emsg(44);
               close(destfile);
               /* rename file */
-              if (rename(f3tmpname, ffnam[3])) {
+              if (rename(tempFileName, ffnam[arg_destdir])) {
                 fprintf(stderr, "rename errno: %d ", errno);
                 return -emsg(75);
               }
               /* send notification */
-              loghandle = fopen(fname[4], "a");
+              loghandle = fopen(fname[arg_notify], "a");
               if (!loghandle) return -emsg(49);
               fprintf(loghandle, "%08x\n", rhead.epoch);
               fflush(loghandle);
@@ -716,18 +755,17 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
               fflush(debuglog);
 #endif
               break;
-            case 1: /* incoming message */
+            case rhead_message: /* incoming message */
                     /* if (verbosity>1) */
 #ifdef DEBUG
               fprintf(debuglog, "got message via TCP...");
               fflush(debuglog);
 #endif
-              if (typemode[7]) {
-                msgouthandle = fopen(fname[7], "a");
+              if (hasParam[arg_msg_dest]) {
+                msgouthandle = fopen(fname[arg_msg_dest], "a");
                 if (!msgouthandle) return -emsg(45);
                 /* should we add a newline? */
-                retval =
-                    fwrite(recbf, sizeof(char), rhead.length, msgouthandle);
+                retval = fwrite(receivedDataBuffer, sizeof(char), rhead.length, msgouthandle);
 #ifdef DEBUG
                 fprintf(debuglog, "retval from fwrite is :%d...", retval);
                 fflush(debuglog);
@@ -737,9 +775,9 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
                 fclose(msgouthandle);
 #ifdef DEBUG
                 fprintf(debuglog, "message>>%40s<< sent to msgouthandle.\n",
-                        recbf);
+                        receivedDataBuffer);
                 for (ii = 0; ii < (int)rhead.length; ii++) {
-                  fprintf(debuglog, " %02x", recbf[ii]);
+                  fprintf(debuglog, " %02x", receivedDataBuffer[ii]);
                   if ((ii & 0xf) == 0xf) fprintf(debuglog, "\n");
                 }
                 fprintf(debuglog, "\n");
@@ -749,15 +787,15 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
               } else {
                 return -emsg(47); /* do not expect msg */
               }
-            case 2: /* got errc packet */
-              if (typemode[9]) {
-                write(ercouthandle, recbf, rhead.length);
+            case rhead_errc_packet: /* got errc packet */
+              if (hasParam[arg_ec_out_pipe]) {
+                write(ercouthandle, receivedDataBuffer, rhead.length);
               }
               break;
             default:
               return -emsg(48); /* unexpected data type */
           }
-          receivemode = 0; /* ready to read next */
+          receivemode = rcvmode_waiting_to_read_next; /* ready to read next */
           receiveindex = 0;
         }
       }
@@ -767,7 +805,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
             packinmode = 1;
             erci_idx = 0;
           case 1: /* finish reading header */
-            retval = read(ercinhandle, &ercbf[erci_idx],
+            retval = read(ercinhandle, &errorCorrectionInBuffer[erci_idx],
                           sizeof(struct errc_header) - erci_idx);
             if (retval == -1) {
               if (errno == EAGAIN) break;
@@ -780,7 +818,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
             if (ehead->length > LOC_BUFSIZE2) return -emsg(73);
             packinmode = 3; /* erci_idx continues on same buffer */
           case 3:           /* read more data */
-            retval = read(ercinhandle, &ercbf[erci_idx],
+            retval = read(ercinhandle, &errorCorrectionInBuffer[erci_idx],
                           MIN(LOC_BUFSIZE2, ehead->length) - erci_idx);
             if (retval == -1) {
               if (errno == EAGAIN) break;
@@ -822,7 +860,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
         oldsrcepoch = srcepoch;
         fprintf(cmdinhandle, "cmdin: %s\n", transfername);
         fflush(cmdinhandle);
-        strncpy(ftnam, fname[0], FNAMELENGTH - 1);
+        strncpy(ftnam, fname[arg_srcdir], FNAMELENGTH - 1);
         ftnam[FNAMELENGTH - 1] = 0;
         strncat(ftnam, transfername, FNAMELENGTH - 1);
         ftnam[FNAMELENGTH - 1] = 0;
@@ -858,7 +896,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
         cmdmode = 1;
       }
     parseescape:
-      if (typemode[6]) /* there could be a message */
+      if (hasParam[arg_msg_src]) /* there could be a message */
         if (FD_ISSET(msginhandle, &readqueue)) {
           /* read message */
           retval = read(msginhandle, message, MESSAGELENGTH);
@@ -879,7 +917,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
 #endif
           messagemode = 1;
         }
-      if (FD_ISSET(commskt, &writequeue)) { /* check writing */
+      if (FD_ISSET(activeSocket, &writequeue)) { /* check writing */
 #ifdef DEBUG
         fprintf(debuglog, "writeevent received, writemode:%d\n", writemode);
         fflush(debuglog);
@@ -893,7 +931,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
 #endif
             break;
           case 1: /*  write header */
-            retval = write(commskt, &((char *)&shead)[writeindex],
+            retval = write(activeSocket, &((char *)&shead)[writeindex],
                            sizeof(shead) - writeindex);
 #ifdef DEBUG
             fprintf(debuglog, "sent header, want:%d, sent:%d\n",
@@ -908,7 +946,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
                            /* printf("written header\n"); */
           case 2:          /* write data */
             retval =
-                write(commskt, &sendbf[writeindex], shead.length - writeindex);
+                write(activeSocket, &dataToSendBuffer[writeindex], shead.length - writeindex);
 #ifdef DEBUG
             fprintf(debuglog, "send data;len: %d, retval: %d, idx %d\n",
                     shead.length, retval, writeindex);
@@ -931,15 +969,15 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
                 if (killmode) {
                   if (unlink(ftnam)) return -emsg(63);
                 }
-                sendbf = NULL; /* nothing to be sent from this */
+                dataToSendBuffer = NULL; /* nothing to be sent from this */
                 break;
               case 1:
                 messagemode = 0;
-                sendbf = NULL;
+                dataToSendBuffer = NULL;
                 break;
               case 2:
                 packinmode = 0;
-                sendbf = NULL;
+                dataToSendBuffer = NULL;
                 break;
             }
             writemode = 0;
@@ -960,7 +998,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
         /* prepare for sending message buffer */
         writemode = 1;
         writeindex = 0;
-        sendbf = message;
+        dataToSendBuffer = message;
         continue; /* skip other tests for writing */
       }
       if (cmdmode && !writemode) {
@@ -971,7 +1009,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
           fprintf(debuglog, "file name: >%s<\n", ftnam);
           return -emsg(53);
         }
-        retval = read(srcfile, filebf, LOC_BUFSIZE);
+        retval = read(srcfile, fileBuffer, LOC_BUFSIZE);
         close(srcfile);
 #ifdef DEBUG
         fprintf(debuglog,
@@ -986,7 +1024,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
         shead.epoch = srcepoch;
         writemode = 1;
         writeindex = 0; /* indicate header writing */
-        sendbf = filebf;
+        dataToSendBuffer = fileBuffer;
         continue; /* skip other test for writing */
       }
       if ((packinmode == 4) && !writemode) { /* copy errc packet */
@@ -996,7 +1034,7 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
         shead.epoch = 0;
         writemode = 1;
         writeindex = 0;
-        sendbf = ercbf;
+        dataToSendBuffer = errorCorrectionInBuffer;
       }
     }
 #ifdef DEBUG
@@ -1006,17 +1044,17 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
     continue; /* loop is fine */
   reconnect:
     /* close open sockets and wait for next connection */
-    close(commskt);
+    close(activeSocket);
 #ifdef DEBUG
     fprintf(debuglog, "comm socket was closed.\n");
     fflush(debuglog);
 #endif
-    if (commskt == sendskt) {                    /* renew send socket */
+    if (activeSocket == sendskt) {                    /* renew send socket */
       sendskt = socket(AF_INET, SOCK_STREAM, 0); /* outgoing packets */
       if (!sendskt) return -emsg(16);
       /* client socket for sending data */
       sendadr.sin_family = AF_INET;
-      remoteinfo = gethostbyname(fname[2]);
+      remoteinfo = gethostbyname(fname[arg_target]);
       if (!remoteinfo) {
         switch (h_errno) {
           case HOST_NOT_FOUND:
@@ -1031,14 +1069,14 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
       }
       /* extract host-IP */
       sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
-      sendadr.sin_port = htons(portnumber);
+      sendadr.sin_port = htons(portNumber);
     }
     if (verbosity > 0) {
       printf("disconnected.\n");
       fflush(stdout);
     }
-    commskt = 0;
-  } while (noshutdown); /* while link should be maintained */
+    activeSocket = 0;
+  } while (running); /* while link should be maintained */
 
   /* end benignly */
   printf("ending benignly\n");
@@ -1047,21 +1085,21 @@ keepawake_handle= open(fname[1],DUMMYMODE); */
   fclose(cmdhandle);
   /* close(cmdhandle); */
   /* close(keepawake_handle); */
-  if (typemode[6]) {
+  if (hasParam[arg_msg_src]) {
     close(msginhandle);
-    close(keepawake_h2);
+    close(keepawake_handle_arg_msg_src);
   }
   close(recskt);
   close(sendskt);
-  if (typemode[8]) {
+  if (hasParam[arg_ec_in_pipe]) {
     close(ercinhandle);
-    close(keepawake_h3);
+    close(keepawake_handle_arg_ec_in_pipe);
   }
-  if (typemode[9]) close(ercouthandle);
+  if (hasParam[arg_ec_out_pipe]) close(ercouthandle);
   /* free buffer */
-  free(recbf);
-  free(filebf);
-  free(ercbf);
+  free(receivedDataBuffer);
+  free(fileBuffer);
+  free(errorCorrectionInBuffer);
   fclose(cmdinhandle);
 
   fclose(debuglog);
