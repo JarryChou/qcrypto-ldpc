@@ -18,7 +18,7 @@ then
     # Make the symbolic links
     sudo bash ./create_symbolic_links_alice.sh
     # Copy scripts from execution dir to build dir
-    cp -R ../execution/alice ../../build/scripts
+    cp -a ../execution/alice/. ../../build/alice/scripts/
 fi
 
 # For Bob
@@ -28,5 +28,5 @@ then
     sudo bash ./mkdir_bob.sh
     sudo bash ./create_symbolic_links_bob.sh
     # Copy scripts from execution dir to build dir
-    cp -R ../execution/bob ../../build/scripts
+    cp -a ../execution/bob/. ../../build/bob/scripts/
 fi
