@@ -29,6 +29,8 @@ if [ ! -d "../../build/alice" ]; then
   mkdir logs
   mkdir logs/chopper
   mkdir logs/splicer
+  # scripts
+  mkdir scripts
 
   cd ../../scripts/setup
 else

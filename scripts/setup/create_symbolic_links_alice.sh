@@ -26,6 +26,8 @@ then
   ln -s "$DIR/alice/data/classical_channel_dest"      ALICE/DIR/TCP_DEST
   ln -s "$DIR/alice/data/classical_channel_src"       ALICE/DIR/TCP_SRC
   ln -s "$DIR/alice/logs"                             ALICE/DIR/LOGS
+  ln -s "$DIR/alice/scripts"                          ALICE/DIR/SCRIPTS
+
   # Pipes (Not declared here as the pipes are created by the program itself)
   ln -s "$DIR/alice/pipes"                       ALICE/PIPES
   mkfifo                                         ALICE/PIPES/chopper_to_transferd -m0600

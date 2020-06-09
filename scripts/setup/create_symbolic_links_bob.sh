@@ -26,6 +26,8 @@ then
   ln -s "$DIR/bob/data/classical_channel_dest"        BOB/DIR/TCP_DEST
   ln -s "$DIR/bob/data/classical_channel_src"         BOB/DIR/TCP_SRC
   ln -s "$DIR/bob/logs"                               BOB/DIR/LOGS
+  ln -s "$DIR/bob/scripts"                            BOB/DIR/SCRIPTS
+  
   # Pipes
   ln -s "$DIR/bob/pipes"                              BOB/PIPES
   mkfifo                                              BOB/PIPES/transferd_to_pfindCostream -m0600
