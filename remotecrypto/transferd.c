@@ -168,7 +168,8 @@ enum HasParamParameter {
   arg_msg_src, arg_msg_dest, arg_ec_in_pipe, 
   //9 E            //10 b
   arg_ec_out_pipe, arg_debuglogs 
-}
+};
+
 enum ReceiveMode {
   rcvmode_waiting_to_read_next = 0,
   rcvmode_peer_terminated = 0,
@@ -176,10 +177,11 @@ enum ReceiveMode {
   rcvmode_finishing_header = 1,
   rcvmode_got_header_start_reading_data = 3,
   rcvmode_finished_reading_a_packet = 4,
-}
+};
+
 enum receiveHeader {
   rhead_file, rhead_message, rhead_errc_packet
-}
+};
 
 /* global variables for IO handling */
 char fname[11][FNAMELENGTH] = {"", "", "", "", "", "",
@@ -277,8 +279,8 @@ int emsg(int code) {
   fflush(debuglog);
 
   //Use exit instead of return to reduce clutter
-  //exit(-code);
-  return code;
+  exit(-code);
+  //return code;
 };
 
 /* global variables for IO handling */
@@ -345,7 +347,7 @@ int ignorefileerror = DEFAULT_IGNOREFILEERROR;
 int running;
 FILE *cmdinhandle;
 
-int main(int argc, char *argv[]) {
+int parseArguments(int argc, char *argv[]) {
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
   while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:e:E:b:")) != EOF) {
@@ -460,6 +462,10 @@ keepawake_handle= open(fname[arg_cmdpipe],DUMMYMODE); */
     printf("Opening debuglog: %s\n", fname[arg_debuglogs]);
     debuglog = fopen(fname[arg_debuglogs], "w+");
   };
+}
+
+int main(int argc, char *argv[]) {
+  parseArguments(argc, argv);
 
   /* client socket for sending data */
   sendadr.sin_family = AF_INET;
