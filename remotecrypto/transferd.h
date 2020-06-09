@@ -337,11 +337,13 @@ void atohex(char *target, unsigned int v);
 
 // Main functions
 int main(int argc, char *argv[]);
-void parseArguments(int argc, char *argv[]);
-void createSockets();
-void testSrcAndDestDirs();
-void setupPipes();
-void setupTempFileName();
-void setupBuffers();
+int parseArguments(int argc, char *argv[]);
+int setupPipes();
+int createSockets();
+int testSrcAndDestDirs();
+int setupTempFileName();
+int setupBuffers();
+
+int cleanup();
 
 #endif // TRANSFERD_H

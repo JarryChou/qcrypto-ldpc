@@ -745,7 +745,7 @@ int parseArguments(int argc, char *argv[]) {
   return 0;
 }
 
-void setupPipes() {
+int setupPipes() {
     /* add directory slash for sourcefile if missing */
   if (fname[arg_srcdir][strlen(fname[arg_srcdir]) - 1] != '/') {
     strncat(fname[arg_srcdir], "/", FNAMELENGTH);
@@ -776,7 +776,7 @@ keepawake_handle= open(fname[arg_cmdpipe],DUMMYMODE); */
     if ((msginhandle = open(fname[arg_msg_src], FIFOMODE)) == -1) {
       return -emsg(20);  /* cannot open FIFO */
     }
-    keepawake_handle_arg_msg_src = open(fname[arg_msg_src], DUMMYMODE); /* avoid message congestion */
+    keepawake_handle_arg_msg_src = open(fname[arg_msg_src], DUMMYMODE); /* aint message congestion */
   };
 
   /* errc_in pipe */
@@ -789,7 +789,7 @@ keepawake_handle= open(fname[arg_cmdpipe],DUMMYMODE); */
     if ((ercinhandle = open(fname[arg_ec_in_pipe], FIFOMODE)) == -1) {
       return -emsg(12);  /* cannot open FIFO */
     }
-    keepawake_handle_arg_ec_in_pipe = open(fname[arg_ec_in_pipe], DUMMYMODE); /* avoid message congestion */
+    keepawake_handle_arg_ec_in_pipe = open(fname[arg_ec_in_pipe], DUMMYMODE); /* aint message congestion */
   };
   /* errc_out pipe */
   if (hasParam[arg_ec_out_pipe]) {                    /* open it */
@@ -811,7 +811,7 @@ keepawake_handle= open(fname[arg_cmdpipe],DUMMYMODE); */
   };
 }
 
-void createSockets() {
+int createSockets() {
   /* get all sockets */
   if ((sendskt = socket(AF_INET, SOCK_STREAM, 0)) == 0 ||  /* outgoing packets */
     (recskt = socket(AF_INET, SOCK_STREAM, 0)) == 0) {  /* incoming packets */
@@ -859,7 +859,7 @@ void createSockets() {
   if (listen(recskt, RECEIVE_BACKLOG)) return -emsg(32);
 }
 
-void testSrcAndDestDirs() {
+int testSrcAndDestDirs() {
   /* try to test directory existence */
   if (stat(fname[arg_srcdir], &dirstat)) return -emsg(27); /* src directory */
   if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(28); /* no dir */
@@ -868,7 +868,7 @@ void testSrcAndDestDirs() {
   if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(30); /* no dir */
 }
 
-void setupBuffers() {
+int setupBuffers() {
   /* try to get send/receive buffers */
   fileBuffer = (char *)malloc(LOC_BUFSIZE);
   receivedDataBuffer = (char *)malloc(LOC_BUFSIZE);
@@ -877,13 +877,13 @@ void setupBuffers() {
   ehead = (struct errc_header *)errorCorrectionInBuffer; /* for header */
 }
 
-void setupTempFileName() {
+int setupTempFileName() {
   /* prepare file name for temporary file storage */
   strncpy(tempFileName, fname[arg_destdir], FNAMELENGTH);
   strcpy(&tempFileName[strlen(tempFileName)], tmpfileext);
 }
 
-void cleanup() {
+int cleanup() {
   /* end benignly */
   printf("ending benignly\n");
 
