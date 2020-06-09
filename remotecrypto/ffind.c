@@ -109,18 +109,18 @@ int emsg(int code) {
   fprintf(stderr,"%s\n",errormessage[code]);
   return code;
 };
-/* proceure to fill the fast and slow folded event time functions. Fh
+/* procedure to fill the fast and slow folded event time functions. Fh
    contains the source file handle, the buffers are of length 2^order
    and the targeted bin width is 2^fres and 2^s_res, in multiples
-   of1/8 nsec */
+   of 1/8 nsec */
 void fill_periodicals(FILE *fh, int *buf_fast, int fres, int *buf_slow,
-		      int sres, int order, int *ecnt) {
+            int sres, int order, int *ecnt) {
     long long int intime;
     long long int mask = (1<<(order))-1;
     while (EOF!=fscanf(fh,"%lld",&intime)) {
-	buf_fast[(int)(mask & (intime>>fres))]++;
-	buf_slow[(int)(mask & (intime>>sres))]++;
-	*ecnt +=1;
+        buf_fast[(int)(mask & (intime>>fres))]++;
+        buf_slow[(int)(mask & (intime>>sres))]++;
+        *ecnt +=1;
     }
 }
 
@@ -140,8 +140,10 @@ int main(int argc, char *argv[]){
     
     /* prepare integer buffers */
     buf1_fast=(int*)calloc(ZHS*4,sizeof(int));
-    if (!buf1_fast) return -emsg(6);
-    buf1_slow=&buf1_fast[ZHS];buf2_fast=&buf1_slow[ZHS];
+    if (!buf1_fast) 
+        return -emsg(6);
+    buf1_slow=&buf1_fast[ZHS];
+    buf2_fast=&buf1_slow[ZHS];
     buf2_slow=&buf2_fast[ZHS];
 
     /* printf("stage 2\n"); */
