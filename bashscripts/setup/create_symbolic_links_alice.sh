@@ -30,21 +30,21 @@ then
   mkfifo                                         ALICE/PIPES/transferd_to_ec      -m0600
   mkfifo                                         ALICE/PIPES/ec_to_transferd      -m0600
   # Programs
-  ln -s ./alice/qcrypto/errorcorrection/ecd2.o   ALICE/EXE/ECD2
-  ln -s ./alice/qcrypto/errorcorrection/rnd.o    ALICE/EXE/RND
-  ln -s ./alice/qcrypto/remotecrypto/chopper     ALICE/EXE/CHOPPER
-  ln -s ./alice/qcrypto/remotecrypto/splicer     ALICE/EXE/SPLICER
-  ln -s ./alice/qcrypto/remotecrypto/transferd   ALICE/EXE/TRANSFERD
+  ln -s ../errorcorrection/ecd2.o   ALICE/EXE/ECD2
+  ln -s ../errorcorrection/rnd.o    ALICE/EXE/RND
+  ln -s ../remotecrypto/chopper     ALICE/EXE/CHOPPER
+  ln -s ../remotecrypto/splicer     ALICE/EXE/SPLICER
+  ln -s ../remotecrypto/transferd   ALICE/EXE/TRANSFERD
   # Timestamp files:
   # ALICE_TIMESTAMPS_DIR/aliceSample
 
   # Source code for readability
   mkdir ALICE/SRC
-  ln -s ./alice/qcrypto/errorcorrection/ecd2.c   ALICE/SRC/ECD2
-  ln -s ./alice/qcrypto/errorcorrection/rnd.c    ALICE/SRC/RND
-  ln -s ./alice/qcrypto/remotecrypto/chopper.c   ALICE/SRC/CHOPPER
-  ln -s ./alice/qcrypto/remotecrypto/splicer.c   ALICE/SRC/SPLICER
-  ln -s ./alice/qcrypto/remotecrypto/transferd.c ALICE/SRC/TRANSFERD
+  ln -s ../errorcorrection/ecd2.c   ALICE/SRC/ECD2
+  ln -s ../errorcorrection/rnd.c    ALICE/SRC/RND
+  ln -s ../remotecrypto/chopper.c   ALICE/SRC/CHOPPER
+  ln -s ../remotecrypto/splicer.c   ALICE/SRC/SPLICER
+  ln -s ../remotecrypto/transferd.c ALICE/SRC/TRANSFERD
 
   cd ../bashscripts/setup
 else
