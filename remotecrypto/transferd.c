@@ -136,7 +136,9 @@ int main(int argc, char *argv[]) {
   /* prepare shutdown...never? */
   running = 1;
   while (running) {
-    waitForConnectionWithTimeout();
+    if (waitForConnectionWithTimeout() == conn_continueTrying) {
+      continue;
+    }
 
     // If there is a connection, just printf
     if (activeSocket) {
@@ -423,10 +425,10 @@ int waitForConnectionWithTimeout() {
       /* check for anythinng else than EINPROGRESS */
       if (retval) { /* an error has occured */
         if ((errno == EALREADY) || (errno == ECONNABORTED)) {
-          continue; /* trying already...*/
+          return conn_continueTrying;
         }
         if (errno != EINPROGRESS) {
-          if (errno == ETIMEDOUT) continue;
+          if (errno == ETIMEDOUT) return conn_continueTrying;
           fprintf(stderr, "errno: %d", errno);
           return -emsg(36);
         } else {
@@ -442,7 +444,7 @@ int waitForConnectionWithTimeout() {
               return -emsg(38);
             if (retval) {
               /* printf("point2e\n"); */
-              if (errno == EINPROGRESS) continue;
+              if (errno == EINPROGRESS) return conn_continueTrying;
               fprintf(stderr, "errno: %d", errno);
               return -emsg(38);
             }
@@ -456,7 +458,7 @@ int waitForConnectionWithTimeout() {
         activeSocket = sendskt;
       }
     }
-    return 0;
+    return conn_successfulConnection;
 }
 
 int printConnected() {
@@ -678,7 +680,6 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
     receivemode = rcvmode_waiting_to_read_next; /* ready to read next */
     receiveindex = 0;
   }
-  }
   return readResult_successful;
 }
 
@@ -781,7 +782,7 @@ int read_FromCmdHandle_ToTransferName() {
     fprintf(cmdinhandle, "*cmdin: %s\n", transfername);
     fflush(cmdinhandle);
     //goto parseescape;
-    return;
+    return 0;
   }
   oldsrcepoch = srcepoch;
   fprintf(cmdinhandle, "cmdin: %s\n", transfername);
@@ -802,7 +803,7 @@ int read_FromCmdHandle_ToTransferName() {
   #endif
     if (ignorefileerror) {
       //goto parseescape;
-      return;
+      return 0;
     } else {
       return -emsg(50);
     }
@@ -815,7 +816,7 @@ int read_FromCmdHandle_ToTransferName() {
   #endif
     if (ignorefileerror) {
       //goto parseescape;
-      return;
+      return 0;
     } else {
       return -emsg(51);
     }

@@ -171,6 +171,10 @@ enum HasParamParameter {
   arg_ec_out_pipe, arg_debuglogs 
 };
 
+enum ConnectionTimeoutResult {
+  conn_continueTrying = 0, conn_successfulConnection = 1
+}
+
 enum ReceiveMode {
   rcvmode_waiting_to_read_next = 0,
   rcvmode_peer_terminated = 0,
