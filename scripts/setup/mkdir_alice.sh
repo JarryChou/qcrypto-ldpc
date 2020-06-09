@@ -6,7 +6,7 @@
 if [ ! -d "../../build/" ]; then
   cd ../../
   mkdir build
-  cd bashscripts/setup
+  cd scripts/setup
 fi
 
 if [ ! -d "../../build/alice" ]; then
@@ -30,7 +30,7 @@ if [ ! -d "../../build/alice" ]; then
   mkdir logs/chopper
   mkdir logs/splicer
 
-  cd ../bashscripts/setup
+  cd ../scripts/setup
 else
   echo "Alice directory already created"
 fi

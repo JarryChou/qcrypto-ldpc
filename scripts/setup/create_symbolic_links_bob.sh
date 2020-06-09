@@ -48,7 +48,7 @@ then
   ln -s ../remotecrypto/costream.c    BOB/SRC/COSTREAM
   ln -s ../remotecrypto/transferd.c   BOB/SRC/TRANSFERD
 
-  cd ../bashscripts/setup
+  cd ../scripts/setup
 else
   echo "Symbolic links already created"
 fi

@@ -6,7 +6,7 @@
 if [ ! -d "../../build/" ]; then
   cd ../../
   mkdir build
-  cd bashscripts/setup
+  cd scripts/setup
 fi
 
 if [ ! -d "../bob" ]; then
@@ -31,7 +31,7 @@ if [ ! -d "../bob" ]; then
   mkdir logs/pfind
   mkdir logs/costream
 
-  cd ../bashscripts/setup
+  cd ../scripts/setup
 else
   echo "Bob directory already created"
 fi

@@ -46,7 +46,7 @@ then
   ln -s ../remotecrypto/splicer.c   ALICE/SRC/SPLICER
   ln -s ../remotecrypto/transferd.c ALICE/SRC/TRANSFERD
 
-  cd ../bashscripts/setup
+  cd ../scripts/setup
 else
   echo "Symbolic links already created"
 fi
