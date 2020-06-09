@@ -173,7 +173,7 @@ enum HasParamParameter {
 
 enum ConnectionTimeoutResult {
   conn_continueTrying = 0, conn_successfulConnection = 1
-}
+};
 
 enum ReceiveMode {
   rcvmode_waiting_to_read_next = 0,

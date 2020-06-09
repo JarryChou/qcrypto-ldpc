@@ -768,7 +768,7 @@ int read_FromCmdHandle_ToTransferName() {
     if (verbosity > 2) printf("file read error.\n");
     if (ignorefileerror) {
       //goto parseescape;
-      return;
+      return 0;
     } else {
       return -emsg(52);
     }
