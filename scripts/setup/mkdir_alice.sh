@@ -30,7 +30,7 @@ if [ ! -d "../../build/alice" ]; then
   mkdir logs/chopper
   mkdir logs/splicer
 
-  cd ../scripts/setup
+  cd ../../scripts/setup
 else
   echo "Alice directory already created"
 fi

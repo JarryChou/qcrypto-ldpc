@@ -31,7 +31,7 @@ if [ ! -d "../bob" ]; then
   mkdir logs/pfind
   mkdir logs/costream
 
-  cd ../scripts/setup
+  cd ../../scripts/setup
 else
   echo "Bob directory already created"
 fi
