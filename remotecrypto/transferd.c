@@ -102,175 +102,10 @@ To Do:
 - clean up debugging code
 
 */
-#include <arpa/inet.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include "transferd.h"
 
 #define DEBUG 1
 #undef DEBUG
-
-extern int h_errno;
-
-/* default definitions */
-#define DEFAULT_KILLMODE 0   /* don't remove files after sending */
-#define FNAMELENGTH 200      /* length of file name buffers */
-#define FNAMFORMAT "%199s"   /* for sscanf of filenames */
-#define tmpfileext "/tmprec" /* temporary receive file */
-#define DEFAULT_PORT 4852    /* standard communication */
-#define MINPORT 1024         /* port boundaries */
-#define MAXPORT 60000
-#define RECEIVE_BACKLOG 2   /* waiting requests on remote queue */
-#define MSG_BACKLOG 10      /* waiting requests */
-#define LOC_BUFSIZE 1 << 22 /* 512k buffer should last for a file */
-#define LOC_BUFSIZE2 10000  /* 10k buffer for errc messages */
-#define TARGETFILEMODE (O_WRONLY | O_TRUNC | O_CREAT)
-#define FILE_PERMISSIONS 0644 /* for all output files */
-#define READFILEMODE O_RDONLY
-#define MESSAGELENGTH 1024   /* message length */
-#define FIFOPERMISSIONS 0600 /* only user can access */
-#define FIFOMODE O_RDONLY | O_NONBLOCK
-#define FIFOOUTMODE O_RDWR
-#define DUMMYMODE O_WRONLY
-#define DEFAULT_IGNOREFILEERROR 1
-#define DEFAULT_VERBOSITY 1
-
-/* stream header definition */
-typedef struct stream_header {
-  int type;            /* 0: ordinary file, 1: message */
-  unsigned int length; /* len in bytes */
-  unsigned int epoch;
-} sh;
-
-/* errorcorrecting packet header def */
-typedef struct errc_header {
-  int tag;
-  unsigned int length;
-} eh;
-
-// Enumerators 
-// Introducing enumerators has very little overhead, and it also makes it much more readable
-// Refactor TypeMode to HasParam
-enum HasParamParameter { 
-  //0 d       //1 c        //2 t
-  arg_srcdir, arg_cmdpipe, arg_target, 
-  //3 D        //4 l        //5 s
-  arg_destdir, arg_notify, arg_srcIP, 
-  //6 m        //7 M        //8 e
-  arg_msg_src, arg_msg_dest, arg_ec_in_pipe, 
-  //9 E            //10 b
-  arg_ec_out_pipe, arg_debuglogs 
-};
-
-enum ReceiveMode {
-  rcvmode_waiting_to_read_next = 0,
-  rcvmode_peer_terminated = 0,
-  rcvmode_beginning_with_header = 0,
-  rcvmode_finishing_header = 1,
-  rcvmode_got_header_start_reading_data = 3,
-  rcvmode_finished_reading_a_packet = 4,
-};
-
-enum receiveHeader {
-  rhead_file, rhead_message, rhead_errc_packet
-};
-
-/* global variables for IO handling */
-char fname[11][FNAMELENGTH] = {"", "", "", "", "", "",
-                               "", "", "", "", ""}; /* stream files */
-char ffnam[11][FNAMELENGTH + 11], ffn2[FNAMELENGTH + 11];
-char tempFileName[FNAMELENGTH + 11]; /* stores temporary file name */
-int killmode = DEFAULT_KILLMODE;  /* if !=1, delete infile after use */
-int handle[11];                   /* global handles for packet streams */
-FILE *debuglog;
-
-/* error handling */
-char *errormessage[76] = {
-    "No error.",
-    "error parsing source directory name", /* 1 */
-    "error parsing command socket name",
-    "error parsing target machine name",
-    "error parsing destination directory name",
-    "error parsing notification destination name", /* 5 */
-    "error parsing remote server socket name",
-    "error parsing message source pipe",
-    "error parsing message destination file/pipe",
-    "error parsing errorcorrection instream pipe",
-    "error parsing errorcorrection outstream pipe", /* 10 */
-    "cannot create errc_in pipe",
-    "cannot open errc_in pipe",
-    "cannot create errc_out pipe",
-    "cannot open errc_out pipe",
-    "no consistent message pipline definition (must have both)", /* 15 */
-    "cannot create socket",
-    "cannot create command FIFO",
-    "cannot open command FIFO ",
-    "cannot create message FIFO",
-    "cannot open message FIFO", /* 20 */
-    "target host not found",
-    "valid target name has no IP",
-    "temporary IP resolve error. Try later",
-    "unspecified target host resolve error.",
-    "invalid local IP", /* 25 */
-    "error in binding socket",
-    "cannot stat source directory",
-    "specified source is not a directory",
-    "cannot stat target directory",
-    "specified target dir is not a directory", /* 30 */
-    "error reading command",
-    "cannot listen on incoming request socket",
-    "Error from waiting for server connections",
-    "unlogical return fromselect",
-    " ; error accepting connection", /* 35 */
-    " ; error in connecting to peer",
-    "getsockopt failed.",
-    " ; socket error occured.",
-    "select on input lines failed w error.",
-    "Error reading stream header form external source.", /* 40 */
-    "cannot malloc send/receive buffers.",
-    "error reading stream data",
-    "cannot open target file",
-    "cannot write stream to file",
-    "cannot open message target", /* 45 */
-    "cannot write message into local target",
-    "received message but no local message target specified",
-    "unexpected data type received",
-    "cannot open notofication target",
-    "cannot stat source file", /* 50 */
-    "source is not a regular file",
-    "cannot extract epoch from filename",
-    "cannot open source file",
-    "length read mismatch from source file",
-    "Cannot send header", /* 55 */
-    "cannot sent data stream",
-    "cannot read message",
-    "message too long",
-    "received message longer than buffer.",
-    "transferred larger than buffer", /* 60 */
-    "socket probably closed.",
-    "reached end of command pipe??????",
-    "cannot remove source file."
-    "cannot set reuseaddr socket option",
-    "error parsing port number", /* 65 */
-    "port number out of range",
-    "no source directory specified",
-    "no commandsocket name specified",
-    "no target url specified",
-    "no destination directory specified", /* 70 */
-    "no arrival notify destination specified",
-    "Error reading stream header form errc source.",
-    "received packet longer than erc buffer.",
-    "error reading erc packet",
-    "error renaming target file", /* 75 */
-};
 
 int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
@@ -281,16 +116,8 @@ int emsg(int code) {
   //Use exit instead of return to reduce clutter
   exit(-code);
   //return code;
-};
+}
 
-/* global variables for IO handling */
-
-/* some helpers */
-#define MIN(A, B) ((A) > (B) ? (B) : (A))
-
-struct timeval HALFSECOND = {0, 50000};
-/* helper for name. adds a slash, hex file name and a termial 0 */
-char hexdigits[] = "0123456789abcdef";
 void atohex(char *target, unsigned int v) {
   int i;
   target[0] = '/';
@@ -298,232 +125,13 @@ void atohex(char *target, unsigned int v) {
   target[9] = 0;
 }
 
-// global variables because
-int verbosity = DEFAULT_VERBOSITY;
-int opt, i, retval; /* general parameters */
-#ifdef DEBUG
-int ii;
-#endif
-int hasParam[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-/* sockets and destination structures */
-int sendskt, recskt, activeSocket;
-socklen_t socklen;
-FILE *cmdhandle;
-int portNumber = DEFAULT_PORT; /* defines communication port */
-int targetPortNumber = DEFAULT_PORT;
-int msginhandle = 0;
-int ercinhandle = 0, ercouthandle = 0; /* error correction pipes */
-unsigned int remotelen;
-struct sockaddr_in sendadr, recadr, remoteadr;
-struct hostent *remoteinfo;
-/* file handles */
-int srcfile, destfile;
-FILE *loghandle, *msgouthandle;
-struct stat dirstat; /* for checking directories */
-struct stat srcfilestat;
-fd_set readqueue, writequeue;
-struct timeval timeout;         /* for select command */
-struct stream_header shead;     /* for sending */
-struct stream_header rhead;     /* for receiving */
-char *receivedDataBuffer, *fileBuffer, *errorCorrectionInBuffer;   /* send- and receive buffers, ercin buffer */
-char *dataToSendBuffer;                   /* for write procedure */
-char transfername[FNAMELENGTH]; /* read transfer file name */
-char ftnam[FNAMELENGTH];        /* full transfer file name */
-unsigned int srcepoch;
-unsigned oldsrcepoch = 0;
-int receivemode; /* for filling input buffer */
-unsigned int receiveindex;
-int packinmode;            /* for reading errc packets from pipe */
-unsigned int erci_idx = 0; /* initialize to keep compiler happy */
-struct errc_header *ehead; /* for reading packets */
-/* flags for select mechanism */
-int writemode, writeindex, cmdmode, messagemode;
-char message[MESSAGELENGTH];
-/* int keepawake_handle; */
-int keepawake_handle_arg_msg_src; /* avoid the input pipe seeing EOF */
-int keepawake_handle_arg_ec_in_pipe;
-int ignorefileerror = DEFAULT_IGNOREFILEERROR;
-// WARNING: "running" is always 1
-int running;
-FILE *cmdinhandle;
-
-int parseArguments(int argc, char *argv[]) {
-  /* parsing options */
-  opterr = 0; /* be quiet when there are no options */
-  while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:e:E:b:")) != EOF) {
-    i = 0; /* for setinf names/modes commonly */
-    switch (opt) {
-      case 'b': i++;
-      case 'E': i++;
-      case 'e': i++;
-      case 'M': i++; /* funky way of saving file names */
-      case 'm': i++;
-      case 's': i++;
-      case 'l': i++;
-      case 'D': i++;
-      case 't': i++;
-      case 'c': i++;
-      case 'd':
-        /* stream number is in i now */
-        if (1 != sscanf(optarg, FNAMFORMAT, fname[i])) return -emsg(1 + i);
-        fname[i][FNAMELENGTH - 1] = 0;        /* security termination */
-        if (hasParam[i]) return -emsg(1 + i); /* already defined mode */
-        hasParam[i] = 1;
-        break;
-      case 'k': /* killmode */
-        killmode = 1;
-        break;
-      case 'p': /* set origin portNumber */
-        if (sscanf(optarg, "%d", &portNumber) != 1) return -emsg(65);
-        if ((portNumber < MINPORT) || (portNumber > MAXPORT)) return -emsg(66);
-      case 'P':  // targetPortNumber
-        if (sscanf(optarg, "%d", &targetPortNumber) != 1) return -emsg(65);
-        if ((targetPortNumber < MINPORT) || (targetPortNumber > MAXPORT))
-          return -emsg(66);
-        break;
-    }
-  }
-
-  /* check argument completeness */
-  for (i = 0; i < 5; i++) {
-    if (hasParam[i] == 0) {
-      return -emsg(i + 67);
-    }
-  }
-  if (hasParam[arg_msg_src] != hasParam[arg_msg_dest]) {
-    return -emsg(15); /* not same message mode */
-  }
-  /* add directory slash for sourcefile if missing */
-  if (fname[arg_srcdir][strlen(fname[arg_srcdir]) - 1] != '/') {
-    strncat(fname[arg_srcdir], "/", FNAMELENGTH);
-    fname[arg_srcdir][FNAMELENGTH - 1] = 0;
-  }
-  cmdinhandle = fopen("/tmp/cryptostuff/cmdins", "w+");
-  
-  /* get all sockets */
-  if ((sendskt = socket(AF_INET, SOCK_STREAM, 0)) == 0 ||  /* outgoing packets */
-    (recskt = socket(AF_INET, SOCK_STREAM, 0)) == 0) {  /* incoming packets */
-    return -emsg(16);
-  }
-
-  /* command pipe */
-  if (access(fname[arg_cmdpipe], F_OK) == -1) { /* fifo does not exist */
-    if (mkfifo(fname[arg_cmdpipe], FIFOPERMISSIONS)) {
-      return -emsg(17);
-    }
-  }
-
-  if ((cmdhandle = fopen(fname[arg_cmdpipe], "r+")) == 0) { return -emsg(18); }
-  /*cmdhandle=open(fname[arg_cmdpipe],FIFOMODE);
-if (cmdhandle==-1) return -emsg(18);
-keepawake_handle= open(fname[arg_cmdpipe],DUMMYMODE); */
-  /* keep server alive */
-
-  /* message pipe */
-  if (hasParam[arg_msg_src]) {                    /* message pipes exist */
-    if (access(fname[arg_msg_src], F_OK) == -1) { /* fifo does not exist */
-      if (mkfifo(fname[arg_msg_src], FIFOPERMISSIONS)) {
-        return -emsg(19);
-      }
-    }
-    if ((msginhandle = open(fname[arg_msg_src], FIFOMODE)) == -1) {
-      return -emsg(20);  /* cannot open FIFO */
-    }
-    keepawake_handle_arg_msg_src = open(fname[arg_msg_src], DUMMYMODE); /* avoid message congestion */
-  };
-
-  /* errc_in pipe */
-  if (hasParam[arg_ec_in_pipe]) {                    /* listen to it */
-    if (access(fname[arg_ec_in_pipe], F_OK) == -1) { /* fifo does not exist */
-      if (mkfifo(fname[arg_ec_in_pipe], FIFOPERMISSIONS)) {
-        return -emsg(11);
-      }
-    }
-    if ((ercinhandle = open(fname[arg_ec_in_pipe], FIFOMODE)) == -1) {
-      return -emsg(12);  /* cannot open FIFO */
-    }
-    keepawake_handle_arg_ec_in_pipe = open(fname[arg_ec_in_pipe], DUMMYMODE); /* avoid message congestion */
-  };
-  /* errc_out pipe */
-  if (hasParam[arg_ec_out_pipe]) {                    /* open it */
-    if (access(fname[arg_ec_out_pipe], F_OK) == -1) { /* fifo does not exist */
-      if (mkfifo(fname[arg_ec_out_pipe], FIFOPERMISSIONS)) {
-        return -emsg(13);
-      }
-    }
-    ercouthandle = open(fname[arg_ec_out_pipe], FIFOOUTMODE);
-    if (ercouthandle == -1) {
-      return -emsg(14); /* cannot open FIFO */
-    }
-  };
-
-  // Debug logs
-  if (hasParam[10]) { /* open it */
-    printf("Opening debuglog: %s\n", fname[arg_debuglogs]);
-    debuglog = fopen(fname[arg_debuglogs], "w+");
-  };
-}
-
 int main(int argc, char *argv[]) {
   parseArguments(argc, argv);
-
-  /* client socket for sending data */
-  sendadr.sin_family = AF_INET;
-  remoteinfo = gethostbyname(fname[arg_target]);
-  if (!remoteinfo) {
-    switch (h_errno) {
-      case HOST_NOT_FOUND:
-        return -emsg(21);
-      case NO_ADDRESS:
-        return -emsg(22);
-      case TRY_AGAIN:
-        return -emsg(23);
-      default:
-        return -emsg(24);
-    }
-  }
-  /* extract host-IP */
-  sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
-  sendadr.sin_port = htons(targetPortNumber);
-
-  /* create socket for server / receiving files */
-  recadr.sin_family = AF_INET;
-  if (fname[arg_srcIP][0]) { /* port defined */
-    if (inet_aton(fname[arg_srcIP], &recadr.sin_addr)) return -emsg(25);
-  } else {
-    recadr.sin_addr.s_addr = htonl(INADDR_ANY);
-  }
-  recadr.sin_port = htons(portNumber);
-  /* try to reuse address */
-  i = 1;
-  retval = setsockopt(recskt, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
-  if (retval == -1) return -emsg(64);
-  if (bind(recskt, (struct sockaddr *)&recadr, sizeof(recadr))) {
-    switch (errno) { /* gove perhaps some specific errors */
-      default:
-        fprintf(stderr, "error in bind: %d\n", errno);
-        return -emsg(26);
-    }
-  }
-  if (listen(recskt, RECEIVE_BACKLOG)) return -emsg(32);
-
-  /* try to test directory existence */
-  if (stat(fname[arg_srcdir], &dirstat)) return -emsg(27); /* src directory */
-  if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(28); /* no dir */
-
-  if (stat(fname[arg_destdir], &dirstat)) return -emsg(29); /* src directory */
-  if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(30); /* no dir */
-
-  /* try to get send/receive buffers */
-  fileBuffer = (char *)malloc(LOC_BUFSIZE);
-  receivedDataBuffer = (char *)malloc(LOC_BUFSIZE);
-  errorCorrectionInBuffer = (char *)malloc(LOC_BUFSIZE2);
-  if (!fileBuffer || !receivedDataBuffer || !errorCorrectionInBuffer) return -emsg(41);
-  ehead = (struct errc_header *)errorCorrectionInBuffer; /* for header */
-
-  /* prepare file name for temporary file storage */
-  strncpy(tempFileName, fname[arg_destdir], FNAMELENGTH);
-  strcpy(&tempFileName[strlen(tempFileName)], tmpfileext);
+  setupPipes();
+  createSockets();
+  testSrcAndDestDirs();
+  setupBuffers();
+  setupTempFileName();
 
   /* prepare shutdown...never? */
   running = 1;
@@ -1084,6 +692,198 @@ int main(int argc, char *argv[]) {
     activeSocket = 0;
   } while (running); /* while link should be maintained */
 
+  cleanup();
+  return 0;
+}
+
+int parseArguments(int argc, char *argv[]) {
+  /* parsing options */
+  opterr = 0; /* be quiet when there are no options */
+  while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:e:E:b:")) != EOF) {
+    i = 0; /* for setinf names/modes commonly */
+    switch (opt) {
+      case 'b': i++;
+      case 'E': i++;
+      case 'e': i++;
+      case 'M': i++; /* funky way of saving file names */
+      case 'm': i++;
+      case 's': i++;
+      case 'l': i++;
+      case 'D': i++;
+      case 't': i++;
+      case 'c': i++;
+      case 'd':
+        /* stream number is in i now */
+        if (1 != sscanf(optarg, FNAMFORMAT, fname[i])) return -emsg(1 + i);
+        fname[i][FNAMELENGTH - 1] = 0;        /* security termination */
+        if (hasParam[i]) return -emsg(1 + i); /* already defined mode */
+        hasParam[i] = 1;
+        break;
+      case 'k': /* killmode */
+        killmode = 1;
+        break;
+      case 'p': /* set origin portNumber */
+        if (sscanf(optarg, "%d", &portNumber) != 1) return -emsg(65);
+        if ((portNumber < MINPORT) || (portNumber > MAXPORT)) return -emsg(66);
+      case 'P':  // targetPortNumber
+        if (sscanf(optarg, "%d", &targetPortNumber) != 1) return -emsg(65);
+        if ((targetPortNumber < MINPORT) || (targetPortNumber > MAXPORT))
+          return -emsg(66);
+        break;
+    }
+  }
+
+  /* check argument completeness */
+  for (i = 0; i < 5; i++) {
+    if (hasParam[i] == 0) {
+      return -emsg(i + 67);
+    }
+  }
+  if (hasParam[arg_msg_src] != hasParam[arg_msg_dest]) {
+    return -emsg(15); /* not same message mode */
+  }
+  return 0;
+}
+
+void setupPipes() {
+    /* add directory slash for sourcefile if missing */
+  if (fname[arg_srcdir][strlen(fname[arg_srcdir]) - 1] != '/') {
+    strncat(fname[arg_srcdir], "/", FNAMELENGTH);
+    fname[arg_srcdir][FNAMELENGTH - 1] = 0;
+  }
+  cmdinhandle = fopen("/tmp/cryptostuff/cmdins", "w+");
+
+  /* command pipe */
+  if (access(fname[arg_cmdpipe], F_OK) == -1) { /* fifo does not exist */
+    if (mkfifo(fname[arg_cmdpipe], FIFOPERMISSIONS)) {
+      return -emsg(17);
+    }
+  }
+
+  if ((cmdhandle = fopen(fname[arg_cmdpipe], "r+")) == 0) { return -emsg(18); }
+  /*cmdhandle=open(fname[arg_cmdpipe],FIFOMODE);
+if (cmdhandle==-1) return -emsg(18);
+keepawake_handle= open(fname[arg_cmdpipe],DUMMYMODE); */
+  /* keep server alive */
+
+  /* message pipe */
+  if (hasParam[arg_msg_src]) {                    /* message pipes exist */
+    if (access(fname[arg_msg_src], F_OK) == -1) { /* fifo does not exist */
+      if (mkfifo(fname[arg_msg_src], FIFOPERMISSIONS)) {
+        return -emsg(19);
+      }
+    }
+    if ((msginhandle = open(fname[arg_msg_src], FIFOMODE)) == -1) {
+      return -emsg(20);  /* cannot open FIFO */
+    }
+    keepawake_handle_arg_msg_src = open(fname[arg_msg_src], DUMMYMODE); /* avoid message congestion */
+  };
+
+  /* errc_in pipe */
+  if (hasParam[arg_ec_in_pipe]) {                    /* listen to it */
+    if (access(fname[arg_ec_in_pipe], F_OK) == -1) { /* fifo does not exist */
+      if (mkfifo(fname[arg_ec_in_pipe], FIFOPERMISSIONS)) {
+        return -emsg(11);
+      }
+    }
+    if ((ercinhandle = open(fname[arg_ec_in_pipe], FIFOMODE)) == -1) {
+      return -emsg(12);  /* cannot open FIFO */
+    }
+    keepawake_handle_arg_ec_in_pipe = open(fname[arg_ec_in_pipe], DUMMYMODE); /* avoid message congestion */
+  };
+  /* errc_out pipe */
+  if (hasParam[arg_ec_out_pipe]) {                    /* open it */
+    if (access(fname[arg_ec_out_pipe], F_OK) == -1) { /* fifo does not exist */
+      if (mkfifo(fname[arg_ec_out_pipe], FIFOPERMISSIONS)) {
+        return -emsg(13);
+      }
+    }
+    ercouthandle = open(fname[arg_ec_out_pipe], FIFOOUTMODE);
+    if (ercouthandle == -1) {
+      return -emsg(14); /* cannot open FIFO */
+    }
+  };
+
+  // Debug logs
+  if (hasParam[10]) { /* open it */
+    printf("Opening debuglog: %s\n", fname[arg_debuglogs]);
+    debuglog = fopen(fname[arg_debuglogs], "w+");
+  };
+}
+
+void createSockets() {
+  /* get all sockets */
+  if ((sendskt = socket(AF_INET, SOCK_STREAM, 0)) == 0 ||  /* outgoing packets */
+    (recskt = socket(AF_INET, SOCK_STREAM, 0)) == 0) {  /* incoming packets */
+    return -emsg(16);
+  }
+
+  /* client socket for sending data */
+  sendadr.sin_family = AF_INET;
+  remoteinfo = gethostbyname(fname[arg_target]);
+  if (!remoteinfo) {
+    switch (h_errno) {
+      case HOST_NOT_FOUND:
+        return -emsg(21);
+      case NO_ADDRESS:
+        return -emsg(22);
+      case TRY_AGAIN:
+        return -emsg(23);
+      default:
+        return -emsg(24);
+    }
+  }
+  /* extract host-IP */
+  sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
+  sendadr.sin_port = htons(targetPortNumber);
+
+  /* create socket for server / receiving files */
+  recadr.sin_family = AF_INET;
+  if (fname[arg_srcIP][0]) { /* port defined */
+    if (inet_aton(fname[arg_srcIP], &recadr.sin_addr)) return -emsg(25);
+  } else {
+    recadr.sin_addr.s_addr = htonl(INADDR_ANY);
+  }
+  recadr.sin_port = htons(portNumber);
+  /* try to reuse address */
+  i = 1;
+  retval = setsockopt(recskt, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+  if (retval == -1) return -emsg(64);
+  if (bind(recskt, (struct sockaddr *)&recadr, sizeof(recadr))) {
+    switch (errno) { /* gove perhaps some specific errors */
+      default:
+        fprintf(stderr, "error in bind: %d\n", errno);
+        return -emsg(26);
+    }
+  }
+  if (listen(recskt, RECEIVE_BACKLOG)) return -emsg(32);
+}
+
+void testSrcAndDestDirs() {
+  /* try to test directory existence */
+  if (stat(fname[arg_srcdir], &dirstat)) return -emsg(27); /* src directory */
+  if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(28); /* no dir */
+
+  if (stat(fname[arg_destdir], &dirstat)) return -emsg(29); /* src directory */
+  if ((dirstat.st_mode & S_IFMT) != S_IFDIR) return -emsg(30); /* no dir */
+}
+
+void setupBuffers() {
+  /* try to get send/receive buffers */
+  fileBuffer = (char *)malloc(LOC_BUFSIZE);
+  receivedDataBuffer = (char *)malloc(LOC_BUFSIZE);
+  errorCorrectionInBuffer = (char *)malloc(LOC_BUFSIZE2);
+  if (!fileBuffer || !receivedDataBuffer || !errorCorrectionInBuffer) return -emsg(41);
+  ehead = (struct errc_header *)errorCorrectionInBuffer; /* for header */
+}
+
+void setupTempFileName() {
+  /* prepare file name for temporary file storage */
+  strncpy(tempFileName, fname[arg_destdir], FNAMELENGTH);
+  strcpy(&tempFileName[strlen(tempFileName)], tmpfileext);
+}
+
+void cleanup() {
   /* end benignly */
   printf("ending benignly\n");
 
@@ -1109,5 +909,4 @@ int main(int argc, char *argv[]) {
   fclose(cmdinhandle);
 
   fclose(debuglog);
-  return 0;
 }
