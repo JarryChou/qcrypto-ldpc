@@ -180,8 +180,29 @@ enum ReceiveMode {
   rcvmode_finished_reading_a_packet = 4,
 };
 
-enum receiveHeader {
-  rhead_file, rhead_message, rhead_errc_packet
+enum HeaderType {
+  head_file = 0, 
+  head_message = 1, 
+  head_errc_packet = 2
+};
+
+enum ReadResult {
+  readResult_reconnect = 0, readResult_successful = 1
+};
+
+// Note: very similar (if not equal) to ReceiveMode. May want to merge
+enum PackInMode {
+  packinmode_wait_for_header = 0,
+  packinmode_finish_reading_header = 1,
+  packinmode_got_header_start_reading_data = 3,
+  packinmode_finished_reading_a_packet = 4
+};
+
+enum WriteMode {
+  writemode_not_writing = 0,
+  writemode_write_header = 1,
+  writemode_write_data = 2,
+  writemode_write_complete = 3
 };
 
 /* global variables for IO handling */
@@ -282,7 +303,9 @@ struct timeval HALFSECOND = {0, 50000};
 /* helper for name. adds a slash, hex file name and a termial 0 */
 char hexdigits[] = "0123456789abcdef";
 
-// global variables because the code is unreadable and this is the fastest way to make it readable
+// global variables because the code is unreadable 
+// and this is the fastest way to make it readable
+// maybe some time in the future you who are reading this will refactor it to make it even better
 int verbosity = DEFAULT_VERBOSITY;
 int opt, i, retval; /* general parameters */
 #ifdef DEBUG
@@ -321,7 +344,7 @@ int packinmode;            /* for reading errc packets from pipe */
 unsigned int erci_idx = 0; /* initialize to keep compiler happy */
 struct errc_header *ehead; /* for reading packets */
 /* flags for select mechanism */
-int writemode, writeindex, cmdmode, messagemode;
+int writemode, writeindex, hasFileToSend, hasMessageToSend;
 char message[MESSAGELENGTH];
 /* int keepawake_handle; */
 int keepawake_handle_arg_msg_src; /* avoid the input pipe seeing EOF */
@@ -343,7 +366,21 @@ int createSockets();
 int testSrcAndDestDirs();
 int setupTempFileName();
 int setupBuffers();
-
+int waitForConnectionWithTimeout();
+int printConnected();
+int resetCommunicationVariables();
+int blockUntilEvent();
+int read_FromActiveSocket_ToReceivedDataBuffer();
+//Return enum ReadResult based on whether reconnection is required.
+int closeAndRecreateSendSocket();
+int read_FromEcInHandle_ToErrorCorrectionInBuffer();
+int read_FromCmdHandle_ToTransferName();
+int read_FromMsgInHandle_ToMessageArray();
+int tryWrite_FromDataToSendBuffer_ToActiveSocket();
+int prepareMessageSendHeader();
+int read_FromFtnam_ToFileBuffer();
+int prepareFileSendHeader();
+int prepareEcPacketSendHeader();
 int cleanup();
 
 #endif // TRANSFERD_H
