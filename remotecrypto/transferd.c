@@ -38,7 +38,7 @@
 		  [-k] 
 		  [-m messagesource -M messagedestintion ]
 		  [-p portnumber]
-		  [-P senderportnumber]
+		  [-P targetportnumber]
 		  [-v verbosity]
 		  [-b debuglogs]
 
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 	socklen_t socklen;
 	FILE *cmdhandle;
 	int portnumber = DEFAULT_PORT; /* defines communication port */
-	int sender_portnumber = DEFAULT_PORT;
+	int targetportnumber = DEFAULT_PORT;
 	int msginhandle = 0;
 	int ercinhandle = 0, ercouthandle = 0; /* error correction pipes */
 	unsigned int remotelen;
@@ -366,10 +366,10 @@ int main(int argc, char *argv[])
 				return -emsg(65);
 			if ((portnumber < MINPORT) || (portnumber > MAXPORT))
 				return -emsg(66);
-		case 'P': // sender's portnumber
-			if (sscanf(optarg, "%d", &sender_portnumber) != 1)
+		case 'P': // targetportnumber
+			if (sscanf(optarg, "%d", &targetportnumber) != 1)
 				return -emsg(65);
-			if ((sender_portnumber < MINPORT) || (sender_portnumber > MAXPORT))
+			if ((targetportnumber < MINPORT) || (targetportnumber > MAXPORT))
 				return -emsg(66);
 			break;
 		}
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
 	}
 	/* extract host-IP */
 	sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
-	sendadr.sin_port = htons(sender_portnumber);
+	sendadr.sin_port = htons(targetportnumber);
 
 	/* create socket for server / receiving files */
 	recadr.sin_family = AF_INET;
