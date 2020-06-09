@@ -9,13 +9,17 @@
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 
+cd "$DIR/../../errorcorrection"
 # Clean & compile ecd
-make -f "$DIR/../../errorcorrection/Makefile" clean
-make -f "$DIR/../../errorcorrection/Makefile" all
+make -f "./Makefile" clean
+make -f "./Makefile" all
 
+cd "$DIR/../../remotecrypto"
 # Clean & compile main code
-make -f "$DIR/../../remotecrypto/Makefile" clean
-make -f "$DIR/../../remotecrypto/Makefile" all
+make -f "./Makefile" clean
+make -f "./Makefile" all
+
+cd "$DIR"
 
 # KIV: These two are left untouched as I am using sample data
 # make -f /content/qcrypto/timestamp3/Makefile all
