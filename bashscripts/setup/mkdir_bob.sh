@@ -1,12 +1,19 @@
 #!/bin/bash
 
-# This script will make directories for bob in the current directory.
+# This script will make directories for bob in the qCrypto/build directory.
+# Ensure that the working directory is the setup directory.
+
+if [ ! -d "../../build/" ]; then
+  cd ../../
+  mkdir build
+  cd bashscripts/setup
+fi
 
 if [ ! -d "../bob" ]; then
   echo "Initializing Bob's files"
+  cd ../../build
   mkdir bob
   cd bob
-  git clone https://github.com/kurtsiefer/qcrypto.git
   # Pipeline directories
   mkdir data
   mkdir data/timestamp_events
@@ -23,7 +30,8 @@ if [ ! -d "../bob" ]; then
   mkdir logs/chopper2
   mkdir logs/pfind
   mkdir logs/costream
-  cd ../
+
+  cd ../bashscripts/setup
 else
   echo "Bob directory already created"
 fi

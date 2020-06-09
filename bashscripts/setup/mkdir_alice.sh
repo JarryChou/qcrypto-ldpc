@@ -1,9 +1,17 @@
 #!/bin/bash
 
-# This script will make directories for alice in the current directory.
+# This script will make directories for alice in the working directory.
+# Ensure that the working directory is the setup directory.
 
-if [ ! -d "./alice" ]; then
+if [ ! -d "../../build/" ]; then
+  cd ../../
+  mkdir build
+  cd bashscripts/setup
+fi
+
+if [ ! -d "../../build/alice" ]; then
   echo "Initializing Alice's directories"
+  cd ../../build
   mkdir alice
   cd alice
   # Data directories
@@ -22,7 +30,7 @@ if [ ! -d "./alice" ]; then
   mkdir logs/chopper
   mkdir logs/splicer
 
-  cd ../
+  cd ../bashscripts/setup
 else
   echo "Alice directory already created"
 fi

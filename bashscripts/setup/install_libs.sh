@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script will download FFTW3 to the current dir & install FFTW3.
+# This script will download FFTW3 to the working dir & install FFTW3.
 # See https://www.youtube.com/watch?v=3vDfmd7u1wU
 # FFTW3 library: http://www.fftw.org/download.html
 
