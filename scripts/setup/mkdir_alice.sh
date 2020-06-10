@@ -20,9 +20,11 @@ if [ ! -d "../../build/alice" ]; then
   mkdir data/type1-time_and_click
   mkdir data/type2-time_and_basis
   mkdir data/type3-rawkey
+  mkdir data/type3-rawkey-sifted
   mkdir data/type4-chosen_basis_indexes
   mkdir data/classical_channel_dest
   mkdir data/classical_channel_src
+  mkdir data/final-key
   # Pipeline directories
   mkdir pipes
   # Log directories

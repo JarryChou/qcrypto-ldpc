@@ -25,6 +25,7 @@ then
   ln -s "$DIR/bob/data/type4-chosen_basis_indexes"    BOB/DIR/T4
   ln -s "$DIR/bob/data/classical_channel_dest"        BOB/DIR/TCP_DEST
   ln -s "$DIR/bob/data/classical_channel_src"         BOB/DIR/TCP_SRC
+  ln -s "$DIR/bob/data/final-key"                     BOB/DIR/FINAL_KEY
   ln -s "$DIR/bob/logs"                               BOB/DIR/LOGS
   ln -s "$DIR/bob/scripts"                            BOB/DIR/SCRIPTS
   
@@ -32,6 +33,8 @@ then
   ln -s "$DIR/bob/pipes"                              BOB/PIPES
   mkfifo                                              BOB/PIPES/transferd_to_pfindCostream -m0600
   mkfifo                                              BOB/PIPES/costream_to_transferd      -m0600
+  mkfifo                                              BOB/PIPES/ec_cmdpipe                 -m0600
+  mkfifo                                              BOB/PIPES/ec_querypipe               -m0600
   mkfifo                                              BOB/PIPES/transferd_to_ec            -m0600
   mkfifo                                              BOB/PIPES/ec_to_transferd            -m0600
 

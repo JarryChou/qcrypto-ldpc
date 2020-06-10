@@ -5,7 +5,7 @@ printf "\nRunning Chopper 2\n"
 
 BOB/EXE/CHOPPER2 \
   -i $1\
-  -D BOB/DIR/T2/\
+  -D BOB/DIR/T1/\
   -l BOB/DIR/LOGS/chopper2/logs.txt\
   -e BOB/DIR/LOGS/chopper2/debuglogs.txt\
   -U\

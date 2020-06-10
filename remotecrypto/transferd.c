@@ -180,19 +180,27 @@ int main(int argc, char *argv[]) {
       }
 
       /* test for next transmission in the queue */
+      #ifdef DEBUG
+      fprintf(debuglog, "Current write mode: %d\n", writemode);
+      fflush(debuglog);
+      #endif
       if (writemode == writemode_not_writing) {
         // If got a file to send
         if (hasMessageToSend) { /* prepare for writing */
           prepareMessageSendHeader();
+          writemode = writemode_write_header;
+          writeindex = 0;
         } else if (hasFileToSend) {
           // If got a message to send
           read_FromFtnam_ToFileBuffer();
           prepareFileSendHeader();
+          writemode = writemode_write_header;
+          writeindex = 0;
         } else if (packinmode == packinmode_finished_reading_a_packet) { /* copy errc packet */
           prepareEcPacketSendHeader();
+          writemode = writemode_write_header;
+          writeindex = 0;
         }
-        writemode = writemode_write_header;
-        writeindex = 0;
       }
     }
   #ifdef DEBUG
@@ -207,7 +215,7 @@ int main(int argc, char *argv[]) {
 int parseArguments(int argc, char *argv[]) {
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
-  while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:e:E:b:i:")) != EOF) {
+  while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:P:e:E:b:i:")) != EOF) {
     i = 0; /* for setinf names/modes commonly */
     switch (opt) {
       case 'i': i++;
@@ -234,6 +242,7 @@ int parseArguments(int argc, char *argv[]) {
       case 'p': /* set origin portNumber */
         if (sscanf(optarg, "%d", &portNumber) != 1) return -emsg(65);
         if ((portNumber < MINPORT) || (portNumber > MAXPORT)) return -emsg(66);
+        break;
       case 'P':  // targetPortNumber
         if (sscanf(optarg, "%d", &targetPortNumber) != 1) return -emsg(65);
         if ((targetPortNumber < MINPORT) || (targetPortNumber > MAXPORT))
@@ -351,6 +360,10 @@ int createSockets() {
   /* extract host-IP */
   sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
   sendadr.sin_port = htons(targetPortNumber);
+  #ifdef DEBUG
+  fprintf(debuglog, "Preparing to connect to port %d %d\n",targetPortNumber, sendadr.sin_port);
+  fflush(debuglog);
+  #endif
 
   /* create socket for server / receiving files */
   recadr.sin_family = AF_INET;
@@ -360,6 +373,10 @@ int createSockets() {
     recadr.sin_addr.s_addr = htonl(INADDR_ANY);
   }
   recadr.sin_port = htons(portNumber);
+  #ifdef DEBUG
+  fprintf(debuglog, "Preparing to listen to port %d %d\n", portNumber, recadr.sin_port);
+  fflush(debuglog);
+  #endif
   /* try to reuse address */
   i = 1;
   retval = setsockopt(recskt, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
@@ -507,6 +524,7 @@ int waitForConnectionWithTimeout() {
 
 void testAndRectifyForDoubleConnection() {
   // Double check that nobody wanted to connect to our listening socket
+  fcntl(recskt, F_SETFL, O_NONBLOCK); /* prepare nonblock mode */
   retval = accept(recskt, (struct sockaddr *)&remoteadr, &remotelen);
   // If there is, we need to account for that and set incoming socket accordingly
   if (retval > 0) {
@@ -688,6 +706,10 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
           return -emsg(75);
         }
         /* send notification */
+  #ifdef DEBUG
+        fprintf(debuglog, "sending notif on file %08x to %s\n", rhead.epoch, fname[arg_notify]);
+        fflush(debuglog);
+  #endif
         loghandle = fopen(fname[arg_notify], "a");
         if (!loghandle) return -emsg(49);
         fprintf(loghandle, "%08x\n", rhead.epoch);
@@ -779,7 +801,7 @@ int closeAndRecreateSendSocket() {
     }
     /* extract host-IP */
     sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
-    sendadr.sin_port = htons(portNumber);
+    sendadr.sin_port = htons(targetPortNumber);
   }
   if (verbosity > 0) {
     printf("disconnected.\n");
@@ -871,10 +893,10 @@ int read_FromCmdHandle_ToTransferName() {
   #endif
   if (stat(ftnam, &srcfilestat)) { /* stat failed */
                                     /* if (verbosity>2) */
-  #ifdef DEBUG
+    #ifdef DEBUG
     fprintf(debuglog, "(1)file read error.\n");
     fflush(debuglog);
-  #endif
+    #endif
     if (ignorefileerror) {
       //goto parseescape;
       return 0;
@@ -884,10 +906,10 @@ int read_FromCmdHandle_ToTransferName() {
   }
   if (!S_ISREG(srcfilestat.st_mode)) {
     /* if (verbosity>2) */
-  #ifdef DEBUG
+    #ifdef DEBUG
     fprintf(debuglog, "(2)file read error.\n");
     fflush(debuglog);
-  #endif
+    #endif
     if (ignorefileerror) {
       //goto parseescape;
       return 0;
@@ -960,7 +982,8 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
   #endif
       if (retval == -1) return -emsg(56);
       writeindex += retval;
-      if (writeindex < (int)shead.length) break;
+      if (writeindex < (int)shead.length) 
+        break;
       writemode = writemode_write_complete;
       /* if (verbosity>1) */
   #ifdef DEBUG
@@ -987,6 +1010,10 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
           break;
       }
       writemode = writemode_not_writing;
+      #ifdef DEBUG
+      fprintf(debuglog, "write mode is now no longer writing\n");
+      fflush(debuglog);
+      #endif
       break;
   }
   return 0;
@@ -1007,6 +1034,12 @@ int prepareMessageSendHeader() {
 
 int read_FromFtnam_ToFileBuffer() {
   /* read source file */
+  #ifdef DEBUG
+  fprintf(debuglog,
+          "Attempting to open %s\n",
+          ftnam);
+  fflush(debuglog);
+  #endif
   srcfile = open(ftnam, READFILEMODE);
   if (srcfile == -1) {
     fprintf(debuglog, "return val open: %x, errno: %d\n", srcfile, errno);

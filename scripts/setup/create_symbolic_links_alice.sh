@@ -22,9 +22,11 @@ then
   ln -s "$DIR/alice/data/type1-time_and_click"        ALICE/DIR/T1
   ln -s "$DIR/alice/data/type2-time_and_basis"        ALICE/DIR/T2
   ln -s "$DIR/alice/data/type3-rawkey"                ALICE/DIR/T3
+  ln -s "$DIR/alice/data/type3-rawkey-sifted"         ALICE/DIR/T3_SIFTED
   ln -s "$DIR/alice/data/type4-chosen_basis_indexes"  ALICE/DIR/T4
   ln -s "$DIR/alice/data/classical_channel_dest"      ALICE/DIR/TCP_DEST
   ln -s "$DIR/alice/data/classical_channel_src"       ALICE/DIR/TCP_SRC
+  ln -s "$DIR/alice/data/final-key"                   ALICE/DIR/FINAL_KEY
   ln -s "$DIR/alice/logs"                             ALICE/DIR/LOGS
   ln -s "$DIR/alice/scripts"                          ALICE/DIR/SCRIPTS
 
@@ -32,8 +34,10 @@ then
   ln -s "$DIR/alice/pipes"                       ALICE/PIPES
   mkfifo                                         ALICE/PIPES/chopper_to_transferd -m0600
   mkfifo                                         ALICE/PIPES/transferd_to_splicer -m0600
-  mkfifo                                         ALICE/PIPES/transferd_to_ec2      -m0600
-  mkfifo                                         ALICE/PIPES/ec_to_transferd2      -m0600
+  mkfifo                                         ALICE/PIPES/ec_cmdpipe           -m0600
+  mkfifo                                         ALICE/PIPES/ec_querypipe         -m0600
+  mkfifo                                         ALICE/PIPES/transferd_to_ec2     -m0600
+  mkfifo                                         ALICE/PIPES/ec_to_transferd      -m0600
 
   cd ../
   DIR_CODE="$PWD"
