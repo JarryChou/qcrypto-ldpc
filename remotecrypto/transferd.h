@@ -375,8 +375,7 @@ int printConnected();
 int resetCommunicationVariables();
 int blockUntilEvent();
 int read_FromActiveSocket_ToReceivedDataBuffer();
-//Return enum ReadResult based on whether reconnection is required.
-int closeAndRecreateSendSocket();
+int closeAndRecreateSendSocket(); //Return enum ReadResult based on whether reconnection is required.
 int read_FromEcInHandle_ToErrorCorrectionInBuffer();
 int read_FromCmdHandle_ToTransferName();
 int read_FromMsgInHandle_ToMessageArray();

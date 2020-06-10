@@ -104,8 +104,8 @@ To Do:
 */
 #include "transferd.h"
 
-#define DEBUG 1
 #undef DEBUG
+#define DEBUG 1
 
 int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
@@ -780,6 +780,10 @@ int read_FromCmdHandle_ToTransferName() {
   /* consistency check for messages? */
   if (srcepoch < oldsrcepoch) {
     fprintf(cmdinhandle, "*cmdin: %s\n", transfername);
+  #ifdef DEBUG
+    fprintf(debuglog, "Inconsistent srcepoch. %x %x\n", srcepoch, oldsrcepoch);
+    fflush(debuglog);
+  #endif
     fflush(cmdinhandle);
     //goto parseescape;
     return 0;
