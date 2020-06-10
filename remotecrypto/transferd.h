@@ -167,8 +167,8 @@ enum HasParamParameter {
   arg_destdir, arg_notify, arg_srcIP, 
   //6 m        //7 M        //8 e
   arg_msg_src, arg_msg_dest, arg_ec_in_pipe, 
-  //9 E            //10 b
-  arg_ec_out_pipe, arg_debuglogs 
+  //9 E            //10 b         //11 i     //Helper enum to keep count of # of params
+  arg_ec_out_pipe, arg_debuglogs, arg_cmdin, arg_param_count
 };
 
 enum ConnectionTimeoutResult {
@@ -210,16 +210,16 @@ enum WriteMode {
 };
 
 /* global variables for IO handling */
-char fname[11][FNAMELENGTH] = {"", "", "", "", "", "",
+char fname[arg_param_count][FNAMELENGTH] = {"", "", "", "", "", "",
                                "", "", "", "", ""}; /* stream files */
-char ffnam[11][FNAMELENGTH + 11], ffn2[FNAMELENGTH + 11];
-char tempFileName[FNAMELENGTH + 11]; /* stores temporary file name */
+char ffnam[arg_param_count][FNAMELENGTH + arg_param_count], ffn2[FNAMELENGTH + arg_param_count];
+char tempFileName[FNAMELENGTH + arg_param_count]; /* stores temporary file name */
 int killmode = DEFAULT_KILLMODE;  /* if !=1, delete infile after use */
-int handle[11];                   /* global handles for packet streams */
+int handle[arg_param_count];                   /* global handles for packet streams */
 FILE *debuglog;
 
 /* error handling */
-char *errormessage[76] = {
+char *errormessage[78] = {
     "No error.",
     "error parsing source directory name", /* 1 */
     "error parsing command socket name",
@@ -295,7 +295,9 @@ char *errormessage[76] = {
     "Error reading stream header form errc source.",
     "received packet longer than erc buffer.",
     "error reading erc packet",
-    "error renaming target file", /* 75 */
+    "error renaming target file", /* 75 */,
+    "cannot open debuglog",
+    "cannot open cmdinhandle",
 };
 
 /* global variables for IO handling */
@@ -315,7 +317,7 @@ int opt, i, retval; /* general parameters */
 #ifdef DEBUG
 int ii;
 #endif
-int hasParam[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int hasParam[arg_param_count] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 /* sockets and destination structures */
 int sendskt, recskt, activeSocket;
 socklen_t socklen;

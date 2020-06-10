@@ -33,7 +33,7 @@
    tried to fix some errcd packet errors 30.4.06chk
 
  usage: transferd -d sourcedirectory -c commandsocket -t targetmachine
-                  -D destinationdir -l notificationfile -s sourceIP
+                  -D destinationdir -l notificationfile -s sourceIP -i cmdin
                   [-e ec_in_pipe -E ec_out_pipe ]
                   [-k]
                   [-m messagesource -M messagedestintion ]
@@ -71,7 +71,8 @@
                     3: include file error events
   -e ec_in_pipe:    pipe for receiving packets from errorcorrecting demon
   -E ec_out_pipe:   pipe to send packes to the error correcting deamon
-  -b debuglogs:		File to write debuglogs to
+  -b debuglogs:		  File to write debuglogs to
+  -i cmdin:         File to route data from the commandpipe (after it has been processed)
 
 
   momentarily, the communication is implemented via tcp/ip packets. the program
@@ -206,9 +207,10 @@ int main(int argc, char *argv[]) {
 int parseArguments(int argc, char *argv[]) {
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
-  while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:e:E:b:")) != EOF) {
+  while ((opt = getopt(argc, argv, "d:c:t:D:l:s:km:M:p:e:E:b:i:")) != EOF) {
     i = 0; /* for setinf names/modes commonly */
     switch (opt) {
+      case 'i': i++;
       case 'b': i++;
       case 'E': i++;
       case 'e': i++;
@@ -258,7 +260,10 @@ int setupPipes() {
     strncat(fname[arg_srcdir], "/", FNAMELENGTH);
     fname[arg_srcdir][FNAMELENGTH - 1] = 0;
   }
-  cmdinhandle = fopen("/tmp/cryptostuff/cmdins", "w+");
+
+  // Implied that this is necessary
+  if ((cmdinhandle = fopen(fname[arg_cmdin], "w+")) < 1) { return -emsg(77); }
+  // cmdinhandle = fopen("/tmp/cryptostuff/cmdins", "w+");
 
   /* command pipe */
   if (access(fname[arg_cmdpipe], F_OK) == -1) { /* fifo does not exist */
@@ -313,9 +318,9 @@ int setupPipes() {
   };
 
   // Debug logs
-  if (hasParam[10]) { /* open it */
+  if (hasParam[arg_debuglogs]) { /* open it */
     printf("Opening debuglog: %s\n", fname[arg_debuglogs]);
-    debuglog = fopen(fname[arg_debuglogs], "w+");
+    if (debuglog = fopen(fname[arg_debuglogs], "w+") < 1) return -emsg(76);
   };
   return 0;
 }
@@ -780,11 +785,11 @@ int read_FromCmdHandle_ToTransferName() {
   /* consistency check for messages? */
   if (srcepoch < oldsrcepoch) {
     fprintf(cmdinhandle, "*cmdin: %s\n", transfername);
-  #ifdef DEBUG
-    fprintf(debuglog, "Inconsistent srcepoch. %x %x\n", srcepoch, oldsrcepoch);
-    fflush(debuglog);
-  #endif
     fflush(cmdinhandle);
+    #ifdef DEBUG
+      fprintf(debuglog, "Inconsistent srcepoch. %x %x\n", srcepoch, oldsrcepoch);
+      fflush(debuglog);
+    #endif
     //goto parseescape;
     return 0;
   }
