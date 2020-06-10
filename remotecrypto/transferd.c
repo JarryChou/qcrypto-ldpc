@@ -658,7 +658,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
   #ifdef DEBUG
           fprintf(debuglog, "message>>%40s<< sent to msgouthandle.\n",
                   receivedDataBuffer);
-          for (ii = 0; ii < (int)rhead.length; ii++) {
+          for (int ii = 0; ii < (int)rhead.length; ii++) {
             fprintf(debuglog, " %02x", receivedDataBuffer[ii]);
             if ((ii & 0xf) == 0xf) fprintf(debuglog, "\n");
           }
