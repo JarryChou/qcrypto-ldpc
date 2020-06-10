@@ -319,7 +319,7 @@ int ii;
 #endif
 int hasParam[arg_param_count] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 /* sockets and destination structures */
-int sendskt, recskt, activeSocket;
+int sendskt, recskt, activeSocketForIncomingData = -1, activeSocketForOutgoingData = -1;
 socklen_t socklen;
 FILE *cmdhandle;
 int portNumber = DEFAULT_PORT; /* defines communication port */
@@ -373,11 +373,12 @@ int testSrcAndDestDirs();
 int setupTempFileName();
 int setupBuffers();
 int waitForConnectionWithTimeout();
+void testAndRectifyForDoubleConnection(); // New code, see comments at waitForConnectionWithTimeout()
 int printConnected();
 int resetCommunicationVariables();
 int blockUntilEvent();
 int read_FromActiveSocket_ToReceivedDataBuffer();
-int closeAndRecreateSendSocket(); //Return enum ReadResult based on whether reconnection is required.
+int closeAndRecreateSendSocket(); // Return enum ReadResult based on whether reconnection is required.
 int read_FromEcInHandle_ToErrorCorrectionInBuffer();
 int read_FromCmdHandle_ToTransferName();
 int read_FromMsgInHandle_ToMessageArray();

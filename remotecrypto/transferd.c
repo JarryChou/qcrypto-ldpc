@@ -142,17 +142,17 @@ int main(int argc, char *argv[]) {
     }
 
     // If there is a connection, just printf
-    if (activeSocket) {
+    if (activeSocketForIncomingData && activeSocketForOutgoingData) {
       printConnected();
     }
 
     // Begin communications
     resetCommunicationVariables();
-    while (activeSocket) { /* link is active,  wait on input sockets */
+    while (activeSocketForIncomingData && activeSocketForOutgoingData) { /* link is active,  wait on input sockets */
       blockUntilEvent();
       
       // If there is something to read from the active socket (i.e. from other party)
-      if (FD_ISSET(activeSocket, &readqueue)) {
+      if (FD_ISSET(activeSocketForIncomingData, &readqueue)) {
         if (read_FromActiveSocket_ToReceivedDataBuffer() == readResult_reconnect) {
           closeAndRecreateSendSocket();
           continue;
@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
       }
 
       // If can write
-      if (FD_ISSET(activeSocket, &writequeue)) { /* check writing */
+      if (FD_ISSET(activeSocketForOutgoingData, &writequeue)) { /* check writing */
         tryWrite_FromDataToSendBuffer_ToActiveSocket();
       }
 
@@ -403,67 +403,119 @@ int setupTempFileName() {
 }
 
 int waitForConnectionWithTimeout() {
-  /* while link should be maintained */
-    activeSocket = 0; /* mark unsuccessful connection attempt */
-    /* wait half a second for a server connection */
-    FD_ZERO(&readqueue);
-    timeout = HALFSECOND;
-    FD_SET(recskt, &readqueue);
-    retval = select(FD_SETSIZE, &readqueue, (fd_set *)0, (fd_set *)0, &timeout);
-    if (retval == -1) return -emsg(33);
-    if (retval) { /* there is a request */
-      if (!FD_ISSET(recskt, &readqueue)) {
-        return -emsg(34); /* cannot be?*/
-      }
-      /* accept connection */
-      remotelen = sizeof(remoteadr);
-      retval = accept(recskt, (struct sockaddr *)&remoteadr, &remotelen);
-      if (retval < 0) {
-        fprintf(stderr, "Errno: %d ", errno);
-        return -emsg(35);
-      }
-      /* use new socket */
-      activeSocket = retval;
-    } else { /* timeout has occured. attempt to make client connection */
-      fcntl(sendskt, F_SETFL, O_NONBLOCK); /* prepare nonblock mode */
-      retval = connect(sendskt, (struct sockaddr *)&sendadr, sizeof(sendadr));
-      /* check for anythinng else than EINPROGRESS */
-      if (retval) { /* an error has occured */
-        if ((errno == EALREADY) || (errno == ECONNABORTED)) {
-          return conn_continueTrying;
-        }
-        if (errno != EINPROGRESS) {
-          if (errno == ETIMEDOUT) return conn_continueTrying;
-          fprintf(stderr, "errno: %d", errno);
-          return -emsg(36);
-        } else {
-          /* wait half a second for response of connecting */
-          FD_ZERO(&writequeue);
-          FD_SET(sendskt, &writequeue);
-          timeout = HALFSECOND;
-          retval = select(FD_SETSIZE, (fd_set *)0, &writequeue, (fd_set *)0,
-                          &timeout);
-          if (retval) {
-            socklen = sizeof(retval);
-            if (getsockopt(sendskt, SOL_SOCKET, SO_ERROR, &retval, &socklen))
-              return -emsg(38);
-            if (retval) {
-              /* printf("point2e\n"); */
-              if (errno == EINPROGRESS) return conn_continueTrying;
-              fprintf(stderr, "errno: %d", errno);
-              return -emsg(38);
-            }
-            /* Weee! we succeeded geting a connection */
-            activeSocket = sendskt;
-          } else { /* a timeout has occured */
-            activeSocket = 0;
-          }
-        }
-      } else { /* it worked in the first place */
-        activeSocket = sendskt;
-      }
+  /**
+   * Matt's note: I realized there's a potential race issue where both nodes can connect as a client; as a result both parties
+   * use two separate sockets without knowing the other is trying to communicate using the other socket.
+   * (This issue will happen regardless of what port number is used)
+   * 
+   * There are a few solutions:
+   * The one in use:
+   * 1. Note that activeSocket will always be (self)client->server(other) in this scenario. Simply allow the creation of these 2 sockets and 
+   *    track them separately (instead of collectively as an activeSocket). It is quite simple but the downside is you'll have 
+   *    the overhead of 2 open sockets (although by default you already have 2 sockets so the additional overhead incurred isn't much).
+   *    This code uses the implementation of using this (self)client->server(other) socket for outgoing and the (self)server->client(other) for incoming.
+   *    It's not beautiful but it's simpler & cleaner than the other solutions.
+   * 
+   * The alternatives:
+   * 2. If 2 sockets are open, somehow make both sides agree to use only 1 socket. 
+   *    e.g. have both sides randomly generate a 32 or 64 bit number and send them over to deal break.
+   *    Clean solution but requires additional handshaking network overhead.
+   * 
+   * 3. Close the recskt when you are attempting to connect and reopen when you are attempting to receive. This one could get messy.
+   * /
+  // while link should be maintained
+  activeSocket = 0; /* mark unsuccessful connection attempt */
+  /* wait half a second for a server connection */
+  FD_ZERO(&readqueue);
+  timeout = HALFSECOND;
+  FD_SET(recskt, &readqueue);
+  retval = select(FD_SETSIZE, &readqueue, (fd_set *)0, (fd_set *)0, &timeout);
+  if (retval == -1) return -emsg(33);
+  if (retval) { /* there is a request */
+    if (!FD_ISSET(recskt, &readqueue)) {
+      return -emsg(34); /* cannot be?*/
     }
-    return conn_successfulConnection;
+    /* accept connection */
+    remotelen = sizeof(remoteadr);
+    retval = accept(recskt, (struct sockaddr *)&remoteadr, &remotelen);
+    if (retval < 0) {
+      fprintf(stderr, "Errno: %d ", errno);
+      return -emsg(35);
+    }
+    /* use new socket */
+    activeSocketForIncomingData = retval;
+    activeSocketForOutgoingData = retval;
+    #ifdef DEBUG
+      fprintf(debuglog, "Connected as a server\n");
+      fflush(debuglog);
+    #endif
+  } else { /* timeout has occured. attempt to make client connection */
+    fcntl(sendskt, F_SETFL, O_NONBLOCK); /* prepare nonblock mode */
+    retval = connect(sendskt, (struct sockaddr *)&sendadr, sizeof(sendadr));
+    /* check for anythinng else than EINPROGRESS */
+    if (retval) { /* an error has occured */
+      if ((errno == EALREADY) || (errno == ECONNABORTED)) {
+        return conn_continueTrying;
+      }
+      if (errno != EINPROGRESS) {
+        if (errno == ETIMEDOUT) return conn_continueTrying;
+        fprintf(stderr, "errno: %d", errno);
+        return -emsg(36);
+      } else {
+        /* wait half a second for response of connecting */
+        FD_ZERO(&writequeue);
+        FD_SET(sendskt, &writequeue);
+        timeout = HALFSECOND;
+        retval = select(FD_SETSIZE, (fd_set *)0, &writequeue, (fd_set *)0,
+                        &timeout);
+        if (retval) {
+          socklen = sizeof(retval);
+          if (getsockopt(sendskt, SOL_SOCKET, SO_ERROR, &retval, &socklen))
+            return -emsg(38);
+          if (retval) {
+            /* printf("point2e\n"); */
+            if (errno == EINPROGRESS) return conn_continueTrying;
+            fprintf(stderr, "errno: %d", errno);
+            return -emsg(38);
+          }
+          /* Weee! we succeeded geting a connection */
+          // Use this connection for both outgoing and incoming data
+          activeSocketForIncomingData = sendskt;
+          activeSocketForOutgoingData = sendskt;
+          #ifdef DEBUG
+          fprintf(debuglog, "Connected as a client\n");
+          fflush(debuglog);
+          #endif
+          testAndRectifyForDoubleConnection();
+        } else { /* a timeout has occured */
+          activeSocketForIncomingData = 0;
+          activeSocketForOutgoingData = 0;
+        }
+      }
+    } else { /* it worked in the first place */
+      activeSocketForIncomingData = sendskt;
+      activeSocketForOutgoingData = sendskt;
+      #ifdef DEBUG
+      fprintf(debuglog, "Connected as a client (2)\n");
+      fflush(debuglog);
+      #endif
+      testAndRectifyForDoubleConnection();
+    }
+  }
+  return conn_successfulConnection;
+}
+
+void testAndRectifyForDoubleConnection() {
+  // Double check that nobody wanted to connect to our listening socket
+  retval = accept(recskt, (struct sockaddr *)&remoteadr, &remotelen);
+  // If there is, we need to account for that and set incoming socket accordingly
+  if (retval > 0) {
+    #ifdef DEBUG
+    fprintf(debuglog, "Connection on server, retval: %d, curr skt: %d %d\n", retval, activeSocketForIncomingData, activeSocketForOutgoingData);
+    #endif
+    // Use this connection for incoming data only
+    activeSocketForIncomingData = retval;
+  }
 }
 
 int printConnected() {
@@ -493,12 +545,16 @@ int resetCommunicationVariables() {
 int blockUntilEvent() {
   FD_ZERO(&readqueue);
   FD_ZERO(&writequeue);
-  FD_SET(activeSocket, &readqueue);
+  FD_SET(activeSocketForIncomingData, &readqueue);
   if (!hasFileToSend) FD_SET(fileno(cmdhandle), &readqueue);
-  if (dataToSendBuffer) FD_SET(activeSocket, &writequeue); /* if we need to write */
+  if (dataToSendBuffer) FD_SET(activeSocketForOutgoingData, &writequeue); /* if we need to write */
   if (hasParam[arg_msg_src] && !hasMessageToSend) FD_SET(msginhandle, &readqueue);
-  if (hasParam[arg_ec_in_pipe] && (packinmode != 4)) FD_SET(ercinhandle, &readqueue);
+  if (hasParam[arg_ec_in_pipe] && (packinmode != packinmode_finished_reading_a_packet)) FD_SET(ercinhandle, &readqueue);
   timeout = HALFSECOND;
+  #ifdef DEBUG
+    fprintf(debuglog, "waiting for select...\n");
+    fflush(debuglog);
+  #endif
   retval = select(FD_SETSIZE, &readqueue, &writequeue, NULL, NULL);
   if (retval < 0) return -emsg(39);
     /* eat through set */
@@ -517,7 +573,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
     case rcvmode_waiting_to_read_next: /* beginning with header */
       receivemode = rcvmode_finishing_header;
     case rcvmode_finishing_header: /* finishing header */
-      retval = read(activeSocket, &((char *)&rhead)[receiveindex],
+      retval = read(activeSocketForIncomingData, &((char *)&rhead)[receiveindex],
                     sizeof(rhead) - receiveindex);
   #ifdef DEBUG
       fprintf(debuglog, "tcp receive stage 1:%d bytes\n", retval);
@@ -568,7 +624,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
       break;
     case rcvmode_got_header_start_reading_data: 
       // Based on the header info, read in the body data
-      retval = read(activeSocket, &receivedDataBuffer[receiveindex],
+      retval = read(activeSocketForIncomingData, &receivedDataBuffer[receiveindex],
                     MIN(LOC_BUFSIZE, rhead.length) - receiveindex);
   #ifdef DEBUG
       fprintf(debuglog, "tcp rec stage 3:%d bytes, wanted:%d\n", retval,
@@ -690,39 +746,48 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
 
 int closeAndRecreateSendSocket() {
   /* close open sockets and wait for next connection */
-  close(activeSocket);
+  if (activeSocketForIncomingData == activeSocketForOutgoingData) {
+    close(activeSocketForIncomingData);
+  } else {
+    close(activeSocketForIncomingData);
+    close(activeSocketForOutgoingData);
+  }
   #ifdef DEBUG
-    fprintf(debuglog, "comm socket was closed.\n");
-    fflush(debuglog);
+  fprintf(debuglog, "comm socket was closed.\n");
+  fflush(debuglog);
   #endif
-    if (activeSocket == sendskt) {                    /* renew send socket */
-      sendskt = socket(AF_INET, SOCK_STREAM, 0); /* outgoing packets */
-      if (!sendskt) return -emsg(16);
-      /* client socket for sending data */
-      sendadr.sin_family = AF_INET;
-      remoteinfo = gethostbyname(fname[arg_target]);
-      if (!remoteinfo) {
-        switch (h_errno) {
-          case HOST_NOT_FOUND:
-            return -emsg(21);
-          case NO_ADDRESS:
-            return -emsg(22);
-          case TRY_AGAIN:
-            return -emsg(23);
-          default:
-            return -emsg(24);
-        }
+
+  // Recall sendskt is the (self)client->server(other)
+  if (activeSocketForIncomingData == sendskt || activeSocketForOutgoingData == sendskt) { /* renew send socket */
+  // if (activeSocket == sendskt) {
+    sendskt = socket(AF_INET, SOCK_STREAM, 0); /* outgoing packets */
+    if (!sendskt) return -emsg(16);
+    /* client socket for sending data */
+    sendadr.sin_family = AF_INET;
+    remoteinfo = gethostbyname(fname[arg_target]);
+    if (!remoteinfo) {
+      switch (h_errno) {
+        case HOST_NOT_FOUND:
+          return -emsg(21);
+        case NO_ADDRESS:
+          return -emsg(22);
+        case TRY_AGAIN:
+          return -emsg(23);
+        default:
+          return -emsg(24);
       }
-      /* extract host-IP */
-      sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
-      sendadr.sin_port = htons(portNumber);
     }
-    if (verbosity > 0) {
-      printf("disconnected.\n");
-      fflush(stdout);
-    }
-    activeSocket = 0;
-    return 0;
+    /* extract host-IP */
+    sendadr.sin_addr = *(struct in_addr *)*remoteinfo->h_addr_list;
+    sendadr.sin_port = htons(portNumber);
+  }
+  if (verbosity > 0) {
+    printf("disconnected.\n");
+    fflush(stdout);
+  }
+  activeSocketForIncomingData = 0;
+  activeSocketForOutgoingData = 0;
+  return 0;
 }
 
 int read_FromEcInHandle_ToErrorCorrectionInBuffer() {
@@ -873,7 +938,7 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
   #endif
       break;
     case writemode_write_header: /*  write header */
-      retval = write(activeSocket, &((char *)&shead)[writeindex],
+      retval = write(activeSocketForOutgoingData, &((char *)&shead)[writeindex],
                       sizeof(shead) - writeindex);
   #ifdef DEBUG
       fprintf(debuglog, "sent header, want:%d, sent:%d\n",
@@ -887,7 +952,7 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
       writemode = writemode_write_data; /* next level... */
                       /* printf("written header\n"); */
     case writemode_write_data:          /* write data */
-      retval = write(activeSocket, &dataToSendBuffer[writeindex], shead.length - writeindex);
+      retval = write(activeSocketForOutgoingData, &dataToSendBuffer[writeindex], shead.length - writeindex);
   #ifdef DEBUG
       fprintf(debuglog, "send data;len: %d, retval: %d, idx %d\n",
               shead.length, retval, writeindex);
