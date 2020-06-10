@@ -262,7 +262,7 @@ int setupPipes() {
   }
 
   // Implied that this is necessary
-  if ((cmdinhandle = fopen(fname[arg_cmdin], "w+")) < 1) { return -emsg(77); }
+  if ((cmdinhandle = fopen(fname[arg_cmdin], "w+")) == 0) { return -emsg(77); }
   // cmdinhandle = fopen("/tmp/cryptostuff/cmdins", "w+");
 
   /* command pipe */
@@ -320,7 +320,7 @@ int setupPipes() {
   // Debug logs
   if (hasParam[arg_debuglogs]) { /* open it */
     printf("Opening debuglog: %s\n", fname[arg_debuglogs]);
-    if (debuglog = fopen(fname[arg_debuglogs], "w+") < 1) return -emsg(76);
+    if ((debuglog = fopen(fname[arg_debuglogs], "w+")) == 0) return -emsg(76);
   };
   return 0;
 }

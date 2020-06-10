@@ -295,9 +295,9 @@ char *errormessage[78] = {
     "Error reading stream header form errc source.",
     "received packet longer than erc buffer.",
     "error reading erc packet",
-    "error renaming target file", /* 75 */,
+    "error renaming target file", /* 75 */
     "cannot open debuglog",
-    "cannot open cmdinhandle",
+    "cannot open cmdinhandle"
 };
 
 /* global variables for IO handling */
