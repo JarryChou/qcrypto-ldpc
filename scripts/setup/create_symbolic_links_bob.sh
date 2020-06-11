@@ -31,7 +31,7 @@ then
   
   # Pipes
   ln -s "$DIR/bob/pipes"                              BOB/PIPES
-  mkfifo                                              BOB/PIPES/transferd_to_pfindCostream -m0600
+  mkfifo                                              BOB/PIPES/transferd_to_notifhandler -m0600
   mkfifo                                              BOB/PIPES/costream_to_transferd      -m0600
   mkfifo                                              BOB/PIPES/ec_cmdpipe                 -m0600
   mkfifo                                              BOB/PIPES/ec_querypipe               -m0600

@@ -32,9 +32,9 @@ then
 
   # Pipes (Not declared here as the pipes are created by the program itself)
   ln -s "$DIR/alice/pipes"                       ALICE/PIPES
-  mkfifo                                         ALICE/PIPES/chopper_to_chopperPostProcess    -m0600
-  mkfifo                                         ALICE/PIPES/chopperPostProcess_to_transferd  -m0600
-  mkfifo                                         ALICE/PIPES/transferd_to_splicer             -m0600
+  mkfifo                                         ALICE/PIPES/chopper_to_postproc              -m0600
+  mkfifo                                         ALICE/PIPES/postproc_to_transferd            -m0600
+  mkfifo                                         ALICE/PIPES/transferd_to_notifhandler        -m0600
   mkfifo                                         ALICE/PIPES/transferd_to_ec                  -m0600
   mkfifo                                         ALICE/PIPES/ec_cmdpipe                       -m0600
   mkfifo                                         ALICE/PIPES/ec_querypipe                     -m0600
