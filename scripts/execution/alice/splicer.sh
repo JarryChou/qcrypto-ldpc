@@ -1,6 +1,5 @@
 #!/bin/bash
-# Usage: splicer.sh {epoch (hex)}
-
+# Usage: splicer.sh {epoch (hex), which is usually the file name}
 # ===
 # Param handling
 # ===
@@ -22,3 +21,6 @@ ALICE/EXE/SPLICER \
   -I ALICE/DIR/TCP_DEST/$epoch\
   -f ALICE/DIR/T3_SIFTED/\
   -e $((16#$epoch))
+# TODO: Include logs & EC stuff
+
+echo "Data Spliced"
