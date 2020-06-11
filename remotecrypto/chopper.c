@@ -39,6 +39,7 @@
                   [-U | -L]
                   [-p num] [-q depth] [-Q filterconst]
                   [-m maxtime]
+                  [-W]
 
    implemented options:
 
@@ -92,6 +93,7 @@
    -e debugfile  choose a file for debug logging. This used to be hardcoded to
                  the file /tmp/cryptostuff/chopdebug, but is turned off for use
                  with other applications.
+    -W           Write instead of append to logfile.
 
  PROTOCOL OPTION
    -p num:       select protocol option. defines what transmission protocol
@@ -638,10 +640,11 @@ int main(int argc, char *argv[]) {
   int ignorecount = DEFAULT_IGNORECOUNT; /* how many to ignore initially */
   unsigned long long maxdiff = DEFAULT_MAXDIFF; /* max evt time difference */
   unsigned long long t_new, t_old;              /* for consistecy checks */
+  char logUsingWrite = 0;
 
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
-  while ((opt = getopt(argc, argv, "V:i:O:D:o:d:ULl:e:p:q:Q:Fy:m:46")) != EOF) {
+  while ((opt = getopt(argc, argv, "V:i:W:O:D:o:d:ULl:e:p:q:Q:Fy:m:46")) != EOF) {
     switch (opt) {
       case 'V': /* set verbosity level */
         if (1 != sscanf(optarg, "%d", &verbosity_level)) return -emsg(1);
@@ -716,6 +719,9 @@ int main(int argc, char *argv[]) {
       case '6':
         numberofdetectors = 6;
         break;
+      case 'W':
+        logUsingWrite = 1;
+        break;
     }
   }
   /* parameter consistency check */
@@ -746,7 +752,11 @@ int main(int argc, char *argv[]) {
   /* open log files */
   if (verbosity_level >= 0) {
     if (logfname[0]) { /* check if filename is defined */
-      loghandle = fopen(logfname, "a");
+      if (logUsingWrite) {
+        loghandle = fopen(logfname, "w+");
+      } else {
+        loghandle = fopen(logfname, "a");
+      }
       if (!loghandle) return -emsg(32);
     } else {
       loghandle = stdout;
