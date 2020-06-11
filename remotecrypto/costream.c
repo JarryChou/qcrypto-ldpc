@@ -38,6 +38,7 @@
                   [-O type-4 streamfile] | [-F type-4 directory]
                   [-b type-3 bellfile]   | [-B type-3 directory]
                   -e startepoch [-q epochnumber]
+                  -E debuglog
                   [-k] [-K]
                   -t timediff
                   [-w coincidence window] [-u tracking window]
@@ -52,6 +53,8 @@
                   [-H histogramname ]
                   [-h histogramlength ]
                   [-S s1,s2,s3,s4 ]
+                  [-W]
+                  [-E debuglog ]
 
   DATA STREAM OPTIONS:
    -i infile2:      filename of type-2 packets. Can be a file or a socket
@@ -167,6 +170,10 @@
                  1: logfile4 gets flushed
                  2: logfiles for stream3, stream4, standardlog get flushed
                  3: all logs get flushed
+   -W write:     By default log files are opened with fopen(string, "a") which appends the text.
+                 This causes issues if a pipe is passed in. Setting this parameter opens the file
+                 with fopen(strong, "w+") instead.
+   -E debuglog:  Specify a file for the debuglogs. Defaults to "costream_tlog".
 
 
 
@@ -663,8 +670,7 @@ int openmode[6] = {
 int verbosity_level = DEFAULT_VERBOSITY;
 int zeropolicy = DEFAULT_ZEROPOLICY; /* what to do on no events */
 char fname[6][FNAMELENGTH] = {"", "", "", "", "", ""}; /* stream files */
-char logfname[5][FNAMELENGTH] = {"", "", "", "",
-                                 ""}; /* all different logfiles */
+char logfname[6][FNAMELENGTH] = {"", "", "", "", "", ""}; /* all different logfiles */
 FILE *loghandle[5];                   /* for log files */
 struct header_1 head1;                /* infile header */
 struct header_2 head2;                /* infile header */
@@ -698,6 +704,7 @@ long int ft;                     /* for monitoring */
 unsigned int accidentals, truecoincies;
 int expected2bits;                 /* bits expected from the stream-2 packets */
 int flushmode = DEFAULT_FLUSHMODE; /* for tracking flushmode */
+char logAsWrite = 0;
 
 /* lookup table for correction of epoch in strem 1 */
 #define PL1 0x10000    /* +1 step fudge correction for epoc index mismatch */
@@ -1133,14 +1140,18 @@ int main(int argc, char *argv[]) {
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
 
-  debuglog = fopen("costream_tlog.txt", "w+");
+  if (logfname[5][0]) {
+    debuglog = fopen(logfname[5], "w+");
+  } else {
+    debuglog = fopen("costream_tlog", "w+");
+  }
   fprintf(debuglog, "this run filtercionst4: %d, width: %d\n",
           filterconst_stream4, type4bitwidth);
   fflush(debuglog);
 
   while ((opt = getopt(argc, argv,
                        "V:F:f:d:D:O:o:i:I:kKe:q:Q:M:m:L:l:n:t:w:u:r:R:p:T:G:a:"
-                       "h:H:S:b:B:")) != EOF) {
+                       "h:H:S:b:B:W:E:")) != EOF) {
     i = 0; /* for setinf names/modes commonly */
     /* fprintf(debuglog,"got option >>%c<<, filter: %d, width: %d\n",
        opt,filterconst_stream4,type4bitwidth); */
@@ -1151,20 +1162,13 @@ int main(int argc, char *argv[]) {
         /* a funky way of parsing all file name options together.
            i contains the stream in the two lsb, and the mode in the
            lsb. */
-      case 'F':
-        i++; /* stream 4, directory */
-      case 'f':
-        i++; /* stream 3, directory */
-      case 'd':
-        i++; /* stream 2, directory */
-      case 'D':
-        i++; /* stream 1, directory */
-      case 'O':
-        i++; /* stream 4, file */
-      case 'o':
-        i++; /* stream 3, file */
-      case 'i':
-        i++;             /* stream 2, file */
+      case 'F': i++; /* stream 4, directory */
+      case 'f': i++; /* stream 3, directory */
+      case 'd': i++; /* stream 2, directory */
+      case 'D': i++; /* stream 1, directory */
+      case 'O': i++; /* stream 4, file */
+      case 'o': i++; /* stream 3, file */
+      case 'i': i++; /* stream 2, file */
       case 'I':          /* stream 1, file */
         j = (i & 3) + 1; /* stream number */
         if (1 != sscanf(optarg, FNAMFORMAT, fname[j])) return -emsg(1 + j);
@@ -1198,14 +1202,11 @@ int main(int argc, char *argv[]) {
         if (1 != sscanf(optarg, "%d", &servo_param)) return -emsg(19);
         break;
       /* parsing logfile names 0 (main) and 1,2,3,4 */
-      case 'M':
-        i++; /* stream 4 notification */
-      case 'm':
-        i++; /* stream 3 notification */
-      case 'L':
-        i++; /* stream 2 notification */
-      case 'l':
-        i++;    /* stream 1 notification */
+      case 'E': i++; // Debug logs
+      case 'M':i++; /* stream 4 notification */
+      case 'm':i++; /* stream 3 notification */
+      case 'L':i++; /* stream 2 notification */
+      case 'l':i++;    /* stream 1 notification */
       case 'n': /* global logfile name */
         if (sscanf(optarg, FNAMFORMAT, logfname[i]) != 1) return -emsg(12 + i);
         logfname[i][FNAMELENGTH - 1] = 0; /* security termination */
@@ -1260,7 +1261,9 @@ int main(int argc, char *argv[]) {
           return -emsg(80);
         skewcorrectmode = 1;
         break;
-
+      case 'W':
+        logAsWrite = 1;
+        break;
       default: /* something fishy */
         fprintf(debuglog, "got code I should not get: >>%c<<\n", opt);
         fflush(debuglog);
@@ -1344,15 +1347,32 @@ int main(int argc, char *argv[]) {
   type4datawidth = proto_table[proto_index].bitsperentry4;
   bitstosend4 = type4bitwidth + type4datawidth; /* has to be <32 !! */
 
+  fprintf(debuglog, "Opening log files\n");
+  fflush(debuglog);
+
   /* open logfile streams */
   for (i = 0; i < 5; i++) {
     if (logfname[i][0]) { /* check if filename is defined */
-      loghandle[i] = fopen(logfname[i], "a");
+      fprintf(debuglog, "Log file %s , i = %d defined\n", logfname[i], i);
+      fflush(debuglog);
+      if (logAsWrite) {
+        // Write & truncate (supports pipes)
+        loghandle[i] = fopen(logfname[i], "w+");
+      } else {
+        // Append to files instead
+        loghandle[i] = fopen(logfname[i], "a");
+      }
       if (!loghandle[i]) return -emsg(26 + i);
+      fprintf(debuglog, "Log handle opened\n", i);
+      fflush(debuglog);
     } else if (!i) {
       loghandle[i] = stdout;
     } /* use stdout for standard */
   }
+
+  fprintf(debuglog, "Opening stream files\n");
+  fflush(debuglog);
+
   /* evtl. open stream files */
   for (i = 1; i < 6; i++) { /* allow for non-definition of stream-5 mode */
     switch (typemode[i]) {
@@ -1364,10 +1384,17 @@ int main(int argc, char *argv[]) {
         }
         break;
       case 1: /* single file */
+        fprintf(debuglog, "Try open file %s , mode = %d\n", fname[i], openmode[i]);
+        fflush(debuglog);
         handle[i] = open(fname[i], openmode[i], FILE_PERMISSIONS);
         if (-1 == handle[i]) return -emsg(30 + i);
+        fprintf(debuglog, "Opened\n");
+        fflush(debuglog);
     }
   }
+
+  fprintf(debuglog, "initialization complete, preparing to run\n");
+  fflush(debuglog);
 
   /* prepare input/output buffers to be loaded */
   head1.length = 0;
@@ -1711,6 +1738,8 @@ int main(int argc, char *argv[]) {
     /* prepare for new events */
     gettwo = 1;
     getone = 1;
+    fprintf(debuglog, "Didn't get stuck somewhere\n");
+    fflush(debuglog);
   }
 
   /* return benignly */
