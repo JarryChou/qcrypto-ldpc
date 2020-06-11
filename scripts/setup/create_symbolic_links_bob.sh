@@ -44,7 +44,7 @@ then
   cd build
 
   # Programs
-  ln -s "$DIR_CODE/errorcorrection/ecd2.o"     BOB/EXE/ECD2
+  ln -s "$DIR_CODE/errorcorrection/ecd2"       BOB/EXE/ECD2
   ln -s "$DIR_CODE/errorcorrection/rnd.o"      BOB/EXE/RND
   ln -s "$DIR_CODE/remotecrypto/chopper2"      BOB/EXE/CHOPPER2
   ln -s "$DIR_CODE/remotecrypto/pfind"         BOB/EXE/PFIND

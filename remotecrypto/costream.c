@@ -495,6 +495,7 @@ void clear_histo(void) {
     for (j = 0; j < DEFAULT_HISTODEPTH; j++) histo[i][j] = 0;
   histos_to_go = histolen;
   fprintf(debuglog, "histolen: %d\n", histolen);
+  fflush(debuglog);
 }
 
 /* initialize histogram index and clear field */
@@ -822,6 +823,7 @@ int close_epoch() {
                 "filterconst: %d, def: %d\n",
                 type4bitwidth_long, optimal_width, average_distance,
                 filterconst_stream4, DEFAULT_FILTERCONST_4);
+        fflush(debuglog);
       };
       idiff4_bitmask = (1 << type4bitwidth) - 1; /* for packing */
     }
@@ -1131,9 +1133,10 @@ int main(int argc, char *argv[]) {
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
 
-  debuglog = fopen("costream_tlog", "w+");
+  debuglog = fopen("costream_tlog.txt", "w+");
   fprintf(debuglog, "this run filtercionst4: %d, width: %d\n",
           filterconst_stream4, type4bitwidth);
+  fflush(debuglog);
 
   while ((opt = getopt(argc, argv,
                        "V:F:f:d:D:O:o:i:I:kKe:q:Q:M:m:L:l:n:t:w:u:r:R:p:T:G:a:"
@@ -1246,6 +1249,7 @@ int main(int argc, char *argv[]) {
         if (1 != sscanf(optarg, "%i", &histolen)) return -emsg(69);
         if (histolen < 1) return -emsg(69);
         fprintf(debuglog, "entered histolen: %d\n", histolen);
+        fflush(debuglog);
         break;
       case 'H': /* histogram name */
         if (sscanf(optarg, FNAMFORMAT, histologname) != 1) return -emsg(70);
@@ -1259,6 +1263,7 @@ int main(int argc, char *argv[]) {
 
       default: /* something fishy */
         fprintf(debuglog, "got code I should not get: >>%c<<\n", opt);
+        fflush(debuglog);
         break;
     }
   }
@@ -1266,6 +1271,7 @@ int main(int argc, char *argv[]) {
   /* check argument consistency */
   fprintf(debuglog, "after parsing filterconst4: %d, width: %d\n",
           filterconst_stream4, type4bitwidth);
+  fflush(debuglog);
 
   /* eventually initiate histogram */
   if (histologname[0]) init_histo();
@@ -1385,6 +1391,9 @@ int main(int argc, char *argv[]) {
   t1 = (unsigned long long)(startepoch - 1) << 32;
   t2 = t1;
   t1old = t1;
+
+  // Search for "running" to find where this loop can be terminated
+  // char running = 1;
   /* main digest loop */
   while (1) {
     eventdiff = ((long long int)(t1 - t2)) + timediff;
@@ -1465,6 +1474,7 @@ int main(int argc, char *argv[]) {
 
         /* check termination of this epoch for -q option */
         if (epochnumber && (epoch2 >= startepoch + epochnumber)) {
+          // running = 0;
           break;
         }
 

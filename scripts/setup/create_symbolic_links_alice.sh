@@ -36,7 +36,7 @@ then
   mkfifo                                         ALICE/PIPES/transferd_to_splicer -m0600
   mkfifo                                         ALICE/PIPES/ec_cmdpipe           -m0600
   mkfifo                                         ALICE/PIPES/ec_querypipe         -m0600
-  mkfifo                                         ALICE/PIPES/transferd_to_ec2     -m0600
+  mkfifo                                         ALICE/PIPES/transferd_to_ec      -m0600
   mkfifo                                         ALICE/PIPES/ec_to_transferd      -m0600
 
   cd ../
@@ -45,7 +45,7 @@ then
   cd build
   
   # Programs
-  ln -s "$DIR_CODE/errorcorrection/ecd2.o"   ALICE/EXE/ECD2
+  ln -s "$DIR_CODE/errorcorrection/ecd2"     ALICE/EXE/ECD2
   ln -s "$DIR_CODE/errorcorrection/rnd.o"    ALICE/EXE/RND
   ln -s "$DIR_CODE/remotecrypto/chopper"     ALICE/EXE/CHOPPER
   ln -s "$DIR_CODE/remotecrypto/splicer"     ALICE/EXE/SPLICER

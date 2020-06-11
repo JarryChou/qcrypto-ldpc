@@ -31,6 +31,8 @@ if [ ! -d "../../build/alice" ]; then
   mkdir logs
   mkdir logs/chopper
   mkdir logs/splicer
+  mkdir logs/transferd
+  mkdir logs/ec
   # scripts
   mkdir scripts
 

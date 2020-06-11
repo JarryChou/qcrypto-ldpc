@@ -31,6 +31,8 @@ if [ ! -d "../bob" ]; then
   mkdir logs/chopper2
   mkdir logs/pfind
   mkdir logs/costream
+  mkdir logs/transferd
+  mkdir logs/ec
   # scripts
   mkdir scripts
 
