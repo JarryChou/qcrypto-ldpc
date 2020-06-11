@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: pfind_then_costream.sh {epoch (hex), which is usually the file name}w
+# Usage: pfind_then_costream.sh {epoch (hex), which is usually the file name}
 
 # ===
 # Param handling
@@ -42,6 +42,7 @@ printf "\n Running costream \n\n"
 # Ordered by T1,T2,T3,T4,start epoch, time diff
 # Note that it does not do a clean exit if you pass in a filename, but it does generate output & logs
 # Note that Bob will complain "No content reading input stream 2." if you didn't pass in a stream
+# WARNING: COSTREAM opens costream_tlog as its debuglog
 timeout 4s \
 BOB/EXE/COSTREAM \
         -I BOB/DIR/T1/$epoch \

@@ -22,5 +22,3 @@ ALICE/EXE/SPLICER \
   -f ALICE/DIR/T3_SIFTED/\
   -e $((16#$epoch))
 # TODO: Include logs & EC stuff
-
-echo "Data Spliced"
