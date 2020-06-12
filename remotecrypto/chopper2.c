@@ -575,9 +575,7 @@ int main(int argc, char *argv[]) {
                   t_new, t_old);
           #ifdef DEBUG
           if (debuglog) {
-            fprintf(debuglog,
-                    "got negative difference: new: %0llx old: %0llx\n", t_new,
-                    t_old);
+            fprintf(debuglog, "got negative difference: new: %0llx (%lli) old: %0llx (%lli)\n", t_new, t_new, t_old, t_old);
           }
           #endif
 
@@ -616,8 +614,7 @@ int main(int argc, char *argv[]) {
                   t_epoc);
           #ifdef DEBUG
           if (debuglog)
-            fprintf(debuglog, "got neg tepoc: old: %08x new: %08x", oldepoc,
-                    t_epoc);
+            fprintf(debuglog, "fishyness %d: got neg tepoc: old: %08x (%lli) new: %08x (%lli)\n", fishyness, oldepoc, t_old, t_epoc, t_new);
           #endif
           if (fishyness > MAXIMAL_FISHYNESS) {
             fprintf(stderr, "(negdt): tepoch: %08x, old: %08x\n", t_epoc,
@@ -634,8 +631,7 @@ int main(int argc, char *argv[]) {
                   t_epoc);
           #ifdef DEBUG
           if (debuglog)
-            fprintf(debuglog, "got pos tepoc: old: %08x new: %08x", oldepoc,
-                    t_epoc);
+            fprintf(debuglog, "fishyness %d: got pos tepoc: old: %08x (%lli) new: %08x (%lli)\n", fishyness, oldepoc, t_old, t_epoc, t_new);
           #endif
           if (fishyness > MAXIMAL_FISHYNESS) {
             fprintf(stderr, "(posdt): tepoch: %08x, old: %08x\n", t_epoc,
