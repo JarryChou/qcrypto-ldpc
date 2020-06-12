@@ -571,7 +571,7 @@ int blockUntilEvent() {
     if (!debugRecordTime) {
       debugRecordTime = (unsigned long)time(NULL);
     }
-    fprintf(debuglog, "\nTime Elapsed: %lu", (nowTime - debugRecordTime));
+    fprintf(debuglog, "\nTime Elapsed (s): %lu", (nowTime - debugRecordTime));
     debugRecordTime = (unsigned long)time(NULL);
     fprintf(debuglog, "\nwaiting for select...");
     fflush(debuglog);
@@ -585,7 +585,7 @@ int blockUntilEvent() {
       if (!debugRecordTime) {
         debugRecordTime = (unsigned long)time(NULL);
       }
-      fprintf(debuglog, "\nTime Elapsed: %lu\n", (nowTime - debugRecordTime));
+      fprintf(debuglog, "\nTime Elapsed (s): %lu\n", (nowTime - debugRecordTime));
       debugRecordTime = (unsigned long)time(NULL);
       fflush(debuglog);
   #endif
