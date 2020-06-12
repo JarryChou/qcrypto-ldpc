@@ -395,6 +395,10 @@ unsigned int overlay_correction[16] = {0,   0, 0, PL2, 0,   0,   0, 0,
                                        MI2, 0, 0, 0,   MI2, MI2, 0, 0};
 /* opening routine to target files & epoch construction */
 int open_epoch(unsigned int te) {
+  if (debuglog) {
+    fprintf(debuglog, "open_epoch, timestamp %d\n", te);
+    fflush(debuglog);
+  }
   unsigned long long aep, tim;
   unsigned int aepoc, finalepoc;
   int overlay;
@@ -539,6 +543,9 @@ int close_epoch() {
   }
   /* logging */
   if (verbosity_level >= 0) {
+    if (debuglog) { 
+      fprintf(debuglog, "close_epoch: ");
+    }
     switch (verbosity_level) {
       case 0: /* bare hex names */
         fprintf(loghandle, "%08x\n", head2.epoc);
@@ -554,6 +561,9 @@ int close_epoch() {
       case 3: /* log length w text and epoch and setbits */
         fprintf(loghandle, "epoch: %08x, entries: %d, type2bits: %d\n",
                 head2.epoc, thisepoch_converted_entries, type2bitwidth);
+        if (debuglog) { 
+          fprintf(debuglog, "epoch: %08x, entries: %d, type2bits: %d ", head2.epoc, thisepoch_converted_entries, type2bitwidth);
+        }
         break;
       case 4: /* complex log */
         switch (numberofdetectors) {
@@ -565,6 +575,9 @@ int close_epoch() {
             }
             fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\n", head2.epoc, sum[0],
                     sum[1], sum[2], sum[3], sum[4]);
+            if (debuglog) { 
+              fprintf(debuglog, "histo: %d\t%d\t%d\t%d\t%d", head2.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
+            }
             break;
           case 6: /* cater for six-detector case. The single
                  count rates only reflect correctly identified
@@ -576,12 +589,17 @@ int close_epoch() {
             }
             fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", head2.epoc,
                     sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
+            if (debuglog) { 
+              fprintf(debuglog, "histo %08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d", head2.epoc,
+                    sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
+            }
         }
         break;
     }
     if (flushmode) fflush(loghandle);
     if (debuglog) {
-      fprintf(debuglog, "debuglog:%8x\n", head2.epoc);
+      fprintf(debuglog, "\n");
+      //fprintf(debuglog, "debuglog:%8x\n", head2.epoc);
       fflush(debuglog);
     }
   }

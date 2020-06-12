@@ -222,6 +222,10 @@ unsigned int overlay_correction[16] = {0,   0, 0, PL2, 0,   0,   0, 0,
                                        MI2, 0, 0, 0,   MI2, MI2, 0, 0};
 /* opening routine to target files & epoch construction */
 int open_epoch(unsigned int te) {
+  if (debuglog) {
+    fprintf(debuglog, "open_epoch, timestamp %d\n", te);
+    fflush(debuglog);
+  }
   unsigned long long aep, tim;
   unsigned int aepoc = 0, finalepoc;
   int overlay;
@@ -304,6 +308,9 @@ int close_epoch() {
   }
   /* logging */
   if (verbosity_level >= 0) {
+    if (debuglog) { 
+      fprintf(debuglog, "close_epoch: ");
+    }
     switch (verbosity_level) {
       case 0: /* bare hex names */
         fprintf(loghandle, "%08x\n", head1.epoc);
@@ -315,6 +322,9 @@ int close_epoch() {
       case 2: /* log length w text and epoch */
         fprintf(loghandle, "epoch: %08x \t entries: %d\n", head1.epoc,
                 thisepoch_converted_entries);
+        if (debuglog) { 
+          fprintf(debuglog, "epoch: %08x \t entries: %d ", head1.epoc, thisepoch_converted_entries);
+        }
         break;
       case 3:                        /* do complex log */
         if (fourdetectorlogoption) { /* old style logging */
@@ -326,6 +336,9 @@ int close_epoch() {
           }
           fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\n", head1.epoc, sum[0],
                   sum[1], sum[2], sum[3], sum[4]);
+          if (debuglog) { 
+            fprintf(debuglog, "histo: %08x\t%d\t%d\t%d\t%d\t%d", head1.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
+          }
         } else {
           for (i = 0; i < 7; i++) {
             sum[i] = 0;
@@ -335,6 +348,10 @@ int close_epoch() {
           }
           fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", head1.epoc,
                   sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
+          if (debuglog) { 
+            fprintf(debuglog, "histo: %08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d", head1.epoc,
+                  sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
+          }
         }
         break;
       default:
@@ -344,7 +361,8 @@ int close_epoch() {
     if (flushmode) fflush(loghandle);
   }
   if (debuglog) {
-    fprintf(debuglog, "ch2depoch: %08x\n", head1.epoc);
+    fprintf(debuglog, "\n");
+    //fprintf(debuglog, "ch2depoch: %08x\n", head1.epoc);
     fflush(debuglog);
   }
   return 0;
