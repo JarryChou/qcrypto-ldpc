@@ -45,7 +45,7 @@ cmdToExecute=$2
 # ===
 # Body
 # ===
-printf "\nRunning TRANSFERD_NOTIF_HANDLER\n"
+printf "\nRunning\n"
 # This requires Bash 4
 # See https://stackoverflow.com/questions/7099887/is-there-a-set-data-structure-in-bash
 # https://www.artificialworlds.net/blog/2012/10/17/bash-associative-array-examples/
@@ -58,14 +58,15 @@ while [ 1 == 1 ]; do
   # Wait for notifications, then loop through the notifications (these come in lines)
   while read notification; do 
     # For some reason I observe the same epoch can be called multiple times. Declared a set to handle that
-    echo "TRANSFERD_NOTIF_HANDLER: Piped ${notification}"
+    echo "Notif: ${notification}"
     if [ ! ${setProcessed["$notification"]+_} ]; then
       setToProcess[$notification]=1
     fi
   done < $1
+  echo "Start Time:" $(date +%s%N)
   # For every notification (which is in effect an epoch)
   for notification in "${!setToProcess[@]}"; do 
-    echo "TRANSFERD_NOTIF_HANDLER: Processing ${notification}"; 
+    echo "Processing ${notification}"; 
     # KIV: Separately handle pfind & costream
     # Current implementation calls pfind & costream together
     # sudo bash BOB/DIR/SCRIPTS/pfind_then_costream.sh $notification
@@ -74,4 +75,5 @@ while [ 1 == 1 ]; do
     setProcessed[$notification]=1
     unset setToProcess[$notification]
   done
+  echo "End Time:" $(date +%s%N)
 done

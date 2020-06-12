@@ -33,6 +33,7 @@ if [ ! -d "../bob" ]; then
   mkdir logs/costream
   mkdir logs/transferd
   mkdir logs/ec
+  mkdir logs/scripts
   # scripts
   mkdir scripts
 
