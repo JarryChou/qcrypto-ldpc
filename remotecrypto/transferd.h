@@ -118,6 +118,10 @@ To Do:
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
+
+#undef DEBUG
+#define DEBUG 1
 
 extern int h_errno;
 
@@ -316,6 +320,7 @@ int verbosity = DEFAULT_VERBOSITY;
 int opt, i, retval; /* general parameters */
 #ifdef DEBUG
 int ii;
+unsigned long debugRecordTime = 0;
 #endif
 int hasParam[arg_param_count] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 /* sockets and destination structures */

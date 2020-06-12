@@ -105,9 +105,6 @@ To Do:
 */
 #include "transferd.h"
 
-#undef DEBUG
-#define DEBUG 1
-
 int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
 
@@ -570,6 +567,12 @@ int blockUntilEvent() {
   if (hasParam[arg_ec_in_pipe] && (packinmode != packinmode_finished_reading_a_packet)) FD_SET(ercinhandle, &readqueue);
   timeout = HALFSECOND;
   #ifdef DEBUG
+    unsigned long nowTime = (unsigned long)time(NULL);
+    if (debugRecordTime) {
+      debugRecordTime = (unsigned long)time(NULL);
+    }
+    debugRecordTime = (unsigned long)time(NULL);
+    fprintf(debuglog, "\nTime Elapsed: %lu", (nowTime - debugRecordTime));
     fprintf(debuglog, "\nwaiting for select...");
     fflush(debuglog);
   #endif
@@ -577,7 +580,13 @@ int blockUntilEvent() {
   if (retval < 0) return -emsg(39);
     /* eat through set */
   #ifdef DEBUG
-      fprintf(debuglog, "select returned %d\n", retval);
+      fprintf(debuglog, "returned %d.", retval);
+      unsigned long nowTime = (unsigned long)time(NULL);
+      if (debugRecordTime) {
+        debugRecordTime = (unsigned long)time(NULL);
+      }
+      debugRecordTime = (unsigned long)time(NULL);
+      fprintf(debuglog, "\nTime Elapsed: %lu\n", (nowTime - debugRecordTime));
       fflush(debuglog);
   #endif
   return 0;
@@ -585,7 +594,7 @@ int blockUntilEvent() {
 
 int read_FromActiveSocket_ToReceivedDataBuffer() {
   #ifdef DEBUG
-  fprintf(debuglog, "tcp read received event\n");
+  fprintf(debuglog, "tcp read received event; ");
   #endif
   switch (receivemode) {
     case rcvmode_waiting_to_read_next: /* beginning with header */
@@ -594,7 +603,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
       retval = read(activeSocketForIncomingData, &((char *)&rhead)[receiveindex],
                     sizeof(rhead) - receiveindex);
   #ifdef DEBUG
-      fprintf(debuglog, "tcp receive stage 1:%d bytes\n", retval);
+      fprintf(debuglog, "stage 1 :%d bytes; ", retval);
       fflush(debuglog);
   #endif
       if (retval == 0) { /* end of file, peer terminated */
@@ -635,7 +644,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
       receiveindex = 0;
       receivemode = rcvmode_got_header_start_reading_data;
   #ifdef DEBUG
-      fprintf(debuglog, "tcp receive before stage3, expect %d bytes\n",
+      fprintf(debuglog, "pre-stage 3, expect %d bytes; ",
               rhead.length);
       fflush(debuglog);
   #endif
@@ -645,7 +654,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
       retval = read(activeSocketForIncomingData, &receivedDataBuffer[receiveindex],
                     MIN(LOC_BUFSIZE, rhead.length) - receiveindex);
   #ifdef DEBUG
-      fprintf(debuglog, "tcp rec stage 3:%d bytes, wanted:%d\n", retval,
+      fprintf(debuglog, "stage 3:%d bytes, wanted:%d; ", retval,
               MIN(LOC_BUFSIZE, rhead.length) - receiveindex);
       fflush(debuglog);
   #endif
@@ -665,7 +674,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
       if (receiveindex >= rhead.length) {
         receivemode = rcvmode_finished_reading_a_packet; /* done */
   #ifdef DEBUG
-        fprintf(debuglog, "tcp receive stage 4 reached\n");
+        fprintf(debuglog, "stage 4; ");
         fflush(debuglog);
   #endif
       }
