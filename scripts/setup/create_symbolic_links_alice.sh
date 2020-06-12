@@ -30,17 +30,14 @@ then
   ln -s "$DIR/alice/logs"                             ALICE/DIR/LOGS
   ln -s "$DIR/alice/scripts"                          ALICE/DIR/SCRIPTS
 
-  # Pipes (Not declared here as the pipes are created by the program itself)
+  # Pipes (Named as {x}To{y}. Shortened as long pipe names cause issues)
   ln -s "$DIR/alice/pipes"                       ALICE/PIPES
-  mkfifo                                         ALICE/PIPES/chopper_to_postproc              -m0600
-  mkfifo                                         ALICE/PIPES/postproc_to_transferd            -m0600
-  mkfifo                                         ALICE/PIPES/transferd_to_notifhandler        -m0600
-  mkfifo                                         ALICE/PIPES/transferd_to_ec                  -m0600
-  mkfifo                                         ALICE/PIPES/ec_cmdpipe                       -m0600
-  mkfifo                                         ALICE/PIPES/ec_querypipe                     -m0600
-  mkfifo                                         ALICE/PIPES/ec_to_transferd                  -m0600
-  # Legacy pipes
-  mkfifo                                         ALICE/PIPES/chopper_to_transferd             -m0600
+  mkfifo                                         ALICE/PIPES/chprToTrfrd                      -m0600
+  mkfifo                                         ALICE/PIPES/trfrdToNtfHndlr                  -m0600
+  mkfifo                                         ALICE/PIPES/trfrdToEc                        -m0600
+  mkfifo                                         ALICE/PIPES/ecCmd                            -m0600
+  mkfifo                                         ALICE/PIPES/ecQuery                          -m0600
+  mkfifo                                         ALICE/PIPES/ecToTrfrd                        -m0600
 
   cd ../
   DIR_CODE="$PWD"

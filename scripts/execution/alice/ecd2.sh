@@ -18,13 +18,13 @@ numOfBlocks=1
 
 # Note that the notif, response & query pipes are just placeholders / dummy for now
 ALICE/EXE/ECD2 \
-  -c ALICE/PIPES/ec_cmdpipe \
-  -s ALICE/PIPES/ec_to_transferd \
-  -r ALICE/PIPES/transferd_to_ec \
+  -c ALICE/PIPES/ecCmd \
+  -s ALICE/PIPES/ecToTrfrd \
+  -r ALICE/PIPES/trfrdToEc \
   -d ALICE/DIR/T3_SIFTED \
   -f ALICE/DIR/FINAL_KEY \
   -l ALICE/DIR/LOGS/ec_processed_epochs.txt  \
   -q ALICE/DIR/LOGS/ec_responsepipe_placeholder.txt \
-  -Q ALICE/PIPES/ec_querypipe & \
+  -Q ALICE/PIPES/ecQuery & \
 
-  printf "0x$epoch $numOfBlocks\n" > ALICE/PIPES/ec_cmdpipe
+  printf "0x$epoch $numOfBlocks\n" > ALICE/PIPES/ecCmd

@@ -38,6 +38,11 @@ BOB/EXE/PFIND\
 echo "time diff is ${timeDiff}"
 printf "\n Running costream \n\n"
 
+if [ "$timeDiff" = "" ]; then
+  echo "Something went wrong with pfind"
+  exit 1
+fi
+
 # COSTREAM
 # Ordered by T1,T2,T3,T4,start epoch, time diff
 # Note that it does not do a clean exit if you pass in a filename, but it does generate output & logs
@@ -52,7 +57,7 @@ BOB/EXE/COSTREAM \
         -e $((16#$epoch)) \
         -t $timeDiff \
         -G 3 \
-        -M BOB/PIPES/costream_to_transferd \
+        -M BOB/PIPES/cstrmToTrfrd \
         -l BOB/DIR/LOGS/costream/notif_consumed_type1.txt \
         -L BOB/DIR/LOGS/costream/notif_consumed_type2.txt \
         -m BOB/DIR/LOGS/costream/notif_generated_type3.txt \

@@ -29,14 +29,14 @@ then
   ln -s "$DIR/bob/logs"                               BOB/DIR/LOGS
   ln -s "$DIR/bob/scripts"                            BOB/DIR/SCRIPTS
   
-  # Pipes
+  # Pipes (Named as {x}To{y}. Shortened as long pipe names cause issues)
   ln -s "$DIR/bob/pipes"                              BOB/PIPES
-  mkfifo                                              BOB/PIPES/transferd_to_notifhandler -m0600
-  mkfifo                                              BOB/PIPES/costream_to_transferd      -m0600
-  mkfifo                                              BOB/PIPES/ec_cmdpipe                 -m0600
-  mkfifo                                              BOB/PIPES/ec_querypipe               -m0600
-  mkfifo                                              BOB/PIPES/transferd_to_ec            -m0600
-  mkfifo                                              BOB/PIPES/ec_to_transferd            -m0600
+  mkfifo                                              BOB/PIPES/trfrdToNtfHndlr            -m0600
+  mkfifo                                              BOB/PIPES/cstrmToTrfrd               -m0600
+  mkfifo                                              BOB/PIPES/ecCmd                      -m0600
+  mkfifo                                              BOB/PIPES/ecQuery                    -m0600
+  mkfifo                                              BOB/PIPES/trfrdToEc                  -m0600
+  mkfifo                                              BOB/PIPES/ecToTrfrd                  -m0600
 
   cd ../
   DIR_CODE="$PWD"

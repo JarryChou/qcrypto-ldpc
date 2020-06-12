@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Descript:
-# This script listens for any file names (which are also epochs) passed in by transferd.c through BOB/PIPES/transferd_to_type2handler.
+# This script listens for any file names (which are also epochs) passed in by transferd.c through the provided input pipe.
 # Since all files must be Type-2 files, it automatically calls BOB/DIR/SCRIPTS/pfind_then_costream.sh with the epoch.
 # In other words, it is the bridge between transferd.c -> pfind and costream
 # Because the same epoch may be send multiple times (depending on how many times transferd needs to read), 

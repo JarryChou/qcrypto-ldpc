@@ -20,7 +20,7 @@ ALICE/EXE/CHOPPER \
   -i $1\
   -D ALICE/DIR/TCP_SRC/\
   -d ALICE/DIR/T3/\
-  -l ALICE/PIPES/chopper_to_transferd\
+  -l ALICE/PIPES/chprToTrfrd\
   -F\
   -e ALICE/DIR/LOGS/chopper/debuglogs.txt\
   -U\
