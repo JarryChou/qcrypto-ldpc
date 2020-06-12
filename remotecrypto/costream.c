@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[]) {
         loghandle[i] = fopen(logfname[i], "a");
       }
       if (!loghandle[i]) return -emsg(26 + i);
-      fprintf(debuglog, "Log handle opened\n", i);
+      fprintf(debuglog, "Log handle opened\n");
       fflush(debuglog);
     } else if (!i) {
       loghandle[i] = stdout;

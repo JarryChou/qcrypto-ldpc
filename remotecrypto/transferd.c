@@ -581,7 +581,7 @@ int blockUntilEvent() {
     /* eat through set */
   #ifdef DEBUG
       fprintf(debuglog, "returned %d.", retval);
-      unsigned long nowTime = (unsigned long)time(NULL);
+      nowTime = (unsigned long)time(NULL);
       if (debugRecordTime) {
         debugRecordTime = (unsigned long)time(NULL);
       }
