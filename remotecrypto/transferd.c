@@ -568,7 +568,7 @@ int blockUntilEvent() {
   timeout = HALFSECOND;
   #ifdef DEBUG
     unsigned long nowTime = (unsigned long)time(NULL);
-    if (debugRecordTime) {
+    if (!debugRecordTime) {
       debugRecordTime = (unsigned long)time(NULL);
     }
     fprintf(debuglog, "\nTime Elapsed: %lu", (nowTime - debugRecordTime));
@@ -582,7 +582,7 @@ int blockUntilEvent() {
   #ifdef DEBUG
       fprintf(debuglog, "returned %d.", retval);
       nowTime = (unsigned long)time(NULL);
-      if (debugRecordTime) {
+      if (!debugRecordTime) {
         debugRecordTime = (unsigned long)time(NULL);
       }
       fprintf(debuglog, "\nTime Elapsed: %lu\n", (nowTime - debugRecordTime));
