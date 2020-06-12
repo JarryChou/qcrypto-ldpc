@@ -184,6 +184,11 @@ PROTECTION OPTION
 #define DEFAULT_IGNORECOUNT 0      /* how many events to ignore initially */
 #define DEFAULT_MAXDIFF 0          /* maximum allowable time between events */
 
+// Debug variables
+#undef DEBUG
+#define DEBUG 1
+char debug_printFirstNTimestamps = 10;
+
 typedef struct rawevent {
   unsigned int cv; /* most significan word */
   unsigned int dv; /* least sig word */
@@ -395,10 +400,12 @@ unsigned int overlay_correction[16] = {0,   0, 0, PL2, 0,   0,   0, 0,
                                        MI2, 0, 0, 0,   MI2, MI2, 0, 0};
 /* opening routine to target files & epoch construction */
 int open_epoch(unsigned int te) {
+  #ifdef DEBUG
   if (debuglog) {
     fprintf(debuglog, "open_epoch, timestamp %d\n", te);
     fflush(debuglog);
   }
+  #endif
   unsigned long long aep, tim;
   unsigned int aepoc, finalepoc;
   int overlay;
@@ -411,11 +418,13 @@ int open_epoch(unsigned int te) {
     overlay = ((aepoc >> 15) & 3) | /* from absolute epoc */
               ((te >> 13) & 0xc);   /* from timestamp epoc */
     finalepoc = (aepoc & 0xfffe0000) + te + overlay_correction[overlay];
+    #ifdef DEBUG
     if ((debuglog) && overlay_correction[overlay]) {
       fprintf(debuglog, "ovrly corr; tim: %lld, te: %08x, overlay: %08x\n", tim,
               te, overlay);
       fflush(debuglog);
     }
+    #endif
   } else {
     finalepoc = te;
   }
@@ -543,9 +552,11 @@ int close_epoch() {
   }
   /* logging */
   if (verbosity_level >= 0) {
+    #ifdef DEBUG
     if (debuglog) { 
       fprintf(debuglog, "close_epoch: ");
     }
+    #endif
     switch (verbosity_level) {
       case 0: /* bare hex names */
         fprintf(loghandle, "%08x\n", head2.epoc);
@@ -559,11 +570,12 @@ int close_epoch() {
                 thisepoch_converted_entries);
         break;
       case 3: /* log length w text and epoch and setbits */
-        fprintf(loghandle, "epoch: %08x, entries: %d, type2bits: %d\n",
-                head2.epoc, thisepoch_converted_entries, type2bitwidth);
+        fprintf(loghandle, "epoch: %08x, entries: %d, type2bits: %d\n", head2.epoc, thisepoch_converted_entries, type2bitwidth);
+        #ifdef DEBUG
         if (debuglog) { 
           fprintf(debuglog, "epoch: %08x, entries: %d, type2bits: %d ", head2.epoc, thisepoch_converted_entries, type2bitwidth);
         }
+        #endif
         break;
       case 4: /* complex log */
         switch (numberofdetectors) {
@@ -573,11 +585,12 @@ int close_epoch() {
               for (j = 0; j < 16; j++)
                 if (sumindex[i] & j) sum[i] += detcnts[j];
             }
-            fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\n", head2.epoc, sum[0],
-                    sum[1], sum[2], sum[3], sum[4]);
+            fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\n", head2.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
+            #ifdef DEBUG
             if (debuglog) { 
               fprintf(debuglog, "histo: %d\t%d\t%d\t%d\t%d", head2.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
             }
+            #endif
             break;
           case 6: /* cater for six-detector case. The single
                  count rates only reflect correctly identified
@@ -589,19 +602,23 @@ int close_epoch() {
             }
             fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", head2.epoc,
                     sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
+            #ifdef DEBUG
             if (debuglog) { 
               fprintf(debuglog, "histo %08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d", head2.epoc,
                     sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
             }
+            #endif
         }
         break;
     }
     if (flushmode) fflush(loghandle);
+    #ifdef DEBUG
     if (debuglog) {
       fprintf(debuglog, "\n");
       //fprintf(debuglog, "debuglog:%8x\n", head2.epoc);
       fflush(debuglog);
     }
+    #endif
   }
 
   /* servo loop for optimal compression parameter */
@@ -781,12 +798,14 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  #ifdef DEBUG
   if (debugfname[0]) { /* we got a file name */
     debuglog = fopen(debugfname, "a+");
     if (!debuglog) return -emsg(37);
   } else {
     debuglog = NULL; /* we don't log debug messages */
   }
+  #endif
 
   /* open I/O streams if possible */
   switch (type2mode) {
@@ -890,40 +909,54 @@ int main(int argc, char *argv[]) {
       t_epoc = cv >> 15;                /* take most sig 17 bit of timer */
       t_state = dv & statemask;         /* get detector pattern */
       t_fine = (cv << 17) | (dv >> 15); /* fine time unit */
-
       /* trap weired time differences */
       t_new =
           (((unsigned long long)t_epoc) << 32) + t_fine; /* get event time */
+      
+      #ifdef DEBUG
+      if (debuglog && debug_printFirstNTimestamps) {
+        debug_printFirstNTimestamps--;
+        fprintf(debuglog, "Timestamp %d: %lli\n", debug_printFirstNTimestamps, t_new);
+        fflush(debuglog);
+      }
+      #endif
+
       if (t_new < t_old) { /* negative time difference */
         if ((t_new - t_old) & 0x1000000000000ll) { /* check rollover */
           inpointer++;
           continue; /* ...are ignored */
         }
+        #ifdef DEBUG
         if (debuglog) {
           fprintf(debuglog,
                   "chopper: got neg difference; old: %llx, new: %llx\n", t_old,
                   t_new);
           fflush(debuglog);
         }
+        #endif
       }
       if (maxdiff) { /* test for too large timings */
         if (t_new > t_old + maxdiff) {
           if ((t_old - t_new + maxdiff) & 0x1000000000000ll) { /*rollover*/
             if (t_old) { /* make sure to allow time diff at start */
               inpointer++;
+              #ifdef DEBUG
               if (debuglog) {
                 fprintf(debuglog, "chopper: point 2, old: %llx, new: %llx\n",
                         t_old, t_new);
                 fflush(debuglog);
               }
+              #endif
               continue;
             }
+            #ifdef DEBUG
             if (debuglog) {
               fprintf(debuglog,
                       "chopper: got pos difference; old: %llx, new: %llx\n",
                       t_old, t_new);
               fflush(debuglog);
             }
+            #endif
           }
         }
       }
@@ -933,11 +966,13 @@ int main(int argc, char *argv[]) {
         /* THIS TEST SHOULD BE OBSOLETE... */
         if (((t_epoc - oldepoc) & 0x10000) && epochinit) { /*  rollover */
           /* something's fishy. ignore value */
+          #ifdef DEBUG
           if (debuglog) {
             fprintf(debuglog, "chopper: point 3, old: %llx, new: %llx\n", t_old,
                     t_new);
             fflush(debuglog);
           }
+          #endif
           inpointer++;
           fishyness++;
           if (fishyness > MAXIMAL_FISHYNESS) {
@@ -1050,6 +1085,8 @@ int main(int argc, char *argv[]) {
   free(inbuffer);
   free(outbuf2);
   free(outbuf3);
+  #ifdef DEBUG
   if (debuglog) fclose(debuglog);
+  #endif
   return 0; /* end begnignly */
 }

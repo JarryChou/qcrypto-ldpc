@@ -136,6 +136,11 @@ remove fishyness correction; obsolete with USB hardware??
 #define MAXIMAL_FISHYNESS 5        /* how many out-ot-time events to detect */
 #define DEFAULT_MAXDIFF 0          /* maximum allowable time between events */
 
+// Debug variables
+#undef DEBUG
+#define DEBUG 1
+char debug_printFirstNTimestamps = 10;
+
 /* global variables */
 int verbosity_level = DEFAULT_VERBOSITY; /* determie log file format */
 char fname1[FNAMELENGTH] = "";           /* input file name */
@@ -222,10 +227,12 @@ unsigned int overlay_correction[16] = {0,   0, 0, PL2, 0,   0,   0, 0,
                                        MI2, 0, 0, 0,   MI2, MI2, 0, 0};
 /* opening routine to target files & epoch construction */
 int open_epoch(unsigned int te) {
+  #ifdef DEBUG
   if (debuglog) {
     fprintf(debuglog, "open_epoch, timestamp %d\n", te);
     fflush(debuglog);
   }
+  #endif
   unsigned long long aep, tim;
   unsigned int aepoc = 0, finalepoc;
   int overlay;
@@ -238,11 +245,13 @@ int open_epoch(unsigned int te) {
     overlay = ((aepoc >> 15) & 3) | /* from absolute epoc */
               ((te >> 13) & 0xc);   /* from timestamp epoc */
     finalepoc = (aepoc & 0xfffe0000) + te + overlay_correction[overlay];
+    #ifdef DEBUG
     if ((debuglog) && overlay_correction[overlay]) {
       fprintf(debuglog, "ovrly corr; tim: %lld, te: %08x, overlay: %08x\n", tim,
               te, overlay);
       fflush(debuglog);
     }
+    #endif
   } else {
     finalepoc = te;
   }
@@ -308,9 +317,11 @@ int close_epoch() {
   }
   /* logging */
   if (verbosity_level >= 0) {
+    #ifdef DEBUG
     if (debuglog) { 
       fprintf(debuglog, "close_epoch: ");
     }
+    #endif
     switch (verbosity_level) {
       case 0: /* bare hex names */
         fprintf(loghandle, "%08x\n", head1.epoc);
@@ -322,9 +333,11 @@ int close_epoch() {
       case 2: /* log length w text and epoch */
         fprintf(loghandle, "epoch: %08x \t entries: %d\n", head1.epoc,
                 thisepoch_converted_entries);
+        #ifdef DEBUG        
         if (debuglog) { 
           fprintf(debuglog, "epoch: %08x \t entries: %d ", head1.epoc, thisepoch_converted_entries);
         }
+        #endif
         break;
       case 3:                        /* do complex log */
         if (fourdetectorlogoption) { /* old style logging */
@@ -336,9 +349,11 @@ int close_epoch() {
           }
           fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\n", head1.epoc, sum[0],
                   sum[1], sum[2], sum[3], sum[4]);
+          #ifdef DEBUG
           if (debuglog) { 
             fprintf(debuglog, "histo: %08x\t%d\t%d\t%d\t%d\t%d", head1.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
           }
+          #endif
         } else {
           for (i = 0; i < 7; i++) {
             sum[i] = 0;
@@ -348,10 +363,12 @@ int close_epoch() {
           }
           fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", head1.epoc,
                   sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
+          #ifdef DEBUG
           if (debuglog) { 
             fprintf(debuglog, "histo: %08x\t%d\t%d\t%d\t%d\t%d\t%d\t%d", head1.epoc,
                   sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], sum[6]);
           }
+          #endif
         }
         break;
       default:
@@ -360,11 +377,13 @@ int close_epoch() {
     }
     if (flushmode) fflush(loghandle);
   }
+  #ifdef DEBUG
   if (debuglog) {
     fprintf(debuglog, "\n");
     //fprintf(debuglog, "ch2depoch: %08x\n", head1.epoc);
     fflush(debuglog);
   }
+  #endif
   return 0;
 }
 
@@ -445,8 +464,9 @@ int main(int argc, char *argv[]) {
   } else {
     debuglog = NULL; /* no debug file present */
   }
-
+  #ifdef DEBUG
   if (debuglog) fprintf(debuglog, "starting chopper2\n");
+  #endif
 
   /* prepare input buffer */
   inbuffer = (struct rawevent *)malloc(INBUFENTRIES * sizeof(struct rawevent));
@@ -512,8 +532,10 @@ int main(int argc, char *argv[]) {
     i1 = inbytesread - i1; /* leftover from last time */
     ibf2a = &ibf2[i1];     /* pointer to next free character */
     // if (i1) fprintf(stderr,"got leftover: i1= %d bytes /n",i1);
+    #ifdef DEBUG
     if (debuglog)
       if (i1) fprintf(debuglog, "got leftover: i1= %d bytes /n", i1);
+    #endif
 
     /* read in next bufferfill */
     inbytesread =
@@ -537,16 +559,27 @@ int main(int argc, char *argv[]) {
       t_fine = (cv << 17) | (dv >> 15);
       t_new =
           (((unsigned long long)t_epoc) << 32) + t_fine; /* get event time */
+
+      #ifdef DEBUG
+      if (debuglog && debug_printFirstNTimestamps) {
+        debug_printFirstNTimestamps--;
+        fprintf(debuglog, "Timestamp %d: %lli\n", debug_printFirstNTimestamps, t_new);
+        fflush(debuglog);
+      }
+      #endif
+      
       if (t_new < t_old) { /* do general comparison for neg differences */
         if ((t_new - t_old) & 0x1000000000000ll) { /* treat rollover */
           inpointer++;
           fprintf(stderr, "got negative difference: new: %0llx old: %0llx\n",
                   t_new, t_old);
+          #ifdef DEBUG
           if (debuglog) {
             fprintf(debuglog,
                     "got negative difference: new: %0llx old: %0llx\n", t_new,
                     t_old);
           }
+          #endif
 
           continue; /* ...are ignored */
         }
@@ -557,12 +590,13 @@ int main(int argc, char *argv[]) {
             if (t_old) { /* make sure to allow time diff at start */
               fprintf(stderr, "got pos difference: new: %016llx old: %016llx\n",
                       t_new, t_old);
+              #ifdef DEBUG
               if (debuglog) {
                 fprintf(debuglog,
                         "got pos difference: new: %016llx old: %016llx\n",
                         t_new, t_old);
               }
-
+              #endif
               inpointer++;
               continue;
             }
@@ -580,9 +614,11 @@ int main(int argc, char *argv[]) {
           fishyness++;
           fprintf(stderr, "got neg tepoc: old: %08x new: %08x", oldepoc,
                   t_epoc);
+          #ifdef DEBUG
           if (debuglog)
             fprintf(debuglog, "got neg tepoc: old: %08x new: %08x", oldepoc,
                     t_epoc);
+          #endif
           if (fishyness > MAXIMAL_FISHYNESS) {
             fprintf(stderr, "(negdt): tepoch: %08x, old: %08x\n", t_epoc,
                     oldepoc);
@@ -596,10 +632,11 @@ int main(int argc, char *argv[]) {
           fishyness++;
           fprintf(stderr, "got pos tepoc: old: %08x new: %08x", oldepoc,
                   t_epoc);
+          #ifdef DEBUG
           if (debuglog)
             fprintf(debuglog, "got pos tepoc: old: %08x new: %08x", oldepoc,
                     t_epoc);
-
+          #endif
           if (fishyness > MAXIMAL_FISHYNESS) {
             fprintf(stderr, "(posdt): tepoch: %08x, old: %08x\n", t_epoc,
                     oldepoc);
