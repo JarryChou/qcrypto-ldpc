@@ -51,7 +51,8 @@ printf "\nRunning\n"
 # https://www.artificialworlds.net/blog/2012/10/17/bash-associative-array-examples/
 declare -A setToProcess
 declare -A setProcessed
-
+oldTime=$(date +%s%N)
+newTime=0
 # KIV: include termination clause aside from just shutting down the bash script
 # Keep waiting for data to read from the pipe
 while [ 1 == 1 ]; do
@@ -63,7 +64,9 @@ while [ 1 == 1 ]; do
       setToProcess[$notification]=1
     fi
   done < $1
-  echo "Start Time:" $(date +%s%N)
+  newTime=$(date +%s%N)
+  echo "Read notif time (ns):" "$(($newTime-$oldTime))"
+  oldTime=$newTime
   # For every notification (which is in effect an epoch)
   for notification in "${!setToProcess[@]}"; do 
     echo "Processing ${notification}"; 
@@ -75,5 +78,6 @@ while [ 1 == 1 ]; do
     setProcessed[$notification]=1
     unset setToProcess[$notification]
   done
-  echo "End Time:" $(date +%s%N)
+  newTime=$(date +%s%N)
+  echo "Process time (ns):" "$(($newTime-$oldTime))"
 done
