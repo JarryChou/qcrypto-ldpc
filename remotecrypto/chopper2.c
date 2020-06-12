@@ -575,7 +575,7 @@ int main(int argc, char *argv[]) {
                   t_new, t_old);
           #ifdef DEBUG
           if (debuglog) {
-            fprintf(debuglog, "got negative difference: new: %0llx (%lli) old: %0llx (%lli)\n", t_new, t_new, t_old, t_old);
+            fprintf(debuglog, "got negative difference: old: %0llx (%lli) new: %0llx (%lli)\n", t_old, t_old, t_new, t_new);
           }
           #endif
 

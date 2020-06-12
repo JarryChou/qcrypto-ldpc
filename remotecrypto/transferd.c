@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
 
       /* test for next transmission in the queue */
       #ifdef DEBUG
-      fprintf(debuglog, "Current write mode: %d\n", writemode);
+      fprintf(debuglog, "writeMode:%d", writemode);
       fflush(debuglog);
       #endif
       if (writemode == writemode_not_writing) {
@@ -570,7 +570,7 @@ int blockUntilEvent() {
   if (hasParam[arg_ec_in_pipe] && (packinmode != packinmode_finished_reading_a_packet)) FD_SET(ercinhandle, &readqueue);
   timeout = HALFSECOND;
   #ifdef DEBUG
-    fprintf(debuglog, "waiting for select...\n");
+    fprintf(debuglog, "\nwaiting for select...");
     fflush(debuglog);
   #endif
   retval = select(FD_SETSIZE, &readqueue, &writequeue, NULL, NULL);
@@ -851,7 +851,7 @@ int read_FromCmdHandle_ToTransferName() {
   hasFileToSend = 0; /* in case something goes wrong */
                 /* a command is coming */
   #ifdef DEBUG
-  fprintf(debuglog, "got incoming command note\n");
+  fprintf(debuglog, "got incoming command note; ");
   fflush(debuglog);
   #endif
   if (1 != fscanf(cmdhandle, FNAMFORMAT, transfername)) return -emsg(62);
@@ -866,7 +866,7 @@ int read_FromCmdHandle_ToTransferName() {
     }
   }
   #ifdef DEBUG
-  fprintf(debuglog, "command read in:>>%s,,\n", transfername);
+  fprintf(debuglog, "command read in:>>%s<<; ", transfername);
   fflush(debuglog);
   #endif
   /* consistency check for messages? */
@@ -948,14 +948,14 @@ int read_FromMsgInHandle_ToMessageArray() {
 
 int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
   #ifdef DEBUG
-  fprintf(debuglog, "writeevent received, writemode:%d\n", writemode);
+  fprintf(debuglog, "write event received, writemode:%d; ", writemode);
   fflush(debuglog);
   #endif
   switch (writemode) {
     case writemode_not_writing: /* nothing interesting */
             /* THIS SHOULD NOT HAPPEN */
   #ifdef DEBUG
-      fprintf(debuglog, "nothing to write...\n");
+      fprintf(debuglog, "Nothing to write. \n");
       fflush(debuglog);
   #endif
       break;
@@ -963,7 +963,7 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
       retval = write(activeSocketForOutgoingData, &((char *)&shead)[writeindex],
                       sizeof(shead) - writeindex);
   #ifdef DEBUG
-      fprintf(debuglog, "sent header, want:%d, sent:%d\n",
+      fprintf(debuglog, "Write header, want:%d, sent:%d; ",
               sizeof(shead) - writeindex, retval);
       fflush(debuglog);
   #endif
@@ -976,7 +976,7 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
     case writemode_write_data:          /* write data */
       retval = write(activeSocketForOutgoingData, &dataToSendBuffer[writeindex], shead.length - writeindex);
   #ifdef DEBUG
-      fprintf(debuglog, "send data;len: %d, retval: %d, idx %d\n",
+      fprintf(debuglog, "Write data;len: %d, retval: %d, idx %d; ",
               shead.length, retval, writeindex);
       fflush(debuglog);
   #endif
@@ -987,7 +987,7 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
       writemode = writemode_write_complete;
       /* if (verbosity>1) */
   #ifdef DEBUG
-      fprintf(debuglog, "sent file\n");
+      fprintf(debuglog, "Written file; ");
       fflush(debuglog);
   #endif
     case writemode_write_complete: /* done... */
@@ -1011,7 +1011,7 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
       }
       writemode = writemode_not_writing;
       #ifdef DEBUG
-      fprintf(debuglog, "write mode is now no longer writing\n");
+      fprintf(debuglog, "WriteMode=0;\n");
       fflush(debuglog);
       #endif
       break;
@@ -1036,7 +1036,7 @@ int read_FromFtnam_ToFileBuffer() {
   /* read source file */
   #ifdef DEBUG
   fprintf(debuglog,
-          "Attempting to open %s\n",
+          "Attempting to open %s ; ",
           ftnam);
   fflush(debuglog);
   #endif
@@ -1050,7 +1050,7 @@ int read_FromFtnam_ToFileBuffer() {
   close(srcfile);
   #ifdef DEBUG
   fprintf(debuglog,
-          "prepare for sending file; read file with return value %d\n",
+          "prep for sending; read file w/ retval %d;\n",
           retval);
   fflush(debuglog);
   #endif
