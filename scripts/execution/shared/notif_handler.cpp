@@ -89,6 +89,7 @@ void *read_notification_from_pipe( void *ptr ) {
                fprintf(stderr, "Received %s\n", buffer);
                #endif
                std::string notification;
+               notification.reserve(BUFFER_LENGTH);
                notification += buffer;
                // If it's a new notif we've not received before
                if (receivedNotifsSet.find(notification) == receivedNotifsSet.end()) {
