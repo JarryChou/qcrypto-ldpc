@@ -172,7 +172,7 @@
                  3: all logs get flushed
    -W write:     By default log files are opened with fopen(string, "a") which appends the text.
                  This causes issues if a pipe is passed in. Setting this parameter opens the file
-                 with fopen(strong, "w+") instead.
+                 with fopen(string, "w+") instead, specifically for logfile4.
    -E debuglog:  Specify a file for the debuglogs. Defaults to "costream_tlog".
 
 
@@ -1355,7 +1355,8 @@ int main(int argc, char *argv[]) {
     if (logfname[i][0]) { /* check if filename is defined */
       fprintf(debuglog, "Log file %s , i = %d defined\n", logfname[i], i);
       fflush(debuglog);
-      if (logAsWrite) {
+      // Make a special exception for logfile4 to write instead of append
+      if (i == 4 && logAsWrite) {
         // Write & truncate (supports pipes)
         loghandle[i] = fopen(logfname[i], "w+");
       } else {

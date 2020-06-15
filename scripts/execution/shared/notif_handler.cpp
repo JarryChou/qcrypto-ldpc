@@ -93,8 +93,8 @@ void *read_notification_from_pipe( void *ptr ) {
                notification += buffer;
                // If it's a new notif we've not received before
                if (receivedNotifsSet.find(notification) == receivedNotifsSet.end()) {
-                    pthread_mutex_lock(&mutexQueue);
                     receivedNotifsSet.insert(notification);
+                    pthread_mutex_lock(&mutexQueue);
                     pendingNotifsQueue.push(notification);
                     itemsToProcess++;
                     pthread_mutex_unlock(&mutexQueue);
