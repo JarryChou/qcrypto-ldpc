@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 
       /* test for next transmission in the queue */
       #ifdef DEBUG
-      fprintf(debuglog, "writeMode:%d", writemode);
+      fprintf(debuglog, "writeMode:%d; ", writemode);
       fflush(debuglog);
       #endif
       if (writemode == writemode_not_writing) {
@@ -585,7 +585,7 @@ int blockUntilEvent() {
       if (!debugRecordTime) {
         debugRecordTime = (unsigned long)time(NULL);
       }
-      fprintf(debuglog, "\nTime Elapsed (s): %lu\n", (nowTime - debugRecordTime));
+      fprintf(debuglog, " Waited for %lu s\n", (nowTime - debugRecordTime));
       debugRecordTime = (unsigned long)time(NULL);
       fflush(debuglog);
   #endif
@@ -615,13 +615,13 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
         }
         fprintf(stderr, "errno: %d ", errno);
   #ifdef DEBUG
-        fprintf(debuglog, "error st1: %d\n", errno);
+        fprintf(debuglog, "error st1: %d; ", errno);
         fflush(debuglog);
   #endif
         return -emsg(40);
       }
   #ifdef DEBUG
-      fprintf(debuglog, "p3\n");
+      fprintf(debuglog, "p3; ");
       fflush(debuglog);
   #endif
       receiveindex += retval;
@@ -630,7 +630,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
         break;
       }
   #ifdef DEBUG
-      fprintf(debuglog, "p4, len:%d\n", rhead.length);
+      fprintf(debuglog, "p4, len:%d; ", rhead.length);
       for (i = 0; i < 12; i++)
         fprintf(debuglog, "%02x ", ((unsigned char *)&rhead)[i]);
       fprintf(debuglog, "\n");
@@ -663,7 +663,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
         if (errno == EAGAIN) break;
         fprintf(stderr, "errno: %d ", errno);
   #ifdef DEBUG
-        fprintf(debuglog, "errno (read, stag3): %d", errno);
+        fprintf(debuglog, "errno (read, stag3): %d; ", errno);
         fflush(debuglog);
   #endif
         if (errno == ECONNRESET) return readResult_reconnect;
@@ -686,7 +686,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
       /* we got a file */
       /*if (verbosity >1) */
   #ifdef DEBUG
-        fprintf(debuglog, "got file via tcp, len:%d\n", rhead.length);
+        fprintf(debuglog, "got file via tcp, len:%d; ", rhead.length);
         fflush(debuglog);
   #endif
         /* open target file */
@@ -694,10 +694,10 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
         atohex(&ffnam[arg_destdir][strlen(ffnam[arg_destdir])], rhead.epoch);
         destfile = open(tempFileName, TARGETFILEMODE, FILE_PERMISSIONS);
         if (destfile < 0) {
-          fprintf(debuglog, "destfile  val: %x\n", destfile);
-          fprintf(debuglog, "file name: %s, len: %d\n", ffnam[arg_destdir],
+          fprintf(debuglog, "destfile  val: %x; ", destfile);
+          fprintf(debuglog, "file name: %s, len: %d; ", ffnam[arg_destdir],
                   rhead.length);
-          fprintf(debuglog, "errno on opening: %d\n", errno);
+          fprintf(debuglog, "errno on opening: %d; ", errno);
           fflush(debuglog);
           destfile = open("transferdump", O_WRONLY);
           if (destfile != -1) {
@@ -716,7 +716,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
         }
         /* send notification */
   #ifdef DEBUG
-        fprintf(debuglog, "sending notif on file %08x to %s\n", rhead.epoch, fname[arg_notify]);
+        fprintf(debuglog, "sending notif on file %08x to %s; ", rhead.epoch, fname[arg_notify]);
         fflush(debuglog);
   #endif
         loghandle = fopen(fname[arg_notify], "a");
@@ -725,7 +725,7 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
         fflush(loghandle);
         fclose(loghandle);
   #ifdef DEBUG
-        fprintf(debuglog, "sent notif on file %08x\n", rhead.epoch);
+        fprintf(debuglog, "sent notif on file %08x; ", rhead.epoch);
         fflush(debuglog);
   #endif
         break;
