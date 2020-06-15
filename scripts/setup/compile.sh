@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 # Clean and compile errorcorrection & remotecrypto files.
-# Script can be run from any working directory.
+# Script can be run from any working directory, but the script itself is expected to be in the qcrypto/scripts/setup dir.
 # KIV: move the compiled files into the build directory
 
 # Allow script to be run from other working directories
@@ -16,6 +16,11 @@ make -f "./Makefile" all
 
 cd "$DIR/../../remotecrypto"
 # Clean & compile main code
+make -f "./Makefile" clean
+make -f "./Makefile" all
+
+# Compile any scripts if needed
+cd "$DIR/../execution/shared"
 make -f "./Makefile" clean
 make -f "./Makefile" all
 

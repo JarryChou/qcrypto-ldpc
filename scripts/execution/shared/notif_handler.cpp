@@ -24,7 +24,7 @@
 #define DEBUG 1
 #undef DEBUG
 
-#define BUFFER_LENGTH = 10
+#define BUFFER_LENGTH 10
 
 // Functions
 void *read_notification_from_pipe( void *ptr );

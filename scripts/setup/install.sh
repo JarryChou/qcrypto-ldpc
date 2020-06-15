@@ -20,11 +20,6 @@ then
     # Copy scripts from execution dir to build dir
     cp -a ../execution/alice/. ../../build/alice/scripts/
     cp -a ../execution/shared/. ../../build/alice/scripts/
-    # Compile any scripts if needed
-    cd ../../build/alice/scripts/
-    make -f "./Makefile" clean
-    make -f "./Makefile" all
-    cd ../../../scripts/setup/
 fi
 
 # For Bob
@@ -36,9 +31,4 @@ then
     # Copy scripts from execution dir to build dir
     cp -a ../execution/bob/. ../../build/bob/scripts/
     cp -a ../execution/shared/. ../../build/bob/scripts/
-    # Compile any scripts if needed
-    cd ../../build/alice/scripts/
-    make -f "./Makefile" clean
-    make -f "./Makefile" all
-    cd ../../../scripts/setup/
 fi
