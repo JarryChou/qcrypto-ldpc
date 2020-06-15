@@ -11,6 +11,8 @@
  * In fact, I will go so far as to say that in the future once the command is finalized, it should be hardcoded into this program, or
  * this program could be used as part of an attack.
  * 
+ * 2. Note that this script is very specific on _what_ it is receiving. It only receives items of length 8 (i.e. epochs). Anything else is truncated.
+ * 
  * Usage: notif_handler {input pipe from transferd} {command to execute}
  */
 
@@ -21,16 +23,18 @@
 #include <queue>
 #include <unordered_set>
 
-#define DEBUG 1
 #undef DEBUG
+#define DEBUG 1
 
 #define BUFFER_LENGTH 10
+#define EPOCH_LENGTH 8
 
 // Functions
 void *read_notification_from_pipe( void *ptr );
 void *process_notification( void *ptr );
 
 // Variables
+// Using string to avoid the headache, but you could optimize if this is necessary
 std::queue<std::string> pendingNotifsQueue;
 std::unordered_set<std::string> receivedNotifsSet;
 int itemsToProcess = 0;
@@ -47,27 +51,21 @@ int main(int argc, char *argv[]) {
      // Param management
      if (argc != 3) {
           printf("Wrong number of parameters.\n Usage: program {input pipe from transferd} {shell command to execute}");
+          exit(1);
      }
      char *inputPipe = argv[1];
      char *shellCmd = argv[2];
 
      // Thread management
-     pthread_t thread1, thread2;
-     int iret1, iret2;
-
      /* Create independent threads each of which will execute function */
      // src: https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html#SYNCHRONIZATION
-
-     iret1 = pthread_create( &thread1, NULL, read_notification_from_pipe, (void*) inputPipe);
-     iret2 = pthread_create( &thread2, NULL, process_notification, (void*) shellCmd);
-
-     /* Wait till threads are complete before main continues. Unless we  */
-     /* wait we run the risk of executing an exit which will terminate   */
-     /* the process and all threads before the threads have completed.   */
-
-     pthread_join( thread1, NULL);
-     pthread_join( thread2, NULL); 
-
+     pthread_t thread1;
+     // Read notifications on pthread
+     int iret1 = pthread_create(&thread1, NULL, read_notification_from_pipe, (void*) inputPipe)
+     // Process notifications on main 
+     process_notification(shellCmd);
+     // This section never gets called in the current code because there's no termination
+     pthread_join(thread1, NULL);
      exit(0);
 }
 
@@ -85,8 +83,11 @@ void *read_notification_from_pipe( void *ptr ) {
           char buffer[BUFFER_LENGTH];
           // Continually receive and store into queue
           while (1) {
+               // Possible optimization: Increase buffer size, string tokenize
                if (!fgets(buffer, BUFFER_LENGTH, notifHandle)) break;
+               #ifdef DEBUG
                fprintf(stderr, "Received %s\n", buffer);
+               #endif
                std::string notification;
                notification += buffer;
                // If it's a new notif we've not received before
@@ -96,10 +97,13 @@ void *read_notification_from_pipe( void *ptr ) {
                     pendingNotifsQueue.push(notification);
                     itemsToProcess++;
                     pthread_mutex_unlock(&mutexQueue);
+                    // Unblock the other thread if needed
                     if (processingThreadBlocked) {
                          pthread_mutex_unlock(&mutexProcess);
                     }
+                    #ifdef DEBUG
                     fprintf(stderr, "Unlocked\n");
+                    #endif
                }
           }
           fprintf(stderr, "Something went wrong with the notifHandle.\n");
@@ -110,34 +114,48 @@ void *read_notification_from_pipe( void *ptr ) {
 /**
  * Thread 2: block if there is no new notifications. Otherwise, process the notifications.
  */
-void *process_notification( void *ptr ) {
+void process_notification( char *ptr ) {
      // Initialize base command
-     std::string baseCommand;
-     baseCommand += (char *) ptr;
-     baseCommand += " ";
+     // Reuse the same char buffer for optimal performance
+     int baseCmdLength = strlen(ptr);
+     int cmdBufferLength = baseCmdLength + EPOCH_LENGTH + 2;
+     char cmdBuffer[baseCmdLength + EPOCH_LENGTH + 2]; // +1 for terminating character, +1 for space in between
+     strcpy(cmdBuffer, ptr);
+     cmdBuffer[baseCmdLength] = ' ';
      while (1) {
           // Block until we have something to process
           if (itemsToProcess <= 0) {
                pthread_mutex_lock(&mutexProcess);
+               #ifdef DEBUG
                fprintf(stderr, "In blocking mode\n");
+               #endif
                processingThreadBlocked = 1;
                pthread_mutex_lock(&mutexProcess);
+               #ifdef DEBUG
                fprintf(stderr, "Out of blocking mode\n");
+               #endif
                // We will now wait for the other pthread to unlock this mutex
                // Once that is done we will also unlock this mutex for repeated use
                pthread_mutex_unlock(&mutexProcess);
                processingThreadBlocked = 0;
           }
+          #ifdef DEBUG
           fprintf(stderr, "Now beginning to process stuff\n");
+          #endif
           while (itemsToProcess > 0) {
                // Read epoch
                pthread_mutex_lock(&mutexQueue);
-               std::string currentCommand = baseCommand + pendingNotifsQueue.front();
+               // Put terminating character after the base command
+               cmdBuffer[baseCmdLength + 1] = '\0';
+               // Since we know the length of the epoch we can do this
+               strncpy(cmdBuffer, pendingNotifsQueue.front().c_str(), EPOCH_LENGTH);
+               // Add terminating character at the very end (this doesn't truncate epoch)
+               cmdBuffer[cmdBufferLength - 1] = '\0';
                pendingNotifsQueue.pop();
                itemsToProcess--;
                pthread_mutex_unlock(&mutexQueue);
                // Execute command on epoch
-               system(currentCommand.c_str());
+               system(cmdBuffer);
           }
      }
 }
