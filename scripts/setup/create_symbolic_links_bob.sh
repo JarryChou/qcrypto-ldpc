@@ -21,7 +21,7 @@ then
   ln -s "$DIR/bob/data/timestamp_events"              BOB/DIR/TIMESTAMPS
   ln -s "$DIR/bob/data/type1-time_and_click"          BOB/DIR/T1
   ln -s "$DIR/bob/data/type2-time_and_basis"          BOB/DIR/T2
-  ln -s "$DIR/bob/data/type3-rawkey"                  BOB/DIR/T3
+  ln -s "$DIR/bob/data/type3-rawkey-sifted"           BOB/DIR/T3_SIFTED
   ln -s "$DIR/bob/data/type4-chosen_basis_indexes"    BOB/DIR/T4
   ln -s "$DIR/bob/data/classical_channel_dest"        BOB/DIR/TCP_DEST
   ln -s "$DIR/bob/data/classical_channel_src"         BOB/DIR/TCP_SRC

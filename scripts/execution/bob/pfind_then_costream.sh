@@ -48,11 +48,10 @@ fi
 # Note that it does not do a clean exit if you pass in a filename, but it does generate output & logs
 # Note that Bob will complain "No content reading input stream 2." if you didn't pass in a stream
 # WARNING: COSTREAM opens costream_tlog as its debuglog
-timeout 4s \
 BOB/EXE/COSTREAM \
         -I BOB/DIR/T1/$epoch \
         -i BOB/DIR/TCP_DEST/$epoch \
-        -f BOB/DIR/T3/ \
+        -f BOB/DIR/T3_SIFTED/ \
         -F BOB/DIR/TCP_SRC/ \
         -e $((16#$epoch)) \
         -t $timeDiff \
