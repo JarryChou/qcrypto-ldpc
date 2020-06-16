@@ -6,6 +6,8 @@
  * This is different from the shell script which does them synchronously (incurring significant time delays with transferd)
  * This allows any epochs from transferd to be buffered with this program while executing other scripts (e.g. splicer or pfind/costream)
  * 
+ * KIV: Add-on to allow it to handle more pipes
+ * 
  * WARNING(s):
  * 1. Note that this script takes in a shell command as a user param and executes it. Extreme caution must be used with this program.
  * In fact, I will go so far as to say that in the future once the command is finalized, it should be hardcoded into this program, or
@@ -20,6 +22,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <string>
+#include <cstring>
 #include <queue>
 #include <unordered_set>
 
