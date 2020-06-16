@@ -64,4 +64,5 @@ BOB/EXE/COSTREAM \
         -n BOB/DIR/LOGS/costream/general_logs.txt \
         -W \
         -E BOB/DIR/LOGS/costream/debuglogs.txt \
-        -V 4
+        -V 4\
+        -q 1

@@ -14,6 +14,7 @@ fi
 # Body
 # ===
 echo ALICE/DIR/T3/$1
+echo "$((16#$1))"
 # Note that Alice will complain "No content reading input stream 3." if you didn't pass in a stream
 # but it works as per usual
 ALICE/EXE/SPLICER \
