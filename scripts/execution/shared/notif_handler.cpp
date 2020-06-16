@@ -152,7 +152,7 @@ void process_notification( char *ptr ) {
                // Put terminating character after the base command
                cmdBuffer[baseCmdLength + 1] = '\0';
                // Since we know the length of the epoch we can do this
-               strncpy(cmdBuffer, pendingNotifsQueue.front().c_str(), EPOCH_LENGTH);
+               strncat(cmdBuffer, pendingNotifsQueue.front().c_str(), EPOCH_LENGTH);
                // Add terminating character at the very end (this doesn't truncate epoch)
                cmdBuffer[cmdBufferLength - 1] = '\0';
                pendingNotifsQueue.pop();
