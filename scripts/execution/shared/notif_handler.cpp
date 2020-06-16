@@ -69,8 +69,7 @@ int main(int argc, char *argv[]) {
      // Make sure there's at least 3 arguments, and if there is it's inputPipe command ...
      // if (argc < 3 || (argc - 1) % 2 != 0) {
      if (argc < 3) {
-          printf("Wrong number of parameters.\n 
-                Usage: notif_handler inputPipe command");
+          printf("Wrong number of parameters.\n Usage: notif_handler inputPipe command");
           exit(1);
      }
      char *inputPipe = argv[1];
