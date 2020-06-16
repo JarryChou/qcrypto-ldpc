@@ -461,13 +461,13 @@ enum HandleId {
   handleId_notifyPipe = 5,
   handleId_queryPipe = 6,
   handleId_queryRespPipe = 7
-}
+};
 
 enum ReplyMode {
   replyMode_terminate = 0,
   replyMode_moreBits = 1,
   replyMode_continue = 2
-}
+};
 
 // INLINE FUNCTIONS (What is inline? See https://stackoverflow.com/questions/2082551/what-does-inline-mean)
 /* ------------------------------------------------------------------------- */
