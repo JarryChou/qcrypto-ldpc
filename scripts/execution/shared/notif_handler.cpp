@@ -34,7 +34,7 @@
 
 // Functions
 void *read_notification_from_pipe( void *ptr );
-void process_notification( void *ptr );
+void process_notification( char *ptr );
 
 // Variables
 // Using string to avoid the headache, but you could optimize if this is necessary
