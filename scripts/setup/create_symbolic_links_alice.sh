@@ -35,6 +35,7 @@ then
   mkfifo                                         ALICE/PIPES/chprToTrfrd                      -m0600
   mkfifo                                         ALICE/PIPES/trfrdToNtfHndlr                  -m0600
   mkfifo                                         ALICE/PIPES/trfrdToEc                        -m0600
+  mkfifo                                         ALICE/PIPES/splcrToNtfHndlr                  -m0600
   mkfifo                                         ALICE/PIPES/ecCmd                            -m0600
   mkfifo                                         ALICE/PIPES/ecQuery                          -m0600
   mkfifo                                         ALICE/PIPES/ecToTrfrd                        -m0600

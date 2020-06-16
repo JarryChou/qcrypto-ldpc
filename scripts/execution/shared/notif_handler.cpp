@@ -7,15 +7,29 @@
  * This allows any epochs from transferd to be buffered with this program while executing other scripts (e.g. splicer or pfind/costream)
  * 
  * KIV: Add-on to allow it to handle more pipes
+ * KIV: printf the system command so that it can output more formats
  * 
  * WARNING(s):
  * 1. Note that this script takes in a shell command as a user param and executes it. Extreme caution must be used with this program.
  * In fact, I will go so far as to say that in the future once the command is finalized, it should be hardcoded into this program, or
  * this program could be used as part of an attack.
  * 
- * 2. Note that this script is very specific on _what_ it is receiving. It only receives items of length 8 (i.e. epochs). Anything else is truncated.
+ * 2. Note that this script is very specific on _what_ it is receiving. 
+ * It only receives items of length 8 (i.e. epochs). Anything else is truncated.
  * 
- * Usage: notif_handler {input pipe from transferd} {command to execute}
+ * Usage: notif_handler 
+ *   inputPipe command
+ *   KIV: [inputPipe command ...]
+ *   
+ * inputPipe:  Input pipe, usually from transferd
+ * command:    Command to execute (e.g. "sudo bash xxx.sh"). The epoch will be concatenated to the end of this command.
+ * 
+ * KIV: The notif handler can buffer from multiple input pipes. The current implementation uses:
+ * 1 pThread for reading from multiple inputPipes
+ * 1 pThread PER command handler (commands are run synchronously on the thread itself, although this can be easily modified by adding an ampersand to the command)
+ * 
+ * Example(s): notif_handler "./pipes/pipe" "echo"
+ *             notif_handler "./pipes/pipe" "echo" "./pipes/pipe2" "sudo bash cmd.sh" 
  */
 
 #include <stdio.h>
@@ -52,8 +66,11 @@ pthread_mutex_t mutexProcess = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char *argv[]) {
      // Param management
-     if (argc != 3) {
-          printf("Wrong number of parameters.\n Usage: program {input pipe from transferd} {shell command to execute}");
+     // Make sure there's at least 3 arguments, and if there is it's inputPipe command ...
+     // if (argc < 3 || (argc - 1) % 2 != 0) {
+     if (argc < 3) {
+          printf("Wrong number of parameters.\n 
+                Usage: notif_handler inputPipe command");
           exit(1);
      }
      char *inputPipe = argv[1];

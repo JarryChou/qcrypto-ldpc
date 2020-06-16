@@ -1,30 +1,6 @@
 #!/bin/bash
 # Usage: ecd2.sh {epoch (hex), which is usually the file name}
-# ===
-# Param handling
-# ===
-if [ "$1" = "" ]; then
-  echo "Missing parameter: epoch (hex)"
-  echo "Usage: ecd2.sh {epoch (hex)}"
-  exit 1
-fi
-epoch=$1
-numOfBlocks=1
-
-# ===
-# Body
-# ===
-numOfBlocks=1
-
-# Note that the notif, response & query pipes are just placeholders / dummy for now
-ALICE/EXE/ECD2 \
-  -c ALICE/PIPES/ecCmd \
-  -s ALICE/PIPES/ecToTrfrd \
-  -r ALICE/PIPES/trfrdToEc \
-  -d ALICE/DIR/T3_SIFTED \
-  -f ALICE/DIR/FINAL_KEY \
-  -l ALICE/DIR/LOGS/ec_processed_epochs.txt  \
-  -q ALICE/DIR/LOGS/ec_responsepipe_placeholder.txt \
-  -Q ALICE/PIPES/ecQuery & \
-
-  printf "0x$epoch $numOfBlocks\n" > ALICE/PIPES/ecCmd
+# Removed param handling for micro-optimization
+# $1: epoch
+# Format: 0x{$epoch} {epochNumber=1}\n epochNumber is always 1
+printf "0x$1 1\n" > ALICE/PIPES/ecCmd
