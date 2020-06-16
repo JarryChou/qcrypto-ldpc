@@ -737,7 +737,7 @@ int process_esti_message_0(char *receivebuf) {
 
   #ifdef DEBUG
   printf("process_esti_message_0: estErr: %d errMode: %d \
-    lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d",
+ lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d\n",
     kb->estimatederror, kb->errormode, 
     localerror, kb->estimatedsamplesize, newbitsneeded, kb->initialbits);
   #endif
@@ -1145,7 +1145,7 @@ int prepare_dualpass(char *receivebuf) {
     }
     #ifdef DEBUG
     printf("prepare_dualpass kb. estSampleSize: %d estErr: %d errMode: %d lclErr: %.4f \
-      ldi: %.4f newBitsNeeded: %d initBits: %d errMark: %d",
+ ldi: %.4f newBitsNeeded: %d initBits: %d errMark: %d\n",
       kb->estimatedsamplesize, kb->estimatederror, kb->errormode, 
       localerror, ldi, newbitsneeded, kb->initialbits, errormark);
     fflush(stdout);
