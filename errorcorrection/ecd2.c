@@ -735,6 +735,13 @@ int process_esti_message_0(char *receivebuf) {
     }
   }
 
+  #ifdef DEBUG
+  printf("process_esti_message_0: estErr: %d errMode: %d \
+    lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d",
+    kb->estimatederror, kb->errormode, 
+    localerror, kb->estimatedsamplesize, newbitsneeded, kb->initialbits)
+  #endif
+
   /* prepare reply message */
   switch (replymode) {
     case replyMode_terminate:
@@ -767,7 +774,7 @@ int process_esti_message_0(char *receivebuf) {
   switch (replymode) {
     case replyMode_terminate: /* kill the thread due to excessive errors */
       #ifdef DEBUG
-      printf("Kill the thread due to excessive errors");
+      printf("Kill the thread due to excessive errors\n");
       fflush(stdout);
       #endif
       remove_thread(kb->startepoch);
