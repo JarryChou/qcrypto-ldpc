@@ -766,6 +766,10 @@ int process_esti_message_0(char *receivebuf) {
   /* update thread */
   switch (replymode) {
     case replyMode_terminate: /* kill the thread due to excessive errors */
+      #ifdef DEBUG
+      printf("Kill the thread due to excessive errors");
+      fflush(stdout);
+      #endif
       remove_thread(kb->startepoch);
       break;
     case replyMode_moreBits: /* wait for more bits to come */
@@ -1132,6 +1136,13 @@ int prepare_dualpass(char *receivebuf) {
         errormark = 1;
       }
     }
+    #ifdef DEBUG
+    printf("prepare_dualpass kb. estSampleSize: %d estErr: %d errMode: %d lclErr: %.4f \
+      ldi: %.4f newBitsNeeded: %d initBits: %d errMark: %d",
+      kb->estimatedsamplesize, kb->estimatederror, kb->errormode, 
+      localerror, ldi, newbitsneeded, kb->initialbits, errormark);
+    fflush(stdout);
+    #endif
     if (errormark) { /* not worth going */
       remove_thread(kb->startepoch);
       return 0;
@@ -2664,7 +2675,7 @@ int main(int argc, char *argv[]) {
       if (((unsigned int *)receivebuf)[0] != ERRC_PROTO_tag) {
         return -emsg(44);
       }
-      
+
       #ifdef DEBUG
       printf("received message, subtype: %d, len: %d\n",
              ((unsigned int *)receivebuf)[2],

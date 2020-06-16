@@ -822,6 +822,10 @@ int closeAndRecreateSendSocket() {
 }
 
 int read_FromEcInHandle_ToErrorCorrectionInBuffer() {
+  #ifdef DEBUG
+  fprintf(debuglog, "Error Correction: Reading something\n");
+  fflush(debuglog);
+  #endif
   switch (packinmode) {
     case packinmode_wait_for_header: /* wait for header */
       // Set initial values
