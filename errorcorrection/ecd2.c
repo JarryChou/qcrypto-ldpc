@@ -166,285 +166,15 @@ open questions / issues:
 
 */
 
-#include <errno.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/select.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include "ecd2.h"
 
-/* definitions of packet headers */
-#include "errcorrect.h"
-#include "rnd.h"
-
-/* #define SYSTPERMUTATION */ /* for systematic rather than rand permut */
-
-/* #define mallocdebug */
-
-/* debugging */
-int mcall = 0, fcall = 0;
-char *malloc2(unsigned int s) {
-  char *p;
-#ifdef mallocdebug
-  printf("process %d malloc call no. %d for %d bytes...", getpid(), mcall, s);
-#endif
-  mcall++;
-  p = malloc(s);
-#ifdef mallocdebug
-  printf("returned: %p\n", p);
-#endif
-  return p;
-}
-void free2(void *p) {
-#ifdef mallocdebug
-  printf("process %d free call no. %d for %p\n", getpid(), fcall, p);
-#endif
-  fcall++;
-  free(p);
-  return;
-}
-
-/* typical file names */
-#define RANDOMGENERATOR "/dev/urandom" /* this does not block but is BAD....*/
-
-/* type declaration for stream-3 raw key files; should come from extra h file */
-typedef struct header_3 { /* header for type-3 stream packet */
-  int tag;
-  unsigned int epoc;
-  unsigned int length;
-  int bitsperentry;
-} h3;
-
-#define TYPE_3_TAG 3
-#define TYPE_3_TAG_U 0x103
-/* type declaration for stream-7 final key file */
-
-typedef struct header_7 { /* header for type-7 stream packet */
-  int tag;
-  unsigned int epoc;
-  unsigned int numberofepochs;
-  int numberofbits;
-} h7;
-#define TYPE_7_TAG 7
-#define TYPE_7_TAG_U 0x107
-
-/* -------------------------------------------------------------------- */
-/* definition of a structure containing all informations about a block */
-typedef struct keyblock {
-  unsigned int startepoch; /* initial epoch of block */
-  unsigned int numberofepochs;
-  unsigned int *rawmem;     /* buffer root for freeing block afterwards */
-  unsigned int *mainbuf;    /* points to main buffer for key */
-  unsigned int *permutebuf; /* keeps permuted bits */
-  unsigned int *testmarker; /* marks tested bits */
-  unsigned short int *permuteindex; /* keeps permutation */
-  unsigned short int *reverseindex; /* reverse permutation */
-  int role;        /* defines which role to take on a block: 0: Alice, 1: Bob */
-  int initialbits; /* bits to start with */
-  int leakagebits; /* information which has gone public */
-  int processingstate;     /* determines processing status  current block.
-                 See defines below for interpretation */
-  int initialerror;        /* in multiples of 2^-16 */
-  int errormode;           /* determines if error estimation has to be done */
-  int estimatederror;      /* number of estimated error bits */
-  int estimatedsamplesize; /* sample size for error  estimation  */
-  int finalerrors;         /* number of discovered errors */
-  int RNG_usage; /* defines mode of randomness. 0: PRNG, 1: good stuff */
-  unsigned int RNG_state; /* keeps the state of the PRNG for this thread */
-  int k0, k1;             /* binary block search lengths */
-  int workbits;           /* bits to work with for BICONF/parity check */
-  int partitions0, partitions1; /* number of partitions of k0,k1 length */
-  unsigned int *lp0, *lp1;      /* pointer to local parity info 0 / 1 */
-  unsigned int *rp0, *rp1;      /* pointer to remote parity info 0 / 1 */
-  unsigned int *pd0, *pd1;      /* pointer to parity difference fileld */
-  int diffnumber;         /* number of different blocks in current round */
-  int diffnumber_max;     /* number of malloced entries for diff indices */
-  unsigned int *diffidx;  /* pointer to a list of parity mismatch blocks */
-  unsigned int *diffidxe; /* end of interval */
-  int binsearch_depth;    /* encodes state of the scan. Starts with 0,
-                and contains the pass (0/1) in the MSB */
-  int biconf_round;    /* contains the biconf round number, starting with 0 */
-  int biconflength;    /* current length of a biconf check range */
-  int correctederrors; /* number of corrected bits */
-  int finalkeybits;    /* how much is left */
-  float BellValue;     /* for Ekert-type protocols */
-
-} kblock;
-/* definition of the processing state */
-#define PRS_JUSTLOADED 0       /* no processing yet (passive role) */
-#define PRS_NEGOTIATEROLE 1    /* in role negotiation with other side */
-#define PRS_WAITRESPONSE1 2    /* waiting for error est response from bob */
-#define PRS_GETMOREEST 3       /* waiting for more error est bits from Alice */
-#define PRS_KNOWMYERROR 4      /* know my error estimation */
-#define PRS_PERFORMEDPARITY1 5 /* know my error estimation */
-#define PRS_DOING_BICONF 6     /* last biconf round */
-
-/* -------------------------------------------------------------------- */
-/* structure to hold list of blocks. This helps dispatching packets? */
-typedef struct blockpointer {
-  unsigned int epoch;
-  struct keyblock *content;      /* the gory details */
-  struct blockpointer *next;     /* next in chain; if NULL then end */
-  struct blockpointer *previous; /* previous block */
-} erc_bp__;
-struct blockpointer *blocklist = NULL;
-
-/* forward decl */
-void dumpmsg(struct keyblock *kb, char *msg);
-
-/* -------------------------------------------------------------------- */
-/* structure which holds packets to send */
-typedef struct packet_to_send {
-  int length;                  /* in bytes */
-  char *packet;                /* pointer to content */
-  struct packet_to_send *next; /* next one to send */
-} pkt_s;
-struct packet_to_send *next_packet_to_send = NULL;
-struct packet_to_send *last_packet_to_send = NULL;
-/* -------------------------------------------------------------------- */
-/* structure to hold received messages */
-typedef struct packet_received {
-  int length;                   /* in bytes */
-  char *packet;                 /* pointer to content */
-  struct packet_received *next; /* next in chain */
-} pack_r;
-/* head node pointing to a simply joined list of entries */
-struct packet_received *rec_packetlist = NULL;
-
-/* error handling */
-char *errormessage[] = {
-    "No error.",
-    "Error reading in verbosity argument.", /* 1 */
-    "Error reading name for command pipe.",
-    "Error reading name for sendpipe.",
-    "Error reading name for receive pipe.",
-    "Error reading directory name for raw key.", /* 5 */
-    "Error reading directory name for final key.",
-    "Error reading name for notify pipe.",
-    "Error reading name for query pipe.",
-    "Error reading name for response-to-query pipe.",
-    "Error parsing error threshold.", /* 10 */
-    "Error threshold out of range (0.01...0.3)",
-    "Error parsing initial error level",
-    "Initial error level out of range (0.01...0.3)",
-    "Error parsing intrinsic error level",
-    "Intrinsic error level out of range (0...0.05)", /* 15 */
-    "Error parsing runtime behavior (range must be 0..?)",
-    "One of the pipelines of directories is not specified.",
-    "Cannot stat or open command handle",
-    "command handle is not a pipe",
-    "Cannot stat/open send pipe", /* 20 */
-    "send pipe is not a pipe",
-    "Cannot stat/open receive pipe",
-    "receive pipe is not a pipe",
-    "Cannot open notify target",
-    "Cannot stat/open query input pipe", /* 25 */
-    "query intput channel is not a pipe",
-    "Cannot open query response pipe",
-    "select call failed in main loop",
-    "error writing to target pipe",
-    "command set to short", /* 30 */
-    "estimated error out of range",
-    "wrong number of epochs specified.",
-    "overlap with existing epochs",
-    "error creating new thread",
-    "error initiating error estimation", /* 35 */
-    "error reading message",
-    "cannot malloc message buffer",
-    "cannot malloc message buffer header",
-    "cannot open random number generator",
-    "cannot get enough random numbers", /* 40 */
-    "initial error out of useful bound",
-    "not enough bits for initial testing",
-    "cannot malloc send buffer pointer",
-    "received wrong packet type",
-    "received unrecognized message subtype", /* 45 */
-    "epoch overlap error on bob side",
-    "error reading in epochs in a thread on bob side",
-    "cannot get thread for message 0",
-    "cannot find thread in list",
-    "cannot find thread for message 2", /* 50 */
-    "received invalid seed.",
-    "inconsistent test-bit number received",
-    "can't malloc parity buffer",
-    "cannot malloc difference index buffer",
-    "cannot malloc binarysearch message buf", /* 55 */
-    "illegal role in binsearch",
-    "don't know index encoding",
-    "cannot malloc binarysearch message II buf",
-    "illegal pass argument",
-    "cannot malloc BCONF request message", /* 60 */
-    "cannot malloc BICONF response message",
-    "cannot malloc privamp message",
-    "cannot malloc final key structure",
-    "cannot open final key target file",
-    "write error in fnal key", /* 65 */
-    "cannot remove raw key file",
-    "cannot open raw key file",
-    "cannot read rawkey header",
-    "incorrect epoch in rawkey",
-    "wrong bitnumber in rawkey (must be 1)", /* 70 */
-    "bitcount too large in rawkey",
-    "could not read enough bytes from rawkey",
-    "in errorest1: cannot get thread",
-    "wrong pass index",
-    "cmd input buffer overflow", /* 75 */
-    "cannot parse biconf round argument",
-    "biconf round number exceeds bounds of 1...100",
-    "cannot parse final BER argument",
-    "BER argument out of range",
-
-};
+// HELPER FUNCTIONS
+/* ------------------------------------------------------------------------- */
 
 int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
   return code;
 };
-
-/* default definitions */
-#define FNAMELENGTH 200    /* length of file name buffers */
-#define FNAMFORMAT "%200s" /* for sscanf of filenames */
-#define DEFAULT_ERR_MARGIN                                                 \
-  0.                               /* eavesdropper is assumed to have full \
-                          knowledge on raw key */
-#define MIN_ERR_MARGIN 0.          /* for checking error margin entries */
-#define MAX_ERR_MARGIN 100.        /* for checking error margin entries */
-#define DEFAULT_INIERR 0.075       /* initial error rate */
-#define MIN_INI_ERR 0.005          /* for checking entries */
-#define MAX_INI_ERR 0.14           /* for checking entries */
-#define USELESS_ERRORBOUND 0.15    /* for estimating the number of test bits */
-#define DESIRED_K0_ERROR 0.18      /* relative error on k */
-#define INI_EST_SIGMA 2.           /* stddev on k0 for initial estimation */
-#define DEFAULT_KILLMODE 0         /* no raw key files are removed by default */
-#define DEFAULT_INTRINSIC 0        /* all errors are due to eve */
-#define MAX_INTRINSIC 0.05         /* just a safe margin */
-#define DEFAULT_RUNTIMEERRORMODE 0 /* all error s stop daemon */
-#define MAXRUNTIMEERROR 2
-#define FIFOINMODE O_RDWR | O_NONBLOCK
-#define FIFOOUTMODE O_RDWR
-#define FILEINMODE O_RDONLY
-#define FILEOUTMODE O_WRONLY | O_CREAT | O_TRUNC
-#define OUTPERMISSIONS 0600
-#define TEMPARRAYSIZE (1 << 11) /* to capture 64 kbit of raw key */
-#define MAXBITSPERTHREAD (1 << 16)
-#define DEFAULT_VERBOSITY 0
-#define DEFAULT_BICONF_LENGTH 256 /* length of a final check */
-#define DEFAULT_BICONF_ROUNDS 10  /* number of BICONF rounds */
-#define MAX_BICONF_ROUNDS 100     /* enough for BER < 10^-27 */
-#define AVG_BINSEARCH_ERR                                                  \
-  0.0032                       /* what I have seen at some point for 10k   \
-                                  this goes with the inverse of the length \
-                  for block lengths between 5k-40k */
-#define DEFAULT_ERR_SKIPMODE 0 /* initial error estimation is done */
-#define CMD_INBUFLEN 200
-
-/* helpers */
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
-#define MIN(A, B) ((A) > (B) ? (B) : (A))
 
 /* helper to obtain the smallest power of two to carry a number a */
 int get_order(int a) {
@@ -452,8 +182,7 @@ int get_order(int a) {
   while ((order & a) == a) order >>= 1;
   return (order << 1) + 1;
 }
-/* get the number of bits necessary to carry a number x ; result is e.g.
-   3 for parameter 8, 5 for parameter 17 etc. */
+/* get the number of bits necessary to carry a number x ; result is e.g. 3 for parameter 8, 5 for parameter 17 etc. */
 int get_order_2(int x) {
   int x2;
   int retval = 0;
@@ -461,8 +190,61 @@ int get_order_2(int x) {
   return retval;
 }
 
-/* helper for mask for a given index i on the longint array */
-__inline__ unsigned int bt_mask(int i) { return 1 << (31 - (i & 31)); }
+/* helper to dump message into a file */
+int mdmpidx = 0;
+void dumpmsg(struct keyblock *kb, char *msg) {
+  char dumpname[200];
+  int dha; /* handle */
+  int tosend = ((unsigned int *)msg)[1];
+  int sent = 0, retval;
+
+  #ifdef NOT_DEBUG
+  return; /* if debug is off */
+  #endif
+
+  sprintf(dumpname, "msgdump_%1d_%03d", kb->role, mdmpidx);
+  mdmpidx++;
+  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
+  do {
+    retval = write(dha, msg, tosend - sent);
+    if (retval == -1) {
+      fprintf(stderr, "cannot save msg\n");
+      exit(-1);
+    }
+    usleep(100000);
+    sent += retval;
+  } while (tosend - sent > 0);
+  close(dha);
+  return;
+}
+
+/* code to check if a requested bunch of epochs already exists in the thread
+   list. Uses the start epoch and an epoch number as arguments; returns 0 if
+   the requested epochs are not used yet, otherwise 1. */
+int check_epochoverlap(unsigned int epoch, int num) {
+  struct blockpointer *bp = blocklist;
+  unsigned int se;
+  int en;
+  while (bp) { /* as long as there are more blocks to test */
+    se = bp->content->startepoch;
+    en = bp->content->numberofepochs;
+    if (MAX(se, epoch) <= (MIN(se + en, epoch + num) - 1)) {
+      return 1; /* overlap!! */
+    }
+    bp = bp->next;
+  }
+  /* did not find any overlapping epoch */
+  return 0;
+}
+
+/* helper for name. adds a slash, hex file name and a terminal 0 */
+char hexdigits[] = "0123456789abcdef";
+void atohex(char *target, unsigned int v) {
+  int i;
+  target[0] = '/';
+  for (i = 1; i < 9; i++) target[i] = hexdigits[(v >> (32 - i * 4)) & 15];
+  target[9] = 0;
+}
 
 /* helper to insert a send packet in the sendpacket queue. Parameters are
    a pointer to the structure and its length. Return value is 0 on success
@@ -489,50 +271,63 @@ int insert_sendpacket(char *message, int length) {
   return 0; /* success */
 }
 
-/* global parameters and variables */
-char fname[8][FNAMELENGTH] = {"", "", "", "", "", "", "", ""}; /* filenames */
-int handle[8];    /* handles for files accessed by raw I/O */
-FILE *fhandle[8]; /* handles for files accessed by buffered I/O */
-float errormargin = DEFAULT_ERR_MARGIN;
-float initialerr = DEFAULT_INIERR; /* What error to assume initially */
-int killmode = DEFAULT_KILLMODE;   /* decides on removal of raw key files */
-float intrinsicerr =
-    DEFAULT_INTRINSIC; /* error rate not under control of eve */
-int runtimeerrormode = DEFAULT_RUNTIMEERRORMODE;
-int verbosity_level = DEFAULT_VERBOSITY;
-int biconf_length = DEFAULT_BICONF_LENGTH;   /* how long is a biconf */
-int biconf_rounds = DEFAULT_BICONF_ROUNDS;   /* how many times */
-int ini_err_skipmode = DEFAULT_ERR_SKIPMODE; /* 1 if error est to be skipped */
-int disable_privacyamplification = 0; /* off normally, != 0 for debugging */
-int bellmode = 0; /* 0: use estimated error, 1: use supplied bell value */
+/* helper function to dump the state of the system to a disk file . Dumps the
+   keyblock structure, if present the buffer files, the parity files and the
+   diffidx buffers as plain binaries */
+int dumpindex = 0;
+void dumpstate(struct keyblock *kb) {
+  char dumpname[200];
+  int dha; /* handle */
 
-/* ------------------------------------------------------------------------- */
-/* code to check if a requested bunch of epochs already exists in the thread
-   list. Uses the start epoch and an epoch number as arguments; returns 0 if
-   the requested epochs are not used yet, otherwise 1. */
-int check_epochoverlap(unsigned int epoch, int num) {
-  struct blockpointer *bp = blocklist;
-  unsigned int se;
-  int en;
-  while (bp) { /* as long as there are more blocks to test */
-    se = bp->content->startepoch;
-    en = bp->content->numberofepochs;
-    if (MAX(se, epoch) <= (MIN(se + en, epoch + num) - 1)) {
-      return 1; /* overlap!! */
-    }
-    bp = bp->next;
+  return; /* if debugging is off */
+
+  sprintf(dumpname, "kbdump_%1d_%03d", kb->role, dumpindex);
+  dumpindex++;
+  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
+  write(dha, kb, sizeof(struct keyblock));
+  if (kb->mainbuf)
+    write(dha, kb->mainbuf,
+          sizeof(unsigned int) *
+              (2 * kb->initialbits + 3 * ((kb->initialbits + 31) / 32)));
+
+  if (kb->lp0)
+    write(dha, kb->lp0, sizeof(unsigned int) * 6 * ((kb->workbits + 31) / 32));
+
+  if (kb->diffidx)
+    write(dha, kb->diffidx, sizeof(unsigned int) * 2 * kb->diffnumber_max);
+
+  close(dha);
+  return;
+}
+
+/* helper: eve's error knowledge */
+float phi(float z) {
+  return ((1 + z) * log(1 + z) + (1 - z) * log(1 - z)) / log(2.);
+};
+float binentrop(float q) {
+  return (-q * log(q) - (1 - q) * log(1 - q)) / log(2.);
+}
+
+/* helper function to get a seed from the random device; returns seed or 0
+   on error */
+unsigned int get_r_seed(void) {
+  int rndhandle; /* keep device handle for random device */
+  unsigned int reply;
+
+  rndhandle = open(RANDOMGENERATOR, O_RDONLY);
+  if (-1 == rndhandle) {
+    fprintf(stderr, "errno: %d", errno);
+    return 39;
   }
-  /* did not find any overlapping epoch */
-  return 0;
+  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
+    return 0; /* not enough */
+  }
+  close(rndhandle);
+  return reply;
 }
-/* helper for name. adds a slash, hex file name and a terminal 0 */
-char hexdigits[] = "0123456789abcdef";
-void atohex(char *target, unsigned int v) {
-  int i;
-  target[0] = '/';
-  for (i = 1; i < 9; i++) target[i] = hexdigits[(v >> (32 - i * 4)) & 15];
-  target[9] = 0;
-}
+
+
+// MAIN FUNCTIONS
 /* ------------------------------------------------------------------------- */
 /* code to prepare a new thread from a series of raw key files. Takes epoch,
    number of epochs and an initially estimated error as parameters. Returns
@@ -558,15 +353,15 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   bitcount = 0;
   for (enu = 0; enu < num; enu++) {
     epi = epoch + enu; /* current epoch index */
-    strncpy(ffnam, fname[3], FNAMELENGTH);
+    strncpy(ffnam, fname[handleId_rawKeyDir], FNAMELENGTH);
     atohex(&ffnam[strlen(ffnam)], epi);
-    handle[3] = open(ffnam, FILEINMODE); /* in blocking mode */
-    if (-1 == handle[3]) {
+    handle[handleId_rawKeyDir] = open(ffnam, FILEINMODE); /* in blocking mode */
+    if (-1 == handle[handleId_rawKeyDir]) {
       fprintf(stderr, "cannot open file >%s< errno: %d\n", ffnam, errno);
       return 67; /* error opening file */
     }
     /* read in file 3 header */
-    if (sizeof(h3) != (i = read(handle[3], &h3, sizeof(h3)))) {
+    if (sizeof(h3) != (i = read(handle[handleId_rawKeyDir], &h3, sizeof(h3)))) {
       fprintf(stderr, "error in read: return val:%d errno: %d\n", i, errno);
       return 68;
     }
@@ -581,11 +376,11 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
 
     i = (h3.length / 32) +
         ((h3.length & 0x1f) ? 1 : 0); /* number of words to read */
-    retval = read(handle[3], &temparray[newindex], i * sizeof(unsigned int));
+    retval = read(handle[handleId_rawKeyDir], &temparray[newindex], i * sizeof(unsigned int));
     if (retval != i * sizeof(unsigned int)) return 72; /* not enough read */
 
     /* close and possibly remove file */
-    close(handle[3]);
+    close(handle[handleId_rawKeyDir]);
     if (killmode) {
       retval = unlink(ffnam);
       if (retval) return 66;
@@ -771,25 +566,6 @@ struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
   return msg1; /* pointer to message */
 }
 
-/* ------------------------------------------------------------------------- */
-/* helper function to get a seed from the random device; returns seed or 0
-   on error */
-unsigned int get_r_seed(void) {
-  int rndhandle; /* keep device handle for random device */
-  unsigned int reply;
-
-  rndhandle = open(RANDOMGENERATOR, O_RDONLY);
-  if (-1 == rndhandle) {
-    fprintf(stderr, "errno: %d", errno);
-    return 39;
-  }
-  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
-    return 0; /* not enough */
-  }
-  close(rndhandle);
-  return reply;
-}
-
 /* ------------------------------------------------------------------------ */
 /* function to provide the number of bits needed in the initial error
    estimation; eats the local error (estimated or guessed) as a float. Uses
@@ -936,7 +712,7 @@ int process_esti_message_0(char *receivebuf) {
   if (in_head->errormode) { /* skip the error estimation */
     kb->errormode = 1;
     localerror = (float)in_head->errormode / 65536.0;
-    replymode = 2; /* skip error est part */
+    replymode = replyMode_continue; /* skip error est part */
   } else {
     kb->errormode = 0;
     /* make decision if to ask for more bits */
@@ -944,16 +720,16 @@ int process_esti_message_0(char *receivebuf) {
 
     ldi = USELESS_ERRORBOUND - localerror;
     if (ldi <= 0.) { /* ignore key bits : send error number to terminate */
-      replymode = 0;
+      replymode = replyMode_terminate;
     } else {
       newbitsneeded = testbits_needed(localerror);
       if (newbitsneeded > kb->initialbits) { /* will never work */
-        replymode = 0;
+        replymode = replyMode_terminate;
       } else {
         if (newbitsneeded > kb->estimatedsamplesize) { /*  more bits */
-          replymode = 1;
+          replymode = replyMode_moreBits;
         } else { /* send confirmation message */
-          replymode = 2;
+          replymode = replyMode_continue;
         }
       }
     }
@@ -961,8 +737,8 @@ int process_esti_message_0(char *receivebuf) {
 
   /* prepare reply message */
   switch (replymode) {
-    case 0:
-    case 2: /* send message 3 */
+    case replyMode_terminate:
+    case replyMode_continue: /* send message 3 */
       h3 = (struct ERRC_ERRDET_3 *)malloc2(sizeof(struct ERRC_ERRDET_3));
       if (!h3) return 43; /* cannot malloc */
       h3->tag = ERRC_PROTO_tag;
@@ -974,7 +750,7 @@ int process_esti_message_0(char *receivebuf) {
       h3->number_of_errors = seen_errors;
       insert_sendpacket((char *)h3, h3->bytelength); /* error trap? */
       break;
-    case 1: /* send message 2 */
+    case replyMode_moreBits: /* send message 2 */
       h2 = (struct ERRC_ERRDET_2 *)malloc2(sizeof(struct ERRC_ERRDET_2));
       h2->tag = ERRC_PROTO_tag;
       h2->subtype = ERRC_ERRDET_2_subtype;
@@ -989,13 +765,13 @@ int process_esti_message_0(char *receivebuf) {
 
   /* update thread */
   switch (replymode) {
-    case 0: /* kill the thread due to excessive errors */
+    case replyMode_terminate: /* kill the thread due to excessive errors */
       remove_thread(kb->startepoch);
       break;
-    case 1: /* wait for more bits to come */
+    case replyMode_moreBits: /* wait for more bits to come */
       kb->processingstate = PRS_GETMOREEST;
       break;
-    case 2: /* error estimation is done, proceed to next step */
+    case replyMode_continue: /* error estimation is done, proceed to next step */
       kb->processingstate = PRS_KNOWMYERROR;
       kb->estimatedsamplesize = kb->leakagebits; /* is this needed? */
       /****** more to do here *************/
@@ -1184,10 +960,6 @@ void prepare_permutation(struct keyblock *kb) {
   prepare_permut_core(kb);
   return;
 }
-
-/* helper function for parity isolation */
-__inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
-__inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
 
 /* helper function to preare a parity list of a given pass in a block.
    Parameters are a pointer to the sourcebuffer, pointer to the target buffer,
@@ -1875,14 +1647,6 @@ int initiate_biconf(struct keyblock *kb) {
   return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-/* helper: eve's error knowledge */
-float phi(float z) {
-  return ((1 + z) * log(1 + z) + (1 - z) * log(1 - z)) / log(2.);
-};
-float binentrop(float q) {
-  return (-q * log(q) - (1 - q) * log(1 - q)) / log(2.);
-}
 /* ------------------------------------------------------------------------- */
 /* do core part of the privacy amplification. Calculates the compression ratio
    based on the lost bits, saves the final key and removes the thread from the
@@ -1980,6 +1744,9 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
   printf(" trueerror: %f\n sneakloss: %d\n leakagebits: %d\n", trueerror,
          sneakloss, kb->leakagebits - redundantloss);
   printf(" finakeybits: %d\n", kb->finalkeybits);
+  #ifdef DEBUG
+  fflush(stdout);
+  #endif
 
   /* initiate seed */
   kb->RNG_state = seed;
@@ -2017,44 +1784,44 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
   }
 
   /* send final key to file */
-  strncpy(ffnam, fname[4], FNAMELENGTH);                /* fnal key directory */
+  strncpy(ffnam, fname[handleId_finalKeyDir], FNAMELENGTH);                /* fnal key directory */
   atohex(&ffnam[strlen(ffnam)], kb->startepoch);        /* add file name */
-  handle[4] = open(ffnam, FILEOUTMODE, OUTPERMISSIONS); /* open target */
-  if (-1 == handle[4]) return 64;
+  handle[handleId_finalKeyDir] = open(ffnam, FILEOUTMODE, OUTPERMISSIONS); /* open target */
+  if (-1 == handle[handleId_finalKeyDir]) return 64;
   written = 0;
   while (1) {
-    rv = write(handle[4], &((char *)outmsg)[written], mlen - written);
+    rv = write(handle[handleId_finalKeyDir], &((char *)outmsg)[written], mlen - written);
     if (rv == -1) return 65; /* write error happened */
     written += rv;
     if (written >= mlen) break;
     usleep(100000); /* sleep 100 msec */
   }
-  close(handle[4]);
+  close(handle[handleId_finalKeyDir]);
 
   /* send notification */
   switch (verbosity_level) {
     case 0: /* output raw block name */
-      fprintf(fhandle[5], "%08x\n", kb->startepoch);
+      fprintf(fhandle[handleId_notifyPipe], "%08x\n", kb->startepoch);
       break;
     case 1: /* block name and final bits */
-      fprintf(fhandle[5], "%08x %d\n", kb->startepoch, kb->finalkeybits);
+      fprintf(fhandle[handleId_notifyPipe], "%08x %d\n", kb->startepoch, kb->finalkeybits);
       break;
     case 2: /* block name, ini bits, final bits, error rate */
-      fprintf(fhandle[5], "%08x %d %d %.4f\n", kb->startepoch, kb->initialbits,
+      fprintf(fhandle[handleId_notifyPipe], "%08x %d %d %.4f\n", kb->startepoch, kb->initialbits,
               kb->finalkeybits, trueerror);
       break;
     case 3: /* same as with 2 but with text */
-      fprintf(fhandle[5],
+      fprintf(fhandle[handleId_notifyPipe],
               "startepoch: %08x initial bit number: %d final bit number: %d "
               "error rate: %.4f\n",
               kb->startepoch, kb->initialbits, kb->finalkeybits, trueerror);
       break;
     case 4: /* block name, ini bits, final bits, error rate, leak bits */
-      fprintf(fhandle[5], "%08x %d %d %.4f %d\n", kb->startepoch,
+      fprintf(fhandle[handleId_notifyPipe], "%08x %d %d %.4f %d\n", kb->startepoch,
               kb->initialbits, kb->finalkeybits, trueerror, kb->leakagebits);
       break;
     case 5: /* same as with 4 but with text */
-      fprintf(fhandle[5],
+      fprintf(fhandle[handleId_notifyPipe],
               "startepoch: %08x initial bit number: %d final bit number: %d "
               "error rate: %.4f leaked bits in EC: %d\n",
               kb->startepoch, kb->initialbits, kb->finalkeybits, trueerror,
@@ -2062,7 +1829,13 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
       break;
   }
 
-  fflush(fhandle[5]);
+  #ifdef DEBUG
+  printf("startepoch: %08x initial bit number: %d final bit number: %d error rate: %.4f leaked bits in EC: %d\n",
+              kb->startepoch, kb->initialbits, kb->finalkeybits, trueerror, kb->leakagebits);
+  fflush(stdout);
+  #endif
+
+  fflush(fhandle[handleId_notifyPipe]);
   /* cleanup outmessage buf */
   free2(outmsg);
 
@@ -2566,61 +2339,6 @@ int receive_biconfreply(char *receivebuf) {
   return initiate_privacyamplification(kb);
 }
 
-/* ------------------------------------------------------------------------- */
-/* helper function to dump the state of the system to a disk file . Dumps the
-   keyblock structure, if present the buffer files, the parity files and the
-   diffidx buffers as plain binaries */
-int dumpindex = 0;
-void dumpstate(struct keyblock *kb) {
-  char dumpname[200];
-  int dha; /* handle */
-
-  return; /* if debugging is off */
-
-  sprintf(dumpname, "kbdump_%1d_%03d", kb->role, dumpindex);
-  dumpindex++;
-  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
-  write(dha, kb, sizeof(struct keyblock));
-  if (kb->mainbuf)
-    write(dha, kb->mainbuf,
-          sizeof(unsigned int) *
-              (2 * kb->initialbits + 3 * ((kb->initialbits + 31) / 32)));
-
-  if (kb->lp0)
-    write(dha, kb->lp0, sizeof(unsigned int) * 6 * ((kb->workbits + 31) / 32));
-
-  if (kb->diffidx)
-    write(dha, kb->diffidx, sizeof(unsigned int) * 2 * kb->diffnumber_max);
-
-  close(dha);
-  return;
-}
-/* helper to dump message into a file */
-int mdmpidx = 0;
-void dumpmsg(struct keyblock *kb, char *msg) {
-  char dumpname[200];
-  int dha; /* handle */
-  int tosend = ((unsigned int *)msg)[1];
-  int sent = 0, retval;
-
-  return; /* if debug is off */
-
-  sprintf(dumpname, "msgdump_%1d_%03d", kb->role, mdmpidx);
-  mdmpidx++;
-  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
-  do {
-    retval = write(dha, msg, tosend - sent);
-    if (retval == -1) {
-      fprintf(stderr, "cannot save msg\n");
-      exit(-1);
-    }
-    usleep(100000);
-    sent += retval;
-  } while (tosend - sent > 0);
-  close(dha);
-  return;
-}
-
 /*------------------------------------------------------------------------- */
 /* process an input string, terminated with 0 */
 int process_input(char *in) {
@@ -2634,6 +2352,9 @@ int process_input(char *in) {
                   &BellValue);
   printf("got cmd: epoch: %08x, num: %d, esterr: %f retval: %d\n", newepoch,
          newepochnumber, newesterror, retval);
+  #ifdef DEBUG
+  fflush(stdout);
+  #endif
   switch (retval) {
     case 0:                            /* no conversion */
       if (runtimeerrormode > 0) break; /* nocomplain */
@@ -2671,6 +2392,9 @@ int process_input(char *in) {
       }
 
       printf("got a thread and will send msg1\n");
+      #ifdef DEBUG
+      fflush(stdout);
+      #endif
   }
   return 0;
 }
@@ -2708,20 +2432,13 @@ int main(int argc, char *argv[]) {
       case 'V': /* verbosity parameter */
         if (1 != sscanf(optarg, "%d", &verbosity_level)) return -emsg(1);
         break;
-      case 'q':
-        i++; /* respondpipe, idx=7 */
-      case 'Q':
-        i++; /* querypipe, idx=6 */
-      case 'l':
-        i++; /* notify pipe, idx=5 */
-      case 'f':
-        i++; /* finalkeydir, idx=4 */
-      case 'd':
-        i++; /* rawkeydir, idx=3 */
-      case 'r':
-        i++; /* commreceivepipe, idx=2 */
-      case 's':
-        i++;    /* commsendpipe, idx=1 */
+      case 'q': i++; /* respondpipe, idx=7 */
+      case 'Q': i++; /* querypipe, idx=6 */
+      case 'l': i++; /* notify pipe, idx=5 */
+      case 'f': i++; /* finalkeydir, idx=4 */
+      case 'd': i++; /* rawkeydir, idx=3 */
+      case 'r': i++; /* commreceivepipe, idx=2 */
+      case 's': i++;    /* commsendpipe, idx=1 */
       case 'c': /* commandpipe, idx=0 */
         if (1 != sscanf(optarg, FNAMFORMAT, fname[i])) return -emsg(2 + i);
         fname[i][FNAMELENGTH - 1] = 0; /* security termination */
@@ -2779,35 +2496,35 @@ int main(int argc, char *argv[]) {
       return -emsg(17); /* all files and pipes specified ? */
 
   /* open pipelines */
-  if (stat(fname[0], &cmdstat)) return -emsg(18); /* command pipeline */
+  if (stat(fname[handleId_commandPipe], &cmdstat)) return -emsg(18); /* command pipeline */
   if (!S_ISFIFO(cmdstat.st_mode)) return -emsg(19);
-  if (!(fhandle[0] = fopen(fname[0], "r+"))) return -emsg(18);
-  handle[0] = fileno(fhandle[0]);
+  if (!(fhandle[handleId_commandPipe] = fopen(fname[handleId_commandPipe], "r+"))) return -emsg(18);
+  handle[handleId_commandPipe] = fileno(fhandle[handleId_commandPipe]);
 
-  if (stat(fname[1], &cmdstat)) return -emsg(20); /* send pipeline */
+  if (stat(fname[handleId_sendPipe], &cmdstat)) return -emsg(20); /* send pipeline */
   if (!S_ISFIFO(cmdstat.st_mode)) return -emsg(21);
-  if ((handle[1] = open(fname[1], FIFOOUTMODE)) == -1) return -emsg(20);
+  if ((handle[handleId_sendPipe] = open(fname[handleId_sendPipe], FIFOOUTMODE)) == -1) return -emsg(20);
 
-  if (stat(fname[2], &cmdstat)) return -emsg(22); /* receive pipeline */
+  if (stat(fname[handleId_receivePipe], &cmdstat)) return -emsg(22); /* receive pipeline */
   if (!S_ISFIFO(cmdstat.st_mode)) return -emsg(23);
-  if ((handle[2] = open(fname[2], FIFOINMODE)) == -1) return -emsg(22);
+  if ((handle[handleId_receivePipe] = open(fname[handleId_receivePipe], FIFOINMODE)) == -1) return -emsg(22);
 
-  if (!(fhandle[5] = fopen(fname[5], "w+")))
+  if (!(fhandle[handleId_notifyPipe] = fopen(fname[handleId_notifyPipe], "w+")))
     return -emsg(24); /* notify pipeline */
-  handle[5] = fileno(fhandle[5]);
+  handle[handleId_notifyPipe] = fileno(fhandle[handleId_notifyPipe]);
 
-  if (stat(fname[6], &cmdstat)) return -emsg(25); /* query pipeline */
+  if (stat(fname[handleId_queryPipe], &cmdstat)) return -emsg(25); /* query pipeline */
   if (!S_ISFIFO(cmdstat.st_mode)) return -emsg(26);
-  if (!(fhandle[6] = fopen(fname[6], "r+"))) return -emsg(25);
-  handle[6] = fileno(fhandle[6]);
+  if (!(fhandle[handleId_queryPipe] = fopen(fname[handleId_queryPipe], "r+"))) return -emsg(25);
+  handle[handleId_queryPipe] = fileno(fhandle[handleId_queryPipe]);
 
-  if (!(fhandle[7] = fopen(fname[7], "w+")))
+  if (!(fhandle[handleId_queryRespPipe] = fopen(fname[handleId_queryRespPipe], "w+")))
     return -emsg(27); /* query response pipe */
-  handle[7] = fileno(fhandle[7]);
+  handle[handleId_queryRespPipe] = fileno(fhandle[handleId_queryRespPipe]);
 
   /* find largest handle for select call */
-  handle[3] = 0;
-  handle[4] = 0;
+  handle[handleId_rawKeyDir] = 0;
+  handle[handleId_finalKeyDir] = 0;
   selectmax = 0;
   for (i = 0; i < 8; i++)
     if (selectmax < handle[i]) selectmax = handle[i];
@@ -2829,21 +2546,28 @@ int main(int argc, char *argv[]) {
     /* prepare select call */
     FD_ZERO(&readqueue);
     FD_ZERO(&writequeue);
-    FD_SET(handle[6], &readqueue); /* query pipe */
-    FD_SET(handle[2], &readqueue); /* receive pipe */
-    FD_SET(handle[0], &readqueue); /* command pipe */
-    if (next_packet_to_send || send_index)
-      FD_SET(handle[1], &writequeue); /* content to send */
+    FD_SET(handle[handleId_queryPipe], &readqueue); /* query pipe */
+    FD_SET(handle[handleId_receivePipe], &readqueue); /* receive pipe */
+    FD_SET(handle[handleId_commandPipe], &readqueue); /* command pipe */
+    if (next_packet_to_send || send_index) {
+      FD_SET(handle[handleId_sendPipe], &writequeue); /* content to send */
+    }
     /* keep timeout short if there is work to do */
     timeout = ((instring[0] || rec_packetlist) ? TENMILLISEC : HALFSECOND);
     retval = select(selectmax, &readqueue, &writequeue, (fd_set *)0, &timeout);
 
     if (retval == -1) return -emsg(28);
-    if (retval) { /* there was a pending request */
-      /*  handle send pipelne */
-      if (FD_ISSET(handle[1], &writequeue)) {
+    // If there was a pendeing request from select
+    if (retval) {
+
+      // If there is something to write to send pipe
+      if (FD_ISSET(handle[handleId_sendPipe], &writequeue)) {
+        #ifdef DEBUG
+        printf("Writing packet to sendpipe\n");
+        fflush(stdout);
+        #endif
         i = next_packet_to_send->length - send_index;
-        retval = write(handle[1], &next_packet_to_send->packet[send_index], i);
+        retval = write(handle[handleId_sendPipe], &next_packet_to_send->packet[send_index], i);
         if (retval == -1) return -emsg(29);
         if (retval == i) { /* packet is sent */
           free2(next_packet_to_send->packet);
@@ -2857,15 +2581,21 @@ int main(int argc, char *argv[]) {
           send_index += retval;
         }
       }
-      /*  poll cmd input */
-      if (FD_ISSET(handle[0], &readqueue)) {
-        retval = read(handle[0], &instring[ipt], CMD_INBUFLEN - 1 - ipt);
+      
+      // If there is something to read from cmd pipeline
+      if (FD_ISSET(handle[handleId_commandPipe], &readqueue)) {
+        retval = read(handle[handleId_commandPipe], &instring[ipt], CMD_INBUFLEN - 1 - ipt);
         if (retval < 0) break;
+        #ifdef DEBUG
+        printf("Read something from cmd pipe\n");
+        fflush(stdout);
+        #endif
         ipt += retval;
         instring[ipt] = 0;
         if (ipt >= CMD_INBUFLEN) return -emsg(75); /* overflow */
                                                    /* parse later... */
       }
+
       /* parse input string */
       dpnt = index(instring, '\n');
       if (dpnt) { /* we got a newline */
@@ -2880,10 +2610,15 @@ int main(int argc, char *argv[]) {
         ipt -= sl + 1;
         instring[ipt] = 0; /* repair index */
       }
-      /*  poll receive pipeline */
-      if (FD_ISSET(handle[2], &readqueue)) {
+
+      // If there is something to read from receive pipeline
+      if (FD_ISSET(handle[handleId_receivePipe], &readqueue)) {
+        #ifdef DEBUG
+        printf("Read something from rcv pipe\n");
+        fflush(stdout);
+        #endif
         if (receive_index < sizeof(struct ERRC_PROTO)) {
-          retval = read(handle[2], &((char *)&msgprotobuf)[receive_index],
+          retval = read(handle[handleId_receivePipe], &((char *)&msgprotobuf)[receive_index],
                         sizeof(msgprotobuf) - receive_index);
           if (retval == -1) return -emsg(36); /* can that be better? */
           receive_index += retval;
@@ -2895,7 +2630,7 @@ int main(int argc, char *argv[]) {
             memcpy(tmpreadbuf, &msgprotobuf, sizeof(msgprotobuf));
           }
         } else { /* we are reading the main message now */
-          retval = read(handle[2], &tmpreadbuf[receive_index],
+          retval = read(handle[handleId_receivePipe], &tmpreadbuf[receive_index],
                         msgprotobuf.bytelength - receive_index);
           if (retval == -1) return -emsg(36); /* can that be better? */
           receive_index += retval;
@@ -2918,8 +2653,9 @@ int main(int argc, char *argv[]) {
           }
         }
       }
-      /*  check query pipeline */
-      if (FD_ISSET(handle[6], &readqueue)) {
+
+      // If there is something to read from query pipeline
+      if (FD_ISSET(handle[handleId_queryPipe], &readqueue)) {
       }
     }
     /* enter working routines for packets here */
@@ -2928,9 +2664,13 @@ int main(int argc, char *argv[]) {
       if (((unsigned int *)receivebuf)[0] != ERRC_PROTO_tag) {
         return -emsg(44);
       }
-      /* printf("received message, subtype: %d, len: %d\n",
+      
+      #ifdef DEBUG
+      printf("received message, subtype: %d, len: %d\n",
              ((unsigned int *)receivebuf)[2],
-             ((unsigned int *)receivebuf)[1]);fflush(stdout); */
+             ((unsigned int *)receivebuf)[1]);
+      fflush(stdout);
+      #endif
 
       switch (((unsigned int *)receivebuf)[2]) { /* subtype */
         case 0: /* received an error estimation packet */
@@ -3008,12 +2748,13 @@ int main(int argc, char *argv[]) {
     }
 
   } while (noshutdown);
+  
   /* close nicely */
-  fclose(fhandle[0]);
-  close(handle[1]);
-  close(handle[2]);
-  fclose(fhandle[5]);
-  fclose(fhandle[6]);
-  fclose(fhandle[7]);
+  fclose(fhandle[handleId_commandPipe]);
+  close(handle[handleId_sendPipe]);
+  close(handle[handleId_receivePipe]);
+  fclose(fhandle[handleId_notifyPipe]);
+  fclose(fhandle[handleId_queryPipe]);
+  fclose(fhandle[handleId_queryRespPipe]);
   return 0;
 }
