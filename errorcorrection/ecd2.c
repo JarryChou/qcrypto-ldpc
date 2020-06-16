@@ -739,7 +739,7 @@ int process_esti_message_0(char *receivebuf) {
   printf("process_esti_message_0: estErr: %d errMode: %d \
     lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d",
     kb->estimatederror, kb->errormode, 
-    localerror, kb->estimatedsamplesize, newbitsneeded, kb->initialbits)
+    localerror, kb->estimatedsamplesize, newbitsneeded, kb->initialbits);
   #endif
 
   /* prepare reply message */
