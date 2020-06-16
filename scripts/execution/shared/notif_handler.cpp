@@ -34,7 +34,7 @@
 
 // Functions
 void *read_notification_from_pipe( void *ptr );
-void *process_notification( void *ptr );
+void process_notification( void *ptr );
 
 // Variables
 // Using string to avoid the headache, but you could optimize if this is necessary
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
      // src: https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html#SYNCHRONIZATION
      pthread_t thread1;
      // Read notifications on pthread
-     int iret1 = pthread_create(&thread1, NULL, read_notification_from_pipe, (void*) inputPipe)
+     int iret1 = pthread_create(&thread1, NULL, read_notification_from_pipe, (void*) inputPipe);
      // Process notifications on main 
      process_notification(shellCmd);
      // This section never gets called in the current code because there's no termination
