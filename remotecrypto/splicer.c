@@ -257,27 +257,30 @@ void FILL_TABLE_PROTO5(unsigned int *t) { /* BC version, copies everything */
 }
 
 struct protocol_details_C proto_table[] = {
-    {/* service protocol. emits all bits in stream 3i and 4i into the outword.
+  /* service protocol. emits all bits in stream 3i and 4i into the outword.
     the 3i bits end up in bits 4..7, the 4i inbits in bits0..3. This gives
     the same service files on both sides. It expects 4 bits from stream 3i
     and 4i. */
-     4, 4, 8, 0, 256, &FILL_TABLE_PROTO0},
-    {/* standard BB84 protocol. expects 1 bit from stream 3i, and nothing from
-  stream 4i. reflects the inbit to the outbit. */
-     1, 0, 1, 0, 2, &FILL_TABLE_PROTO1},
-    {/* duplicated service protocol. same as proto 0. */
-     4, 4, 8, 0, 256, &FILL_TABLE_PROTO0},
-    {/* device-independent protocol with 6 detectors on local side. Expects
-    4 full data bits in local file, and 3 data bits in remote data item.
- */
-     4, 3, 1, 4, 128, &FILL_TABLE_PROTO3},
-    {/* device-independent protocol with 4 detectors on local side. Expects
-    4 full data bits in local file, and 3 data bits in remote data item.
- */
-     4, 3, 1, 4, 128, &FILL_TABLE_PROTO4},
-    {/* BC protocol. expects 2 bits from stream 3i, and nothing from
-  stream 4i. reflects the inbits to the outbits. */
-     2, 0, 2, 0, 4, &FILL_TABLE_PROTO5},
+  {4, 4, 8, 0, 256, &FILL_TABLE_PROTO0},
+
+  /* standard BB84 protocol. expects 1 bit from stream 3i, and nothing from
+    stream 4i. reflects the inbit to the outbit. */
+  {1, 0, 1, 0, 2, &FILL_TABLE_PROTO1},
+
+  /* duplicated service protocol. same as proto 0. */
+  {4, 4, 8, 0, 256, &FILL_TABLE_PROTO0},
+
+  /* device-independent protocol with 6 detectors on local side. Expects
+    4 full data bits in local file, and 3 data bits in remote data item. */
+    {4, 3, 1, 4, 128, &FILL_TABLE_PROTO3},
+
+  /* device-independent protocol with 4 detectors on local side. Expects
+    4 full data bits in local file, and 3 data bits in remote data item. */
+  {4, 3, 1, 4, 128, &FILL_TABLE_PROTO4},
+
+  /* BC protocol. expects 2 bits from stream 3i, and nothing from
+    stream 4i. reflects the inbits to the outbits. */
+  {2, 0, 2, 0, 4, &FILL_TABLE_PROTO5},
 };
 
 /* ---------------------------------------------------------------------- */
