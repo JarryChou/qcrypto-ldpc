@@ -119,18 +119,20 @@
                 ---------modifications to BC protocol-----------------
                  5: Like 1, but no basis is transmitted, but basis/result
                     kept in local file
-  BASE OPTION
-    -b alicebasis: A string of 4 characters comprising of 'H','V','-','+' to
+  BASIS OPTION
+    -b alicebasis: A string of 4 characters comprising of 'H','V','-','+' (case sensitive) to
                    represent the order of bases for the base sequence on Alice's side
-                   where '-b "V-H+" ' represents (lsb)V - H + (msb)
-    -B bobbasis:   A string of 4 characters comprising of 'H','V','-','+' to
+                   where '-b "V-H+" ' represents (lsb)V - H + (msb). 
+    -B bobbasis:   A string of 4 characters comprising of 'H','V','-','+' (case sensitive) to
                    represent the order of bases for the base sequence on Bob's side.
                     where '-B "V-H+" ' represents (lsb)V - H + (msb)
 
-                   By default both alicebasis & bobbasis are "V-H+".
-                   It is assumed both sides use the same basis (V-H+), but you can use
+                   1. By default both alicebasis & bobbasis are "V-H+".
+                   2. It is assumed both sides use the same basis (V-H+), but you can use
                    this to customize alice's data to match bob's basis if needed.
-                   As of now only chopper offers this customization.
+                   3. As of now only chopper offers this customization.
+                   4. Note that  so long as the characters are unique, you can use any character to
+                   represent a basis.
 
 PROTECTION OPTION
    -m maxnum:    maximum time for a consecutive event to be meaningful. If
@@ -364,11 +366,13 @@ int emsg(int code) {
 */ 
 #define BASIS_LENGTH 4             /* number of basis */
 #define BASIS_FORMAT "%4s"          /* for sscanf of basis */
-#define DEFAULT_BASIS "V-H+"        // Default base. Here we assume 4 detectors
-char basisSequences[2][BASIS_LENGTH + 1] = {DEFAULT_BASIS, DEFAULT_BASIS}; // 0: Alice, 1: Bob
+char basisSequences[2][BASIS_LENGTH + 1] = {"V-H+", "V-H+"}; // 0: Alice, 1: Bob
 char basisRelativeSwapIndexes[BASIS_LENGTH - 1];
 int basisSwapNeeded = 0;
 int basisSwapXor = 0;
+
+#define DEBUG_BASIS 1
+#undef DEBUG_BASIS
 
 /* Precompute swap indexes as described above.
  * Precondition: basisSequences should contain basis char sequences.
@@ -387,6 +391,9 @@ int precomputeSwapIndexes() {
   }
   for (size_t currIndex = 0; currIndex < 3; currIndex++) {
     // If found mismatch
+    #ifdef DEBUG_BASIS
+    fprintf(stderr, "%c %c\n", basisSequences[0][currIndex], basisSequences[1][currIndex]);
+    #endif
     if (basisSequences[0][currIndex] != basisSequences[1][currIndex]) {
       basisSwapNeeded = 1;
       // Search for position to swap
@@ -403,6 +410,9 @@ int precomputeSwapIndexes() {
       }
     }
   }
+  #ifdef DEBUG_BASIS
+  fprintf(stderr, "%d %d %d\n", basisRelativeSwapIndexes[0], basisRelativeSwapIndexes[1], basisRelativeSwapIndexes[2]);
+  #endif
   return 0;
 }
 
@@ -1117,19 +1127,31 @@ int main(int argc, char *argv[]) {
         }
       }
 
+      #ifdef DEBUG_BASIS
+      fprintf(stderr, "s: %d o:%d", basisSwapNeeded, t_state);
+      #endif
       // Swap bases for t_state if needed
       if (basisSwapNeeded) {
-        for (i2 = 0; i < BASIS_LENGTH - 1; i++) {
+        for (i2 = 0; i2 < BASIS_LENGTH - 1; i2++) {
           // Bit swap needed
           if (basisRelativeSwapIndexes[i2] > 0) {
             // Swap bits in t_state with XOR
             // A XOR (A XOR B) = B and vice versa
             // See: https://www.includehelp.com/c-programs/c-program-to-swap-two-bits.aspx
             basisSwapXor = ((t_state >> i2) & 1) ^ ((t_state >> (i2 + basisRelativeSwapIndexes[i2])) & 1);
-            t_state ^= (basisSwapXor << i2 | basisSwapXor << (i2 + basisRelativeSwapIndexes[i2]));
+            t_state ^= (basisSwapXor << i2) | (basisSwapXor << (i2 + basisRelativeSwapIndexes[i2]));
+            #ifdef DEBUG_BASIS
+            fprintf(stderr, " a:%d, b:%d, xor: %d", 
+              (t_state >> i2) & 1, 
+              ((t_state >> (i2 + basisRelativeSwapIndexes[i2])) & 1), 
+              basisSwapXor);
+            #endif
           }
         }
       }
+      #ifdef DEBUG_BASIS
+      fprintf(stderr, " n:%d\n", t_state);
+      #endif
 
       /* short word or rest of data */
       /* add state to shortword */
