@@ -425,27 +425,27 @@ struct protocol_details_B proto_table[] = {
    *  Protocol 0: all bits go everywhere
    *  HV basis: 0, +-basis: 1, result: V-: 0, result: H+: 1 
    * 
-   *  index 0: 8    undocumented
-   *  index 1: 4    undocumented
-   *  index 2: 0    undocumented
-   *  index 3: 16   undocumented
-   *  index 4: 4    16 entries in the tables p3_1 and p3_2
-   *  index 5: 256  size of combined pattern
-   *  index 6:      ptr to table fill implementation
+   *  bitsperentry3:    8   what ends up in local sifted key stream (Bob's T3)
+   *  bitsperentry4:    4   any transmitted data on the way back
+   *  bitsperentry5:    0   number of bits in the test file 
+   *  detectorentries: 16   number of detectorentries; 16 for 4 detectors.
+   *  expected2bits:    4   expected bits from the other side: 16 entries in the tables p3_1 and p3_2
+   *  decsize:        256   size of an int array which will contain the decision what to do.
+   *  fill_decision:        ptr to table fill implementation
    */
-  {8,4,0,16,4, 256, &FILL_DEC_PROTO0},
+  {8, 4, 0, 16, 4, 256, &FILL_DEC_PROTO0},
 
   /*
    *  Protocol 1: standard BB84. assumed sequence:  (LSB) V,-,H,+ (MSB);
    *  HV basis: 0, +-basis: 1, result: V-: 0, result: H+: 1 
    * 
-   *  index 0: 1    undocumented
-   *  index 1: 0    undocumented
-   *  index 2: 0    undocumented
-   *  index 3: 16   undocumented
-   *  index 4: 1    undocumented
-   *  index 5: 32   size of combined pattern
-   *  index 6:      ptr to table fill implementation
+   *  bitsperentry3:    1   what ends up in local sifted key stream (Bob's T3)
+   *  bitsperentry4:    0   any transmitted data on the way back
+   *  bitsperentry5:    0   number of bits in the test file 
+   *  detectorentries: 16   number of detectorentries; 16 for 4 detectors
+   *  expected2bits:    1   expected bits from the other side: undocumented
+   *  decsize:         32   size of combined pattern
+   *  fill_decision:        ptr to table fill implementation
    */
   {1, 0, 0, 16, 1, 32, &FILL_DEC_PROTO1},
 
@@ -459,31 +459,31 @@ struct protocol_details_B proto_table[] = {
    */
   {8, 4, 0, 16, 4, 256, &FILL_DEC_PROTO0},
 
-  /*  Protocol 3: deviceindependent - chopper on 6det side.
+  /*  
+   *  Protocol 3: deviceindependent - chopper on 6det side.
    *  chopper transmits 1-out-of-6 info, costream returns
    *  1-out-of-5 to first side. 
    * 
-   *  index 0: 1    undocumented
-   *  index 1: 3    undocumented
-   *  index 2: 4    undocumented
-   *  index 3: 16   undocumented
-   *  index 4: 3    one keybit, 3 ack bits, 4 bellbits, 16??, 2 t2bits
-   *  index 5: 128  size of combined pattern
-   *  index 6:      ptr to table fill implementation
+   *  bitsperentry3:    1  what ends up in local sifted key stream (Bob's T3)
+   *  bitsperentry4:    3  any transmitted data on the way back
+   *  bitsperentry5:    4  number of bits in the test file 
+   *  detectorentries: 16  number of detectorentries; 16 for 4 detectors
+   *  expected2bits:    3  expected bits from the other side: one keybit, 3 ack bits, 4 bellbits, 16??, 2 t2bits
+   *  decsize:        128  size of combined pattern
+   *  fill_decision:       ptr to table fill implementation
    */
   {1, 3, 4, 16, 3, 128, &FILL_DEC_PROTO3},
 
   /* 
    *  Protocol 4: all bits go everywhere 
    * 
-   *  index 0: 1    undocumented
-   *  index 1: 3    undocumented
-   *  index 2: 2    undocumented
-   *  index 3: 16   undocumented
-   *  index 4: 1    one keybit, 3 ack bits, 2 bellbits, 16??, 1 t2bit
-   *  index 5: 32   size of combined pattern
-   *  index 6:      ptr to table fill implementation
-  
+   *  bitsperentry3:    1   what ends up in local sifted key stream (Bob's T3)
+   *  bitsperentry4:    3   any transmitted data on the way back 
+   *  bitsperentry5:    2   number of bits in the test file 
+   *  detectorentries: 16   number of detectorentries; 16 for 4 detectors
+   *  expected2bits:    1   expected bits from the other side: one keybit, 3 ack bits, 2 bellbits, 16??, 1 t2bit
+   *  decsize:         32   size of combined pattern
+   *  fill_decision:        ptr to table fill implementation
    */
   {1, 3, 2, 16, 1, 32, &FILL_DEC_PROTO4}, 
 
@@ -492,17 +492,15 @@ struct protocol_details_B proto_table[] = {
    *  Protocol 5: modified BB84. assumed sequence:  (LSB) V,-,H,+ (MSB);
    *  HV basis: 0, +-basis: 1, result: V-: 0, result: H+: 1 
    * 
-   *  index 0: 2    undocumented
-   *  index 1: 0    undocumented
-   *  index 2: 0    undocumented
-   *  index 3: 16   undocumented
-   *  index 4: 0    undocumented
-   *  index 5: 16   size of combined pattern
-   *  index 6:      ptr to table fill implementation
+   *  bitsperentry3:    2   what ends up in local sifted key stream (Bob's T3)
+   *  bitsperentry4:    0   any transmitted data on the way back 
+   *  bitsperentry5:    0   number of bits in the test file 
+   *  detectorentries: 16   number of detectorentries; 16 for 4 detectors
+   *  expected2bits:    0   expected bits from the other side: 
+   *  decsize:         16   size of combined pattern
+   *  fill_decision:        ptr to table fill implementation
    */
-  {2, 0, 0, 16, 0, 16, &FILL_DEC_PROTO5},
-
-  /* helper functions for filling in the decision table */
+  {2, 0, 0, 16, 0, 16, &FILL_DEC_PROTO5}
 };
 
 /* ---------------------------------------------------------------------- */

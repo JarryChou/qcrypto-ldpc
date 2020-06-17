@@ -40,6 +40,7 @@
                   [-p num] [-q depth] [-Q filterconst]
                   [-m maxtime]
                   [-W]
+                  [-b alicebasis] [-B bobbasis]
 
    implemented options:
 
@@ -118,7 +119,18 @@
                 ---------modifications to BC protocol-----------------
                  5: Like 1, but no basis is transmitted, but basis/result
                     kept in local file
+  BASE OPTION
+    -b alicebasis: A string of 4 characters comprising of 'H','V','-','+' to
+                   represent the order of bases for the base sequence on Alice's side
+                   where '-b "V-H+" ' represents (lsb)V - H + (msb)
+    -B bobbasis:   A string of 4 characters comprising of 'H','V','-','+' to
+                   represent the order of bases for the base sequence on Bob's side.
+                    where '-B "V-H+" ' represents (lsb)V - H + (msb)
 
+                   By default both alicebasis & bobbasis are "V-H+".
+                   It is assumed both sides use the same basis (V-H+), but you can use
+                   this to customize alice's data to match bob's basis if needed.
+                   As of now only chopper offers this customization.
 
 PROTECTION OPTION
    -m maxnum:    maximum time for a consecutive event to be meaningful. If
@@ -183,6 +195,64 @@ PROTECTION OPTION
 #define MAXIMAL_FISHYNESS 5        /* how many out-ot-time events to detect */
 #define DEFAULT_IGNORECOUNT 0      /* how many events to ignore initially */
 #define DEFAULT_MAXDIFF 0          /* maximum allowable time between events */
+
+#define BASIS_LENGTH 4             /* number of basis */
+#define BASIS_FORMAT "%4s"          /* for sscanf of basis */
+#define DEFAULT_BASIS "V-H+"        // Default base. Here we assume 4 detectors
+/* Rectifying the basis: 
+ * where "V-H+" represents (lsb)V - H + (msb)
+ * Given two char arrays (basisSequences) of "V-H+" "HV-+" etc,
+ * we can precompute the bit indexes to swap (using XOR operations).
+ * This means a maximum of 3 swaps (last item will always be in proper position after 3 checks) 
+ * With every swap, the current bit will be in the correct position.
+ * 
+ * Swap index: iterating from the least significant bit (lsb). -1 if swap not needed, else store
+ * the relative position of the bit to swap with (will never be 0 or negative because a swapped bit
+ * will always be correct).
+ * 
+ * The swap procedure is inlined for efficiency. Search for "t_state"
+*/ 
+//0: Alice, 1: Bob
+char basisSequences[2][BASIS_LENGTH + 1] = {DEFAULT_BASIS, DEFAULT_BASIS}
+char basisRelativeSwapIndexes[BASIS_LENGTH - 1];
+int basisSwapNeeded = 0;
+int basisSwapXor = 0;
+
+/* Precompute swap indexes as described above.
+ * Precondition: basisSequences should contain basis char sequences.
+ * Postcondition: basisRelativeSwapIndexes populated. basisSequences will be consumed in the process.
+ * Returns 0 if success, emsg code if fail 
+ */
+int precomputeSwapIndexes() {
+  //Initialize basisRelativeSwapIndexes to all negative
+  for (size_t i = 0; i < BASIS_LENGTH - 1; i++) {
+    basisRelativeSwapIndexes[i] = -1;
+  }
+  
+  char tmp = 0;
+  if (strlen(basisSequences[0]) != 4 || strlen(basisSequences[1]) != 4) {
+    return -emsg(38);
+  }
+  for (size_t currIndex = 0; currIndex < 3; currIndex++) {
+    // If found mismatch
+    if (basisSequences[0][currIndex] != basisSequences[1][currIndex]) {
+      basisSwapNeeded = 1;
+      // Search for position to swap
+      for (size_t targetIndex = currIndex + 1; targetIndex <= 3; targetIndex++) { 
+        if (basisSequences[0][currIndex] == basisSequences[1][targetIndex]) {
+          // Store it once found
+          basisRelativeSwapIndexes[currIndex] = targetIndex - currIndex;
+          // Swap the sequences
+          tmp = basisSequences[0][currIndex];
+          basisSequences[0][currIndex] = basisSequences[1][targetIndex];
+          basisSequences[1][targetIndex] = tmp;
+          break;
+        }
+      }
+    }
+  }
+}
+
 
 // Debug variables
 #undef DEBUG
@@ -327,6 +397,7 @@ char *errormessage[] = {
     "error reading max time difference value (must be >=0)", /* 35 */
     "Error reading debug file name.",
     "cannot open debug log file",
+    "basis sequence is empty",
 };
 
 int emsg(int code) {
@@ -667,7 +738,7 @@ int main(int argc, char *argv[]) {
   int retval;          /* general return value */
   unsigned int t1, t2; /* intermediate variables for bit packing */
   unsigned int tdiff;  /* time difference for encoding */
-  int i, i1, opt;      /* various process variables */
+  int i, i1, opt, i2;      /* various process variables */
   int exceptcount = 0;
   fd_set rq;                            /* for polling */
   struct timeval timeout = {0, 500000}; /* timeout for input */
@@ -679,7 +750,7 @@ int main(int argc, char *argv[]) {
 
   /* parsing options */
   opterr = 0; /* be quiet when there are no options */
-  while ((opt = getopt(argc, argv, "V:i:W:O:D:o:d:ULl:e:p:q:Q:Fy:m:46")) != EOF) {
+  while ((opt = getopt(argc, argv, "V:i:W:b:B:O:D:o:d:ULl:e:p:q:Q:Fy:m:46")) != EOF) {
     switch (opt) {
       case 'V': /* set verbosity level */
         if (1 != sscanf(optarg, "%d", &verbosity_level)) return -emsg(1);
@@ -756,6 +827,14 @@ int main(int argc, char *argv[]) {
         break;
       case 'W':
         logUsingWrite = 1;
+        break;
+      case 'b':
+        if (1 != sscanf(optarg, BASIS_FORMAT, basisSequences[0])) return -emsg(3);
+        basisSequences[0][BASIS_LENGTH] = 0;    /* security termination */
+        break;
+      case 'B':
+        if (1 != sscanf(optarg, BASIS_FORMAT, basisSequences[1])) return -emsg(3);
+        basisSequences[1][BASIS_LENGTH] = 0;    /* security termination */
         break;
     }
   }
@@ -855,6 +934,9 @@ int main(int argc, char *argv[]) {
   inpointer = inbuffer;
   fishyness = 0;
   t_old = 0;
+
+  // precompute basis swapping if needed
+  precomputeSwapIndexes();
 
   while (1) { /* filling of input buffer */
     /* rescue leftovers from previous read */
@@ -1032,6 +1114,21 @@ int main(int argc, char *argv[]) {
           sendword2 = t1 << resbits2;
         }
       }
+
+      // Swap bases for t_state if needed
+      if (basisSwapNeeded) {
+        for (i2 = 0; i < BASIS_LENGTH - 1; i++) {
+          // Bit swap needed
+          if (basisRelativeSwapIndexes[i2] > 0) {
+            // Swap bits in t_state with XOR
+            // A XOR (A XOR B) = B and vice versa
+            // See: https://www.includehelp.com/c-programs/c-program-to-swap-two-bits.aspx
+            basisSwapXor = ((t_state >> i2) & 1) ^ ((t_state >> (i2 + basisRelativeSwapIndexes[i2])) & 1);
+            t_state ^= (basisSwapXor << i2 | basisSwapXor << (i2 + basisRelativeSwapIndexes[i2]));
+          }
+        }
+      }
+
       /* short word or rest of data */
       /* add state to shortword */
       t1 = (t2 << type2datawidth) | type2patterntable[t_state];

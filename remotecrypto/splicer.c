@@ -195,15 +195,15 @@ typedef struct header_4 { /* header for type-4 stream packet */
 typedef struct protocol_details_C { /* used in splicer program */
   int expected3ibits;               /* bits expected from local bit source */
   int expected4ibits;               /* bits expected from remote bit source */
-  int transmittedbits; /* bits which should end up in target key file */
-  int testfilebits;    /* number of bits in test file */
-  int decsize;         /* size of an array containing the outpattern3, where
-the parameter is the ORed version of the local bits
-from stream 3in, and the bits received from stream4in,
-shifted by exected3ibits to the left. This size should be
-1<<(expected3bits+expected4bits). */
+  int transmittedbits;              /* bits which should end up in target key file */
+  int testfilebits;                 /* number of bits in test file */
+  int decsize;                      /* size of an array containing the outpattern3, where
+                                      the parameter is the ORed version of the local bits
+                                      from stream 3in, and the bits received from stream4in,
+                                      shifted by exected3ibits to the left. This size should be
+                                      1<<(expected3bits+expected4bits). */
   void (*filltable)(unsigned int *); /* helper function to fill this array.
-                                   Has to be called in the beginning */
+                                      Has to be called in the beginning */
 } pd_C;
 #define PROTOCOL_MAXINDEX 5
 void FILL_TABLE_PROTO0(unsigned int *t) {
@@ -260,26 +260,66 @@ struct protocol_details_C proto_table[] = {
   /* service protocol. emits all bits in stream 3i and 4i into the outword.
     the 3i bits end up in bits 4..7, the 4i inbits in bits0..3. This gives
     the same service files on both sides. It expects 4 bits from stream 3i
-    and 4i. */
+    and 4i. 
+
+   * expected3ibits:    4    bits expected from local bit source
+   * expected4ibits:    4    bits expected from remote bit source
+   * transmittedbits:   8    bits which should end up in target key file
+   * testfilebits:      0    number of bits in test file
+   * decsize:         256    size of an array containing the outpattern3
+   * filltable:              helper function to fill this array
+   */
   {4, 4, 8, 0, 256, &FILL_TABLE_PROTO0},
 
   /* standard BB84 protocol. expects 1 bit from stream 3i, and nothing from
-    stream 4i. reflects the inbit to the outbit. */
+    stream 4i. reflects the inbit to the outbit. 
+
+   * expected3ibits:    1    bits expected from local bit source
+   * expected4ibits:    0    bits expected from remote bit source
+   * transmittedbits:   1    bits which should end up in target key file
+   * testfilebits:      0    number of bits in test file
+   * decsize:           2    size of an array containing the outpattern3
+   * filltable:              helper function to fill this array
+   */
   {1, 0, 1, 0, 2, &FILL_TABLE_PROTO1},
 
   /* duplicated service protocol. same as proto 0. */
   {4, 4, 8, 0, 256, &FILL_TABLE_PROTO0},
 
   /* device-independent protocol with 6 detectors on local side. Expects
-    4 full data bits in local file, and 3 data bits in remote data item. */
-    {4, 3, 1, 4, 128, &FILL_TABLE_PROTO3},
+    4 full data bits in local file, and 3 data bits in remote data item. 
+
+   * expected3ibits:   4    bits expected from local bit source
+   * expected4ibits:   3    bits expected from remote bit source
+   * transmittedbits:  1    bits which should end up in target key file
+   * testfilebits:     4    number of bits in test file
+   * decsize:        128    size of an array containing the outpattern3
+   * filltable:             helper function to fill this array
+   */
+  {4, 3, 1, 4, 128, &FILL_TABLE_PROTO3},
 
   /* device-independent protocol with 4 detectors on local side. Expects
-    4 full data bits in local file, and 3 data bits in remote data item. */
+    4 full data bits in local file, and 3 data bits in remote data item. 
+
+   * expected3ibits:    4   bits expected from local bit source
+   * expected4ibits:    3   bits expected from remote bit source
+   * transmittedbits:   1   bits which should end up in target key file
+   * testfilebits:      4   number of bits in test file
+   * decsize:         128   size of an array containing the outpattern3
+   * filltable:             helper function to fill this array
+   */
   {4, 3, 1, 4, 128, &FILL_TABLE_PROTO4},
 
   /* BC protocol. expects 2 bits from stream 3i, and nothing from
-    stream 4i. reflects the inbits to the outbits. */
+    stream 4i. reflects the inbits to the outbits. 
+    
+   * expected3ibits:    2    bits expected from local bit source
+   * expected4ibits:    0    bits expected from remote bit source
+   * transmittedbits:   2    bits which should end up in target key file
+   * testfilebits:      0    number of bits in test file
+   * decsize:           4    size of an array containing the outpattern3
+   * filltable:              helper function to fill this array
+   */
   {2, 0, 2, 0, 4, &FILL_TABLE_PROTO5},
 };
 
