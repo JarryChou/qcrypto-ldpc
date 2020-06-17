@@ -196,65 +196,6 @@ PROTECTION OPTION
 #define DEFAULT_IGNORECOUNT 0      /* how many events to ignore initially */
 #define DEFAULT_MAXDIFF 0          /* maximum allowable time between events */
 
-#define BASIS_LENGTH 4             /* number of basis */
-#define BASIS_FORMAT "%4s"          /* for sscanf of basis */
-#define DEFAULT_BASIS "V-H+"        // Default base. Here we assume 4 detectors
-/* Rectifying the basis: 
- * where "V-H+" represents (lsb)V - H + (msb)
- * Given two char arrays (basisSequences) of "V-H+" "HV-+" etc,
- * we can precompute the bit indexes to swap (using XOR operations).
- * This means a maximum of 3 swaps (last item will always be in proper position after 3 checks) 
- * With every swap, the current bit will be in the correct position.
- * 
- * Swap index: iterating from the least significant bit (lsb). -1 if swap not needed, else store
- * the relative position of the bit to swap with (will never be 0 or negative because a swapped bit
- * will always be correct).
- * 
- * The swap procedure is inlined for efficiency. Search for "t_state"
-*/ 
-//0: Alice, 1: Bob
-char basisSequences[2][BASIS_LENGTH + 1] = {DEFAULT_BASIS, DEFAULT_BASIS}
-char basisRelativeSwapIndexes[BASIS_LENGTH - 1];
-int basisSwapNeeded = 0;
-int basisSwapXor = 0;
-
-/* Precompute swap indexes as described above.
- * Precondition: basisSequences should contain basis char sequences.
- * Postcondition: basisRelativeSwapIndexes populated. basisSequences will be consumed in the process.
- * Returns 0 if success, emsg code if fail 
- */
-int precomputeSwapIndexes() {
-  //Initialize basisRelativeSwapIndexes to all negative
-  for (size_t i = 0; i < BASIS_LENGTH - 1; i++) {
-    basisRelativeSwapIndexes[i] = -1;
-  }
-  
-  char tmp = 0;
-  if (strlen(basisSequences[0]) != 4 || strlen(basisSequences[1]) != 4) {
-    return -emsg(38);
-  }
-  for (size_t currIndex = 0; currIndex < 3; currIndex++) {
-    // If found mismatch
-    if (basisSequences[0][currIndex] != basisSequences[1][currIndex]) {
-      basisSwapNeeded = 1;
-      // Search for position to swap
-      for (size_t targetIndex = currIndex + 1; targetIndex <= 3; targetIndex++) { 
-        if (basisSequences[0][currIndex] == basisSequences[1][targetIndex]) {
-          // Store it once found
-          basisRelativeSwapIndexes[currIndex] = targetIndex - currIndex;
-          // Swap the sequences
-          tmp = basisSequences[0][currIndex];
-          basisSequences[0][currIndex] = basisSequences[1][targetIndex];
-          basisSequences[1][targetIndex] = tmp;
-          break;
-        }
-      }
-    }
-  }
-  return 0;
-}
-
-
 // Debug variables
 #undef DEBUG
 #define DEBUG 1
@@ -407,6 +348,63 @@ int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
   return code;
 };
+
+/* Rectifying the basis: 
+ * where "V-H+" represents (lsb)V - H + (msb)
+ * Given two char arrays (basisSequences) of "V-H+" "HV-+" etc,
+ * we can precompute the bit indexes to swap (using XOR operations).
+ * This means a maximum of 3 swaps (last item will always be in proper position after 3 checks) 
+ * With every swap, the current bit will be in the correct position.
+ * 
+ * Swap index: iterating from the least significant bit (lsb). -1 if swap not needed, else store
+ * the relative position of the bit to swap with (will never be 0 or negative because a swapped bit
+ * will always be correct).
+ * 
+ * The swap procedure is inlined for efficiency. Search for "t_state"
+*/ 
+#define BASIS_LENGTH 4             /* number of basis */
+#define BASIS_FORMAT "%4s"          /* for sscanf of basis */
+#define DEFAULT_BASIS "V-H+"        // Default base. Here we assume 4 detectors
+char basisSequences[2][BASIS_LENGTH + 1] = {DEFAULT_BASIS, DEFAULT_BASIS}; // 0: Alice, 1: Bob
+char basisRelativeSwapIndexes[BASIS_LENGTH - 1];
+int basisSwapNeeded = 0;
+int basisSwapXor = 0;
+
+/* Precompute swap indexes as described above.
+ * Precondition: basisSequences should contain basis char sequences.
+ * Postcondition: basisRelativeSwapIndexes populated. basisSequences will be consumed in the process.
+ * Returns 0 if success, emsg code if fail 
+ */
+int precomputeSwapIndexes() {
+  //Initialize basisRelativeSwapIndexes to all negative
+  for (size_t i = 0; i < BASIS_LENGTH - 1; i++) {
+    basisRelativeSwapIndexes[i] = -1;
+  }
+  
+  char tmp = 0;
+  if (strlen(basisSequences[0]) != 4 || strlen(basisSequences[1]) != 4) {
+    return -emsg(38);
+  }
+  for (size_t currIndex = 0; currIndex < 3; currIndex++) {
+    // If found mismatch
+    if (basisSequences[0][currIndex] != basisSequences[1][currIndex]) {
+      basisSwapNeeded = 1;
+      // Search for position to swap
+      for (size_t targetIndex = currIndex + 1; targetIndex <= 3; targetIndex++) { 
+        if (basisSequences[0][currIndex] == basisSequences[1][targetIndex]) {
+          // Store it once found
+          basisRelativeSwapIndexes[currIndex] = targetIndex - currIndex;
+          // Swap the sequences
+          tmp = basisSequences[0][currIndex];
+          basisSequences[0][currIndex] = basisSequences[1][targetIndex];
+          basisSequences[1][targetIndex] = tmp;
+          break;
+        }
+      }
+    }
+  }
+  return 0;
+}
 
 /* global variables for IO handling */
 int handle1, handle2, handle3; /* in and out file handles */
