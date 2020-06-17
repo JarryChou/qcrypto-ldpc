@@ -251,6 +251,7 @@ int precomputeSwapIndexes() {
       }
     }
   }
+  return 0;
 }
 
 
@@ -937,8 +938,9 @@ int main(int argc, char *argv[]) {
   fishyness = 0;
   t_old = 0;
 
-  // precompute basis swapping if needed
-  precomputeSwapIndexes();
+  // precompute basis swapping if needed. Returns emsg if an error occurred.
+  retval = precomputeSwapIndexes();
+  if (retval) { return retval; }
 
   while (1) { /* filling of input buffer */
     /* rescue leftovers from previous read */
