@@ -397,7 +397,9 @@ char *errormessage[] = {
     "error reading max time difference value (must be >=0)", /* 35 */
     "Error reading debug file name.",
     "cannot open debug log file",
-    "basis sequence is empty",
+    "basis sequence is invalid",
+    "Error reading basis for Alice",
+    "Error reading basis for Bob" /* 40 */
 };
 
 int emsg(int code) {
@@ -829,11 +831,11 @@ int main(int argc, char *argv[]) {
         logUsingWrite = 1;
         break;
       case 'b':
-        if (1 != sscanf(optarg, BASIS_FORMAT, basisSequences[0])) return -emsg(3);
+        if (1 != sscanf(optarg, BASIS_FORMAT, basisSequences[0])) return -emsg(39);
         basisSequences[0][BASIS_LENGTH] = 0;    /* security termination */
         break;
       case 'B':
-        if (1 != sscanf(optarg, BASIS_FORMAT, basisSequences[1])) return -emsg(3);
+        if (1 != sscanf(optarg, BASIS_FORMAT, basisSequences[1])) return -emsg(40);
         basisSequences[1][BASIS_LENGTH] = 0;    /* security termination */
         break;
     }
