@@ -22,6 +22,13 @@ epoch=$2
 # Body
 # ===
 
+# Check file's existence on Bob's side
+lsResult=$(ls "BOB/DIR/T1/$epoch")
+if [ "$lsResult" = "" ]; then
+    echo "BOB T1 doesn't exist."
+    exit 1
+fi
+
 # PFIND
 # Ordered by T1 & T2
 # That thing at the end simply converts hex to int
@@ -39,10 +46,11 @@ if [ "$1" = "1" ]; then
     -e $((16#$epoch)) \
     -l BOB/DIR/LOGS/pfind/logs.txt \
     -V 3
+
+  # Helper prints
+  echo "time diff is ${timeDiff}"
+  printf "\n Running costream \n\n"
 fi
-# Helper prints
-echo "time diff is ${timeDiff}"
-printf "\n Running costream \n\n"
 
 if [ "$timeDiff" = "" ]; then
   echo "Something went wrong with pfind"
