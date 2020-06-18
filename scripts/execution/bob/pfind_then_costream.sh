@@ -1,22 +1,26 @@
 #!/bin/bash
-# Usage: pfind_then_costream.sh epoch
+# Usage: pfind_then_costream.sh debugMode epoch
+#   debugMode: 0 or 1. If 1, then pfind is run a second time to record the logs.
 #   epoch: In hex format, this should be the filename. If using the components as is you shouldn't have any issues.
 
 # ===
 # Param handling
 # ===
 if [ "$1" = "" ]; then
-  echo "Missing parameter: epoch"
-  echo "Usage: pfind_then_costream.sh epoch"
+  echo "Missing parameter: debugMode"
+  echo "Usage: pfind_then_costream.sh debugMode epoch"
   exit 1
 fi
-epoch=$1
+if [ "$2" = "" ]; then
+  echo "Missing parameter: epoch"
+  echo "Usage: pfind_then_costream.sh debugMode epoch"
+  exit 1
+fi
+epoch=$2
 
 # ===
 # Body
 # ===
-# timeout 4s sudo bash BOB/DIR/SCRIPTS/chopper2.sh BOB/DIR/TIMESTAMPS/bobSampleBinary
-# timeout 4s BOB/EXE/COSTREAM & (ps -C COSTREAM >/dev/null && echo "Running" || echo "Not running")
 
 # PFIND
 # Ordered by T1 & T2
@@ -28,13 +32,14 @@ timeDiff=$(BOB/EXE/PFIND\
            -e $((16#$epoch)) )
 
 # Run again to log. KIV to modify file to output properly
-BOB/EXE/PFIND\
-  -I BOB/DIR/T1/$epoch \
-  -i BOB/DIR/TCP_DEST/$epoch \
-  -e $((16#$epoch)) \
-  -l BOB/DIR/LOGS/pfind/logs.txt \
-  -V 3
-
+if [ "$1" = "1" ]; then
+  BOB/EXE/PFIND\
+    -I BOB/DIR/T1/$epoch \
+    -i BOB/DIR/TCP_DEST/$epoch \
+    -e $((16#$epoch)) \
+    -l BOB/DIR/LOGS/pfind/logs.txt \
+    -V 3
+fi
 # Helper prints
 echo "time diff is ${timeDiff}"
 printf "\n Running costream \n\n"

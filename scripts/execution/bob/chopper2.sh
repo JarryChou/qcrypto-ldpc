@@ -1,5 +1,6 @@
 #!/bin/bash
-# Usage: chopper2.sh {input file}
+# Usage: chopper2.sh inputFile
+#   epoch: In hex format, this should be the filename. If using the components as is you shouldn't have any issues.
 # Run this script with the build directory as the working directory
 
 # ===
