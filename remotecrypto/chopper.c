@@ -201,7 +201,8 @@ PROTECTION OPTION
 // Debug variables
 #undef DEBUG
 #define DEBUG 1
-char debug_printFirstNTimestamps = 10;
+#define DEBUG_TIMESTAMP_COUNT 10
+char debug_printFirstNTimestamps = DEBUG_TIMESTAMP_COUNT;
 
 typedef struct rawevent {
   unsigned int cv; /* most significan word */
@@ -1010,7 +1011,7 @@ int main(int argc, char *argv[]) {
       #ifdef DEBUG
       if (debuglog && debug_printFirstNTimestamps) {
         debug_printFirstNTimestamps--;
-        fprintf(debuglog, "Timestamp %d: %lli\n", debug_printFirstNTimestamps, t_new);
+        fprintf(debuglog, "Timestamp %d: %lli\n", DEBUG_TIMESTAMP_COUNT - debug_printFirstNTimestamps, t_new);
         fflush(debuglog);
       }
       #endif
