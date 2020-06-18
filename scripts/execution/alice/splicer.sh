@@ -22,4 +22,5 @@ ALICE/EXE/SPLICER \
   -I ALICE/DIR/TCP_DEST/$1\
   -f ALICE/DIR/T3_SIFTED/\
   -e $((16#$1))\
-  -m ALICE/PIPES/splcrToNtfHndlr
+  -m ALICE/PIPES/splcrToNtfHndlr\
+  -q 1
