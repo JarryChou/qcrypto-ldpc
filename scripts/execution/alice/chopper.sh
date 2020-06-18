@@ -1,13 +1,26 @@
 #!/bin/bash
-# Usage: chopper.sh {input file}
+# Usage: chopper.sh inputFile aliceBasis bobBasis
+#   inputFile: File to pass into chopper
+#   aliceBasis: Basis sequence of Alice's events. Expects a 4 character long string of format of "H+V-" for example.
+#   bobBasis: Basis sequence of Bob's events
 # Run this script with the build directory as the working directory
 
 # ===
 # Param handling
 # ===
 if [ "$1" = "" ]; then
-  echo "Missing parameter: {chopper input filename}"
-  echo "Usage: chopper.sh {input filename}"
+  echo "Missing parameter: inputFile (file to pass into chopper)"
+  echo "Usage: chopper.sh inputFile"
+  exit 1
+fi
+if [ "$2" = "" ]; then
+  echo "Missing parameter: aliceBasis (Basis sequence of Alice's events)"
+  echo "Usage: chopper.sh inputFile"
+  exit 1
+fi
+if [ "$3" = "" ]; then
+  echo "Missing parameter: bobBasis ( Basis sequence of Bob's events)"
+  echo "Usage: chopper.sh inputFile"
   exit 1
 fi
 
@@ -24,3 +37,5 @@ ALICE/EXE/CHOPPER \
   -F\
   -e ALICE/DIR/LOGS/chopper/debuglogs.txt\
   -U\
+  -b $2\
+  -B $3

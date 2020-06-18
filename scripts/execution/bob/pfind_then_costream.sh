@@ -1,12 +1,13 @@
 #!/bin/bash
-# Usage: pfind_then_costream.sh {epoch (hex), which is usually the file name}
+# Usage: pfind_then_costream.sh epoch
+#   epoch: In hex format, this should be the filename. If using the components as is you shouldn't have any issues.
 
 # ===
 # Param handling
 # ===
 if [ "$1" = "" ]; then
-  echo "Missing parameter: epoch (hex)"
-  echo "Usage: pfind_then_costream.sh {epoch (hex)}"
+  echo "Missing parameter: epoch"
+  echo "Usage: pfind_then_costream.sh epoch"
   exit 1
 fi
 epoch=$1
