@@ -13,7 +13,7 @@
  * maxConsecutive:  If set, represents the maximum number of epochs to buffer before sending.
  *                  The command sent will also be different. The format will then be "command epoch maxConsecutive".
  *                  Buffered epochs refer to epochs that are consecutively numbered e.g. abcd1111, abcd1112, abcd1113, then if
- *                  abcd1115 arrives, "cmd abcd1111 3" will be called.
+ *                  abcd1115 arrives, "cmd abcd1111 3" will be called. If the maxConsecutive is hit, then it'll be called.
  *                  By default, this is disabled and the command is just sent as soon as possible as "command epoch".
  *                  The current maximum value is 999 (configure MAX_BUFFERED_STR_LEN to support longer values).
  * 
@@ -27,7 +27,7 @@
  * All incoming notifications are expected to be of the same size
  * 
  * Example(s): notif_handler "./pipes/pipe" "echo"
- *             notif_handler "./pipes/pipe" "echo" "./pipes/pipe2" "sudo bash cmd.sh" 
+ *             notif_handler "./pipes/pipe" "echo" 10
  * 
  * Considerations:
  * 1. What happens if the program encounters multiple duplicate epochs?
