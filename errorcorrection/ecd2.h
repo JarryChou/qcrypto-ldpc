@@ -654,7 +654,7 @@ void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1
 /* helper program to half parity difference intervals ; takes kb and inh_index
    as parameters; no weired stuff should happen. return value is the number
    of initially dead intervals */
-void fix_parity_intervals(struct keyblock *kb, unsigned int *inh_idx)
+void fix_parity_intervals(struct keyblock *kb, unsigned int *inh_idx);
 
 /* helper for correcting one bit in pass 0 or 1 in their field */
 void correct_bit(unsigned int *d, int bitindex);
@@ -740,8 +740,7 @@ int receive_privamp_msg(char *receivebuf);
 /* do core part of the privacy amplification. Calculates the compression ratio
    based on the lost bits, saves the final key and removes the thread from the
    list.    */
-int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
-                             int lostbits);
+int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits);
 
 // MAIN FUNCTION DECLARATIONS (OTHERS)
 /* ------------------------------------------------------------------------- */
