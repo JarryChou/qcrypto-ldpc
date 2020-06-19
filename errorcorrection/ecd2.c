@@ -1,176 +1,180 @@
-/* ecd2.c:      Part of the quantum key distribution software for error
-                correction and privacy amplification. Description
-                see below. Version as of 20071228, works also for Ekert-91
-                type protocols.
+/**
+ * ecd2.c     
+ * Part of the quantum key distribution software for error
+ *  correction and privacy amplification. Description
+ *  see below. Version as of 20071228, works also for Ekert-91
+ *  type protocols.
+ * 
+ *  Copyright (C) 2005-2007 Christian Kurtsiefer, National University
+ *                          of Singapore <christian.kurtsiefer@gmail.com>
+ * 
+ *  This source code is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Public License as published
+ *  by the Free Software Foundation; either version 2 of the License,
+ *  or (at your option) any later version.
+ * 
+ *  This source code is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  Please refer to the GNU Public License for more details.
+ * 
+ *  You should have received a copy of the GNU Public License along with
+ *  this source code; if not, write to:
+ *  Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * --
+ * 
+ *    Error correction demon. (modifications to original errcd see below).
+ * 
+ *    Runs in the background and performs a cascade
+ *    error correction algorithm on a block of raw keys. Communication with a
+ *    higher level controller is done via a command pipeline, and communication
+ *    with the other side is done via packets which are sent and received via
+ *    pipes in the filesystem. Some parameters (connection locations,
+ *    destinations) are communicated via command line parameters, others are sent
+ *    via the command interface. The program is capable to handle several blocks
+ *    simultaneously, and to connect corresponding messages to the relevant
+ *    blocks.
+ *    The final error-corrected key is stored in a file named after the first
+ *    epoch. If a block processing is requested on one side, it will fix the role
+ *    to "Alice", and the remote side will be the "bob" which changes the bits
+ *    accordingly. Definitions according to the flowchart in DSTA deliverable D3
+ * 
+ * usage:
+ * 
+ *   errcd -c commandpipe -s sendpipe -r receivepipe
+ *         -d rawkeydirectory -f finalkeydirectory
+ *         -l notificationpipe
+ *         -q responsepipe -Q querypipe
+ *         [ -e errormargin ]
+ *         [ -E expectederror ]
+ *         [ -k ]
+ *         [ -J basicerror ]
+ *         [ -T errorbehaviour ]
+ *         [ -V verbosity ]
+ *         [ -I ]
+ *         [ -i ]
+ *         [ -p ]
+ *         [ -B BER | -b rounds ]
+ * 
+ * options/parameters:
+ * 
+ *  DIRECTORY / CONNECTION PARAMETERS:
+ * 
+ *   -c commandpipe:       pipe for receiving commands. A command is typically an
+ *                         epoch name and a number of blocks to follow, separated
+ *                         by a whitespace. An optional error argument can be
+ *                         passed as a third parameter. Commands are read via
+ *                         fscanf, and should be terminated with a newline.
+ *   -s sendpipe:          binary connection which reaches to the transfer
+ *                         program. This is for packets to be sent out to the
+ *                         other side. Could be replaced by sockets later.
+ *   -r receivepipe:       same as sendpipe, but for incoming packets.
+ *   -d rawkeydirectory:   directory which contains epoch files for raw keys in
+ *                         stream-3 format
+ *   -f finalkeydirectory: Directory which contains the final key files.
+ *   -l notificationpipe:  whenever a final key block is processed, its epoch name
+ *                         is written into this pipe or file. The content of the
+ *                         message is determined by the verbosity flag.
+ *   -Q querypipe:         to request the current status of a particular epoch
+ *                         block, requests may be sent into this pipe. Syntax TBD.
+ *   -q respondpipe:       Answers to requests will be written into this pipe or
+ *                         file.
+ * 
+ *  CONTROL OPTIONS:
+ * 
+ *   -e errormargin:       A float parameter for how many standard deviations
+ *                         of the detected errors should be added to the
+ *                         information leakage estimation to eve, assuming a
+ *                         poissonian statistics on the found errors (i.e.,
+ *                         if 100 error bits are found, one standard deviation
+ *                         in the error rate QBER is QBER /Sqrt(10). )
+ *                         Default is set to 0.
+ *   -E expectederror:     an initial error rate can be given for choosing the
+ *                         length of the first test. Default is 0.05. This may
+ *                         be overridden by a servoed quantity or by an explicit
+ *                         statement in a command.
+ *   -k                    killfile option. If set, the raw key files will be
+ *                         deleted after writing the final key into a file.
+ *   -J basicerror:        Error rate which is assumed to be generated outside the
+ *                         influence of an eavesdropper.
+ *   -T errorbehavior:     Determines the way how to react on errors which should
+ *                         not stop the demon. Default is 0. detailed behavior:
+ *                         0: terminate program on everything
+ *                         1: ignore errors on wrong packets???
+ *                         2: ignore errors inherited from other side
+ *   -V verbosity:         Defines verbosity mode on the logging output after a
+ *                         block has been processed. options:
+ *                         0: just output the raw block name (epoch number in hex)
+ *                         1: output the block name, number of final bits
+ *                         2: output block name, num of initial bits, number of
+ *                            final bits, error rate
+ *                         3: same as 2, but in plain text
+ *                         4: same as 2, but with explicit number of leaked bits
+ *                            in the error correction procedure
+ *                         5: same as 4, but with plain text comments
+ *   -I                    ignoreerroroption. If this option is on, the initial
+ *                         error measurement for block optimization is skipped,
+ *                         and the default value or supplied value is chosen. This
+ *                         option should increase the efficiency of the key
+ *                         regeneration if a servo for the error rate is on.
+ *   -i                    deviceindependent option. If this option is set,
+ *                         the deamon expects to receive a value for the Bell
+ *                         violation parameter to estimate the knowledge of an
+ *                         eavesdropper.
+ *   -p                    avoid privacy amplification. For debugging purposes, to
+ *                         find the residual error rate
+ *   -B BER:               choose the number of BICONF rounds to meet a final
+ *                         bit error probability of BER. This assumes a residual
+ *                         error rate of 10^-4 after the first two rounds.
+ *   -b rounds:            choose the number of BICONF rounds. Defaults to 10,
+ *                         corresponding to a BER of 10^-7.
+ * 
+ * 
+ * History: first specs 17.9.05chk
+ * 
+ * status 01.4.06 21:37; runs through and leaves no errors in final key.
+ *        1.5.06 23:20: removed biconf indexing bugs & leakage errors
+ *        2.5.06 10:14  fixed readin problem with word-aligned lengths
+ *        3.5.06 19:00 does not hang over 300 calls
+ *        28.10.06     fixed sscanf to read in epochs >0x7fffffff
+ *        14.07.07     logging leaked bits, verbosity options 4+5
+ *        9.-18.10.07      fixed Bell value transmission for other side
+ *        24.10.08         fixed error estimation for BB84
+ * 
+ * 
+ *        introduce rawbuf variable to clean buffer in keyblock struct (status?)
+ * 
+ * modified version of errcd to take care of the followig problems:
+ *    - initial key permutation
+ *    - more efficient biconf check
+ *    - allow recursive correction after biconf error discoveries
+ *     status: seems to work. needs some cleanup, and needs to be tested for
+ *       longer key lenghts to confirm the BER below 10^-7 with some confidence.
+ *       (chk 21.7.07)
+ *       - inserted error margin option to allow for a few std deviations of the
+ *       detected error
+ * 
+ * open questions / issues:
+ *    check assignment of short indices for bit length....
+ *    check consistency of processing status
+ *    get a good RNG source or recycle some bits from the sequence....currently
+ *      it uses urandom as a seed source.
+ *    The pseudorandom generator in this program is a Gold sequence and possibly
+ *      dangerous due to short-length correlations - perhaps something better?
+ *    should have more consistency tests on packets
+ *    still very chatty on debug information
+ *    query/response mechanism not implemented yet
+ * 
+ */
 
- Copyright (C) 2005-2007 Christian Kurtsiefer, National University
-                         of Singapore <christian.kurtsiefer@gmail.com>
 
- This source code is free software; you can redistribute it and/or
- modify it under the terms of the GNU Public License as published
- by the Free Software Foundation; either version 2 of the License,
- or (at your option) any later version.
-
- This source code is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- Please refer to the GNU Public License for more details.
-
- You should have received a copy of the GNU Public License along with
- this source code; if not, write to:
- Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
---
-
-   Error correction demon. (modifications to original errcd see below).
-
-   Runs in the background and performs a cascade
-   error correction algorithm on a block of raw keys. Communication with a
-   higher level controller is done via a command pipeline, and communication
-   with the other side is done via packets which are sent and received via
-   pipes in the filesystem. Some parameters (connection locations,
-   destinations) are communicated via command line parameters, others are sent
-   via the command interface. The program is capable to handle several blocks
-   simultaneously, and to connect corresponding messages to the relevant
-   blocks.
-   The final error-corrected key is stored in a file named after the first
-   epoch. If a block processing is requested on one side, it will fix the role
-   to "Alice", and the remote side will be the "bob" which changes the bits
-   accordingly. Definitions according to the flowchart in DSTA deliverable D3
-
-usage:
-
-  errcd -c commandpipe -s sendpipe -r receivepipe
-        -d rawkeydirectory -f finalkeydirectory
-        -l notificationpipe
-        -q responsepipe -Q querypipe
-        [ -e errormargin ]
-        [ -E expectederror ]
-        [ -k ]
-        [ -J basicerror ]
-        [ -T errorbehaviour ]
-        [ -V verbosity ]
-        [ -I ]
-        [ -i ]
-        [ -p ]
-        [ -B BER | -b rounds ]
-
-options/parameters:
-
- DIRECTORY / CONNECTION PARAMETERS:
-
-  -c commandpipe:       pipe for receiving commands. A command is typically an
-                        epoch name and a number of blocks to follow, separated
-                        by a whitespace. An optional error argument can be
-                        passed as a third parameter. Commands are read via
-                        fscanf, and should be terminated with a newline.
-  -s sendpipe:          binary connection which reaches to the transfer
-                        program. This is for packets to be sent out to the
-                        other side. Could be replaced by sockets later.
-  -r receivepipe:       same as sendpipe, but for incoming packets.
-  -d rawkeydirectory:   directory which contains epoch files for raw keys in
-                        stream-3 format
-  -f finalkeydirectory: Directory which contains the final key files.
-  -l notificationpipe:  whenever a final key block is processed, its epoch name
-                        is written into this pipe or file. The content of the
-                        message is determined by the verbosity flag.
-  -Q querypipe:         to request the current status of a particular epoch
-                        block, requests may be sent into this pipe. Syntax TBD.
-  -q respondpipe:       Answers to requests will be written into this pipe or
-                        file.
-
- CONTROL OPTIONS:
-
-  -e errormargin:       A float parameter for how many standard deviations
-                        of the detected errors should be added to the
-                        information leakage estimation to eve, assuming a
-                        poissonian statistics on the found errors (i.e.,
-                        if 100 error bits are found, one standard deviation
-                        in the error rate QBER is QBER /Sqrt(10). )
-                        Default is set to 0.
-  -E expectederror:     an initial error rate can be given for choosing the
-                        length of the first test. Default is 0.05. This may
-                        be overridden by a servoed quantity or by an explicit
-                        statement in a command.
-  -k                    killfile option. If set, the raw key files will be
-                        deleted after writing the final key into a file.
-  -J basicerror:        Error rate which is assumed to be generated outside the
-                        influence of an eavesdropper.
-  -T errorbehavior:     Determines the way how to react on errors which should
-                        not stop the demon. Default is 0. detailed behavior:
-                        0: terminate program on everything
-                        1: ignore errors on wrong packets???
-                        2: ignore errors inherited from other side
-  -V verbosity:         Defines verbosity mode on the logging output after a
-                        block has been processed. options:
-                        0: just output the raw block name (epoch number in hex)
-                        1: output the block name, number of final bits
-                        2: output block name, num of initial bits, number of
-                           final bits, error rate
-                        3: same as 2, but in plain text
-                        4: same as 2, but with explicit number of leaked bits
-                           in the error correction procedure
-                        5: same as 4, but with plain text comments
-  -I                    ignoreerroroption. If this option is on, the initial
-                        error measurement for block optimization is skipped,
-                        and the default value or supplied value is chosen. This
-                        option should increase the efficiency of the key
-                        regeneration if a servo for the error rate is on.
-  -i                    deviceindependent option. If this option is set,
-                        the deamon expects to receive a value for the Bell
-                        violation parameter to estimate the knowledge of an
-                        eavesdropper.
-  -p                    avoid privacy amplification. For debugging purposes, to
-                        find the residual error rate
-  -B BER:               choose the number of BICONF rounds to meet a final
-                        bit error probability of BER. This assumes a residual
-                        error rate of 10^-4 after the first two rounds.
-  -b rounds:            choose the number of BICONF rounds. Defaults to 10,
-                        corresponding to a BER of 10^-7.
-
-
-History: first specs 17.9.05chk
-
-status 01.4.06 21:37; runs through and leaves no errors in final key.
-       1.5.06 23:20: removed biconf indexing bugs & leakage errors
-       2.5.06 10:14  fixed readin problem with word-aligned lengths
-       3.5.06 19:00 does not hang over 300 calls
-       28.10.06     fixed sscanf to read in epochs >0x7fffffff
-       14.07.07     logging leaked bits, verbosity options 4+5
-       9.-18.10.07      fixed Bell value transmission for other side
-       24.10.08         fixed error estimation for BB84
-
-
-       introduce rawbuf variable to clean buffer in keyblock struct (status?)
-
-modified version of errcd to take care of the followig problems:
-   - initial key permutation
-   - more efficient biconf check
-   - allow recursive correction after biconf error discoveries
-    status: seems to work. needs some cleanup, and needs to be tested for
-      longer key lenghts to confirm the BER below 10^-7 with some confidence.
-      (chk 21.7.07)
-      - inserted error margin option to allow for a few std deviations of the
-      detected error
-
-open questions / issues:
-   check assignment of short indices for bit length....
-   check consistency of processing status
-   get a good RNG source or recycle some bits from the sequence....currently
-     it uses urandom as a seed source.
-   The pseudorandom generator in this program is a Gold sequence and possibly
-     dangerous due to short-length correlations - perhaps something better?
-   should have more consistency tests on packets
-   still very chatty on debug information
-   query/response mechanism not implemented yet
-
-*/
 
 #include "ecd2.h"
 
 // HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
-
+// GENERAL HELPER FUNCTIONS
 int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
   return code;
@@ -188,6 +192,74 @@ int get_order_2(int x) {
   int retval = 0;
   for (x2 = x - 1; x2; x2 >>= 1) retval++;
   return retval;
+}
+
+/* helper: count the number of set bits in a longint */
+int count_set_bits(unsigned int a) {
+  int c = 0;
+  unsigned int i;
+  for (i = 1; i; i <<= 1)
+    if (i & a) c++;
+  return c;
+}
+
+/* helper for name. adds a slash, hex file name and a terminal 0 */
+char hexdigits[] = "0123456789abcdef";
+void atohex(char *target, unsigned int v) {
+  int i;
+  target[0] = '/';
+  for (i = 1; i < 9; i++) target[i] = hexdigits[(v >> (32 - i * 4)) & 15];
+  target[9] = 0;
+}
+
+/* helper: eve's error knowledge */
+float phi(float z) {
+  return ((1 + z) * log(1 + z) + (1 - z) * log(1 - z)) / log(2.);
+};
+float binentrop(float q) {
+  return (-q * log(q) - (1 - q) * log(1 - q)) / log(2.);
+}
+
+/* helper function to get a seed from the random device; returns seed or 0
+   on error */
+unsigned int get_r_seed(void) {
+  int rndhandle; /* keep device handle for random device */
+  unsigned int reply;
+
+  rndhandle = open(RANDOMGENERATOR, O_RDONLY);
+  if (-1 == rndhandle) {
+    fprintf(stderr, "errno: %d", errno);
+    return 39;
+  }
+  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
+    return 0; /* not enough */
+  }
+  close(rndhandle);
+  return reply;
+}
+
+// DEBUGGER HELPER FUNCTIONS
+/* debugging */
+int mcall = 0, fcall = 0;
+char *malloc2(unsigned int s) {
+  char *p;
+  #ifdef mallocdebug
+  printf("process %d malloc call no. %d for %d bytes...", getpid(), mcall, s);
+  #endif
+  mcall++;
+  p = malloc(s);
+  #ifdef mallocdebug
+  printf("returned: %p\n", p);
+  #endif
+  return p;
+}
+void free2(void *p) {
+  #ifdef mallocdebug
+  printf("process %d free call no. %d for %p\n", getpid(), fcall, p);
+  #endif
+  fcall++;
+  free(p);
+  return;
 }
 
 /* helper to dump message into a file */
@@ -216,59 +288,6 @@ void dumpmsg(struct keyblock *kb, char *msg) {
   } while (tosend - sent > 0);
   close(dha);
   return;
-}
-
-/* code to check if a requested bunch of epochs already exists in the thread
-   list. Uses the start epoch and an epoch number as arguments; returns 0 if
-   the requested epochs are not used yet, otherwise 1. */
-int check_epochoverlap(unsigned int epoch, int num) {
-  struct blockpointer *bp = blocklist;
-  unsigned int se;
-  int en;
-  while (bp) { /* as long as there are more blocks to test */
-    se = bp->content->startepoch;
-    en = bp->content->numberofepochs;
-    if (MAX(se, epoch) <= (MIN(se + en, epoch + num) - 1)) {
-      return 1; /* overlap!! */
-    }
-    bp = bp->next;
-  }
-  /* did not find any overlapping epoch */
-  return 0;
-}
-
-/* helper for name. adds a slash, hex file name and a terminal 0 */
-char hexdigits[] = "0123456789abcdef";
-void atohex(char *target, unsigned int v) {
-  int i;
-  target[0] = '/';
-  for (i = 1; i < 9; i++) target[i] = hexdigits[(v >> (32 - i * 4)) & 15];
-  target[9] = 0;
-}
-
-/* helper to insert a send packet in the sendpacket queue. Parameters are
-   a pointer to the structure and its length. Return value is 0 on success
-   or !=0 on malloc failure */
-int pidx = 0;
-int insert_sendpacket(char *message, int length) {
-  struct packet_to_send *newpacket, *lp;
-  pidx++;
-  newpacket = (struct packet_to_send *)malloc2(sizeof(struct packet_to_send));
-  if (!newpacket) return 43;
-
-  newpacket->length = length;
-  newpacket->packet = message; /* content */
-  newpacket->next = NULL;
-
-  lp = last_packet_to_send;
-  if (lp) lp->next = newpacket; /* insetr in chain */
-  last_packet_to_send = newpacket;
-  if (!next_packet_to_send) next_packet_to_send = newpacket;
-
-  /* for debug: send message, take identity from first available slot */
-  /*dumpmsg(blocklist->content, message); */
-
-  return 0; /* success */
 }
 
 /* helper function to dump the state of the system to a disk file . Dumps the
@@ -300,35 +319,136 @@ void dumpstate(struct keyblock *kb) {
   return;
 }
 
-/* helper: eve's error knowledge */
-float phi(float z) {
-  return ((1 + z) * log(1 + z) + (1 - z) * log(1 - z)) / log(2.);
-};
-float binentrop(float q) {
-  return (-q * log(q) - (1 - q) * log(1 - q)) / log(2.);
+/* for debug: output permutation */
+void output_permutation(struct keyblock *kb) {
+  char name[200] = "permutlist_";
+  FILE *fp;
+  int i;
+  sprintf(name, "permutelist_%d", kb->role);
+  fp = fopen(name, "w");
+  for (i = 0; i < kb->workbits; i++)
+    fprintf(fp, "%d %d\n", kb->permuteindex[i], kb->reverseindex[i]);
+  fclose(fp);
 }
 
-/* helper function to get a seed from the random device; returns seed or 0
-   on error */
-unsigned int get_r_seed(void) {
-  int rndhandle; /* keep device handle for random device */
-  unsigned int reply;
+// COMMUNICATIONS
+/* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+/* helper to insert a send packet in the sendpacket queue. Parameters are
+   a pointer to the structure and its length. Return value is 0 on success
+   or !=0 on malloc failure */
+int pidx = 0;
+int insert_sendpacket(char *message, int length) {
+  struct packet_to_send *newpacket, *lp;
+  pidx++;
+  newpacket = (struct packet_to_send *)malloc2(sizeof(struct packet_to_send));
+  if (!newpacket) return 43;
 
-  rndhandle = open(RANDOMGENERATOR, O_RDONLY);
-  if (-1 == rndhandle) {
-    fprintf(stderr, "errno: %d", errno);
-    return 39;
-  }
-  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
-    return 0; /* not enough */
-  }
-  close(rndhandle);
-  return reply;
+  newpacket->length = length;
+  newpacket->packet = message; /* content */
+  newpacket->next = NULL;
+
+  lp = last_packet_to_send;
+  if (lp) lp->next = newpacket; /* insetr in chain */
+  last_packet_to_send = newpacket;
+  if (!next_packet_to_send) next_packet_to_send = newpacket;
+
+  /* for debug: send message, take identity from first available slot */
+  /*dumpmsg(blocklist->content, message); */
+
+  return 0; /* success */
 }
 
+/* helper function to prepare a message containing a given sample of bits.
+   parameters are a pointer to the thread, the number of bits needed and an
+   errorormode (0 for normal error est, err*2^16 forskip ). returns a pointer
+   to the message or NULL on error.
+   Modified to tell the other side about the Bell value for privacy amp in
+   the device indep mode
+*/
+struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
+                                        int errormode, float BellValue) {
+  int msgsize;                 /* keeps size of message */
+  struct ERRC_ERRDET_0 *msg1;  /* for header to be sent */
+  unsigned int *msg1_data;     /* pointer to data array */
+  int i, bipo, rn_order;       /* counting index, bit position */
+  unsigned int localdata, bpm; /* for bit extraction */
+
+  /* prepare a structure to be sent out to the other side */
+  /* first: get buffer.... */
+  msgsize = sizeof(struct ERRC_ERRDET_0) + 4 * ((bitsneeded + 31) / 32);
+  msg1 = (struct ERRC_ERRDET_0 *)malloc2(msgsize);
+  if (!msg1) return NULL; /* cannot malloc */
+  /* ...extract pointer to data structure... */
+  msg1_data = (unsigned int *)&msg1[1];
+  /* ..fill header.... */
+  msg1->tag = ERRC_PROTO_tag;
+  msg1->bytelength = msgsize;
+  msg1->subtype = ERRC_ERRDET_0_subtype;
+  msg1->epoch = kb->startepoch;
+  msg1->number_of_epochs = kb->numberofepochs;
+  msg1->seed = kb->RNG_state; /* this is the seed */
+  msg1->numberofbits = bitsneeded;
+  msg1->errormode = errormode;
+  msg1->BellValue = BellValue;
+
+  /* determine random number order needed for given bitlength */
+  /* can this go into the keyblock preparation ??? */
+  rn_order = get_order_2(kb->initialbits);
+  /* mark selected bits in this stream and fill this structure with bits */
+  localdata = 0;                     /* storage for bits */
+  for (i = 0; i < bitsneeded; i++) { /* count through all needed bits */
+    do {                             /* generate a bit position */
+      bipo = PRNG_value2(rn_order, &kb->RNG_state);
+      if (bipo > kb->initialbits) continue;          /* out of range */
+      bpm = bt_mask(bipo);                           /* bit mask */
+      if (kb->testmarker[bipo / 32] & bpm) continue; /* already used */
+      /* got finally a bit */
+      kb->testmarker[bipo / 32] |= bpm; /* mark as used */
+      if (kb->mainbuf[bipo / 32] & bpm) localdata |= bt_mask(i);
+      if ((i & 31) == 31) {
+        msg1_data[i / 32] = localdata;
+        localdata = 0; /* reset buffer */
+      }
+      break; /* end rng search cycle */
+    } while (1);
+  }
+
+  /* fill in last localdata */
+  if (i & 31) {
+    msg1_data[i / 32] = localdata;
+  } /* there was something left */
+
+  /* update thread structure with used bits */
+  kb->leakagebits += bitsneeded;
+  kb->processingstate = PRS_WAITRESPONSE1;
+
+  return msg1; /* pointer to message */
+}
+
+// THREAD MANAGEMENT
+/* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+/* code to check if a requested bunch of epochs already exists in the thread
+   list. Uses the start epoch and an epoch number as arguments; returns 0 if
+   the requested epochs are not used yet, otherwise 1. */
+int check_epochoverlap(unsigned int epoch, int num) {
+  struct blockpointer *bp = blocklist;
+  unsigned int se;
+  int en;
+  while (bp) { /* as long as there are more blocks to test */
+    se = bp->content->startepoch;
+    en = bp->content->numberofepochs;
+    if (MAX(se, epoch) <= (MIN(se + en, epoch + num) - 1)) {
+      return 1; /* overlap!! */
+    }
+    bp = bp->next;
+  }
+  /* did not find any overlapping epoch */
+  return 0;
+}
 
 // MAIN FUNCTIONS
-/* ------------------------------------------------------------------------- */
 /* code to prepare a new thread from a series of raw key files. Takes epoch,
    number of epochs and an initially estimated error as parameters. Returns
    0 on success, and 1 if an error occurred (maybe later: errorcode) */
@@ -454,7 +574,6 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   return 0;
 }
 
-/* ------------------------------------------------------------------------- */
 /* function to obtain the pointer to the thread for a given epoch index.
    Argument is epoch, return value is pointer to a struct keyblock or NULL
    if none found. */
@@ -467,7 +586,6 @@ struct keyblock *get_thread(unsigned int epoch) {
   return NULL;
 }
 
-/* ------------------------------------------------------------------------- */
 /* function to remove a thread out of the list. parameter is the epoch index,
    return value is 0 for success and 1 on error. This function is called if
    there is no hope for error recovery or for a finished thread. */
@@ -498,74 +616,8 @@ int remove_thread(unsigned int epoch) {
   free2(bp);
   return 0;
 }
-/* ------------------------------------------------------------------------- */
-/* helper function to prepare a message containing a given sample of bits.
-   parameters are a pointer to the thread, the number of bits needed and an
-   errorormode (0 for normal error est, err*2^16 forskip ). returns a pointer
-   to the message or NULL on error.
-   Modified to tell the other side about the Bell value for privacy amp in
-   the device indep mode
-*/
-struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
-                                        int errormode, float BellValue) {
-  int msgsize;                 /* keeps size of message */
-  struct ERRC_ERRDET_0 *msg1;  /* for header to be sent */
-  unsigned int *msg1_data;     /* pointer to data array */
-  int i, bipo, rn_order;       /* counting index, bit position */
-  unsigned int localdata, bpm; /* for bit extraction */
 
-  /* prepare a structure to be sent out to the other side */
-  /* first: get buffer.... */
-  msgsize = sizeof(struct ERRC_ERRDET_0) + 4 * ((bitsneeded + 31) / 32);
-  msg1 = (struct ERRC_ERRDET_0 *)malloc2(msgsize);
-  if (!msg1) return NULL; /* cannot malloc */
-  /* ...extract pointer to data structure... */
-  msg1_data = (unsigned int *)&msg1[1];
-  /* ..fill header.... */
-  msg1->tag = ERRC_PROTO_tag;
-  msg1->bytelength = msgsize;
-  msg1->subtype = ERRC_ERRDET_0_subtype;
-  msg1->epoch = kb->startepoch;
-  msg1->number_of_epochs = kb->numberofepochs;
-  msg1->seed = kb->RNG_state; /* this is the seed */
-  msg1->numberofbits = bitsneeded;
-  msg1->errormode = errormode;
-  msg1->BellValue = BellValue;
-
-  /* determine random number order needed for given bitlength */
-  /* can this go into the keyblock preparation ??? */
-  rn_order = get_order_2(kb->initialbits);
-  /* mark selected bits in this stream and fill this structure with bits */
-  localdata = 0;                     /* storage for bits */
-  for (i = 0; i < bitsneeded; i++) { /* count through all needed bits */
-    do {                             /* generate a bit position */
-      bipo = PRNG_value2(rn_order, &kb->RNG_state);
-      if (bipo > kb->initialbits) continue;          /* out of range */
-      bpm = bt_mask(bipo);                           /* bit mask */
-      if (kb->testmarker[bipo / 32] & bpm) continue; /* already used */
-      /* got finally a bit */
-      kb->testmarker[bipo / 32] |= bpm; /* mark as used */
-      if (kb->mainbuf[bipo / 32] & bpm) localdata |= bt_mask(i);
-      if ((i & 31) == 31) {
-        msg1_data[i / 32] = localdata;
-        localdata = 0; /* reset buffer */
-      }
-      break; /* end rng search cycle */
-    } while (1);
-  }
-
-  /* fill in last localdata */
-  if (i & 31) {
-    msg1_data[i / 32] = localdata;
-  } /* there was something left */
-
-  /* update thread structure with used bits */
-  kb->leakagebits += bitsneeded;
-  kb->processingstate = PRS_WAITRESPONSE1;
-
-  return msg1; /* pointer to message */
-}
-
+// ERROR ESTIMATION
 /* ------------------------------------------------------------------------ */
 /* function to provide the number of bits needed in the initial error
    estimation; eats the local error (estimated or guessed) as a float. Uses
@@ -581,7 +633,6 @@ int testbits_needed(float e) {
   return bn;
 }
 
-/* ------------------------------------------------------------------------- */
 /* function to initiate the error estimation procedure. parameter is
    statrepoch, return value is 0 on success or !=0 (w error encoding) on error.
  */
@@ -625,7 +676,6 @@ int errorest_1(unsigned int epoch) {
   return 0;
 }
 
-/* ------------------------------------------------------------------------- */
 /* function to process the first error estimation packet. Argument is a pointer
    to the receivebuffer with both the header and the data section. Initiates
    the error estimation, and prepares the next  package for transmission.
@@ -799,7 +849,6 @@ int process_esti_message_0(char *receivebuf) {
   return 0; /* everything went well */
 }
 
-/* ------------------------------------------------------------------------- */
 /* function to reply to a request for more estimation bits. Argument is a
    pointer to the receive buffer containing the message. Just sends over a
    bunch of more estimaton bits. Currently, it uses only the PRNG method.
@@ -836,18 +885,6 @@ int send_more_esti_bits(char *receivebuf) {
   return 0;
 }
 
-/* for debug: output permutation */
-void output_permutation(struct keyblock *kb) {
-  char name[200] = "permutlist_";
-  FILE *fp;
-  int i;
-  sprintf(name, "permutelist_%d", kb->role);
-  fp = fopen(name, "w");
-  for (i = 0; i < kb->workbits; i++)
-    fprintf(fp, "%d %d\n", kb->permuteindex[i], kb->reverseindex[i]);
-  fclose(fp);
-}
-
 /* -------------------------------------------------------------------------*/
 /* permutation core function; is used both for biconf and initial
    permutation */
@@ -858,7 +895,7 @@ void prepare_permut_core(struct keyblock *kb) {
   workbits = kb->workbits;
   rn_order = get_order_2(workbits);
 
-#ifdef SYSTPERMUTATION
+  #ifdef SYSTPERMUTATION
 
   /* this prepares a systematic permutation  - seems not to be better, but
      blocknumber must be coprime with 127 - larger primes? */
@@ -867,7 +904,7 @@ void prepare_permut_core(struct keyblock *kb) {
     kb->permuteindex[k] = i;
     kb->reverseindex[i] = k;
   }
-#else
+  #else
   /* this is prepares a pseudorandom distribution */
   for (i = 0; i < workbits; i++) kb->permuteindex[i] = 0xffff; /* mark unused */
   /* this routine causes trouble */
@@ -881,7 +918,7 @@ void prepare_permut_core(struct keyblock *kb) {
     kb->reverseindex[i] = k;
   }
 
-#endif
+  #endif
 
   bzero(kb->permutebuf, ((workbits + 31) / 32) * 4); /* clear permuted buffer */
   for (i = 0; i < workbits; i++) {                   /*  do bit permutation  */
@@ -1040,15 +1077,6 @@ void generate_BICONF_bitstring(struct keyblock *kb) {
   return;
 }
 
-/* ----------------------------------------------------------------------- */
-/* helper: count the number of set bits in a longint */
-int count_set_bits(unsigned int a) {
-  int c = 0;
-  unsigned int i;
-  for (i = 1; i; i <<= 1)
-    if (i & a) c++;
-  return c;
-}
 /* helper function to preare a parity list of a given pass in a block, compare
    it with the received list and return the number of differing bits  */
 int do_paritylist_and_diffs(struct keyblock *kb, int pass) {
@@ -2189,7 +2217,7 @@ int single_line_parity_masked(unsigned int *d, unsigned int *m, int start,
   return parity(tmp_par);
 }
 
-/* ------------------------------------------------------------------------- */
+
 /* start the parity generation process on Alice side. parameter contains the
    input message. Reply is 0 on success, or an error message. Should create
    a BICONF response message */
@@ -2250,7 +2278,7 @@ int generate_biconfreply(char *receivebuf) {
 
   return 0; /* return nicely */
 }
-/* ------------------------------------------------------------------------- */
+
 /* function to generate a single binary search request for a biconf cycle.
    takes a keyblock pointer and a length of the biconf block as a parameter,
    and returns an error or 0 on success.
@@ -2312,7 +2340,6 @@ int initiate_biconf_binarysearch(struct keyblock *kb, int biconflength) {
   return 0;
 }
 
-/* ------------------------------------------------------------------------- */
 /* start the parity generation process on bob's side. Parameter contains the
    parity reply form Alice. Reply is 0 on success, or an error message.
    Should either initiate a binary search, re-issue a BICONF request or
@@ -2357,9 +2384,10 @@ int receive_biconfreply(char *receivebuf) {
   return initiate_privacyamplification(kb);
 }
 
+// MAIN FUNCTION DECLARATIONS (OTHERS)
 /*------------------------------------------------------------------------- */
 /* process an input string, terminated with 0 */
-int process_input(char *in) {
+int process_command(char *in) {
   int retval, retval2;
   unsigned int newepoch; /* command parser */
   int newepochnumber;
@@ -2416,7 +2444,7 @@ int process_input(char *in) {
   }
   return 0;
 }
-/* ------------------------------------------------------------------------- */
+
 /* main code */
 int main(int argc, char *argv[]) {
   int opt;
@@ -2619,7 +2647,7 @@ int main(int argc, char *argv[]) {
       if (dpnt) { /* we got a newline */
         dpnt[0] = 0;
         sl = strlen(instring);
-        retval2 = process_input(instring);
+        retval2 = process_command(instring);
         if (retval2 && (runtimeerrormode == 0)) {
           return -emsg(retval2); /* complain */
         }

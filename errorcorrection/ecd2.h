@@ -1,170 +1,172 @@
-/* ecd2.c:      Part of the quantum key distribution software for error
-                correction and privacy amplification. Description
-                see below. Version as of 20071228, works also for Ekert-91
-                type protocols.
-
- Copyright (C) 2005-2007 Christian Kurtsiefer, National University
-                         of Singapore <christian.kurtsiefer@gmail.com>
-
- This source code is free software; you can redistribute it and/or
- modify it under the terms of the GNU Public License as published
- by the Free Software Foundation; either version 2 of the License,
- or (at your option) any later version.
-
- This source code is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- Please refer to the GNU Public License for more details.
-
- You should have received a copy of the GNU Public License along with
- this source code; if not, write to:
- Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
---
-
-   Error correction demon. (modifications to original errcd see below).
-
-   Runs in the background and performs a cascade
-   error correction algorithm on a block of raw keys. Communication with a
-   higher level controller is done via a command pipeline, and communication
-   with the other side is done via packets which are sent and received via
-   pipes in the filesystem. Some parameters (connection locations,
-   destinations) are communicated via command line parameters, others are sent
-   via the command interface. The program is capable to handle several blocks
-   simultaneously, and to connect corresponding messages to the relevant
-   blocks.
-   The final error-corrected key is stored in a file named after the first
-   epoch. If a block processing is requested on one side, it will fix the role
-   to "Alice", and the remote side will be the "bob" which changes the bits
-   accordingly. Definitions according to the flowchart in DSTA deliverable D3
-
-usage:
-
-  errcd -c commandpipe -s sendpipe -r receivepipe
-        -d rawkeydirectory -f finalkeydirectory
-        -l notificationpipe
-        -q responsepipe -Q querypipe
-        [ -e errormargin ]
-        [ -E expectederror ]
-        [ -k ]
-        [ -J basicerror ]
-        [ -T errorbehaviour ]
-        [ -V verbosity ]
-        [ -I ]
-        [ -i ]
-        [ -p ]
-        [ -B BER | -b rounds ]
-
-options/parameters:
-
- DIRECTORY / CONNECTION PARAMETERS:
-
-  -c commandpipe:       pipe for receiving commands. A command is typically an
-                        epoch name and a number of blocks to follow, separated
-                        by a whitespace. An optional error argument can be
-                        passed as a third parameter. Commands are read via
-                        fscanf, and should be terminated with a newline.
-  -s sendpipe:          binary connection which reaches to the transfer
-                        program. This is for packets to be sent out to the
-                        other side. Could be replaced by sockets later.
-  -r receivepipe:       same as sendpipe, but for incoming packets.
-  -d rawkeydirectory:   directory which contains epoch files for raw keys in
-                        stream-3 format
-  -f finalkeydirectory: Directory which contains the final key files.
-  -l notificationpipe:  whenever a final key block is processed, its epoch name
-                        is written into this pipe or file. The content of the
-                        message is determined by the verbosity flag.
-  -Q querypipe:         to request the current status of a particular epoch
-                        block, requests may be sent into this pipe. Syntax TBD.
-  -q respondpipe:       Answers to requests will be written into this pipe or
-                        file.
-
- CONTROL OPTIONS:
-
-  -e errormargin:       A float parameter for how many standard deviations
-                        of the detected errors should be added to the
-                        information leakage estimation to eve, assuming a
-                        poissonian statistics on the found errors (i.e.,
-                        if 100 error bits are found, one standard deviation
-                        in the error rate QBER is QBER /Sqrt(10). )
-                        Default is set to 0.
-  -E expectederror:     an initial error rate can be given for choosing the
-                        length of the first test. Default is 0.05. This may
-                        be overridden by a servoed quantity or by an explicit
-                        statement in a command.
-  -k                    killfile option. If set, the raw key files will be
-                        deleted after writing the final key into a file.
-  -J basicerror:        Error rate which is assumed to be generated outside the
-                        influence of an eavesdropper.
-  -T errorbehavior:     Determines the way how to react on errors which should
-                        not stop the demon. Default is 0. detailed behavior:
-                        0: terminate program on everything
-                        1: ignore errors on wrong packets???
-                        2: ignore errors inherited from other side
-  -V verbosity:         Defines verbosity mode on the logging output after a
-                        block has been processed. options:
-                        0: just output the raw block name (epoch number in hex)
-                        1: output the block name, number of final bits
-                        2: output block name, num of initial bits, number of
-                           final bits, error rate
-                        3: same as 2, but in plain text
-                        4: same as 2, but with explicit number of leaked bits
-                           in the error correction procedure
-                        5: same as 4, but with plain text comments
-  -I                    ignoreerroroption. If this option is on, the initial
-                        error measurement for block optimization is skipped,
-                        and the default value or supplied value is chosen. This
-                        option should increase the efficiency of the key
-                        regeneration if a servo for the error rate is on.
-  -i                    deviceindependent option. If this option is set,
-                        the deamon expects to receive a value for the Bell
-                        violation parameter to estimate the knowledge of an
-                        eavesdropper.
-  -p                    avoid privacy amplification. For debugging purposes, to
-                        find the residual error rate
-  -B BER:               choose the number of BICONF rounds to meet a final
-                        bit error probability of BER. This assumes a residual
-                        error rate of 10^-4 after the first two rounds.
-  -b rounds:            choose the number of BICONF rounds. Defaults to 10,
-                        corresponding to a BER of 10^-7.
-
-
-History: first specs 17.9.05chk
-
-status 01.4.06 21:37; runs through and leaves no errors in final key.
-       1.5.06 23:20: removed biconf indexing bugs & leakage errors
-       2.5.06 10:14  fixed readin problem with word-aligned lengths
-       3.5.06 19:00 does not hang over 300 calls
-       28.10.06     fixed sscanf to read in epochs >0x7fffffff
-       14.07.07     logging leaked bits, verbosity options 4+5
-       9.-18.10.07      fixed Bell value transmission for other side
-       24.10.08         fixed error estimation for BB84
-
-
-       introduce rawbuf variable to clean buffer in keyblock struct (status?)
-
-modified version of errcd to take care of the followig problems:
-   - initial key permutation
-   - more efficient biconf check
-   - allow recursive correction after biconf error discoveries
-    status: seems to work. needs some cleanup, and needs to be tested for
-      longer key lenghts to confirm the BER below 10^-7 with some confidence.
-      (chk 21.7.07)
-      - inserted error margin option to allow for a few std deviations of the
-      detected error
-
-open questions / issues:
-   check assignment of short indices for bit length....
-   check consistency of processing status
-   get a good RNG source or recycle some bits from the sequence....currently
-     it uses urandom as a seed source.
-   The pseudorandom generator in this program is a Gold sequence and possibly
-     dangerous due to short-length correlations - perhaps something better?
-   should have more consistency tests on packets
-   still very chatty on debug information
-   query/response mechanism not implemented yet
-
-*/
+/**
+ * ecd2.c     
+ * Part of the quantum key distribution software for error
+ *  correction and privacy amplification. Description
+ *  see below. Version as of 20071228, works also for Ekert-91
+ *  type protocols.
+ * 
+ *  Copyright (C) 2005-2007 Christian Kurtsiefer, National University
+ *                          of Singapore <christian.kurtsiefer@gmail.com>
+ * 
+ *  This source code is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Public License as published
+ *  by the Free Software Foundation; either version 2 of the License,
+ *  or (at your option) any later version.
+ * 
+ *  This source code is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  Please refer to the GNU Public License for more details.
+ * 
+ *  You should have received a copy of the GNU Public License along with
+ *  this source code; if not, write to:
+ *  Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * --
+ * 
+ *    Error correction demon. (modifications to original errcd see below).
+ * 
+ *    Runs in the background and performs a cascade
+ *    error correction algorithm on a block of raw keys. Communication with a
+ *    higher level controller is done via a command pipeline, and communication
+ *    with the other side is done via packets which are sent and received via
+ *    pipes in the filesystem. Some parameters (connection locations,
+ *    destinations) are communicated via command line parameters, others are sent
+ *    via the command interface. The program is capable to handle several blocks
+ *    simultaneously, and to connect corresponding messages to the relevant
+ *    blocks.
+ *    The final error-corrected key is stored in a file named after the first
+ *    epoch. If a block processing is requested on one side, it will fix the role
+ *    to "Alice", and the remote side will be the "bob" which changes the bits
+ *    accordingly. Definitions according to the flowchart in DSTA deliverable D3
+ * 
+ * usage:
+ * 
+ *   errcd -c commandpipe -s sendpipe -r receivepipe
+ *         -d rawkeydirectory -f finalkeydirectory
+ *         -l notificationpipe
+ *         -q responsepipe -Q querypipe
+ *         [ -e errormargin ]
+ *         [ -E expectederror ]
+ *         [ -k ]
+ *         [ -J basicerror ]
+ *         [ -T errorbehaviour ]
+ *         [ -V verbosity ]
+ *         [ -I ]
+ *         [ -i ]
+ *         [ -p ]
+ *         [ -B BER | -b rounds ]
+ * 
+ * options/parameters:
+ * 
+ *  DIRECTORY / CONNECTION PARAMETERS:
+ * 
+ *   -c commandpipe:       pipe for receiving commands. A command is typically an
+ *                         epoch name and a number of blocks to follow, separated
+ *                         by a whitespace. An optional error argument can be
+ *                         passed as a third parameter. Commands are read via
+ *                         fscanf, and should be terminated with a newline.
+ *   -s sendpipe:          binary connection which reaches to the transfer
+ *                         program. This is for packets to be sent out to the
+ *                         other side. Could be replaced by sockets later.
+ *   -r receivepipe:       same as sendpipe, but for incoming packets.
+ *   -d rawkeydirectory:   directory which contains epoch files for raw keys in
+ *                         stream-3 format
+ *   -f finalkeydirectory: Directory which contains the final key files.
+ *   -l notificationpipe:  whenever a final key block is processed, its epoch name
+ *                         is written into this pipe or file. The content of the
+ *                         message is determined by the verbosity flag.
+ *   -Q querypipe:         to request the current status of a particular epoch
+ *                         block, requests may be sent into this pipe. Syntax TBD.
+ *   -q respondpipe:       Answers to requests will be written into this pipe or
+ *                         file.
+ * 
+ *  CONTROL OPTIONS:
+ * 
+ *   -e errormargin:       A float parameter for how many standard deviations
+ *                         of the detected errors should be added to the
+ *                         information leakage estimation to eve, assuming a
+ *                         poissonian statistics on the found errors (i.e.,
+ *                         if 100 error bits are found, one standard deviation
+ *                         in the error rate QBER is QBER /Sqrt(10). )
+ *                         Default is set to 0.
+ *   -E expectederror:     an initial error rate can be given for choosing the
+ *                         length of the first test. Default is 0.05. This may
+ *                         be overridden by a servoed quantity or by an explicit
+ *                         statement in a command.
+ *   -k                    killfile option. If set, the raw key files will be
+ *                         deleted after writing the final key into a file.
+ *   -J basicerror:        Error rate which is assumed to be generated outside the
+ *                         influence of an eavesdropper.
+ *   -T errorbehavior:     Determines the way how to react on errors which should
+ *                         not stop the demon. Default is 0. detailed behavior:
+ *                         0: terminate program on everything
+ *                         1: ignore errors on wrong packets???
+ *                         2: ignore errors inherited from other side
+ *   -V verbosity:         Defines verbosity mode on the logging output after a
+ *                         block has been processed. options:
+ *                         0: just output the raw block name (epoch number in hex)
+ *                         1: output the block name, number of final bits
+ *                         2: output block name, num of initial bits, number of
+ *                            final bits, error rate
+ *                         3: same as 2, but in plain text
+ *                         4: same as 2, but with explicit number of leaked bits
+ *                            in the error correction procedure
+ *                         5: same as 4, but with plain text comments
+ *   -I                    ignoreerroroption. If this option is on, the initial
+ *                         error measurement for block optimization is skipped,
+ *                         and the default value or supplied value is chosen. This
+ *                         option should increase the efficiency of the key
+ *                         regeneration if a servo for the error rate is on.
+ *   -i                    deviceindependent option. If this option is set,
+ *                         the deamon expects to receive a value for the Bell
+ *                         violation parameter to estimate the knowledge of an
+ *                         eavesdropper.
+ *   -p                    avoid privacy amplification. For debugging purposes, to
+ *                         find the residual error rate
+ *   -B BER:               choose the number of BICONF rounds to meet a final
+ *                         bit error probability of BER. This assumes a residual
+ *                         error rate of 10^-4 after the first two rounds.
+ *   -b rounds:            choose the number of BICONF rounds. Defaults to 10,
+ *                         corresponding to a BER of 10^-7.
+ * 
+ * 
+ * History: first specs 17.9.05chk
+ * 
+ * status 01.4.06 21:37; runs through and leaves no errors in final key.
+ *        1.5.06 23:20: removed biconf indexing bugs & leakage errors
+ *        2.5.06 10:14  fixed readin problem with word-aligned lengths
+ *        3.5.06 19:00 does not hang over 300 calls
+ *        28.10.06     fixed sscanf to read in epochs >0x7fffffff
+ *        14.07.07     logging leaked bits, verbosity options 4+5
+ *        9.-18.10.07      fixed Bell value transmission for other side
+ *        24.10.08         fixed error estimation for BB84
+ * 
+ * 
+ *        introduce rawbuf variable to clean buffer in keyblock struct (status?)
+ * 
+ * modified version of errcd to take care of the followig problems:
+ *    - initial key permutation
+ *    - more efficient biconf check
+ *    - allow recursive correction after biconf error discoveries
+ *     status: seems to work. needs some cleanup, and needs to be tested for
+ *       longer key lenghts to confirm the BER below 10^-7 with some confidence.
+ *       (chk 21.7.07)
+ *       - inserted error margin option to allow for a few std deviations of the
+ *       detected error
+ * 
+ * open questions / issues:
+ *    check assignment of short indices for bit length....
+ *    check consistency of processing status
+ *    get a good RNG source or recycle some bits from the sequence....currently
+ *      it uses urandom as a seed source.
+ *    The pseudorandom generator in this program is a Gold sequence and possibly
+ *      dangerous due to short-length correlations - perhaps something better?
+ *    should have more consistency tests on packets
+ *    still very chatty on debug information
+ *    query/response mechanism not implemented yet
+ * 
+ */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -184,28 +186,6 @@ open questions / issues:
 /* ------------------------------------------------------------------------- */
 /* #define SYSTPERMUTATION */ /* for systematic rather than rand permut */
 /* #define mallocdebug */
-/* debugging */
-int mcall = 0, fcall = 0;
-char *malloc2(unsigned int s) {
-  char *p;
-#ifdef mallocdebug
-  printf("process %d malloc call no. %d for %d bytes...", getpid(), mcall, s);
-#endif
-  mcall++;
-  p = malloc(s);
-#ifdef mallocdebug
-  printf("returned: %p\n", p);
-#endif
-  return p;
-}
-void free2(void *p) {
-#ifdef mallocdebug
-  printf("process %d free call no. %d for %p\n", getpid(), fcall, p);
-#endif
-  fcall++;
-  free(p);
-  return;
-}
 
 #define NOT_DEBUG 1
 #undef NOT_DEBUG
@@ -469,7 +449,8 @@ enum ReplyMode {
   replyMode_continue = 2
 };
 
-// INLINE FUNCTIONS (What is inline? See https://stackoverflow.com/questions/2082551/what-does-inline-mean)
+// FUNCTIONS RECOMMENDED TO THE COMPILER FOR INLINE
+// (What is inline? See https://stackoverflow.com/questions/2082551/what-does-inline-mean)
 /* ------------------------------------------------------------------------- */
 /* helper for mask for a given index i on the longint array */
 __inline__ unsigned int bt_mask(int i) { return 1 << (31 - (i & 31)); }
@@ -484,34 +465,21 @@ __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
 
 // HELPER FUNCTION DECLARATIONS
 /* ------------------------------------------------------------------------- */
+// GENERAL HELPER FUNCTIONS
 int emsg(int code);
 
 /* helper to obtain the smallest power of two to carry a number a */
 int get_order(int a);
+
 /* get the number of bits necessary to carry a number x ; 
   result is e.g. 3 for parameter 8, 5 for parameter 17 etc. */
 int get_order_2(int x); 
 
-/* helper to dump message into a file */
-void dumpmsg(struct keyblock *kb, char *msg);
-
-/* code to check if a requested bunch of epochs already exists in the thread list. 
-  Uses the start epoch and an epoch number as arguments; 
-  returns 0 if the requested epochs are not used yet, otherwise 1. */
-int check_epochoverlap(unsigned int epoch, int num);
+/* helper: count the number of set bits in a longint */
+int count_set_bits(unsigned int a);
 
 /* helper for name. adds a slash, hex file name and a terminal 0 */
 void atohex(char *target, unsigned int v);
-
-/* helper to insert a send packet in the sendpacket queue. 
-  Parameters are a pointer to the structure and its length. 
-  Return value is 0 on success or !=0 on malloc failure */
-int insert_sendpacket(char *message, int length);
-
-/* helper function to dump the state of the system to a disk file . 
- Dumps the keyblock structure, if present the buffer files, 
- the parity files and the diffidx buffers as plain binaries */
-void dumpstate(struct keyblock *kb);
 
 /* helper: eve's error knowledge */
 float phi(float z);
@@ -519,3 +487,133 @@ float binentrop(float q);
 
 /* helper function to get a seed from the random device; returns seed or 0 on error */
 unsigned int get_r_seed(void);
+
+// DEBUGGER HELPER FUNCTIONS
+/* malloc wrapper to include debug logs if needed */
+char *malloc2(unsigned int s);
+
+/* free wrapper to include debug logs if needed */
+void free2(void *p);
+
+/* helper to dump message into a file */
+void dumpmsg(struct keyblock *kb, char *msg);
+
+/* helper function to dump the state of the system to a disk file . 
+ Dumps the keyblock structure, if present the buffer files, 
+ the parity files and the diffidx buffers as plain binaries */
+void dumpstate(struct keyblock *kb);
+
+/* for debug: output permutation */
+void output_permutation(struct keyblock *kb);
+
+// COMMUNICATIONS
+/* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+/* helper to insert a send packet in the sendpacket queue. 
+  Parameters are a pointer to the structure and its length. 
+  Return value is 0 on success or !=0 on malloc failure */
+int insert_sendpacket(char *message, int length);
+
+/* helper function to prepare a message containing a given sample of bits.
+   parameters are a pointer to the thread, the number of bits needed and an
+   errorormode (0 for normal error est, err*2^16 forskip ). returns a pointer
+   to the message or NULL on error.
+   Modified to tell the other side about the Bell value for privacy amp in
+   the device indep mode
+*/
+struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
+                                        int errormode, float BellValue)
+
+// THREAD MANAGEMENT
+/* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+/* code to check if a requested bunch of epochs already exists in the thread list. 
+  Uses the start epoch and an epoch number as arguments; 
+  returns 0 if the requested epochs are not used yet, otherwise 1. */
+int check_epochoverlap(unsigned int epoch, int num);
+
+// MAIN FUNCTIONS
+/* code to prepare a new thread from a series of raw key files. Takes epoch,
+   number of epochs and an initially estimated error as parameters. Returns
+   0 on success, and 1 if an error occurred (maybe later: errorcode) */
+int create_thread(unsigned int epoch, int num, float inierr, float BellValue);
+
+/* function to obtain the pointer to the thread for a given epoch index.
+   Argument is epoch, return value is pointer to a struct keyblock or NULL
+   if none found. */
+struct keyblock *get_thread(unsigned int epoch);
+
+/* function to remove a thread out of the list. parameter is the epoch index,
+   return value is 0 for success and 1 on error. This function is called if
+   there is no hope for error recovery or for a finished thread. */
+int remove_thread(unsigned int epoch);
+
+
+// ERROR ESTIMATION
+/* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+// MAIN FUNCTIONS
+/* function to provide the number of bits needed in the initial error
+   estimation; eats the local error (estimated or guessed) as a float. Uses
+   the maximum for either estimating the range for k0 with the desired error,
+   or a sufficient separation from the no-error-left area. IS that fair?
+   Anyway, returns a number of bits. */
+int testbits_needed(float e);
+
+/* function to initiate the error estimation procedure. parameter is
+   statrepoch, return value is 0 on success or !=0 (w error encoding) on error.
+ */
+int errorest_1(unsigned int epoch);
+
+/* function to process the first error estimation packet. Argument is a pointer
+   to the receivebuffer with both the header and the data section. Initiates
+   the error estimation, and prepares the next  package for transmission.
+   Currently, it assumes only PRNG-based bit selections.
+
+   Return value is 0 on success, or an error message useful for emsg.
+
+*/
+int process_esti_message_0(char *receivebuf);
+
+/* function to reply to a request for more estimation bits. Argument is a
+   pointer to the receive buffer containing the message. Just sends over a
+   bunch of more estimaton bits. Currently, it uses only the PRNG method.
+
+   Return value is 0 on success, or an error message otherwise. */
+int send_more_esti_bits(char *receivebuf);
+
+// CASCADE BICONF
+/* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+
+// MAIN FUNCTION
+/* start the parity generation process on Alice side. parameter contains the
+   input message. Reply is 0 on success, or an error message. Should create
+   a BICONF response message */
+int generate_biconfreply(char *receivebuf);
+
+/* function to generate a single binary search request for a biconf cycle.
+   takes a keyblock pointer and a length of the biconf block as a parameter,
+   and returns an error or 0 on success.
+   Takes currently the subset of the biconf subset and its complement, which
+   is not very efficient: The second error could have been found using the
+   unpermuted short sample with nuch less bits.
+   On success, a binarysearch packet gets emitted with 2 list entries. */
+int initiate_biconf_binarysearch(struct keyblock *kb, int biconflength);
+
+/* start the parity generation process on bob's side. Parameter contains the
+   parity reply form Alice. Reply is 0 on success, or an error message.
+   Should either initiate a binary search, re-issue a BICONF request or
+   continue to the parity evaluation. */
+int receive_biconfreply(char *receivebuf);
+
+// MAIN FUNCTION DECLARATIONS (PRIVACY AMPLIFICATION)
+/* ------------------------------------------------------------------------- */
+
+// MAIN FUNCTION DECLARATIONS (OTHERS)
+/* ------------------------------------------------------------------------- */
+/* process a command (e.g. epoch epochNum), terminated with \0 */
+int process_command(char *in);
+
+/* main code */
+int main(int argc, char *argv[]);
