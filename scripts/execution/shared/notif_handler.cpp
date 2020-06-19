@@ -30,8 +30,9 @@
  *             notif_handler "./pipes/pipe" "echo" "./pipes/pipe2" "sudo bash cmd.sh" 
  * 
  * Considerations:
- * 1.  What happens if the program encounters multiple duplicate epochs?
+ * 1. What happens if the program encounters multiple duplicate epochs?
  *     It will not send repeated epochs. However, it will only check the previous epoch. 
+ * 2. Should the maxConsecutive value be fixed or dynamic? If it's dynamic, changes will have to be made to the code.
  */
 
 #include <stdio.h>
@@ -46,6 +47,8 @@
 
 #define BUFFER_LENGTH 10       // Helper defined 
 #define EPOCH_LENGTH 8
+#define SPACE_LENGTH 1
+#define TERMIN_CHAR_SPACE 1
 #define MAX_BUFFERED_STR_LEN 3 // Just additional buffer space for the # of epochs buffered
 
 // Helper functions
@@ -117,6 +120,7 @@ int itemsToProcess = 0;
 int maxConsecutive = 0;
 int currentConsecutive = 0;
 char processingThreadBlocked = 0;
+int notif_length = EPOCH_LENGTH;
 
 // Mutexes
 // https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html#SYNCHRONIZATION
@@ -134,7 +138,13 @@ int main(int argc, char *argv[]) {
      } 
      char *inputPipe = argv[1];
      char *shellCmd = argv[2];
-     if (argc == 4) { maxConsecutive = strtol(argv[3], NULL, 10); } // Read as number
+     if (argc == 4) { 
+          // Read as number
+          maxConsecutive = strtol(argv[3], NULL, 10); 
+          if (maxConsecutive > 0) {
+               notif_length = EPOCH_LENGTH + SPACE_LENGTH + MAX_BUFFERED_STR_LEN;
+          }
+     }
 
      // Thread management
      /* Create independent threads each of which will execute function */
@@ -161,7 +171,7 @@ void *read_notification_from_pipe( void *ptr ) {
           fprintf(stderr, "Notification pipe couldn't be opened.\n");
     } else {
           // One notification/epoch is 8 characters long, unless we want to also add the number of consecutive epochs
-          char buffer[BUFFER_LENGTH + (MAX_BUFFERED_STR_LEN + 1) * (maxConsecutive ? 1 : 0)];
+          char buffer[BUFFER_LENGTH + (MAX_BUFFERED_STR_LEN + TERMIN_CHAR_SPACE) * (maxConsecutive ? 1 : 0)];
           // Continually receive and store into queue
           while (1) {
                // Possible optimization: Increase buffer size, string tokenize
@@ -214,9 +224,9 @@ void *read_notification_from_pipe( void *ptr ) {
                               swapPrevWithBuffer(previousNotif, buffer);
                               // Prepare notif with buffer
                               buffer[EPOCH_LENGTH] = ' ';
-                              sprintf(&buffer[EPOCH_LENGTH + 1],"%d", currentConsecutive);
+                              sprintf(&buffer[EPOCH_LENGTH + SPACE_LENGTH],"%d", currentConsecutive);
                               // Just in case
-                              buffer[EPOCH_LENGTH + 1 + MAX_BUFFERED_STR_LEN] =  '\0';
+                              buffer[EPOCH_LENGTH + SPACE_LENGTH + MAX_BUFFERED_STR_LEN] =  '\0';
                               currentConsecutive = 1;
                               #ifdef DEBUG
                               fprintf(stdout, "buffered epoch ready: %s\n", buffer);
@@ -233,9 +243,9 @@ void *read_notification_from_pipe( void *ptr ) {
                     strncpy(previousNotif, buffer, EPOCH_LENGTH);
                     previousNotif[EPOCH_LENGTH] = '\0';
                     // Allocate string reserve
-                    notification.reserve(BUFFER_LENGTH + 1);
+                    notification.reserve(BUFFER_LENGTH + TERMIN_CHAR_SPACE);
                } else {
-                    notification.reserve(BUFFER_LENGTH + MAX_BUFFERED_STR_LEN + 2);
+                    notification.reserve(BUFFER_LENGTH + SPACE_LENGTH + MAX_BUFFERED_STR_LEN + TERMIN_CHAR_SPACE);
                }
                notification += buffer;
                pthread_mutex_lock(&mutexQueue);
@@ -263,7 +273,9 @@ void process_notification( char *ptr ) {
      // Initialize base command
      // Reuse the same char buffer for optimal performance
      int baseCmdLength = strlen(ptr);
-     int cmdBufferLength = baseCmdLength + 1 + EPOCH_LENGTH + 1 + (MAX_BUFFERED_STR_LEN + 1) * (maxConsecutive ? 1 : 0);
+     int cmdBufferLength = baseCmdLength + SPACE_LENGTH 
+          + EPOCH_LENGTH + SPACE_LENGTH 
+          + (MAX_BUFFERED_STR_LEN + TERMIN_CHAR_SPACE) * (maxConsecutive ? 1 : 0);
      char cmdBuffer[cmdBufferLength]; // +1 for terminating character, +1 for space in between
      strcpy(cmdBuffer, ptr);
      cmdBuffer[baseCmdLength] = ' ';
@@ -292,7 +304,7 @@ void process_notification( char *ptr ) {
                // Put terminating character after the base command
                cmdBuffer[baseCmdLength + 1] = '\0';
                // Since we know the length of the epoch we can do this
-               strncat(cmdBuffer, pendingNotifsQueue.front().c_str(), EPOCH_LENGTH);
+               strncat(cmdBuffer, pendingNotifsQueue.front().c_str(), notif_length);
                // Add terminating character at the very end in case it's not already in (this doesn't truncate epoch)
                cmdBuffer[cmdBufferLength - 1] = '\0';
                pendingNotifsQueue.pop();
