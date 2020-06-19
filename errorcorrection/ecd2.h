@@ -488,7 +488,13 @@ float binentrop(float q);
 /* helper function to get a seed from the random device; returns seed or 0 on error */
 unsigned int get_r_seed(void);
 
+/* helper function to compress key down in a sinlge sequence to eliminate the
+   revealeld bits. updates workbits accordingly, and reduces number of
+   revealed bits in the leakage_bits_counter  */
+void cleanup_revealed_bits(struct keyblock *kb);
+
 // DEBUGGER HELPER FUNCTIONS
+/* ------------------------------------------------------------------------- */
 /* malloc wrapper to include debug logs if needed */
 char *malloc2(unsigned int s);
 
@@ -521,8 +527,18 @@ int insert_sendpacket(char *message, int length);
    Modified to tell the other side about the Bell value for privacy amp in
    the device indep mode
 */
-struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
-                                        int errormode, float BellValue);
+struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded, int errormode, float BellValue);
+
+/* helper function for binsearch replies; mallocs and fills msg header */
+struct ERRC_ERRDET_5 *make_messagehead_5(struct keyblock *kb);
+
+/* function to prepare the first message head for a binary search. This assumes
+   that all the parity buffers have been malloced and the remote parities
+   reside in the proper arrays. This function will be called several times for
+   different passes; it expexts local parities to be evaluated already.
+   Arguments are a keyblock pointer, and a pass number. returns 0 on success,
+   or an error code accordingly. */
+int prepare_first_binsearch_msg(struct keyblock *kb, int pass);
 
 // THREAD MANAGEMENT
 /* ------------------------------------------------------------------------- */
@@ -582,11 +598,91 @@ int process_esti_message_0(char *receivebuf);
    Return value is 0 on success, or an error message otherwise. */
 int send_more_esti_bits(char *receivebuf);
 
+/* function to proceed with the error estimation reply. Estimates if the
+   block deserves to be considered further, and if so, prepares the permutation
+   array of the key, and determines the parity functions of the first key.
+   Return value is 0 on success, or an error message otherwise. */
+int prepare_dualpass(char *receivebuf);
+
+// PERMUTATIONS
+/* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+/* helper to fix the permuted/unpermuted bit changes; decides via a parameter
+   in kb->binsearch_depth MSB what polarity to take */
+void fix_permutedbits(struct keyblock *kb);
+
+/* helper function to do generate the permutation array in the kb structure.
+   does also re-ordering (in future), and truncates the discussed key to a
+   length of multiples of k1so there are noleftover bits in the two passes.
+   Parameter: pointer to kb structure */
+void prepare_permutation(struct keyblock *kb);
+
+// MAIN FUNCTIONS
+/* permutation core function; is used both for biconf and initial permutation */
+void prepare_permut_core(struct keyblock *kb);
+
 // CASCADE BICONF
 /* ------------------------------------------------------------------------- */
 // HELPER FUNCTIONS
+/* helper function to preare a parity list of a given pass in a block.
+   Parameters are a pointer to the sourcebuffer, pointer to the target buffer,
+   and an integer arg for the blocksize to use, and the number of workbits */
+void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
 
-// MAIN FUNCTION
+/* helper function to generate a pseudorandom bit pattern into the test bit
+   buffer. parameters are a keyblock pointer, and a seed for the RNG.
+   the rest is extracted out of the kb structure (for final parity test) */
+void generate_selectbitstring(struct keyblock *kb, unsigned int seed);
+
+/* helper function to generate a pseudorandom bit pattern into the test bit
+   buffer AND transfer the permuted key buffer into it for a more compact
+   parity generation in the last round.
+   Parameters are a keyblock pointer.
+   the rest is extracted out of the kb structure (for final parity test) */
+void generate_BICONF_bitstring(struct keyblock *kb);
+
+/* helper function to preare a parity list of a given pass in a block, compare
+   it with the received list and return the number of differing bits  */
+int do_paritylist_and_diffs(struct keyblock *kb, int pass);
+
+/* helper function to prepare parity lists from original and unpermutated key.
+   arguments are a pointer to the thread structure, a pointer to the target
+   parity buffer 0 and another pointer to paritybuffer 1. No return value,
+   as no errors are tested here. */
+void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1);
+
+/* helper program to half parity difference intervals ; takes kb and inh_index
+   as parameters; no weired stuff should happen. return value is the number
+   of initially dead intervals */
+void fix_parity_intervals(struct keyblock *kb, unsigned int *inh_idx)
+
+/* helper for correcting one bit in pass 0 or 1 in their field */
+void correct_bit(unsigned int *d, int bitindex);
+
+/* helper funtion to get a simple one-line parity from a large string.
+   parameters are the string start buffer, a start and an enx index. returns
+   0 or 1 */
+int single_line_parity(unsigned int *d, int start, int end);
+
+/* helper funtion to get a simple one-line parity from a large string, but
+   this time with a mask buffer to be AND-ed on the string.
+   parameters are the string buffer, mask buffer, a start and and end index.
+   returns  0 or 1 */
+int single_line_parity_masked(unsigned int *d, unsigned int *m, int start, int end);
+
+// MAIN FUNCTIONS
+/* function to process a binarysearch request on alice identity. Installs the
+   difference index list in the first run, and performs the parity checks in
+   subsequent runs. should work with both passes now
+   - work in progress, need do fix bitloss in last round
+ */
+int process_binsearch_alice(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head);
+
+/* function to initiate a BICONF procedure on Bob side. Basically sends out a
+   package calling for a BICONF reply. Parameter is a thread pointer, and
+   the return value is 0 or an error code in case something goes wrong.   */
+int initiate_biconf(struct keyblock *kb);
+
 /* start the parity generation process on Alice side. parameter contains the
    input message. Reply is 0 on success, or an error message. Should create
    a BICONF response message */
@@ -601,14 +697,51 @@ int generate_biconfreply(char *receivebuf);
    On success, a binarysearch packet gets emitted with 2 list entries. */
 int initiate_biconf_binarysearch(struct keyblock *kb, int biconflength);
 
+/* function to proceed with the parity evaluation message. This function
+   should start the Binary search machinery.
+   Argument is receivebuffer as usual, returnvalue 0 on success or err code.
+   Should spit out the first binary search message */
+
+int start_binarysearch(char *receivebuf);
+
+/* function to process a binarysearch request. distinguishes between the two
+   symmetries in the evaluation. This is onyl a wrapper.
+   on alice side, it does a passive check; on bob side, it possibly corrects
+   for errors. */
+int process_binarysearch(char *receivebuf);
+
+/* function to process a binarysearch request on bob identity. Checks parity
+   lists and does corrections if necessary.
+   initiates the next step (BICONF on pass 1) for the next round if ready.
+*/
+int process_binsearch_bob(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head);
+
 /* start the parity generation process on bob's side. Parameter contains the
    parity reply form Alice. Reply is 0 on success, or an error message.
    Should either initiate a binary search, re-issue a BICONF request or
    continue to the parity evaluation. */
 int receive_biconfreply(char *receivebuf);
 
-// MAIN FUNCTION DECLARATIONS (PRIVACY AMPLIFICATION)
+// PRIVACY AMPLIFICATION
 /* ------------------------------------------------------------------------- */
+// HELPER FUNCTIONS
+
+// MAIN FUNCTIONS
+/* function to initiate the privacy amplification. Sends out a message with
+   a PRNG seed (message 8), and hand over to the core routine for the PA.
+   Parameter is keyblock, return is error or 0 on success. */
+int initiate_privacyamplification(struct keyblock *kb);
+
+/* function to process a privacy amplification message. parameter is incoming
+   message, return value is 0 or an error code. Parses the message and passes
+   the real work over to the do_privacyamplification part */
+int receive_privamp_msg(char *receivebuf);
+
+/* do core part of the privacy amplification. Calculates the compression ratio
+   based on the lost bits, saves the final key and removes the thread from the
+   list.    */
+int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
+                             int lostbits);
 
 // MAIN FUNCTION DECLARATIONS (OTHERS)
 /* ------------------------------------------------------------------------- */
