@@ -178,7 +178,7 @@
 int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
   return code;
-};
+}
 
 /* helper to obtain the smallest power of two to carry a number a */
 int get_order(int a) {
@@ -215,7 +215,7 @@ void atohex(char *target, unsigned int v) {
 /* helper: eve's error knowledge */
 float phi(float z) {
   return ((1 + z) * log(1 + z) + (1 - z) * log(1 - z)) / log(2.);
-};
+}
 float binentrop(float q) {
   return (-q * log(q) - (1 - q) * log(1 - q)) / log(2.);
 }

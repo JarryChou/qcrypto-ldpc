@@ -522,7 +522,7 @@ int insert_sendpacket(char *message, int length);
    the device indep mode
 */
 struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
-                                        int errormode, float BellValue)
+                                        int errormode, float BellValue);
 
 // THREAD MANAGEMENT
 /* ------------------------------------------------------------------------- */

@@ -89,9 +89,9 @@ int calculateDiffBetweenEpochs(char* epoch1, char* epoch2) {
  */
 void swapPrevWithBuffer(char* prevNotif, char* buffer) {
      for (size_t i = 0; i < EPOCH_LENGTH; i++) {
-          previousNotif[i] ^= buffer[i];
-          buffer[i] ^= previousNotif[i];
-          previousNotif[i] ^= buffer[i];
+          prevNotif[i] ^= buffer[i];
+          buffer[i] ^= prevNotif[i];
+          prevNotif[i] ^= buffer[i];
      }
      
 }
@@ -162,7 +162,7 @@ void *read_notification_from_pipe( void *ptr ) {
                fprintf(stderr, "Received %s\n", buffer);
                #endif
                // Check if it's a new notif we've not received before
-               epochDiff = calculateDiffBetweenEpochs(&buffer, &previousNotif);
+               epochDiff = calculateDiffBetweenEpochs(buffer, previousNotif);
                // Mode: normal execution
                if (maxConsecutive == 0) {
                     // Continue case: repeated epoch
@@ -180,7 +180,7 @@ void *read_notification_from_pipe( void *ptr ) {
                     } else if (currentConsecutive >= maxConsecutive) {
                          // Push to queue case: chain broken
                          // Swap previous epoch with buffer epoch
-                         swapPrevWithBuffer(&previousNotif, &buffer);
+                         swapPrevWithBuffer(previousNotif, buffer);
                          // Prepare notif with buffer
                          buffer[BUFFER_LENGTH] = ' ';
                          sprintf(&buffer[BUFFER_LENGTH + 1],"%d", currentConsecutive);
@@ -199,7 +199,6 @@ void *read_notification_from_pipe( void *ptr ) {
                     notification.reserve(BUFFER_LENGTH + MAX_BUFFERED_STR_LEN + 2);
                }
                notification += buffer;
-               receivedNotifsSet.insert(notification);
                pthread_mutex_lock(&mutexQueue);
                pendingNotifsQueue.push(notification);
                itemsToProcess++;
