@@ -1,4 +1,4 @@
-/* errcorrect.h: Part of the quantum key distribution software. This 
+/* ec_packet_def.h: Part of the quantum key distribution software. This 
                  file contains message header definitions for the error
 		 correction procedure. See main file (ecd2.c) for usag
 		 details. Version as of 20071201
@@ -31,6 +31,8 @@
    fixed message 8 for bell value transmission
 
 */
+#ifndef EC_PACKET_DEF
+#define EC_PACKET_DEF
 
 /* this one is just a mockup for reading a message to determine its length.
    It represents only the common entry at the begnning of all message files */
@@ -161,6 +163,4 @@ typedef struct ERRC_ERRDET_8 {
 } errc_ed_8__;	
 #define ERRC_ERRDET_8_subtype 8
 
-
-
-
+#endif
