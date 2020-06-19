@@ -6,19 +6,7 @@
  * This is different from the shell script which does them synchronously (incurring significant time delays with transferd)
  * This allows any epochs from transferd to be buffered with this program while executing other scripts (e.g. splicer or pfind/costream)
  * 
- * KIV: Add-on to allow it to handle more pipes
- * KIV: printf the system command so that it can output more formats
- * 
- * WARNING(s):
- * 1. Note that this script takes in a shell command as a user param and executes it. Extreme caution must be used with this program.
- * In fact, I will go so far as to say that in the future once the command is finalized, it should be hardcoded into this program, or
- * this program could be used as part of an attack.
- * 
- * 2. Note that this script is very specific on _what_ it is receiving. 
- * It only receives items of length 8 (i.e. epochs). Anything else is truncated.
- * 
  * Usage: notif_handler inputPipe command [maxConsecutive]
- *   KIV: [inputPipe command ...]
  *   
  * inputPipe:       Input pipe, usually from transferd
  * command:         Command to execute (e.g. "sudo bash xxx.sh"). The epoch will be concatenated to the end of this command.
@@ -29,9 +17,14 @@
  *                  By default, this is disabled and the command is just sent as soon as possible as "command epoch".
  *                  The current maximum value is 999 (configure MAX_BUFFERED_STR_LEN to support longer values).
  * 
- * KIV: The notif handler can buffer from multiple input pipes. The current implementation uses:
- * 1 pThread for reading from multiple inputPipes
- * 1 pThread PER command handler (commands are run synchronously on the thread itself, although this can be easily modified by adding an ampersand to the command)
+ * WARNING(s):
+ * 1. Note that this script takes in a shell command as a user param and executes it. Extreme caution must be used with this program.
+ * In fact, I will go so far as to say that in the future once the command is finalized, it should be hardcoded into this program, or
+ * this program could be used as part of an attack.
+ * 
+ * 2. Note that this script is very specific on _what_ it is receiving. 
+ * It only receives items of length 8 hexadecimal epochs. Anything else is truncated.
+ * All incoming notifications are expected to be of the same size
  * 
  * Example(s): notif_handler "./pipes/pipe" "echo"
  *             notif_handler "./pipes/pipe" "echo" "./pipes/pipe2" "sudo bash cmd.sh" 
@@ -51,37 +44,53 @@
 #undef DEBUG
 #define DEBUG 1
 
-#define BUFFER_LENGTH 10
+#define BUFFER_LENGTH 10       // Helper defined 
 #define EPOCH_LENGTH 8
 #define MAX_BUFFERED_STR_LEN 3 // Just additional buffer space for the # of epochs buffered
 
 // Helper functions
 /**
  * Calculates the difference between 2 epochs from LSB.
+ * Calculation may go haywire if epoch1 is less than epoch2, although this does not affect code correctness.
+ * Possible optimization: early termination, then change to "isEpochConsecutive"
  * @param epoch1 1st epoch in hex format
  * @param epoch2 2nd epoch in hex format
- * @return difference
+ * @return difference, where epoch1 - epoch2
 */
+int totalDiff, correctedEpoch1Char, correctedEpoch2Char, i_CDBE = 0;
 int calculateDiffBetweenEpochs(char* epoch1, char* epoch2) {
-     int diff = 0;
-     int correctedEpoch1Char = 0;
+     totalDiff = 0;
+     correctedEpoch1Char = 0;
+     correctedEpoch2Char = 0;
      // Start from LSB
-     for (size_t i = EPOCH_LENGTH - 1; i >= 0; i--) {
-          // Cannot early terminate to account for huge epoch jumps
-          if (epoch1[i] != epoch2[i]) {
-               // Correct epoch1[i] to contiguous 0,1,2...d,e,f
-               if (epoch1[i] < 60) { // is ASCII 0-9, connect it to a,b...e,f
-                    correctedEpoch1Char = epoch1[i] + 37;
-               } else if (epoch1[i] < 71) { // is ASCII A-F (capital), make it lower case
-                    correctedEpoch1Char = epoch1[i] + 32;
+     for (i_CDBE = EPOCH_LENGTH - 1; i_CDBE >= 0; i_CDBE--) {
+          if (epoch1[i_CDBE] != epoch2[i_CDBE]) {
+               // Correct epoch1[i_CDBE] to contiguous 0,1,2...d,e,f
+               if (epoch1[i_CDBE] < 60) { // is ASCII 0-9, connect it to a,b...e,f
+                    correctedEpoch1Char = epoch1[i_CDBE] + 39;
+               } else if (epoch1[i_CDBE] < 71) { // is ASCII A-F (capital), make it lower case
+                    correctedEpoch1Char = epoch1[i_CDBE] + 32;
                } else { // is ASCII a-f, use as is
-                    correctedEpoch1Char = epoch1[i];
+                    correctedEpoch1Char = epoch1[i_CDBE];
                }
-               // Since each hex is 4 bits, bitshift the diff 4 bits to the left accordingly
-               diff = (epoch2[i] - correctedEpoch1Char) << (4 * (EPOCH_LENGTH - 1 - i));
+               // Do the same for epoch2
+               if (epoch2[i_CDBE] < 60) {
+                    correctedEpoch2Char = epoch2[i_CDBE] + 39;
+               } else if (epoch2[i_CDBE] < 71) {
+                    correctedEpoch2Char = epoch2[i_CDBE] + 32;
+               } else { 
+                    correctedEpoch2Char = epoch2[i_CDBE];
+               }
+               if (correctedEpoch1Char - correctedEpoch2Char >= 0) {
+                    // Since each hex is 4 bits, bitshift the totalDiff 4 bits to the left accordingly
+                    totalDiff += (correctedEpoch1Char - correctedEpoch2Char) << (4 * (EPOCH_LENGTH - 1 - i_CDBE));
+               } else {
+                    // Left shifting may result undefined behavior on negative values, so flip and minus instead for clarity
+                    totalDiff -= (correctedEpoch2Char - correctedEpoch1Char) << (4 * (EPOCH_LENGTH - 1 - i_CDBE));
+               }
           }
      }
-     return diff;
+     return totalDiff;
 }
 
 /**
@@ -106,7 +115,7 @@ std::queue<std::string> pendingNotifsQueue;
 char previousNotif[EPOCH_LENGTH + 1]; // Refers to the previous notification sent.
 int itemsToProcess = 0;
 int maxConsecutive = 0;
-int currentConsecutive = 1;
+int currentConsecutive = 0;
 char processingThreadBlocked = 0;
 
 // Mutexes
@@ -152,49 +161,79 @@ void *read_notification_from_pipe( void *ptr ) {
           fprintf(stderr, "Notification pipe couldn't be opened.\n");
     } else {
           // One notification/epoch is 8 characters long, unless we want to also add the number of consecutive epochs
-          char buffer[BUFFER_LENGTH + 1 + (MAX_BUFFERED_STR_LEN + 1) * (maxConsecutive ? 1 : 0)];
+          char buffer[BUFFER_LENGTH + (MAX_BUFFERED_STR_LEN + 1) * (maxConsecutive ? 1 : 0)];
           // Continually receive and store into queue
           while (1) {
                // Possible optimization: Increase buffer size, string tokenize
                // Read into buffer
                if (!fgets(buffer, BUFFER_LENGTH, notifHandle)) break;
                #ifdef DEBUG
-               fprintf(stderr, "Received %s\n", buffer);
+               fprintf(stdout, "Received %s, maxConsecutive: %d \n", buffer, maxConsecutive);
+               fflush(stdout);
                #endif
-               // Check if it's a new notif we've not received before
-               epochDiff = calculateDiffBetweenEpochs(buffer, previousNotif);
-               // Mode: normal execution
-               if (maxConsecutive == 0) {
-                    // Continue case: repeated epoch
-                    if (epochDiff == 0) { continue; }
-               } else {
-                    // Mode: Buffering and sending first epoch + consecutive epochs
-                    // Since previousNotif stores the previousNotif we sent, we need to calc the actual epochDiff
-                    epochDiff -= currentConsecutive - 1;
-                    // Continue case: repeated epoch
-                    if (epochDiff == 0) { continue; }
-                    // Continue case: consecutive epoch and haven't hit max
-                    else if (epochDiff == 1 && currentConsecutive < maxConsecutive) {
-                         currentConsecutive++;
+               // Handle continue cases
+               // Special case: previousNotif not set
+               if (currentConsecutive == 0) {
+                    currentConsecutive = 1;
+                    // Continue case: Mode is buffering for consecutive epochs
+                    if (maxConsecutive != 0 && currentConsecutive < maxConsecutive) {
+                         // update prevNotif & continue
+                         strncpy(previousNotif, buffer, EPOCH_LENGTH);
+                         previousNotif[EPOCH_LENGTH] = '\0';
                          continue;
-                    } else if (currentConsecutive >= maxConsecutive) {
-                         // Push to queue case: chain broken
-                         // Swap previous epoch with buffer epoch
-                         swapPrevWithBuffer(previousNotif, buffer);
-                         // Prepare notif with buffer
-                         buffer[BUFFER_LENGTH] = ' ';
-                         sprintf(&buffer[BUFFER_LENGTH + 1],"%d", currentConsecutive);
-                         buffer[BUFFER_LENGTH + MAX_BUFFERED_STR_LEN + 2] =  '\0';
-                         currentConsecutive = 1;
+                    }
+                    // If mode is to forward every non-repeated epoch, then prevNotif will be updated below
+               } else {
+                    // Check if it's a new notif we've not received before
+                    epochDiff = calculateDiffBetweenEpochs(buffer, previousNotif);
+                    #ifdef DEBUG
+                    fprintf(stdout, "epochDiff %d\n", epochDiff);
+                    fflush(stdout);
+                    #endif
+                    // Mode: normal execution
+                    if (maxConsecutive == 0) {
+                         // Continue case: repeated epoch
+                         if (epochDiff == 0) { continue; }
+                    } else {
+                         // Mode: Buffering and sending first epoch + consecutive epochs
+                         // Since previousNotif stores the previousNotif we sent, we need to calc the actual epochDiff
+                         epochDiff -= currentConsecutive - 1;
+                         #ifdef DEBUG
+                         fprintf(stdout, "corrected epochDiff %d\n", epochDiff);
+                         fflush(stdout);
+                         #endif
+                         // Continue case: repeated epoch
+                         if (epochDiff == 0) { continue; }
+                         // Continue case: consecutive epoch and haven't hit max
+                         else if (epochDiff == 1 && currentConsecutive < maxConsecutive) {
+                              currentConsecutive++;
+                              continue;
+                         } else if (currentConsecutive >= maxConsecutive) {
+                              // Push to queue case: chain broken
+                              // Swap previous epoch with buffer epoch
+                              swapPrevWithBuffer(previousNotif, buffer);
+                              // Prepare notif with buffer
+                              buffer[EPOCH_LENGTH] = ' ';
+                              sprintf(&buffer[EPOCH_LENGTH + 1],"%d", currentConsecutive);
+                              // Just in case
+                              buffer[EPOCH_LENGTH + 1 + MAX_BUFFERED_STR_LEN] =  '\0';
+                              currentConsecutive = 1;
+                              #ifdef DEBUG
+                              fprintf(stdout, "buffered epoch ready: %s\n", buffer);
+                              fflush(stdout);
+                              #endif
+                         }
                     }
                }
+
                // Push to queue
                std::string notification;
                if (maxConsecutive == 0) {
-                    notification.reserve(BUFFER_LENGTH + 1);
                     // Replace previous epoch with buffer
                     strncpy(previousNotif, buffer, EPOCH_LENGTH);
-                    previousNotif[EPOCH_LENGTH + 1] = '\0';
+                    previousNotif[EPOCH_LENGTH] = '\0';
+                    // Allocate string reserve
+                    notification.reserve(BUFFER_LENGTH + 1);
                } else {
                     notification.reserve(BUFFER_LENGTH + MAX_BUFFERED_STR_LEN + 2);
                }
@@ -208,7 +247,8 @@ void *read_notification_from_pipe( void *ptr ) {
                     pthread_mutex_unlock(&mutexProcess);
                }
                #ifdef DEBUG
-               fprintf(stderr, "Unlocked\n");
+               fprintf(stdout, "Unlocked\n");
+               fflush(stdout);
                #endif
           }
           fprintf(stderr, "Something went wrong with the notifHandle.\n");
@@ -223,7 +263,7 @@ void process_notification( char *ptr ) {
      // Initialize base command
      // Reuse the same char buffer for optimal performance
      int baseCmdLength = strlen(ptr);
-     int cmdBufferLength = baseCmdLength + EPOCH_LENGTH + MAX_BUFFERED_STR_LEN + 2;
+     int cmdBufferLength = baseCmdLength + 1 + EPOCH_LENGTH + 1 + (MAX_BUFFERED_STR_LEN + 1) * (maxConsecutive ? 1 : 0);
      char cmdBuffer[cmdBufferLength]; // +1 for terminating character, +1 for space in between
      strcpy(cmdBuffer, ptr);
      cmdBuffer[baseCmdLength] = ' ';
@@ -232,12 +272,14 @@ void process_notification( char *ptr ) {
           if (itemsToProcess <= 0) {
                pthread_mutex_lock(&mutexProcess);
                #ifdef DEBUG
-               fprintf(stderr, "In blocking mode\n");
+               fprintf(stdout, "pThread2: In blocking mode\n");
+               fflush(stdout);
                #endif
                processingThreadBlocked = 1;
                pthread_mutex_lock(&mutexProcess);
                #ifdef DEBUG
-               fprintf(stderr, "Out of blocking mode\n");
+               fprintf(stdout, "pThread2: Out of blocking mode\n");
+               fflush(stdout);
                #endif
                // We will now wait for the other pthread to unlock this mutex
                // Once that is done we will also unlock this mutex for repeated use
@@ -259,7 +301,8 @@ void process_notification( char *ptr ) {
                // Execute command on epoch
                system(cmdBuffer);
                #ifdef DEBUG
-               fprintf(stderr, "exec %s\n", cmdBuffer);
+               fprintf(stdout, "pThread2: exec %s\n", cmdBuffer);
+               fflush(stdout);
                #endif
           }
      }
