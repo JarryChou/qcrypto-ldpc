@@ -1,20 +1,20 @@
 # Python 2.7
-# Usage: python hextobin.py inputFile outputFile Endianness
-# Endianness: 0 for Little, 1 for Big. See https://en.wikipedia.org/wiki/Endianness
-# If the input is unknown, 0 will flip the ordering, 1 will keep it consistent
+# Usage: python hextobin.py inputFile outputFile dontFlipEndianness
+# Endianness: See https://en.wikipedia.org/wiki/Endianness
+# dontFlipEndianness: If the input is unknown, 0 will flip the ordering, 1 will keep it consistent
 
 import sys
 
 if __name__ == "__main__":
     # STRICTLY do NOT modify the code in the main function here
     if len(sys.argv) != 4:
-        print ("\nUsage: python hextobin.py inputFile outputFile Endianness\nEndianness is 0 for Little & 1 for Big")
+        print ("\nUsage: python hextobin.py inputFile outputFile dontFlipEndianness")
         print ("If the input is unknown, 0 will flip the ordering, 1 will keep it consistent")
         raise ValueError("Wrong number of arguments!")
     try:
         input_f = open(sys.argv[1], 'r')
     except IOError:
-        print ("\nUsage: python hextobin.py inputFile outputFile Endianness\nEndianness is 0 for Little & 1 for Big")
+        print ("\nUsage: python hextobin.py inputFile outputFile dontFlipEndianness")
         print ("If the input is unknown, 0 will flip the ordering, 1 will keep it consistent")
         raise IOError("Input file not found!")
 
