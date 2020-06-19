@@ -19,11 +19,8 @@ then
   # Alice
   # Directories
   ln -s "$DIR/alice/data/timestamp_events"            ALICE/DIR/TIMESTAMPS
-  ln -s "$DIR/alice/data/type1-time_and_click"        ALICE/DIR/T1
-  ln -s "$DIR/alice/data/type2-time_and_basis"        ALICE/DIR/T2
   ln -s "$DIR/alice/data/type3-rawkey"                ALICE/DIR/T3
   ln -s "$DIR/alice/data/type3-rawkey-sifted"         ALICE/DIR/T3_SIFTED
-  ln -s "$DIR/alice/data/type4-chosen_basis_indexes"  ALICE/DIR/T4
   ln -s "$DIR/alice/data/classical_channel_dest"      ALICE/DIR/TCP_DEST
   ln -s "$DIR/alice/data/classical_channel_src"       ALICE/DIR/TCP_SRC
   ln -s "$DIR/alice/data/final-key"                   ALICE/DIR/FINAL_KEY
