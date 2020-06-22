@@ -25,6 +25,16 @@
 
 */
 
+#ifndef RND_H
+#define RND_H
+
+// Libraries required for get_r_seed(void) helper
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #define PRNG_FEEDBACK 0xe0000200
 int RNG_calls(void);
 int parity(unsigned int a0);
@@ -32,3 +42,9 @@ void set_PRNG_seed(unsigned int );
 unsigned int PRNG_value(int);
 unsigned int PRNG_value2(int, unsigned int *);
 unsigned int PRNG_value2_32(unsigned int *);
+unsigned int get_r_seed(void); /* helper function to get a seed from the random device; returns seed or 0 on error */
+
+/* typical file names */
+#define RANDOMGENERATOR "/dev/urandom" /* this does not block but is BAD....*/
+
+#endif
