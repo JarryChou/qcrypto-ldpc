@@ -223,7 +223,7 @@ int handle[arg_param_count];                   /* global handles for packet stre
 FILE *debuglog;
 
 /* error handling */
-char *errormessage[78] = {
+char *errormessage[79] = {
     "No error.",
     "error parsing source directory name", /* 1 */
     "error parsing command socket name",
@@ -301,7 +301,8 @@ char *errormessage[78] = {
     "error reading erc packet",
     "error renaming target file", /* 75 */
     "cannot open debuglog",
-    "cannot open cmdinhandle"
+    "cannot open cmdinhandle",
+    "cannot write to ercouthandle"
 };
 
 /* global variables for IO handling */

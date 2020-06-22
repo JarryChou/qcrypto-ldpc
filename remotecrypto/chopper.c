@@ -671,7 +671,7 @@ int close_epoch() {
             fprintf(loghandle, "%08x\t%d\t%d\t%d\t%d\t%d\n", head2.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
             #ifdef DEBUG
             if (debuglog) { 
-              fprintf(debuglog, "histo: %d\t%d\t%d\t%d\t%d", head2.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
+              fprintf(debuglog, "histo: %08x\t%d\t%d\t%d\t%d\t%d\n", head2.epoc, sum[0], sum[1], sum[2], sum[3], sum[4]);
             }
             #endif
             break;

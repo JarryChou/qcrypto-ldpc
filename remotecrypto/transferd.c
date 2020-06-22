@@ -436,9 +436,9 @@ int waitForConnectionWithTimeout() {
    *    Clean solution but requires additional handshaking network overhead.
    * 
    * 3. Close the recskt when you are attempting to connect and reopen when you are attempting to receive. This one could get messy.
-   * /
+   */
   // while link should be maintained
-  activeSocket = 0; /* mark unsuccessful connection attempt */
+  // activeSocket = 0; /* mark unsuccessful connection attempt */
   /* wait half a second for a server connection */
   FD_ZERO(&readqueue);
   timeout = HALFSECOND;
@@ -701,7 +701,9 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
           fflush(debuglog);
           destfile = open("transferdump", O_WRONLY);
           if (destfile != -1) {
-            write(destfile, receivedDataBuffer, rhead.length);
+            if (write(destfile, receivedDataBuffer, rhead.length) == -1) {
+              return -emsg(43);
+            }
             close(destfile);
           }
           return -emsg(43);
@@ -763,7 +765,9 @@ int read_FromActiveSocket_ToReceivedDataBuffer() {
         }
       case head_errc_packet: /* got errc packet */
         if (hasParam[arg_ec_out_pipe]) {
-          write(ercouthandle, receivedDataBuffer, rhead.length);
+          if (write(ercouthandle, receivedDataBuffer, rhead.length) == -1) {
+            return -emsg(78);
+          }
         }
         break;
       default:
@@ -976,7 +980,7 @@ int tryWrite_FromDataToSendBuffer_ToActiveSocket() {
       retval = write(activeSocketForOutgoingData, &((char *)&shead)[writeindex],
                       sizeof(shead) - writeindex);
   #ifdef DEBUG
-      fprintf(debuglog, "Write header, want:%d, sent:%d; ",
+      fprintf(debuglog, "Write header, want:%lu, sent:%d; ",
               sizeof(shead) - writeindex, retval);
       fflush(debuglog);
   #endif
