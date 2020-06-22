@@ -41,9 +41,13 @@
 
 // Definition files
 #include "proc_state.h"
+#include "helpers.h"
 #include "keyblock.h"
 #include "packets.h"
 #include "globalvars.h"
+
+// Other components
+#include "debug.h"
 
 // COMMUNICATIONS
 /* ------------------------------------------------------------------------- */

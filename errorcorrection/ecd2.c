@@ -1,5 +1,13 @@
 #include "ecd2.h"
 
+// HELPER FUNCTIONS
+/* ------------------------------------------------------------------------- */
+//  ERROR MANAGEMENT
+int emsg(int code) {
+  fprintf(stderr, "%s\n", errormessage[code]);
+  return code;
+}
+
 // MAIN FUNCTION DECLARATIONS (OTHERS)
 /*------------------------------------------------------------------------- */
 /* process an input string, terminated with 0 */

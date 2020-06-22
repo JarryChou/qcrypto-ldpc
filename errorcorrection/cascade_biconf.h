@@ -36,13 +36,25 @@
 #ifndef ECD2_CASCADE_BICONF
 #define ECD2_CASCADE_BICONF
 
+// Libraries
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
+// Definitions
 #include "defaultdefinitions.h"
 #include "globalvars.h"
 #include "keyblock.h"
 #include "packets.h"
 #include "proc_state.h"
+
+// Other components
+#include "comms.h"
+#include "debug.h"
+#include "helpers.h"
+#include "priv_amp.h"
+#include "rnd.h"
+#include "thread_mgmt.h"
 
 // PERMUTATIONS
 /* ------------------------------------------------------------------------- */
@@ -51,25 +63,11 @@
    in kb->binsearch_depth MSB what polarity to take */
 void fix_permutedbits(struct keyblock *kb);
 
-/* helper function to do generate the permutation array in the kb structure.
-   does also re-ordering (in future), and truncates the discussed key to a
-   length of multiples of k1so there are noleftover bits in the two passes.
-   Parameter: pointer to kb structure */
-void prepare_permutation(struct keyblock *kb);
-
 // MAIN FUNCTIONS
-/* permutation core function; is used both for biconf and initial permutation */
-void prepare_permut_core(struct keyblock *kb);
-
 
 // CASCADE BICONF
 /* ------------------------------------------------------------------------- */
 // HELPER FUNCTIONS
-/* helper function to preare a parity list of a given pass in a block.
-   Parameters are a pointer to the sourcebuffer, pointer to the target buffer,
-   and an integer arg for the blocksize to use, and the number of workbits */
-void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
-
 /* helper function to generate a pseudorandom bit pattern into the test bit
    buffer. parameters are a keyblock pointer, and a seed for the RNG.
    the rest is extracted out of the kb structure (for final parity test) */
@@ -85,12 +83,6 @@ void generate_BICONF_bitstring(struct keyblock *kb);
 /* helper function to preare a parity list of a given pass in a block, compare
    it with the received list and return the number of differing bits  */
 int do_paritylist_and_diffs(struct keyblock *kb, int pass);
-
-/* helper function to prepare parity lists from original and unpermutated key.
-   arguments are a pointer to the thread structure, a pointer to the target
-   parity buffer 0 and another pointer to paritybuffer 1. No return value,
-   as no errors are tested here. */
-void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1);
 
 /* helper program to half parity difference intervals ; takes kb and inh_index
    as parameters; no weired stuff should happen. return value is the number

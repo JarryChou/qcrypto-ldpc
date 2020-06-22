@@ -38,16 +38,19 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 
 #include "defaultdefinitions.h"
 #include "globalvars.h"
-#include "helpers.h"
 #include "proc_state.h"
 #include "keyblock.h"
 #include "packets.h"
 #include "../packetheaders/pkt_header_3.h"
 #include "../packetheaders/pkt_header_7.h"
+
+#include "debug.h"
+#include "helpers.h"
 
 // THREAD MANAGEMENT
 /* ------------------------------------------------------------------------- */

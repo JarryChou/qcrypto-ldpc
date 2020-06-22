@@ -65,7 +65,8 @@ int receive_privamp_msg(char *receivebuf) {
 int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
                              int lostbits) {
   int sneakloss;
-  float trueerror, cheeky_error, safe_error;
+  float trueerror, safe_error;
+  // float cheeky_error;
   unsigned int *finalkey;  /* pointer to final key */
   unsigned int m;          /* addition register */
   int numwords, mlen;      /* number of words in final key / message length */
@@ -104,7 +105,8 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
      assume they add quadratically. Let's at least check that the true
      error is not smaller than the "basic" error..... */
   if (intrinsicerr < trueerror) {
-    cheeky_error = sqrt(trueerror * trueerror - intrinsicerr * intrinsicerr);
+    // Unused code
+    // cheeky_error = sqrt(trueerror * trueerror - intrinsicerr * intrinsicerr);
 
     /* Dodgy intrinsic error subtraction would happen here. */
 

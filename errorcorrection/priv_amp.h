@@ -36,15 +36,22 @@
 #ifndef ECD2_PRIV_AMP
 #define ECD2_PRIV_AMP
 
+// Libraries
 #include <stdio.h>
 #include <fcntl.h>
 
+// Definition header files
 #include "defaultdefinitions.h"
 #include "globalvars.h"
-#include "helpers.h"
 #include "keyblock.h"
 #include "packets.h"
 #include "../packetheaders/pkt_header_7.h"
+
+// Other components
+#include "comms.h"
+#include "helpers.h"
+#include "debug.h"
+#include "thread_mgmt.h"
 
 // PRIVACY AMPLIFICATION
 /* ------------------------------------------------------------------------- */

@@ -44,6 +44,11 @@
 #include "packets.h"
 #include "proc_state.h"
 
+#include "comms.h"
+#include "debug.h"
+#include "helpers.h"
+#include "thread_mgmt.h"
+
 // ENUMS
 
 enum ReplyMode {

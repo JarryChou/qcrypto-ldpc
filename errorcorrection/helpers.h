@@ -36,6 +36,10 @@
 #ifndef ECD2_HELPER
 #define ECD2_HELPER
 
+#include <math.h>
+#include <string.h>
+
+#include "rnd.h"
 #include "keyblock.h"
 
 // HELPER ENUMS
@@ -70,8 +74,6 @@ __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
 // HELPER FUNCTION DECLARATIONS
 /* ------------------------------------------------------------------------- */
 // GENERAL HELPER FUNCTIONS
-int emsg(int code);
-
 /* helper to obtain the smallest power of two to carry a number a */
 int get_order(int a);
 
@@ -89,9 +91,31 @@ void atohex(char *target, unsigned int v);
 float phi(float z);
 float binentrop(float q);
 
+// HELPER PERMUTATION FUNCTIONS BETWEEN CASCADE & QBER ESTIMATION
 /* helper function to compress key down in a sinlge sequence to eliminate the
    revealeld bits. updates workbits accordingly, and reduces number of
    revealed bits in the leakage_bits_counter  */
 void cleanup_revealed_bits(struct keyblock *kb);
+
+/* helper function to do generate the permutation array in the kb structure.
+   does also re-ordering (in future), and truncates the discussed key to a
+   length of multiples of k1so there are noleftover bits in the two passes.
+   Parameter: pointer to kb structure */
+void prepare_permutation(struct keyblock *kb);
+
+/* permutation core function; is used both for biconf and initial permutation */
+void prepare_permut_core(struct keyblock *kb);
+
+/* helper function to preare a parity list of a given pass in a block.
+   Parameters are a pointer to the sourcebuffer, pointer to the target buffer,
+   and an integer arg for the blocksize to use, and the number of workbits */
+void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
+
+/* helper function to prepare parity lists from original and unpermutated key.
+   arguments are a pointer to the thread structure, a pointer to the target
+   parity buffer 0 and another pointer to paritybuffer 1. No return value,
+   as no errors are tested here. */
+void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1);
+
 
 #endif /* ECD2_HELPER */

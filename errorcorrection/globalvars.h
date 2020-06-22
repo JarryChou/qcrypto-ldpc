@@ -36,6 +36,8 @@
 #ifndef ECD2_GLOBALS
 #define ECD2_GLOBALS
 
+#include <stdio.h>
+
 #include "defaultdefinitions.h"
 #include "packets.h"
 

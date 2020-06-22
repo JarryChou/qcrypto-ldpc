@@ -62,22 +62,31 @@ void dumpstate(struct keyblock *kb) {
   char dumpname[200];
   int dha; /* handle */
 
+  #ifndef DEBUG
   return; /* if debugging is off */
+  #endif
 
   sprintf(dumpname, "kbdump_%1d_%03d", kb->role, dumpindex);
   dumpindex++;
   dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
-  write(dha, kb, sizeof(struct keyblock));
+  if (write(dha, kb, sizeof(struct keyblock)) == -1) {
+    fprintf(stderr, "dump fail (1)\n");
+  }
   if (kb->mainbuf)
-    write(dha, kb->mainbuf,
-          sizeof(unsigned int) *
-              (2 * kb->initialbits + 3 * ((kb->initialbits + 31) / 32)));
+    if (-1 == write(dha, kb->mainbuf, sizeof(unsigned int) *
+        (2 * kb->initialbits + 3 * ((kb->initialbits + 31) / 32)))) {
+      fprintf(stderr, "dump fail (2)\n");
+    }
 
   if (kb->lp0)
-    write(dha, kb->lp0, sizeof(unsigned int) * 6 * ((kb->workbits + 31) / 32));
+    if (-1 == write(dha, kb->lp0, sizeof(unsigned int) * 6 * ((kb->workbits + 31) / 32))) {
+      fprintf(stderr, "dump fail (4)\n");
+    }
 
   if (kb->diffidx)
-    write(dha, kb->diffidx, sizeof(unsigned int) * 2 * kb->diffnumber_max);
+    if (-1 == write(dha, kb->diffidx, sizeof(unsigned int) * 2 * kb->diffnumber_max)) {
+      fprintf(stderr, "dump fail (5)\n");
+    }
 
   close(dha);
   return;
@@ -93,10 +102,4 @@ void output_permutation(struct keyblock *kb) {
   for (i = 0; i < kb->workbits; i++)
     fprintf(fp, "%d %d\n", kb->permuteindex[i], kb->reverseindex[i]);
   fclose(fp);
-}
-
-//  ERROR MANAGEMENT
-int emsg(int code) {
-  fprintf(stderr, "%s\n", errormessage[code]);
-  return code;
 }
