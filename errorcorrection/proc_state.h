@@ -1,8 +1,6 @@
 /**
- * ecd2_priv_amp.h     
- * Part of the quantum key distribution software for error
- *  correction and privacy amplification. Description
- *  see below.
+ * proc_state.h     
+ * Defines processing states
  * 
  *  Copyright (C) 2020 Matthew Lee, National University
  *                          of Singapore <crazoter@gmail.com>
@@ -29,33 +27,20 @@
  * 
  * This is a refactored version of Kurtsiefer's ecd2.c to modularize parts of the
  * code. This section modularizes the parts of the code that is predominantly
- * used for privacy amplification.
+ * used for defining processing state.
  * 
  */
 
-#ifndef ECD2_PRIV_AMP
-#define ECD2_PRIV_AMP
+#ifndef ECD2_PROC_STATE
+#define ECD2_PROC_STATE
 
-#include "ec_packet_def.h"
+/* definition of the processing state */
+#define PRS_JUSTLOADED 0       /* no processing yet (passive role) */
+#define PRS_NEGOTIATEROLE 1    /* in role negotiation with other side */
+#define PRS_WAITRESPONSE1 2    /* waiting for error est response from bob */
+#define PRS_GETMOREEST 3       /* waiting for more error est bits from Alice */
+#define PRS_KNOWMYERROR 4      /* know my error estimation */
+#define PRS_PERFORMEDPARITY1 5 /* know my error estimation */
+#define PRS_DOING_BICONF 6     /* last biconf round */
 
-// PRIVACY AMPLIFICATION
-/* ------------------------------------------------------------------------- */
-// HELPER FUNCTIONS
-
-// MAIN FUNCTIONS
-/* function to initiate the privacy amplification. Sends out a message with
-   a PRNG seed (message 8), and hand over to the core routine for the PA.
-   Parameter is keyblock, return is error or 0 on success. */
-int initiate_privacyamplification(struct keyblock *kb);
-
-/* function to process a privacy amplification message. parameter is incoming
-   message, return value is 0 or an error code. Parses the message and passes
-   the real work over to the do_privacyamplification part */
-int receive_privamp_msg(char *receivebuf);
-
-/* do core part of the privacy amplification. Calculates the compression ratio
-   based on the lost bits, saves the final key and removes the thread from the
-   list.    */
-int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits);
-
-#endif /* ECD2_PRIV_AMP */
+#endif

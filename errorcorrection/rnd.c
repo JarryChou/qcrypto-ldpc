@@ -95,3 +95,21 @@ unsigned int PRNG_value2_32(unsigned int *state) {
 }
 
 int RNG_calls(void) { return __RNG_calls; };
+
+/* helper function to get a seed from the random device; returns seed or 0
+   on error */
+unsigned int get_r_seed(void) {
+  int rndhandle; /* keep device handle for random device */
+  unsigned int reply;
+
+  rndhandle = open(RANDOMGENERATOR, O_RDONLY);
+  if (-1 == rndhandle) {
+    fprintf(stderr, "errno: %d", errno);
+    return 39;
+  }
+  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
+    return 0; /* not enough */
+  }
+  close(rndhandle);
+  return reply;
+}
