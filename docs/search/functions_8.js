@@ -1,0 +1,12 @@
+var searchData=
+[
+  ['init_5fhisto_1825',['init_histo',['../costream_8c.html#acf0b0c486994309fd38a6e9f8e24365f',1,'costream.c']]],
+  ['initialize_5fdac_1826',['initialize_DAC',['../timetag__io2_8c.html#ab0fddc14148e3a37c76dadf90aa3cbde',1,'initialize_DAC(int handle):&#160;timetag_io2.c'],['../timetag__io2_8h.html#ab0fddc14148e3a37c76dadf90aa3cbde',1,'initialize_DAC(int handle):&#160;timetag_io2.c']]],
+  ['initialize_5ffifo_1827',['initialize_FIFO',['../timetag__io2_8c.html#a98d0714efae7e81529a00a80fd51b54e',1,'initialize_FIFO(int handle):&#160;timetag_io2.c'],['../timetag__io2_8h.html#a98d0714efae7e81529a00a80fd51b54e',1,'initialize_FIFO(int handle):&#160;timetag_io2.c']]],
+  ['initialize_5frfsource_1828',['initialize_rfsource',['../timetag__io2_8c.html#aaacbcd79a4dc0eaf91f93fa66ec8bfa2',1,'initialize_rfsource(int handle):&#160;timetag_io2.c'],['../timetag__io2_8h.html#aaacbcd79a4dc0eaf91f93fa66ec8bfa2',1,'initialize_rfsource(int handle):&#160;timetag_io2.c']]],
+  ['initiate_5fbiconf_1829',['initiate_biconf',['../cascade__biconf_8c.html#aa4fdaf7672ee311d919ffee1516b17ae',1,'initiate_biconf(struct keyblock *kb):&#160;cascade_biconf.c'],['../cascade__biconf_8h.html#aa4fdaf7672ee311d919ffee1516b17ae',1,'initiate_biconf(struct keyblock *kb):&#160;cascade_biconf.c']]],
+  ['initiate_5fbiconf_5fbinarysearch_1830',['initiate_biconf_binarysearch',['../cascade__biconf_8c.html#ab801a0fc632b96f935149858763a97fe',1,'initiate_biconf_binarysearch(struct keyblock *kb, int biconflength):&#160;cascade_biconf.c'],['../cascade__biconf_8h.html#ab801a0fc632b96f935149858763a97fe',1,'initiate_biconf_binarysearch(struct keyblock *kb, int biconflength):&#160;cascade_biconf.c']]],
+  ['initiate_5fphasetable_1831',['initiate_phasetable',['../readevents3_8c.html#a7e235e24fe70e448a4897ab0ebbd1c79',1,'readevents3.c']]],
+  ['initiate_5fprivacyamplification_1832',['initiate_privacyamplification',['../priv__amp_8c.html#afa0aab17f062b64973ef26554d46c306',1,'initiate_privacyamplification(struct keyblock *kb):&#160;priv_amp.c'],['../priv__amp_8h.html#afa0aab17f062b64973ef26554d46c306',1,'initiate_privacyamplification(struct keyblock *kb):&#160;priv_amp.c']]],
+  ['insert_5fsendpacket_1833',['insert_sendpacket',['../comms_8c.html#ab685a2df59da9e7fb20e4fd477eca731',1,'insert_sendpacket(char *message, int length):&#160;comms.c'],['../comms_8h.html#ab685a2df59da9e7fb20e4fd477eca731',1,'insert_sendpacket(char *message, int length):&#160;comms.c']]]
+];

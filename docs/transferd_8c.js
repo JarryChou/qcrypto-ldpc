@@ -1,0 +1,28 @@
+var transferd_8c =
+[
+    [ "atohex", "transferd_8c.html#a9e1a87974d8c015ddb41f248076f09e0", null ],
+    [ "blockUntilEvent", "transferd_8c.html#a801e86d6648c0db817d22e0fd29feced", null ],
+    [ "cleanup", "transferd_8c.html#adb873dc3613b921f4e9ab97a5faf0a27", null ],
+    [ "closeAndRecreateSendSocket", "transferd_8c.html#aeb3c88e3bdc3a21a6540fffa770f39b7", null ],
+    [ "createSockets", "transferd_8c.html#a96116ab12588839d71d521e985979702", null ],
+    [ "emsg", "transferd_8c.html#acd2e1b2dee36ccbff485d8e70b117170", null ],
+    [ "main", "transferd_8c.html#a0ddf1224851353fc92bfbff6f499fa97", null ],
+    [ "parseArguments", "transferd_8c.html#ad7df94b8a0ef68eebe6fb2980e76afc4", null ],
+    [ "prepareEcPacketSendHeader", "transferd_8c.html#ac5f71f0b0b70f3f2d02671f9ebafbf53", null ],
+    [ "prepareFileSendHeader", "transferd_8c.html#a4ae065c6fc3c3faa1959d0dee7102f3e", null ],
+    [ "prepareMessageSendHeader", "transferd_8c.html#ae340acbf19d545eeb0e77498f7e948ef", null ],
+    [ "printConnected", "transferd_8c.html#a2241c01b2199821151dbab2ea12165ac", null ],
+    [ "read_FromActiveSocket_ToReceivedDataBuffer", "transferd_8c.html#ad6f898af73348f65a28132d822efc07c", null ],
+    [ "read_FromCmdHandle_ToTransferName", "transferd_8c.html#a12c9fb0569114366dd881d3dfc766d49", null ],
+    [ "read_FromEcInHandle_ToErrorCorrectionInBuffer", "transferd_8c.html#ad61d1e3efe57651599d1bd70e56cbfe7", null ],
+    [ "read_FromFtnam_ToFileBuffer", "transferd_8c.html#abd428faabf27503768741cb37e34460c", null ],
+    [ "read_FromMsgInHandle_ToMessageArray", "transferd_8c.html#a83b57c075822966ad9c09609492e9859", null ],
+    [ "resetCommunicationVariables", "transferd_8c.html#ad8919558c4fcd03bb8a5e1793be39e4d", null ],
+    [ "setupBuffers", "transferd_8c.html#ac5843200d90d2e0ecc864b0c41aac242", null ],
+    [ "setupPipes", "transferd_8c.html#a58c090615c26bc3383d2d01be293a3b5", null ],
+    [ "setupTempFileName", "transferd_8c.html#abdea75f4c1984afc611741058ad5a304", null ],
+    [ "testAndRectifyForDoubleConnection", "transferd_8c.html#a1ef18acd163ec4220b9897128023286d", null ],
+    [ "testSrcAndDestDirs", "transferd_8c.html#aa4f2913ad236a15f04778dbc744f7381", null ],
+    [ "tryWrite_FromDataToSendBuffer_ToActiveSocket", "transferd_8c.html#a0f1eab0ccdd41764bb2fe33a0281523e", null ],
+    [ "waitForConnectionWithTimeout", "transferd_8c.html#a89fc994df4788a97b28b79f522c1bcc2", null ]
+];

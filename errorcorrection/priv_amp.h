@@ -37,8 +37,10 @@
 #define ECD2_PRIV_AMP
 
 // Libraries
+/// \cond for doxygen annotation
 #include <stdio.h>
 #include <fcntl.h>
+/// \endcond
 
 // Definition header files
 #include "defaultdefinitions.h"

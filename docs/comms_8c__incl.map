@@ -1,0 +1,12 @@
+<map id="errorcorrection/comms.c" name="errorcorrection/comms.c">
+<area shape="rect" id="node1" title=" " alt="" coords="191,5,354,32"/>
+<area shape="rect" id="node2" href="$comms_8h.html" title=" " alt="" coords="235,80,311,107"/>
+<area shape="rect" id="node3" href="$proc__state_8h.html" title=" " alt="" coords="5,155,100,181"/>
+<area shape="rect" id="node4" href="$helpers_8h.html" title=" " alt="" coords="125,155,199,181"/>
+<area shape="rect" id="node6" href="$keyblock_8h.html" title="Header file containing the definitions of the keyblock &amp; block related data for the error correction ..." alt="" coords="202,229,287,256"/>
+<area shape="rect" id="node7" href="$packets_8h.html" title=" " alt="" coords="341,229,420,256"/>
+<area shape="rect" id="node8" href="$globalvars_8h.html" title="Definition file for global variables in ecd2." alt="" coords="419,155,511,181"/>
+<area shape="rect" id="node10" href="$debug_8h.html" title=" " alt="" coords="275,155,343,181"/>
+<area shape="rect" id="node5" href="$rnd_8h.html" title=" " alt="" coords="127,229,178,256"/>
+<area shape="rect" id="node9" href="$defaultdefinitions_8h.html" title=" " alt="" coords="445,229,575,256"/>
+</map>

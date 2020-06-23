@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['nakie_1226',['NAKIE',['../fx2regs__c_8h.html#a0ff4e881bad24b6f0b7cabd8141b2f11',1,'fx2regs_c.h']]],
+  ['nakirq_1227',['NAKIRQ',['../fx2regs__c_8h.html#a967383630ea8d5ac4e252290f0796511',1,'fx2regs_c.h']]],
+  ['newcnt_1228',['newcnt',['../tp8_8c.html#a81d05a3d8fb15c7555dd7df58ff8cf43',1,'tp8.c']]],
+  ['newtimer_1229',['newtimer',['../readevents3_8c.html#ad2a6071bb1483202ba57edf51564d2df',1,'readevents3.c']]],
+  ['next_1230',['next',['../structblockpointer.html#a1918da5d6ff8cc71275c6296a31ba120',1,'blockpointer::next()'],['../structpacket__to__send.html#a3a11edfcaec956d36622c5131abdf239',1,'packet_to_send::next()'],['../structpacket__received.html#ad3821c84e373dee38d7ff84f3876fa7c',1,'packet_received::next()'],['../structcardinfo.html#a4dab8c6030eb055fcd9274b4e586e83e',1,'cardinfo::next()'],['../structdma__page__pointer.html#ab1b34f21a0fde889b33540bfcc71e2c4',1,'dma_page_pointer::next()']]],
+  ['next_5fpacket_5fto_5fsend_1231',['next_packet_to_send',['../ecd2_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b',1,'next_packet_to_send():&#160;ecd2.h'],['../globalvars_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b',1,'next_packet_to_send():&#160;ecd2.h']]],
+  ['nopattern_1232',['nopattern',['../readevents3_8c.html#a5e791a54a45fcab93cf9cd81e641ca75',1,'readevents3.c']]],
+  ['notif_5fhandler_2ecpp_1233',['notif_handler.cpp',['../notif__handler_8cpp.html',1,'']]],
+  ['notif_5flength_1234',['notif_length',['../notif__handler_8cpp.html#ad7735e37b2ebf23044755e0b26a3e05b',1,'notif_handler.cpp']]],
+  ['number_5fentries_1235',['number_entries',['../struct_e_r_r_c___e_r_r_d_e_t__5.html#a8c3bd965196c1803e9e8dc28d6100ea1',1,'ERRC_ERRDET_5']]],
+  ['number_5fof_5fbits_1236',['number_of_bits',['../struct_e_r_r_c___e_r_r_d_e_t__6.html#a1541bbaa1b9c92ab8192a925e20da75d',1,'ERRC_ERRDET_6']]],
+  ['number_5fof_5fepochs_1237',['number_of_epochs',['../struct_e_r_r_c___e_r_r_d_e_t__0.html#a509fbd9d1d596b4a15316dcbd2cf8c85',1,'ERRC_ERRDET_0::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__1.html#ab88e556a2fee1c9c7fca053782d35ac5',1,'ERRC_ERRDET_1::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__2.html#ab894eb8d324e1642f8fcd605dabd0d7f',1,'ERRC_ERRDET_2::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__3.html#a92091dec4986673790911931714fa7bc',1,'ERRC_ERRDET_3::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__4.html#af00694af9d6cbb35d21fc37beaccfe0a',1,'ERRC_ERRDET_4::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__5.html#a9bffabb94876cd95c0184171b8cf8ff1',1,'ERRC_ERRDET_5::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__6.html#a080a62b18edf0e8444b67e44caa84d54',1,'ERRC_ERRDET_6::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__7.html#a2e92f5ddde70a7213b6920d46684abef',1,'ERRC_ERRDET_7::number_of_epochs()'],['../struct_e_r_r_c___e_r_r_d_e_t__8.html#af81d04f842f55425b28aaff4385bd3b8',1,'ERRC_ERRDET_8::number_of_epochs()']]],
+  ['number_5fof_5ferrors_1238',['number_of_errors',['../struct_e_r_r_c___e_r_r_d_e_t__3.html#a509d384ced79a4bd67d4d7fc3fad6c07',1,'ERRC_ERRDET_3']]],
+  ['numberofbits_1239',['numberofbits',['../struct_e_r_r_c___e_r_r_d_e_t__0.html#a6a3187d15716ade00f3a2919c94f06ea',1,'ERRC_ERRDET_0::numberofbits()'],['../struct_e_r_r_c___e_r_r_d_e_t__1.html#a9d83b468fe140060f3af339a04b8ac7b',1,'ERRC_ERRDET_1::numberofbits()'],['../structheader__7.html#aca413382a94bc8f2f6cca2841b4c4ea2',1,'header_7::numberofbits()']]],
+  ['numberofdetectors_1240',['numberofdetectors',['../structprotocol__details.html#a6cca32b1b4eb919934e2b80f64af535a',1,'protocol_details::numberofdetectors()'],['../chopper_8c.html#a4b9df074c4cfc6fe1e01b36783e99e33',1,'numberofdetectors():&#160;chopper.c']]],
+  ['numberofepochs_1241',['numberofepochs',['../structkeyblock.html#a39ef5181e0b5a80b4487af22f3fc0424',1,'keyblock::numberofepochs()'],['../structheader__7.html#ad10670821f2dc976f91dc2daa7bac0c2',1,'header_7::numberofepochs()']]]
+];

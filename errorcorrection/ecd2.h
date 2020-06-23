@@ -1,5 +1,7 @@
 /**
- * ecd2.h    
+ * @file ecd2.h    
+ * @brief Error correction demon. (modifications to original errcd see below).
+ * 
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below. Version as of 20071228, works also for Ekert-91
@@ -172,9 +174,11 @@
 #define ECD2_H
 
 // Libraries
+/// \cond for doxygen annotation
 #include <getopt.h>
 #include <unistd.h>
 #include <sys/stat.h>
+/// \endcond
 
 // Definition header files
 #include "defaultdefinitions.h"

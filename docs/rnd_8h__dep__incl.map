@@ -1,0 +1,18 @@
+<map id="errorcorrection/rnd.h" name="errorcorrection/rnd.h">
+<area shape="rect" id="node1" title=" " alt="" coords="351,5,490,32"/>
+<area shape="rect" id="node2" href="$helpers_8h.html" title=" " alt="" coords="339,80,502,107"/>
+<area shape="rect" id="node4" href="$cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="5,333,164,375"/>
+<area shape="rect" id="node16" href="$rnd_8c.html" title=" " alt="" coords="526,80,665,107"/>
+<area shape="rect" id="node3" href="$comms_8h.html" title=" " alt="" coords="483,162,646,189"/>
+<area shape="rect" id="node6" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="436,430,584,457"/>
+<area shape="rect" id="node8" href="$priv__amp_8h.html" title=" " alt="" coords="342,244,473,285"/>
+<area shape="rect" id="node11" href="$qber__estim_8h.html" title=" " alt="" coords="497,244,632,285"/>
+<area shape="rect" id="node13" href="$thread__mgmt_8h.html" title=" " alt="" coords="196,155,341,196"/>
+<area shape="rect" id="node15" href="$helpers_8c.html" title=" " alt="" coords="670,162,833,189"/>
+<area shape="rect" id="node10" href="$comms_8c.html" title=" " alt="" coords="657,251,819,278"/>
+<area shape="rect" id="node5" href="$cascade__biconf_8c.html" title=" " alt="" coords="5,423,164,464"/>
+<area shape="rect" id="node7" href="$ecd2_8c.html" title=" " alt="" coords="436,512,584,539"/>
+<area shape="rect" id="node9" href="$priv__amp_8c.html" title=" " alt="" coords="317,333,447,375"/>
+<area shape="rect" id="node12" href="$qber__estim_8c.html" title=" " alt="" coords="573,333,708,375"/>
+<area shape="rect" id="node14" href="$thread__mgmt_8c.html" title=" " alt="" coords="71,244,216,285"/>
+</map>

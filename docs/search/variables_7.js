@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['gpifabort_2202',['GPIFABORT',['../fx2regs__c_8h.html#a69b63d5014126f943340b7ebf6816d47',1,'fx2regs_c.h']]],
+  ['gpifadrh_2203',['GPIFADRH',['../fx2regs__c_8h.html#a91d65351433caf506b70c4b43e755f7a',1,'fx2regs_c.h']]],
+  ['gpifadrl_2204',['GPIFADRL',['../fx2regs__c_8h.html#a70d170389ff326ba03ccab12ff99531f',1,'fx2regs_c.h']]],
+  ['gpifctlcfg_2205',['GPIFCTLCFG',['../fx2regs__c_8h.html#a0853edc986af0a402d161fe3d3307236',1,'fx2regs_c.h']]],
+  ['gpifholdtime_2206',['GPIFHOLDTIME',['../fx2regs__c_8h.html#ac7ce925dd587d66a49772607e52297da',1,'fx2regs_c.h']]],
+  ['gpifidlecs_2207',['GPIFIDLECS',['../fx2regs__c_8h.html#a351f688ab1429720586484ef599a9e95',1,'fx2regs_c.h']]],
+  ['gpifidlectl_2208',['GPIFIDLECTL',['../fx2regs__c_8h.html#ae644a5c4db568e1a5b20d7c29eb84493',1,'fx2regs_c.h']]],
+  ['gpifie_2209',['GPIFIE',['../fx2regs__c_8h.html#a5c7c0f24a14bbcb6c5e4bae0aa9324d9',1,'fx2regs_c.h']]],
+  ['gpifirq_2210',['GPIFIRQ',['../fx2regs__c_8h.html#a4ac0df40f479d6b96f2b09af082ce657',1,'fx2regs_c.h']]],
+  ['gpifreadycfg_2211',['GPIFREADYCFG',['../fx2regs__c_8h.html#a0d0b9c7059c5cda5f302a2e06878b4dc',1,'fx2regs_c.h']]],
+  ['gpifreadystat_2212',['GPIFREADYSTAT',['../fx2regs__c_8h.html#a7868c8654294c02c5b7c695616f231aa',1,'fx2regs_c.h']]],
+  ['gpifsgldath_2213',['GPIFSGLDATH',['../fx2regs__c_8h.html#aa9ca4ba4eba86fa77602d4f4ae83ff10',1,'fx2regs_c.h']]],
+  ['gpifsgldatlnox_2214',['GPIFSGLDATLNOX',['../fx2regs__c_8h.html#a958f52e050ccdf14ce3b99023c0369bc',1,'fx2regs_c.h']]],
+  ['gpifsgldatlx_2215',['GPIFSGLDATLX',['../fx2regs__c_8h.html#a5e2ec8fd7dc54edf4f2ca23ea783767f',1,'fx2regs_c.h']]],
+  ['gpiftcb0_2216',['GPIFTCB0',['../fx2regs__c_8h.html#afdca9069ea324ca4e76823fa12af51a0',1,'fx2regs_c.h']]],
+  ['gpiftcb1_2217',['GPIFTCB1',['../fx2regs__c_8h.html#a00bfd65066d546b5600dc0fdbf7817fd',1,'fx2regs_c.h']]],
+  ['gpiftcb2_2218',['GPIFTCB2',['../fx2regs__c_8h.html#a0acc5a4a136c378e004808dbf3595076',1,'fx2regs_c.h']]],
+  ['gpiftcb3_2219',['GPIFTCB3',['../fx2regs__c_8h.html#a31016dfd679cbfefbeb579d74dd408f0',1,'fx2regs_c.h']]],
+  ['gpiftrig_2220',['GPIFTRIG',['../fx2regs__c_8h.html#a8805772301994104e2ae928105db6f17',1,'fx2regs_c.h']]],
+  ['gpifwfselect_2221',['GPIFWFSELECT',['../fx2regs__c_8h.html#a528a98db3702418c2885cf1c536681ca',1,'fx2regs_c.h']]]
+];

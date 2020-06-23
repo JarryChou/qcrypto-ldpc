@@ -36,7 +36,9 @@
 #ifndef ECD2_QBER_ESTIM
 #define ECD2_QBER_ESTIM
 
+/// \cond for doxygen annotation
 #include <stdio.h>
+/// \endcond
 
 #include "defaultdefinitions.h"
 #include "globalvars.h"

@@ -1,0 +1,25 @@
+var tp8_8c =
+[
+    [ "firmware", "tp8_8c.html#a11d33d587b17acd730771b2a240bb0d4", null ],
+    [ "SYNCDELAY", "tp8_8c.html#ade4f349d5792b0681458b3a5c07044d8", null ],
+    [ "upperbitmask", "tp8_8c.html#a1cdbf454fd6ef808f0cb3dbab558ae8e", null ],
+    [ "main", "tp8_8c.html#acdef7a1fd863a6d3770c1268cb06add3", null ],
+    [ "resetTogglebits", "tp8_8c.html#ac0dcbe48a53ddfd2b23b55dc5f2e7850", null ],
+    [ "swallowEP1", "tp8_8c.html#a28ca40a3e9f9aafec6c6278c035108e2", null ],
+    [ "altsetting", "tp8_8c.html#a60b3f738eefe0bb002a0616efe43cfce", null ],
+    [ "autoflushvalue", "tp8_8c.html#a8859f74236b714f6ea0ce9b3d3df7acf", null ],
+    [ "bpstorage", "tp8_8c.html#ac1005c7671fb6e09e652598c7edcb527", null ],
+    [ "configuration", "tp8_8c.html#a811d37846f9d7986872a77ee9866189b", null ],
+    [ "dpstorage", "tp8_8c.html#aab0b5d2f9bf2a201134cd59115219416", null ],
+    [ "ep1command", "tp8_8c.html#a3d36afc5ef3e25c04f7b1ed688ee1311", null ],
+    [ "FIFOupperwatermark", "tp8_8c.html#a2a02322dce73baa0d9d9fa3883278a4b", null ],
+    [ "flushcount", "tp8_8c.html#ad567a05ba13829d2b486dc7f04a59bd6", null ],
+    [ "hitcnt", "tp8_8c.html#a1b8fbe26873c6096240d4875d59ed116", null ],
+    [ "ifconfig_active", "tp8_8c.html#af0d8be495dc16c7e107c2d2daff67d80", null ],
+    [ "ifconfig_gpif", "tp8_8c.html#a03c143f0af2fda67e3e740ebf9e750bd", null ],
+    [ "ifconfig_ports", "tp8_8c.html#a6e0f1b7d5fef29b2c4fa75f069aac76c", null ],
+    [ "newcnt", "tp8_8c.html#a81d05a3d8fb15c7555dd7df58ff8cf43", null ],
+    [ "oldcnt", "tp8_8c.html#a3405530806c24578e96da855e3015bec", null ],
+    [ "RFchoice", "tp8_8c.html#a49b282c0078bdae8cee72b2c61cfda0b", null ],
+    [ "ShiftTarget", "tp8_8c.html#afab02157b4f3b304bd188a26340fc22e", null ]
+];

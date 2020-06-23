@@ -36,10 +36,13 @@
 #ifndef ECD2_THREAD_MGMT
 #define ECD2_THREAD_MGMT
 
+// Libraries
+/// \cond for doxygen annotation
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+/// \endcond
 
 #include "defaultdefinitions.h"
 #include "globalvars.h"

@@ -36,12 +36,16 @@
 #ifndef ECD2_DEBUG
 #define ECD2_DEBUG
 
+// Libraries
+/// \cond for doxygen annotation
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+/// \endcond
 
+// Definitions
 #include "keyblock.h"
 
 // Definitions to enable certain debugging parts of the code

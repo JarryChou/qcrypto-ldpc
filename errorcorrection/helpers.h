@@ -36,8 +36,10 @@
 #ifndef ECD2_HELPER
 #define ECD2_HELPER
 
+/// \cond for doxygen annotation
 #include <math.h>
 #include <string.h>
+/// \endcond
 
 #include "rnd.h"
 #include "keyblock.h"

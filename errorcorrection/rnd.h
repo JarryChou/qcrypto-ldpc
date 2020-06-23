@@ -29,11 +29,13 @@
 #define RND_H
 
 // Libraries required for get_r_seed(void) helper
+/// \cond for doxygen annotation
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+/// \endcond
 
 #define PRNG_FEEDBACK 0xe0000200
 int RNG_calls(void);

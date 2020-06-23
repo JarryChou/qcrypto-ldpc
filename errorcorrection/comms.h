@@ -37,7 +37,9 @@
 #define ECD2_COMMS
 
 // Libraries
+/// \cond for doxygen annotation
 #include <stdlib.h>
+/// \endcond
 
 // Definition files
 #include "proc_state.h"
