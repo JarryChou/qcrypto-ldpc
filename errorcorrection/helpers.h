@@ -1,5 +1,7 @@
 /**
- * helpers.h     
+ * @file helpers.h     
+ * @brief helper functions or helper enums for ecd2
+ * 
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below.
@@ -45,8 +47,10 @@
 #include "keyblock.h"
 
 // HELPER ENUMS
-
-// File handle enums
+/**
+ * @brief File handle enums
+ * 
+ */
 enum HandleId {
   handleId_commandPipe = 0,
   handleId_sendPipe = 1,
@@ -59,65 +63,51 @@ enum HandleId {
 };
 
 
-// FUNCTIONS RECOMMENDED TO THE COMPILER FOR INLINE
+/// @name FUNCTIONS RECOMMENDED TO THE COMPILER FOR INLINE
+/// @{
 // (What is inline? See https://stackoverflow.com/questions/2082551/what-does-inline-mean)
-/* ------------------------------------------------------------------------- */
-/* helper for mask for a given index i on the longint array */
+/**
+ * @brief Helper for mask for a given index i on the longint array
+ * 
+ * @param i 
+ * @return __inline__ bt_mask 
+ */
 __inline__ unsigned int bt_mask(int i) { return 1 << (31 - (i & 31)); }
-/* helper function for parity isolation */
+
+/**
+ * @brief Helper function for parity isolation
+ * 
+ * @param i 
+ * @return __inline__ firstmask 
+ */
 __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
 __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
+/// @}
 
 // DEFINED FUNCTIONS
 /* ------------------------------------------------------------------------- */
+/// @name FUNCTIONS RECOMMENDED TO THE COMPILER FOR INLINE
+/// @{
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #define MIN(A, B) ((A) > (B) ? (B) : (A))
+/// @}
 
-// HELPER FUNCTION DECLARATIONS
-/* ------------------------------------------------------------------------- */
-// GENERAL HELPER FUNCTIONS
-/* helper to obtain the smallest power of two to carry a number a */
+/// @name GENERAL HELPER FUNCTIONS
+/// @{
 int get_order(int a);
-
-/* get the number of bits necessary to carry a number x ; 
-  result is e.g. 3 for parameter 8, 5 for parameter 17 etc. */
 int get_order_2(int x); 
-
-/* helper: count the number of set bits in a longint */
 int count_set_bits(unsigned int a);
-
-/* helper for name. adds a slash, hex file name and a terminal 0 */
 void atohex(char *target, unsigned int v);
+/// @}
 
-/* helper: eve's error knowledge */
-float phi(float z);
-float binentrop(float q);
 
-// HELPER PERMUTATION FUNCTIONS BETWEEN CASCADE & QBER ESTIMATION
-/* helper function to compress key down in a sinlge sequence to eliminate the
-   revealeld bits. updates workbits accordingly, and reduces number of
-   revealed bits in the leakage_bits_counter  */
+/// @name HELPER PERMUTATION FUNCTIONS USED FOR QBER ESTIMATION & CASCADE
+/// @{
 void cleanup_revealed_bits(struct keyblock *kb);
-
-/* helper function to do generate the permutation array in the kb structure.
-   does also re-ordering (in future), and truncates the discussed key to a
-   length of multiples of k1so there are noleftover bits in the two passes.
-   Parameter: pointer to kb structure */
-void prepare_permutation(struct keyblock *kb);
-
-/* permutation core function; is used both for biconf and initial permutation */
 void prepare_permut_core(struct keyblock *kb);
-
-/* helper function to preare a parity list of a given pass in a block.
-   Parameters are a pointer to the sourcebuffer, pointer to the target buffer,
-   and an integer arg for the blocksize to use, and the number of workbits */
+void prepare_permutation(struct keyblock *kb);
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
-
-/* helper function to prepare parity lists from original and unpermutated key.
-   arguments are a pointer to the thread structure, a pointer to the target
-   parity buffer 0 and another pointer to paritybuffer 1. No return value,
-   as no errors are tested here. */
-void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1);
+/// @}
 
 
 #endif /* ECD2_HELPER */

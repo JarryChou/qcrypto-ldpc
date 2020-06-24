@@ -1,5 +1,7 @@
 /**
- * ecd2_thread_mgmt.h     
+ * @file ecd2_thread_mgmt.h   
+ * @brief thread management portion of ecd2
+ *   
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below.
@@ -55,31 +57,16 @@
 #include "debug.h"
 #include "helpers.h"
 
-// THREAD MANAGEMENT
-/* ------------------------------------------------------------------------- */
-// HELPER FUNCTIONS
-/* code to check if a requested bunch of epochs already exists in the thread list. 
-  Uses the start epoch and an epoch number as arguments; 
-  returns 0 if the requested epochs are not used yet, otherwise 1. */
+/// @name THREAD MANAGEMENT HELPER FUNCTIONS
+/// @{
 int check_epochoverlap(unsigned int epoch, int num);
+/// @}
 
-// MAIN FUNCTIONS
-/* code to prepare a new thread from a series of raw key files. Takes epoch,
-   number of epochs and an initially estimated error as parameters. Returns
-   0 on success, and 1 if an error occurred (maybe later: errorcode) 
-   
-   Note: uses globalvar killmode
-   */
+/// @name THREAD MANAGEMENT MAIN FUNCTIONS
+/// @{
 int create_thread(unsigned int epoch, int num, float inierr, float BellValue);
-
-/* function to obtain the pointer to the thread for a given epoch index.
-   Argument is epoch, return value is pointer to a struct keyblock or NULL
-   if none found. */
 struct keyblock *get_thread(unsigned int epoch);
-
-/* function to remove a thread out of the list. parameter is the epoch index,
-   return value is 0 for success and 1 on error. This function is called if
-   there is no hope for error recovery or for a finished thread. */
 int remove_thread(unsigned int epoch);
+/// @}
 
 #endif /* ECD2_THREAD_MGMT */

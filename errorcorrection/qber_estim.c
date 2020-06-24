@@ -1,12 +1,35 @@
 #include "qber_estim.h"
 
-// ERROR ESTIMATION
+// ERROR ESTIMATION HELPER FUNCTIONS
 /* ------------------------------------------------------------------------ */
-/* function to provide the number of bits needed in the initial error
-   estimation; eats the local error (estimated or guessed) as a float. Uses
+/**
+ * @brief helper function to prepare parity lists from original and unpermutated key.
+ * 
+ * No return value,
+   as no errors are tested here.
+ * 
+ * @param kb pointer to keyblock
+ * @param d0 pointer to target parity buffer 0
+ * @param d1 pointer to paritybuffer 1
+ */
+void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1) {
+  prepare_paritylist_basic(kb->mainbuf, d0, kb->k0, kb->workbits);
+  prepare_paritylist_basic(kb->permutebuf, d1, kb->k1, kb->workbits);
+  return;
+}
+
+// ERROR ESTIMATION MAIN FUNCTIONS
+/* ------------------------------------------------------------------------ */
+/**
+ * @brief function to provide the number of bits needed in the initial error estimation.
+ * 
+ * Uses
    the maximum for either estimating the range for k0 with the desired error,
    or a sufficient separation from the no-error-left area. IS that fair?
-   Anyway, returns a number of bits. */
+ * 
+ * @param e local error (estimated or guessed)
+ * @return int returns a number of bits
+ */
 int testbits_needed(float e) {
   float ldi;
   int bn;
@@ -16,10 +39,13 @@ int testbits_needed(float e) {
   return bn;
 }
 
-/* function to initiate the error estimation procedure. parameter is
-   statrepoch, return value is 0 on success or !=0 (w error encoding) on error.
-
-   Note: uses globalvar ini_err_skipmode
+/**
+ * @brief function to initiate the error estimation procedure.
+ * 
+ * Note: uses globalvar ini_err_skipmode
+ * 
+ * @param epoch start epoch
+ * @return int 0 on success, error code otherwise
  */
 int errorest_1(unsigned int epoch) {
   struct keyblock *kb;        /* points to current keyblock */
@@ -61,14 +87,15 @@ int errorest_1(unsigned int epoch) {
   return 0;
 }
 
-/* function to process the first error estimation packet. Argument is a pointer
-   to the receivebuffer with both the header and the data section. Initiates
-   the error estimation, and prepares the next  package for transmission.
-   Currently, it assumes only PRNG-based bit selections.
-
-   Return value is 0 on success, or an error message useful for emsg.
-
-*/
+/**
+ * @brief function to process the first error estimation packet.
+ * 
+ * Initiates the error estimation, and prepares the next  package for transmission.
+ *  Currently, it assumes only PRNG-based bit selections.
+ * 
+ * @param receivebuf pointer to the receivebuffer with both the header and the data section.
+ * @return int 0 on success, otherwise error code
+ */
 int process_esti_message_0(char *receivebuf) {
   struct ERRC_ERRDET_0 *in_head; /* holds header */
   struct keyblock *kb;           /* poits to thread info */
@@ -234,11 +261,15 @@ int process_esti_message_0(char *receivebuf) {
   return 0; /* everything went well */
 }
 
-/* function to reply to a request for more estimation bits. Argument is a
-   pointer to the receive buffer containing the message. Just sends over a
-   bunch of more estimaton bits. Currently, it uses only the PRNG method.
-
-   Return value is 0 on success, or an error message otherwise. */
+/**
+ * @brief function to reply to a request for more estimation bits. 
+ * Currently, it uses only the PRNG method.
+ * 
+ * Just sends over a bunch of more estimaton bits.
+ * 
+ * @param receivebuf pointer to the receive buffer containing the message.
+ * @return int 0 on success, error code otherwise
+ */
 int send_more_esti_bits(char *receivebuf) {
   struct ERRC_ERRDET_2 *in_head; /* holds header */
   struct keyblock *kb;           /* poits to thread info */
@@ -270,10 +301,16 @@ int send_more_esti_bits(char *receivebuf) {
   return 0;
 }
 
-/* function to proceed with the error estimation reply. Estimates if the
+/**
+ * @brief function to proceed with the error estimation reply.
+ * 
+ * Estimates if the
    block deserves to be considered further, and if so, prepares the permutation
    array of the key, and determines the parity functions of the first key.
-   Return value is 0 on success, or an error message otherwise. */
+ * 
+ * @param receivebuf pointer to the receive buffer containing the message.
+ * @return int 0 on success, error code otherwise
+ */
 int prepare_dualpass(char *receivebuf) {
   struct ERRC_ERRDET_3 *in_head; /* holds header */
   struct keyblock *kb;           /* poits to thread info */

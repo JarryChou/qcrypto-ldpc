@@ -1,4 +1,7 @@
-/* rnd.h:   Part of the quantum key distribution software. This is the
+/** @file rnd.h  
+ * @brief Random number sources
+ * 
+ *  Part of the quantum key distribution software. This is the
             header files for the random number sources
 	    status of this document: 22.3.06chk
 
@@ -38,15 +41,20 @@
 /// \endcond
 
 #define PRNG_FEEDBACK 0xe0000200
-int RNG_calls(void);
+
 int parity(unsigned int a0);
 void set_PRNG_seed(unsigned int );
 unsigned int PRNG_value(int);
 unsigned int PRNG_value2(int, unsigned int *);
 unsigned int PRNG_value2_32(unsigned int *);
-unsigned int get_r_seed(void); /* helper function to get a seed from the random device; returns seed or 0 on error */
+int get_RNG_calls(void);
+unsigned int get_r_seed(void); /**< helper function to get a seed from the random device; returns seed or 0 on error */
 
-/* typical file names */
-#define RANDOMGENERATOR "/dev/urandom" /* this does not block but is BAD....*/
+/**
+ * @brief typical file names
+ * 
+ * this does not block but is BAD....
+ */
+#define RANDOMGENERATOR "/dev/urandom" 
 
 #endif

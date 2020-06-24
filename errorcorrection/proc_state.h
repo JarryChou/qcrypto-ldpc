@@ -1,6 +1,6 @@
 /**
- * proc_state.h     
- * Defines processing states
+ * @file proc_state.h     
+ * @brief Defines processing states
  * 
  *  Copyright (C) 2020 Matthew Lee, National University
  *                          of Singapore <crazoter@gmail.com>
@@ -34,13 +34,15 @@
 #ifndef ECD2_PROC_STATE
 #define ECD2_PROC_STATE
 
-/* definition of the processing state */
-#define PRS_JUSTLOADED 0       /* no processing yet (passive role) */
-#define PRS_NEGOTIATEROLE 1    /* in role negotiation with other side */
-#define PRS_WAITRESPONSE1 2    /* waiting for error est response from bob */
-#define PRS_GETMOREEST 3       /* waiting for more error est bits from Alice */
-#define PRS_KNOWMYERROR 4      /* know my error estimation */
-#define PRS_PERFORMEDPARITY1 5 /* know my error estimation */
-#define PRS_DOING_BICONF 6     /* last biconf round */
+/// @name Definitions of the processing state
+/// @{
+#define PRS_JUSTLOADED 0       /**< no processing yet (passive role) */
+#define PRS_NEGOTIATEROLE 1    /**< in role negotiation with other side */
+#define PRS_WAITRESPONSE1 2    /**< waiting for error est response from bob */
+#define PRS_GETMOREEST 3       /**< waiting for more error est bits from Alice */
+#define PRS_KNOWMYERROR 4      /**< know my error estimation */
+#define PRS_PERFORMEDPARITY1 5 /**< know my error estimation */
+#define PRS_DOING_BICONF 6     /**< last biconf round */
+/// @}
 
 #endif

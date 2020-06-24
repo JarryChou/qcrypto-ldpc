@@ -193,41 +193,38 @@
 #include "debug.h"
 #include "priv_amp.h"
 
-// GLOBAL VARIABLES (defined in globalvar.h)
-/* ------------------------------------------------------------------------- */
 
+/// @name GLOBAL VARIABLES (defined in globalvar.h)
+/// @{
 /* structs */
 struct blockpointer *blocklist = NULL;
 struct packet_to_send *next_packet_to_send = NULL;
 struct packet_to_send *last_packet_to_send = NULL;
 
 /* global parameters and variables */
-int biconf_rounds = DEFAULT_BICONF_ROUNDS;   /* how many times */
+int biconf_rounds = DEFAULT_BICONF_ROUNDS;   /**< how many times */
 
-int ini_err_skipmode = DEFAULT_ERR_SKIPMODE; /* 1 if error est to be skipped */
+int ini_err_skipmode = DEFAULT_ERR_SKIPMODE; /**< 1 if error est to be skipped */
 
-int killmode = DEFAULT_KILLMODE;   /* decides on removal of raw key files */
+int killmode = DEFAULT_KILLMODE;   /**< decides on removal of raw key files */
 
-char fname[8][FNAMELENGTH] = {"", "", "", "", "", "", "", ""}; /* filenames */
-int handle[8];    /* handles for files accessed by raw I/O */
-FILE *fhandle[8]; /* handles for files accessed by buffered I/O */
+char fname[8][FNAMELENGTH] = {"", "", "", "", "", "", "", ""}; /**< filenames */
+int handle[8];    /**< handles for files accessed by raw I/O */
+FILE *fhandle[8]; /**< handles for files accessed by buffered I/O */
 
-int bellmode = 0; /* 0: use estimated error, 1: use supplied bell value */
-int disable_privacyamplification = 0; /* off normally, != 0 for debugging */
+int bellmode = 0; /**< 0: use estimated error, 1: use supplied bell value */
+int disable_privacyamplification = 0; /**< off normally, != 0 for debugging */
 float errormargin = DEFAULT_ERR_MARGIN;
-float intrinsicerr = DEFAULT_INTRINSIC; /* error rate not under control of eve */
+float intrinsicerr = DEFAULT_INTRINSIC; /**< error rate not under control of eve */
 int verbosity_level = DEFAULT_VERBOSITY;
+/// @}
 
-
-// Static structs & variables (global only within the scope of ecd2)
-/* ------------------------------------------------------------------------- */
-
-/* head node pointing to a simply joined list of entries */
-struct packet_received *rec_packetlist = NULL;
-
-float initialerr = DEFAULT_INIERR; /* What error to assume initially */
+/// @name Static structs & variables (global only within the scope of ecd2)
+/// @{
+struct packet_received *rec_packetlist = NULL; /**< head node pointing to a simply joined list of entries */
+float initialerr = DEFAULT_INIERR; /**< What error to assume initially */
 int runtimeerrormode = DEFAULT_RUNTIMEERRORMODE;
-int biconf_length = DEFAULT_BICONF_LENGTH;   /* how long is a biconf */
+int biconf_length = DEFAULT_BICONF_LENGTH;   /**< how long is a biconf */
 
 char *errormessage[] = {
     "No error.",
@@ -311,6 +308,7 @@ char *errormessage[] = {
     "cannot parse final BER argument",
     "BER argument out of range",
 };
+/// @}
 
 // HELPER FUNCTION DECLARATIONS
 /* ------------------------------------------------------------------------- */
@@ -318,10 +316,7 @@ int emsg(int code);
 
 // MAIN FUNCTION DECLARATIONS (OTHERS)
 /* ------------------------------------------------------------------------- */
-/* process a command (e.g. epoch epochNum), terminated with \0 */
-int process_command(char *in);
-
-/* main code */
+int process_command(char *in);      /* process a command (e.g. epoch epochNum), terminated with \0 */
 int main(int argc, char *argv[]);
 
 #endif /* ECD2_H */

@@ -615,10 +615,15 @@ int start_binarysearch(char *receivebuf) {
   return prepare_first_binsearch_msg(kb, 0);
 }
 
-/* function to process a binarysearch request. distinguishes between the two
+/** @brief Alice's wrapper function to process a binarysearch request.
+ * 
+ * Distinguishes between the two
    symmetries in the evaluation. This is onyl a wrapper.
    on alice side, it does a passive check; on bob side, it possibly corrects
-   for errors. */
+   for errors. 
+ * @param receivebuf 
+ * @return error code, 0 if success 
+ */
 int process_binarysearch(char *receivebuf) {
   struct ERRC_ERRDET_5 *in_head; /* holds received message header */
   struct keyblock *kb;           /* points to thread info */
@@ -643,12 +648,18 @@ int process_binarysearch(char *receivebuf) {
   return 0; /* keep compiler happy */
 }
 
-/* function to process a binarysearch request on bob identity. Checks parity
+/** @brief Bob's function to process a binarysearch request. 
+ * 
+ * Checks parity
    lists and does corrections if necessary.
    initiates the next step (BICONF on pass 1) for the next round if ready.
 
    Note: uses globalvar biconf_rounds
-*/
+
+ * @param kb keyblock ptr
+ * @param in_head header of incoming type-5 ec packet
+ * @return error code, 0 if success 
+ */
 int process_binsearch_bob(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
@@ -840,10 +851,14 @@ int process_binsearch_bob(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head) {
   return initiate_biconf(kb);
 }
 
-/* start the parity generation process on bob's side. Parameter contains the
-   parity reply form Alice. Reply is 0 on success, or an error message.
+/** @brief Start the parity generation process on bob's side. 
+ * 
    Should either initiate a binary search, re-issue a BICONF request or
-   continue to the parity evaluation. */
+   continue to the parity evaluation. 
+
+  * @param receivebuf parity reply from Alice
+  * @return error message, 0 if success
+  */
 int receive_biconfreply(char *receivebuf) {
   struct ERRC_ERRDET_7 *in_head; /* holds received message header */
   struct keyblock *kb;           /* points to thread info */

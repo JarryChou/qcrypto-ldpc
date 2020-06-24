@@ -71,7 +71,8 @@ typedef struct keyblock {
 /** @struct blockpointer
  * @brief Structure to hold list of blocks. 
  * 
- * This helps dispatching packets? */
+ * This helps dispatching packets? 
+ */
 typedef struct blockpointer {
   unsigned int epoch;
   struct keyblock *content;      /**< the gory details */

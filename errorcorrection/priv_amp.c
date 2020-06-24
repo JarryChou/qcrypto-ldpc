@@ -1,13 +1,40 @@
 #include "priv_amp.h"
 
-// PRIVACY AMPLIFICATION
+// PRIVACY AMPLIFICATION HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
-// HELPER FUNCTIONS
 
-// MAIN FUNCTIONS
-/* function to initiate the privacy amplification. Sends out a message with
+/**
+ * @brief helper: eve's error knowledge
+ * 
+ * @param z 
+ * @return float 
+ */
+float phi(float z) {
+  return ((1 + z) * log(1 + z) + (1 - z) * log(1 - z)) / log(2.);
+}
+
+/**
+ * @brief 
+ * 
+ * @param q 
+ * @return float 
+ */
+float binentrop(float q) {
+  return (-q * log(q) - (1 - q) * log(1 - q)) / log(2.);
+}
+
+// PRIVACY AMPLIFICATION MAIN FUNCTIONS
+/* ------------------------------------------------------------------------- */
+
+/**
+ * @brief Function to initiate the privacy amplification.
+ * 
+ *  Sends out a message with
    a PRNG seed (message 8), and hand over to the core routine for the PA.
-   Parameter is keyblock, return is error or 0 on success. */
+ * 
+ * @param kb keyblock ptr
+ * @return int 0 if success, otherwise error code
+ */
 int initiate_privacyamplification(struct keyblock *kb) {
   unsigned int seed;
   struct ERRC_ERRDET_8 *h8; /* head for trigger message */
@@ -33,9 +60,16 @@ int initiate_privacyamplification(struct keyblock *kb) {
   /* do actual privacy amplification */
   return do_privacy_amplification(kb, seed, kb->leakagebits);
 }
-/* function to process a privacy amplification message. parameter is incoming
-   message, return value is 0 or an error code. Parses the message and passes
-   the real work over to the do_privacyamplification part */
+
+/**
+ * @brief Function to process a privacy amplification message.
+ * 
+ * Parses the message and passes
+   the real work over to the do_privacyamplification part
+ * 
+ * @param receivebuf incoming message
+ * @return int 0 if success, otherwise error code
+ */
 int receive_privamp_msg(char *receivebuf) {
   struct ERRC_ERRDET_8 *in_head; /* holds header */
   struct keyblock *kb;           /* poits to thread info */
@@ -59,9 +93,18 @@ int receive_privamp_msg(char *receivebuf) {
   return do_privacy_amplification(kb, in_head->seed, in_head->lostbits);
 }
 
-/* do core part of the privacy amplification. Calculates the compression ratio
+/**
+ * @brief Do core part of the privacy amplification.
+ * 
+ * Calculates the compression ratio
    based on the lost bits, saves the final key and removes the thread from the
-   list.    */
+   list. 
+ * 
+ * @param kb keyblock ptr
+ * @param seed 
+ * @param lostbits 
+ * @return int 0 if success, otherwise error code
+ */
 int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
                              int lostbits) {
   int sneakloss;

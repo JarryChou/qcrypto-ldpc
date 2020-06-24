@@ -44,30 +44,42 @@
 #include "defaultdefinitions.h"
 #include "packets.h"
 
-// Used by thread_mgmt
+/// @name Global variables used by thread_mgmt 
+/// @{
 extern int killmode;   /**< decides on removal of raw key files */
 extern struct blockpointer *blocklist;
+/// @}
 
-// Used by comms
+/// @name Global variables used by comms
+/// @{
 extern struct packet_to_send *next_packet_to_send;
 extern struct packet_to_send *last_packet_to_send;
+/// @}
 
-// Used by qber_estim
+/// @name Global variables used by qber_estim 
+/// @{
 extern int ini_err_skipmode; /**< 1 if error est to be skipped */
+/// @}
 
-// Used by cascade_biconf
+/// @name Global variables used by cascade_biconf 
+/// @{
 extern int biconf_rounds;
+/// @}
 
-// File handle(s) & meta info used across the application for I/O
+/// @name File handle(s) & meta info used across the application for I/O
+/// @{
 extern char fname[8][FNAMELENGTH]; /**< filenames */
 extern int handle[8];    /**< handles for files accessed by raw I/O */
 extern FILE *fhandle[8]; /**< handles for files accessed by buffered I/O */
+/// @}
 
-// Used by priv_amp
+/// @name Global variables used by priv_amp 
+/// @{
 extern int bellmode;
 extern int disable_privacyamplification;
 extern float errormargin;
 extern float intrinsicerr;
 extern int verbosity_level;
+/// @}
 
 #endif

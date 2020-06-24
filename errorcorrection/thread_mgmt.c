@@ -1,11 +1,15 @@
 #include "thread_mgmt.h"
 
-// THREAD MANAGEMENT
+// THREAD MANAGEMENT HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
-// HELPER FUNCTIONS
-/* code to check if a requested bunch of epochs already exists in the thread
-   list. Uses the start epoch and an epoch number as arguments; returns 0 if
-   the requested epochs are not used yet, otherwise 1. */
+
+/**
+ * @brief code to check if a requested bunch of epochs already exists in the thread list.
+ * 
+ * @param epoch start epoch
+ * @param num number of consecutive epochs
+ * @return int 0 if requested epochs are not used yet, otherwise 1
+ */
 int check_epochoverlap(unsigned int epoch, int num) {
   struct blockpointer *bp = blocklist;
   unsigned int se;
@@ -22,10 +26,17 @@ int check_epochoverlap(unsigned int epoch, int num) {
   return 0;
 }
 
-// MAIN FUNCTIONS
-/* code to prepare a new thread from a series of raw key files. Takes epoch,
-   number of epochs and an initially estimated error as parameters. Returns
-   0 on success, and 1 if an error occurred (maybe later: errorcode) */
+// THREAD MANAGEMENT MAIN FUNCTIONS
+/* ------------------------------------------------------------------------- */
+/**
+ * @brief code to prepare a new thread from a series of raw key files. 
+ * 
+ * @param epoch start epoch
+ * @param num number of consecutive epochs
+ * @param inierr initially estimated error
+ * @param BellValue 
+ * @return int 0 on success, otherwise error code
+ */
 int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   static unsigned int temparray[TEMPARRAYSIZE];
   static struct header_3 h3;           /* header for raw key file */
@@ -148,9 +159,12 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   return 0;
 }
 
-/* function to obtain the pointer to the thread for a given epoch index.
-   Argument is epoch, return value is pointer to a struct keyblock or NULL
-   if none found. */
+/**
+ * @brief Function to obtain the pointer to the thread for a given epoch index.
+ * 
+ * @param epoch epoch 
+ * @return struct keyblock* pointer to a keyblock, or NULL if none found
+ */
 struct keyblock *get_thread(unsigned int epoch) {
   struct blockpointer *bp = blocklist;
   while (bp) {
@@ -160,9 +174,15 @@ struct keyblock *get_thread(unsigned int epoch) {
   return NULL;
 }
 
-/* function to remove a thread out of the list. parameter is the epoch index,
-   return value is 0 for success and 1 on error. This function is called if
-   there is no hope for error recovery or for a finished thread. */
+/**
+ * @brief Function to remove a thread out of the list.
+ * 
+ *  This function is called if
+   there is no hope for error recovery or for a finished thread.
+ * 
+ * @param epoch epoch index
+ * @return int 0 if success, 1 for error
+ */
 int remove_thread(unsigned int epoch) {
   struct blockpointer *bp = blocklist;
   while (bp) {

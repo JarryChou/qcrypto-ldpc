@@ -1,16 +1,28 @@
 #include "helpers.h"
 
-// HELPER FUNCTIONS
-/* ------------------------------------------------------------------------- */
 // GENERAL HELPER FUNCTIONS
+/* ------------------------------------------------------------------------- */
 
-/* helper to obtain the smallest power of two to carry a number a */
+/**
+ * @brief helper to obtain the smallest power of two to carry a number a
+ * 
+ * @param a 
+ * @return int 
+ */
 int get_order(int a) {
   unsigned int order = 0xffffffff;
   while ((order & a) == a) order >>= 1;
   return (order << 1) + 1;
 }
-/* get the number of bits necessary to carry a number x ; result is e.g. 3 for parameter 8, 5 for parameter 17 etc. */
+
+/**
+ * @brief get the number of bits necessary to carry a number x
+ * 
+ * result is e.g. 3 for parameter 8, 5 for parameter 17 etc. 
+ * 
+ * @param x 
+ * @return int 
+ */
 int get_order_2(int x) {
   int x2;
   int retval = 0;
@@ -18,7 +30,12 @@ int get_order_2(int x) {
   return retval;
 }
 
-/* helper: count the number of set bits in a longint */
+/**
+ * @brief count the number of set bits in a longint
+ * 
+ * @param a 
+ * @return int 
+ */
 int count_set_bits(unsigned int a) {
   int c = 0;
   unsigned int i;
@@ -27,8 +44,13 @@ int count_set_bits(unsigned int a) {
   return c;
 }
 
-/* helper for name. adds a slash, hex file name and a terminal 0 */
 char hexdigits[] = "0123456789abcdef";
+/**
+ * @brief helper for name. adds a slash, hex file name and a terminal 0
+ * 
+ * @param target 
+ * @param v 
+ */
 void atohex(char *target, unsigned int v) {
   int i;
   target[0] = '/';
@@ -36,17 +58,18 @@ void atohex(char *target, unsigned int v) {
   target[9] = 0;
 }
 
-/* helper: eve's error knowledge */
-float phi(float z) {
-  return ((1 + z) * log(1 + z) + (1 - z) * log(1 - z)) / log(2.);
-}
-float binentrop(float q) {
-  return (-q * log(q) - (1 - q) * log(1 - q)) / log(2.);
-}
+// HELPER PERMUTATION FUNCTIONS BETWEEN CASCADE & QBER ESTIMATION
+/* ------------------------------------------------------------------------- */
 
-/* helper function to compress key down in a sinlge sequence to eliminate the
-   revealeld bits. updates workbits accordingly, and reduces number of
-   revealed bits in the leakage_bits_counter  */
+/**
+ * @brief Helper function to compress key down in a sinlge sequence to eliminate the
+   revealeld bits. 
+
+   updates workbits accordingly, and reduces number of
+   revealed bits in the leakage_bits_counter
+ * 
+ * @param kb 
+ */
 void cleanup_revealed_bits(struct keyblock *kb) {
   int lastbit = kb->initialbits - 1;
   unsigned int *d = kb->mainbuf;    /* data buffer */
@@ -85,10 +108,14 @@ void cleanup_revealed_bits(struct keyblock *kb) {
   return;
 }
 
-/* helper function to do generate the permutation array in the kb structure.
-   does also re-ordering (in future), and truncates the discussed key to a
+/**
+ * @brief elper function to do generate the permutation array in the kb structure.
+ * 
+ * oes also re-ordering (in future), and truncates the discussed key to a
    length of multiples of k1so there are noleftover bits in the two passes.
-   Parameter: pointer to kb structure */
+ * 
+ * @param kb pointer to keyblock
+ */
 void prepare_permutation(struct keyblock *kb) {
   int workbits;
   unsigned int *tmpbuf;
@@ -119,7 +146,11 @@ void prepare_permutation(struct keyblock *kb) {
   return;
 }
 
-/* permutation core function; is used both for biconf and initial permutation */
+/**
+ * @brief permutation core function; is used both for biconf and initial permutation
+ * 
+ * @param kb ptr to keyblock
+ */
 void prepare_permut_core(struct keyblock *kb) {
   int workbits;
   unsigned int rn_order;
@@ -164,9 +195,14 @@ void prepare_permut_core(struct keyblock *kb) {
   return;
 }
 
-/* helper function to preare a parity list of a given pass in a block.
-   Parameters are a pointer to the sourcebuffer, pointer to the target buffer,
-   and an integer arg for the blocksize to use, and the number of workbits */
+/**
+ * @brief helper function to preare a parity list of a given pass in a block.
+ * 
+ * @param d pointer to source buffer
+ * @param t pointer to target bffer
+ * @param k integer arg for the blocksize to use
+ * @param w number of workbits
+ */
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
   int blkidx;           /* contains blockindex */
   int bitidx;           /* startbit index */
@@ -197,15 +233,5 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
   }
   /* cleanup residual parity buffer */
   if (blkidx & 31) t[blkidx / 32] = resbuf << (32 - (blkidx & 31));
-  return;
-}
-
-/* helper function to prepare parity lists from original and unpermutated key.
-   arguments are a pointer to the thread structure, a pointer to the target
-   parity buffer 0 and another pointer to paritybuffer 1. No return value,
-   as no errors are tested here. */
-void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1) {
-  prepare_paritylist_basic(kb->mainbuf, d0, kb->k0, kb->workbits);
-  prepare_paritylist_basic(kb->permutebuf, d1, kb->k1, kb->workbits);
   return;
 }

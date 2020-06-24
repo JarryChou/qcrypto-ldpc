@@ -1,5 +1,7 @@
 /**
- * priv_amp.h     
+ * @file priv_amp.h   
+ * @brief privacy amplification portions of the code
+ * 
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below.
@@ -55,24 +57,11 @@
 #include "debug.h"
 #include "thread_mgmt.h"
 
-// PRIVACY AMPLIFICATION
-/* ------------------------------------------------------------------------- */
-// HELPER FUNCTIONS
-
-// MAIN FUNCTIONS
-/* function to initiate the privacy amplification. Sends out a message with
-   a PRNG seed (message 8), and hand over to the core routine for the PA.
-   Parameter is keyblock, return is error or 0 on success. */
+/// @name PRIVACY AMPLIFICATION MAIN FUNCTIONS
+/// @{
 int initiate_privacyamplification(struct keyblock *kb);
-
-/* function to process a privacy amplification message. parameter is incoming
-   message, return value is 0 or an error code. Parses the message and passes
-   the real work over to the do_privacyamplification part */
 int receive_privamp_msg(char *receivebuf);
-
-/* do core part of the privacy amplification. Calculates the compression ratio
-   based on the lost bits, saves the final key and removes the thread from the
-   list.    */
 int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits);
+/// @}
 
 #endif /* ECD2_PRIV_AMP */

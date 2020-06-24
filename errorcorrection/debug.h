@@ -1,5 +1,7 @@
 /**
- * debug.h   
+ * @file debug.h   
+ * @brief debugging helper functions for ecd2
+ * 
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below.
@@ -28,8 +30,7 @@
  * --
  * 
  * This is a refactored version of Kurtsiefer's ecd2.c to modularize parts of the
- * code. The ecd2_debug section modularizes the parts of the code that is predominantly
- * used for debugging purposes.
+ * code. 
  * 
  */
 
@@ -53,23 +54,13 @@
 /* #define SYSTPERMUTATION */ /* for systematic rather than rand permut */
 /* #define mallocdebug */
 
-// DEBUGGER HELPER FUNCTIONS
-/* ------------------------------------------------------------------------- */
-/* malloc wrapper to include debug logs if needed */
+/// @name DEBUGGER HELPER FUNCTIONS
+/// @{
 char *malloc2(unsigned int s);
-
-/* free wrapper to include debug logs if needed */
 void free2(void *p);
-
-/* helper to dump message into a file */
 void dumpmsg(struct keyblock *kb, char *msg);
-
-/* helper function to dump the state of the system to a disk file . 
- Dumps the keyblock structure, if present the buffer files, 
- the parity files and the diffidx buffers as plain binaries */
 void dumpstate(struct keyblock *kb);
-
-/* for debug: output permutation */
 void output_permutation(struct keyblock *kb);
+/// @}
 
 #endif /* ECD2_DEBUG */

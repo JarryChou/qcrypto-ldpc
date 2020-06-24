@@ -2,7 +2,7 @@
 
 // HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
-//  ERROR MANAGEMENT
+// ERROR MANAGEMENT
 int emsg(int code) {
   fprintf(stderr, "%s\n", errormessage[code]);
   return code;
@@ -10,7 +10,12 @@ int emsg(int code) {
 
 // MAIN FUNCTION DECLARATIONS (OTHERS)
 /*------------------------------------------------------------------------- */
-/* process an input string, terminated with 0 */
+/**
+ * @brief process an input string, terminated with 0
+ * 
+ * @param in 
+ * @return int 
+ */
 int process_command(char *in) {
   int retval, retval2;
   unsigned int newepoch; /* command parser */
@@ -69,7 +74,6 @@ int process_command(char *in) {
   return 0;
 }
 
-/* main code */
 int main(int argc, char *argv[]) {
   int opt;
   int i, noshutdown;

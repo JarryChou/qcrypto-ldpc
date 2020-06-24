@@ -1,6 +1,5 @@
-/* rnd.c:   Part of the quantum key distribution software. These are the
-            functions for pseudorandom number generation and parity
-            generation.
+/** @file rnd.c
+    @brief functions for pseudorandom number generation and parity generation.
 
             Description & reasoning see main error correction file
             Version as of 20070101
@@ -26,14 +25,21 @@
 
    parity function. Should do something like a __builtin_parity, but runs on a
    gcc 3.3  atgument is a 32 bit unsigned int, result is 1 for odd and 0 for
-   even parity */
+   even parity
 
-/* status: 22.3.06 12:00 chk */
+  status: 22.3.06 12:00 chk */
 #include "rnd.h"
 
-int __RNG_calls = 0; /* for test purposes */
+int __RNG_calls = 0; /**< for test purposes */
 
-/* takes less than 17 nsec on my laptop */
+/**
+ * @brief this is an implementation of an m-sequence
+ * 
+ * takes less than 17 nsec on my laptop
+ * 
+ * @param a 
+ * @return int 
+ */
 int parity(unsigned int a) {
   int b;
   int c, d0;
@@ -53,12 +59,26 @@ int parity(unsigned int a) {
   return b;
 }
 
-/* this is an implementation of an m-sequence */
-
-/* PSRNG fuction which sets a seed */
+/**
+ * @brief PRNG state
+ * 
+ */
 unsigned int __PRNG_state;
+
+/**
+ * @brief Set the PRNG seed object
+ * 
+ * PSRNG fuction which sets a seed
+ * 
+ * @param seed 
+ */
 void set_PRNG_seed(unsigned int seed) { __PRNG_state = seed; }
-/* get k bits from PSRNG */
+/**
+ * @brief get k bits from PSRNG
+ * 
+ * @param k 
+ * @return unsigned int 
+ */
 unsigned int PRNG_value(int k) {
   int k0;
   int b;
@@ -70,7 +90,13 @@ unsigned int PRNG_value(int k) {
   return ((1 << k) - 1) & __PRNG_state;
 }
 
-/* version which iterates the PRNG from a given state location */
+/**
+ * @brief version which iterates the PRNG from a given state location
+ * 
+ * @param k 
+ * @param state 
+ * @return unsigned int 
+ */
 unsigned int PRNG_value2(int k, unsigned int *state) {
   int k0;
   int b;
@@ -82,6 +108,13 @@ unsigned int PRNG_value2(int k, unsigned int *state) {
   __RNG_calls++;
   return ((1 << k) - 1) & *state;
 }
+
+/**
+ * @brief 
+ * 
+ * @param state 
+ * @return unsigned int 
+ */
 unsigned int PRNG_value2_32(unsigned int *state) {
   int k0;
   int b;
@@ -94,10 +127,18 @@ unsigned int PRNG_value2_32(unsigned int *state) {
   return *state;
 }
 
-int RNG_calls(void) { return __RNG_calls; };
+/**
+ * @brief get number of times RNG has been calle
+ * 
+ * @return int 
+ */
+int get_RNG_calls(void) { return __RNG_calls; };
 
-/* helper function to get a seed from the random device; returns seed or 0
-   on error */
+/**
+ * @brief helper function to get a seed from the random device
+ * 
+ * @return unsigned int, seed or 0 on error
+ */
 unsigned int get_r_seed(void) {
   int rndhandle; /* keep device handle for random device */
   unsigned int reply;

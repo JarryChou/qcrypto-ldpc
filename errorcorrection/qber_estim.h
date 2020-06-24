@@ -1,5 +1,7 @@
 /**
- * ecd2_qber_estim.h     
+ * @file ecd2_qber_estim.h     
+ * @brief code for QBER estimation.
+ * 
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below.
@@ -51,51 +53,28 @@
 #include "helpers.h"
 #include "thread_mgmt.h"
 
-// ENUMS
-
+/**
+ * @brief 
+ * 
+ */
 enum ReplyMode {
   replyMode_terminate = 0,
   replyMode_moreBits = 1,
   replyMode_continue = 2
 };
 
-// ERROR ESTIMATION
-/* ------------------------------------------------------------------------- */
-// HELPER FUNCTIONS
-// MAIN FUNCTIONS
-/* function to provide the number of bits needed in the initial error
-   estimation; eats the local error (estimated or guessed) as a float. Uses
-   the maximum for either estimating the range for k0 with the desired error,
-   or a sufficient separation from the no-error-left area. IS that fair?
-   Anyway, returns a number of bits. */
+/// @name ERROR ESTIMATION HELPER FUNCTIONS
+/// @{
+void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1);
+/// @}
+
+/// @name ERROR ESTIMATION MAIN FUNCTIONS
+/// @{
 int testbits_needed(float e);
-
-/* function to initiate the error estimation procedure. parameter is
-   statrepoch, return value is 0 on success or !=0 (w error encoding) on error.
- */
 int errorest_1(unsigned int epoch);
-
-/* function to process the first error estimation packet. Argument is a pointer
-   to the receivebuffer with both the header and the data section. Initiates
-   the error estimation, and prepares the next  package for transmission.
-   Currently, it assumes only PRNG-based bit selections.
-
-   Return value is 0 on success, or an error message useful for emsg.
-
-*/
 int process_esti_message_0(char *receivebuf);
-
-/* function to reply to a request for more estimation bits. Argument is a
-   pointer to the receive buffer containing the message. Just sends over a
-   bunch of more estimaton bits. Currently, it uses only the PRNG method.
-
-   Return value is 0 on success, or an error message otherwise. */
 int send_more_esti_bits(char *receivebuf);
-
-/* function to proceed with the error estimation reply. Estimates if the
-   block deserves to be considered further, and if so, prepares the permutation
-   array of the key, and determines the parity functions of the first key.
-   Return value is 0 on success, or an error message otherwise. */
 int prepare_dualpass(char *receivebuf);
+/// @}
 
 #endif /* ECD2_QBER_ESTIM */

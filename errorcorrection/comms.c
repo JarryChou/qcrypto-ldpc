@@ -1,19 +1,21 @@
 #include "comms.h"
 
-// COMMUNICATIONS
+// COMMUNICATIONS HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
-// HELPER FUNCTIONS
-/* helper to insert a send packet in the sendpacket queue. Parameters are
-   a pointer to the structure and its length. Return value is 0 on success
-   or !=0 on malloc failure.
-   
-   This function has been modified to take in ptrs to last / next packet to reduce
-   reliance on global variables.
-    */
-int pidx = 0;
+
+/**
+ * @brief Helper to insert a send packet in the sendpacket queue. 
+ * 
+ * This function has been modified to take in ptrs to last / next packet to reduce
+ * reliance on global variables.
+ * 
+ * @param message Pointer to the structure
+ * @param length length of strructure
+ * @return int 0 if success, otherwise error code if malloc failure
+ */
 int insert_sendpacket(char *message, int length) {
   struct packet_to_send *newpacket, *lp;
-  pidx++;
+  // pidx++; // Unused global int variable
   newpacket = (struct packet_to_send *)malloc2(sizeof(struct packet_to_send));
   if (!newpacket) return 43;
 
@@ -32,13 +34,18 @@ int insert_sendpacket(char *message, int length) {
   return 0; /* success */
 }
 
-/* helper function to prepare a message containing a given sample of bits.
-   parameters are a pointer to the thread, the number of bits needed and an
-   errorormode (0 for normal error est, err*2^16 forskip ). returns a pointer
-   to the message or NULL on error.
-   Modified to tell the other side about the Bell value for privacy amp in
-   the device indep mode
-*/
+/**
+ * @brief Helper function to prepare a message containing a given sample of bits.
+ * 
+ * Modified to tell the other side about the Bell value for privacy amp in
+ * the device indep mode
+ * 
+ * @param kb Pointer to the keyblock
+ * @param bitsneeded 
+ * @param errormode 0 for normal error est, err*2^16 forskip
+ * @param BellValue 
+ * @return struct ERRC_ERRDET_0* pointer tht emessage, NULL on error
+ */
 struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
                                         int errormode, float BellValue) {
   int msgsize;                 /* keeps size of message */
@@ -99,7 +106,12 @@ struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
   return msg1; /* pointer to message */
 }
 
-/* helper function for binsearch replies; mallocs and fills msg header */
+/**
+ * @brief Helper function for binsearch replies; mallocs and fills msg header
+ * 
+ * @param kb 
+ * @return struct ERRC_ERRDET_5* 
+ */
 struct ERRC_ERRDET_5 *make_messagehead_5(struct keyblock *kb) {
   int msglen; /* length of outgoing structure (data+header) */
   struct ERRC_ERRDET_5 *out_head;                 /* return value */
@@ -119,12 +131,18 @@ struct ERRC_ERRDET_5 *make_messagehead_5(struct keyblock *kb) {
   return out_head;
 }
 
-/* function to prepare the first message head for a binary search. This assumes
+/**
+ * @brief Function to prepare the first message head (header_5) for a binary search.
+ * 
+ *  This assumes
    that all the parity buffers have been malloced and the remote parities
    reside in the proper arrays. This function will be called several times for
    different passes; it expexts local parities to be evaluated already.
-   Arguments are a keyblock pointer, and a pass number. returns 0 on success,
-   or an error code accordingly. */
+ * 
+ * @param kb keyblock ptr
+ * @param pass pass number
+ * @return int 0 on success, error code otherwise
+ */
 int prepare_first_binsearch_msg(struct keyblock *kb, int pass) {
   int i, j;                             /* index variables */
   int k;                                /* length of keyblocks */
