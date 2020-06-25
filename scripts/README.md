@@ -1,4 +1,5 @@
-\page "scripts - readme"
+Setup & Integration scripts {#scripts}
+====
 
 This README is located in `qcrypto/scripts/`.
 

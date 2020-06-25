@@ -1,5 +1,5 @@
-\page "usbtimetagdriver - readme"
-
+usbtimetagdriver {#usbtimetagdriver}
+====
 This README is located in `qcrypto/usbtimetagdriver/`.
 
 This directory contains the usb driver for the timestamp card, some

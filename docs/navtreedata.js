@@ -25,14 +25,7 @@
 var NAVTREE =
 [
   [ "qCrypto", "index.html", [
-    [ "errorcorrection - formats", "errorcorrection_01-_01formats.html", null ],
-    [ "errorcorrection - readme", "errorcorrection_01-_01readme.html", null ],
-    [ "hardware - readme", "hardware_01-_01readme.html", null ],
-    [ "packetheaders - readme (filespec)", "packetheaders_01-_01readme_01_07filespec_08.html", null ],
-    [ "remotecrypto - readme", "remotecrypto_01-_01readme.html", null ],
-    [ "scripts - readme", "scripts_01-_01readme.html", null ],
-    [ "timestamp3 - readme", "timestamp3_01-_01readme.html", null ],
-    [ "usbtimetagdriver - readme", "usbtimetagdriver_01-_01readme.html", null ],
+    [ "README", "index.html", "index" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -62,14 +55,14 @@ var NAVTREEINDEX =
 "alice_2init__ecd2_8sh.html",
 "costream_8c.html#a4553b2e65e49da4d10f241e8ca1676a8",
 "ffind_8c.html#a1a1e44698a5877f8cbdbbc6dd99ac09f",
-"fx2regs__c_8h.html#a36e8ad3a10c137c3c6778aae82041a62",
-"fx2regs__c_8h.html#a8c6fcad8f3319aa7a361af1f86a83b9d",
-"fx2regs__c_8h.html#ae3c3a90c11418faa95f93d01eeda1953",
-"install__libs_8sh.html",
-"readevents3_8c.html#aac598d9863fabf7caf21d9652945743b",
-"structdma__page__pointer.html#a858ad61672a40182cc9016412a6f2d11",
-"tp8_8c_source.html",
-"usbtimetagdriver_2driver_2usbtimetagio_8h.html#ad368ba37e19aa72261a182b757c0eeaf"
+"fx2regs__c_8h.html#a35f3c2d6de4be5da74b18f85f649d130",
+"fx2regs__c_8h.html#a8bfd12599042246011fbb9aa7f6f8fe4",
+"fx2regs__c_8h.html#ae3a183501276072b802a46c0e400aca5",
+"install_8sh.html",
+"readevents3_8c.html#aab1ea8cf276d84072cde97f036a5ff74",
+"structdma__page__pointer.html#a4a4e3f7a44db89a5b34672ccf23fb732",
+"tp8_8c.html#afab02157b4f3b304bd188a26340fc22e",
+"usbtimetagdriver_2driver_2usbtimetagio_8h.html#ac9357d402346c359f7d7362ddf568dc5"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

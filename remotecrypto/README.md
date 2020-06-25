@@ -1,6 +1,8 @@
-\page "remotecrypto - readme"
-
+remotecrypto {#remotecrypto}
+====
 This README is located in `qcrypto/remotecrypto/`.
+
+The remotecrypto directory contains the bulk of the QKD suite and deals mainly in the sifting portion of the code, from the classical channel (transferd), cross correlation modules (pfind & costream) and sifting modules (chopper, splicer). It would be a good idea to read @ref filespec to understand how the components communicate.
 
 This is a futile attempt of documenting the different programs for the quantum
 key distribution suite. It is notoriously incomplete, and the reader is

@@ -1,6 +1,11 @@
-\mainpage
+README {#mainpage}
+====
 
 LICENSE
+
+ Copyright (C) 2020 Matthew Lee, National University
+                         of Singapore <crazoter@gmail.com>
+
 
  Copyright (C) 2005-2015 Christian Kurtsiefer, National University
                          of Singapore <christian.kurtsiefer@gmail.com>
@@ -21,13 +26,14 @@ LICENSE
 
 SUBDIRECTORIES
 
-* errorcorrection
-* hardware
-* packetheaders
-* remotecrypto
-* scripts
-* timestamp3
-* usbtimetagdriver
+* errorcorrection (@subpage ec_readme)
+    * error correction packet formats (@subpage ec_formats)
+* hardware (@subpage hardware)
+* packetheaders (@subpage filespec)
+* remotecrypto (@subpage remotecrypto)
+* scripts (@subpage scripts)
+* timestamp3 (@subpage timestamp3)
+* usbtimetagdriver (@subpage usbtimetagdriver)
 
 OTHER FILES / SUBDIRECTORIES
 

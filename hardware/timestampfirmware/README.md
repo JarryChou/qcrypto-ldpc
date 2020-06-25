@@ -1,4 +1,5 @@
-\page "hardware - readme"
+Hardware {#hardware}
+====
 
 This README is located in `qcrypto/hardware/timestampfirmware`.
 

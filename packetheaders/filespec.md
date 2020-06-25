@@ -1,4 +1,5 @@
-\page "packetheaders - readme (filespec)"
+Packet Headers (filespec) {#filespec}
+====
 
 This README is located in `qcrypto/packetheaders/`.
 

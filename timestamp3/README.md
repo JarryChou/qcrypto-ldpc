@@ -1,4 +1,5 @@
-\page "timestamp3 - readme"
+timestamp3 {#timestamp3}
+====
 
 This README is located in `qcrypto/timestamp3/`.
 

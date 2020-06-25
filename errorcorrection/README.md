@@ -1,4 +1,5 @@
-\page "errorcorrection - readme"
+Error Correction {#ec_readme}
+====
 
 This README is located in `qcrypto/errorcorrection/`.
 

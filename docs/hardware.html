@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.19"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>qCrypto: README</title>
+<title>qCrypto: Hardware</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,7 +64,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(document).ready(function(){initNavTree('index.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('hardware.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -84,44 +84,36 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">README </div>  </div>
+<div class="title">Hardware </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="mainpage"></a></p>
-<p>LICENSE</p>
-<p>Copyright (C) 2020 Matthew Lee, National University of Singapore <a href="#" onclick="location.href='mai'+'lto:'+'cra'+'zo'+'ter'+'@g'+'mai'+'l.'+'com'; return false;">crazo<span style="display: none;">.nosp@m.</span>ter@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a></p>
-<p>Copyright (C) 2005-2015 Christian Kurtsiefer, National University of Singapore <a href="#" onclick="location.href='mai'+'lto:'+'chr'+'is'+'tia'+'n.'+'kur'+'ts'+'ief'+'er'+'@gm'+'ai'+'l.c'+'om'; return false;">chris<span style="display: none;">.nosp@m.</span>tian<span style="display: none;">.nosp@m.</span>.kurt<span style="display: none;">.nosp@m.</span>sief<span style="display: none;">.nosp@m.</span>er@gm<span style="display: none;">.nosp@m.</span>ail.<span style="display: none;">.nosp@m.</span>com</a></p>
-<p>This source code is free software; you can redistribute it and/or modify it under the terms of the GNU Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
-<p>This source code is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Please refer to the GNU Public License for more details.</p>
-<p>You should have received a copy of the GNU Public License along with this source code; if not, write to: Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
-<p>SUBDIRECTORIES</p>
+<div class="textblock"><p><a class="anchor" id="md_hardware_timestampfirmware_README"></a></p>
+<p>This README is located in <code>qcrypto/hardware/timestampfirmware</code>.</p>
+<p>This directory contains the the firmware for a Cypress FX2 chip, together with some support files for the usb part of the timestamp unit.</p>
+<p>The files in this directory are:</p>
 <ul>
-<li>errorcorrection (<a class="el" href="ec_readme.html">Error Correction</a>)<ul>
-<li>error correction packet formats (<a class="el" href="ec_formats.html">EC Packet Formats</a>)</li>
+<li><b>Makefile</b> used to generate the firmware file in various formats, and also to generate all the memory map and direct assembler files. Generates hexcode which can be uploaded into the FX2 chip with the upload script.</li>
+<li><b><a class="el" href="fifobithelpers_8h.html">fifobithelpers.h</a></b> Some definitions which lines of the core timestamp unit are connected to the fx2 chip</li>
+<li><b><a class="el" href="fx2regs__c_8h.html">fx2regs_c.h</a></b> external file for fx2 register definitions from Christer Weinigel, Nordnav Technologies A</li>
+<li><b><a class="el" href="tp8_8c.html">tp8.c</a></b> The firmware code itself</li>
+<li><b>upload</b> A loader script to get the firmware into an unprogrammed FX2 chip. A modified code can be used to flash an EEPROM but this requires the Vend_Ax.hex file from the FX2 development kit and I have no idea about the license</li>
+<li><b>usbtimetagio.h</b> Header file, mainly for ioctl definitions for a higher level usb driver on a host machine, but reused here for command parsing in the EP1 interpreter function.</li>
 </ul>
-</li>
-<li>hardware (<a class="el" href="hardware.html">Hardware</a>)</li>
-<li>packetheaders (<a class="el" href="filespec.html">Packet Headers (filespec)</a>)</li>
-<li>remotecrypto (<a class="el" href="remotecrypto.html">remotecrypto</a>)</li>
-<li>scripts (<a class="el" href="scripts.html">Setup &amp; Integration scripts</a>)</li>
-<li>timestamp3 (<a class="el" href="timestamp3.html">timestamp3</a>)</li>
-<li>usbtimetagdriver (<a class="el" href="usbtimetagdriver.html">usbtimetagdriver</a>)</li>
-</ul>
-<p>OTHER FILES / SUBDIRECTORIES</p>
-<ul>
-<li>docs: Contains documentation generated by <a href="doxygen.nl/">Doxygen</a></li>
-<li>Doxyfile: Doxygen config file</li>
-<li>run_doxygen.sh: Helper bash script to run doxygen on linux. This will generate this documentation for you.</li>
-</ul>
-<p>DISCLAIMER(S)</p><ul>
-<li>Only the source code in the <code>errorcorrection</code> directory has been annotated for Doxygen. Your mileage may vary w.r.t. other components in terms of their doxygen documentation; best to refer to their source code. </li>
-</ul>
-</div></div><!-- PageDoc -->
-</div><!-- contents -->
+<p>PREREQUISITS:</p>
+<p>The code is written for a sdcc compiler, which should be installed on the compiling system, probably together with the corresponding binutils.</p>
+<p>COMPILATION:</p>
+<p>A modified version of the code can be generated via the makefile; for the code to work properly, it is necessary to check that the descriptor tables in the final code end up on an even address. This information is extracted out of the .rst files when calling the make command. In case they end up on an odd address, the filler variable xuxu needs to be adjusted accordingly.</p>
+<p>UPLOADING:</p>
+<p>The upload script loads the firmware in a pristine FX2 chip, which then re-enumberates as the new USB device. The code can also loaded into the external EEPROM.</p>
+<p>USB ISSUES:</p>
+<p>The code uses a somewhat dirty USB device identification by retaining the vendor ID for the FX2 (Cypress, ID 0x04b4), and a phantasy device identifier (namely 0x1234). If Cypress decides to assign that particular device at some point, there may be a conflict with this firmware. </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a class="el" href="index.html">README</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.19 </li>

@@ -1,4 +1,5 @@
-\page "errorcorrection - formats"
+EC Packet Formats {#ec_formats}
+====
 
 This document is located at `qcrypto/errorcorrection/` as `errc_formats.md`.
 
