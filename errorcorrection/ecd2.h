@@ -322,7 +322,8 @@ int write_into_sendpipe(int *send_index_ptr);
 int process_cmd_pipe(char* dpnt, char* cmd_input, int ipt);
 int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt);
 int process_command(char *in);      /* process a command (e.g. epoch epochNum), terminated with \0 */
-int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, struct ERRC_PROTO *msgprotobuf_ptr);
+int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, 
+    struct ERRC_PROTO *msgprotobuf_ptr, char *readbuf_ptr);
 
 // MAIN FUNCTION DECLARATION
 /* ------------------------------------------------------------------------- */
