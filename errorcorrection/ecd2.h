@@ -45,6 +45,11 @@
  *    to "Alice", and the remote side will be the "bob" which changes the bits
  *    accordingly. Definitions according to the flowchart in DSTA deliverable D3
  * 
+ *    Update 25/6/20: Unfortunately I don't have access to the flowchart, so I'll
+ *    have to base my definitions off the code itself. I have thus decided to use
+ *    intuitive names define the roles based on what they do in the system. Universal
+ *    names can be adopted in the future in referring to these roles. 
+ * 
  * usage:
  * 
  *   errcd -c commandpipe -s sendpipe -r receivepipe
@@ -184,17 +189,17 @@
 /// \endcond
 
 // Definition header files
-#include "defaultdefinitions.h"
-#include "globalvars.h"
+#include "definitions/defaultdefinitions.h"
+#include "definitions/globalvars.h"
 
 // ecd2 Components
-#include "cascade_biconf.h"
-#include "comms.h"
-#include "helpers.h"
-#include "qber_estim.h"
-#include "thread_mgmt.h"
-#include "debug.h"
-#include "priv_amp.h"
+#include "subcomponents/cascade_biconf.h"
+#include "subcomponents/comms.h"
+#include "subcomponents/helpers.h"
+#include "subcomponents/qber_estim.h"
+#include "subcomponents/thread_mgmt.h"
+#include "subcomponents/debug.h"
+#include "subcomponents/priv_amp.h"
 
 
 /// @name GLOBAL VARIABLES (defined in globalvar.h)

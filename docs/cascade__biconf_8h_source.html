@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.19"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>qCrypto: errorcorrection/cascade_biconf.h Source File</title>
+<title>qCrypto: errorcorrection/subcomponents/cascade_biconf.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -97,11 +97,11 @@ $(document).ready(function(){initNavTree('cascade__biconf_8h_source.html',''); i
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">// Definitions</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">defaultdefinitions.h</a>&quot;</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">globalvars.h</a>&quot;</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="packets_8h.html">packets.h</a>&quot;</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="proc__state_8h.html">proc_state.h</a>&quot;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &quot;../definitions/defaultdefinitions.h&quot;</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;../definitions/globalvars.h&quot;</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;../definitions/keyblock.h&quot;</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &quot;../definitions/packets.h&quot;</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &quot;../definitions/proc_state.h&quot;</span></div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">// Other components</span></div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="comms_8h.html">comms.h</a>&quot;</span></div>
@@ -140,7 +140,6 @@ $(document).ready(function(){initNavTree('cascade__biconf_8h_source.html',''); i
 <div class="ttc" id="acascade__biconf_8h_html_ab801a0fc632b96f935149858763a97fe"><div class="ttname"><a href="cascade__biconf_8h.html#ab801a0fc632b96f935149858763a97fe">initiate_biconf_binarysearch</a></div><div class="ttdeci">int initiate_biconf_binarysearch(struct keyblock *kb, int biconflength)</div><div class="ttdoc">Function to generate a single binary search request for a biconf cycle.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00497">cascade_biconf.c:497</a></div></div>
 <div class="ttc" id="acascade__biconf_8h_html_a8fdb3568c79b86f981247e8a72d25213"><div class="ttname"><a href="cascade__biconf_8h.html#a8fdb3568c79b86f981247e8a72d25213">process_binsearch_alice</a></div><div class="ttdeci">int process_binsearch_alice(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head)</div><div class="ttdoc">Function to process a binarysearch request on alice identity.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00207">cascade_biconf.c:207</a></div></div>
 <div class="ttc" id="astructkeyblock_html"><div class="ttname"><a href="structkeyblock.html">keyblock</a></div><div class="ttdoc">Definition of a structure containing all informations about a block.</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00033">keyblock.h:33</a></div></div>
-<div class="ttc" id="aglobalvars_8h_html"><div class="ttname"><a href="globalvars_8h.html">globalvars.h</a></div><div class="ttdoc">Definition file for global variables and arguments in ecd2.</div></div>
 <div class="ttc" id="acascade__biconf_8h_html_a47dee1eff23e6dc5ef9168bf6d9e6271"><div class="ttname"><a href="cascade__biconf_8h.html#a47dee1eff23e6dc5ef9168bf6d9e6271">do_paritylist_and_diffs</a></div><div class="ttdeci">int do_paritylist_and_diffs(struct keyblock *kb, int pass)</div><div class="ttdoc">Helper function to prepare a parity list of a given pass in a block, compare it with the received lis...</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00075">cascade_biconf.c:75</a></div></div>
 <div class="ttc" id="acascade__biconf_8h_html_a42ee597caadd50095e38fd2ee47e6de2"><div class="ttname"><a href="cascade__biconf_8h.html#a42ee597caadd50095e38fd2ee47e6de2">receive_biconfreply</a></div><div class="ttdeci">int receive_biconfreply(char *receivebuf)</div><div class="ttdoc">Start the parity generation process on bob's side.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00862">cascade_biconf.c:862</a></div></div>
 <div class="ttc" id="acascade__biconf_8h_html_aa87dcc9f5812d68231756ffae96230a1"><div class="ttname"><a href="cascade__biconf_8h.html#aa87dcc9f5812d68231756ffae96230a1">single_line_parity</a></div><div class="ttdeci">int single_line_parity(unsigned int *d, int start, int end)</div><div class="ttdoc">Helper funtion to get a simple one-line parity from a large string.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00149">cascade_biconf.c:149</a></div></div>
@@ -154,19 +153,15 @@ $(document).ready(function(){initNavTree('cascade__biconf_8h_source.html',''); i
 <div class="ttc" id="acascade__biconf_8h_html_a2717fa084783c56c589b8c2ebf4033b1"><div class="ttname"><a href="cascade__biconf_8h.html#a2717fa084783c56c589b8c2ebf4033b1">start_binarysearch</a></div><div class="ttdeci">int start_binarysearch(char *receivebuf)</div><div class="ttdoc">Function to proceed with the parity evaluation message.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00560">cascade_biconf.c:560</a></div></div>
 <div class="ttc" id="acascade__biconf_8h_html_af0949b4aba26984a80ed3f62b9920440"><div class="ttname"><a href="cascade__biconf_8h.html#af0949b4aba26984a80ed3f62b9920440">generate_selectbitstring</a></div><div class="ttdeci">void generate_selectbitstring(struct keyblock *kb, unsigned int seed)</div><div class="ttdoc">Helper function to generate a pseudorandom bit pattern into the test bit buffer.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00039">cascade_biconf.c:39</a></div></div>
 <div class="ttc" id="athread__mgmt_8h_html"><div class="ttname"><a href="thread__mgmt_8h.html">thread_mgmt.h</a></div></div>
-<div class="ttc" id="apackets_8h_html"><div class="ttname"><a href="packets_8h.html">packets.h</a></div></div>
-<div class="ttc" id="aproc__state_8h_html"><div class="ttname"><a href="proc__state_8h.html">proc_state.h</a></div><div class="ttdoc">Defines processing states.</div></div>
-<div class="ttc" id="adefaultdefinitions_8h_html"><div class="ttname"><a href="defaultdefinitions_8h.html">defaultdefinitions.h</a></div><div class="ttdoc">Definition file for default variables in ecd2.</div></div>
 <div class="ttc" id="acascade__biconf_8h_html_a35fdf9dbbeed0ef408bbed33a93f857d"><div class="ttname"><a href="cascade__biconf_8h.html#a35fdf9dbbeed0ef408bbed33a93f857d">fix_parity_intervals</a></div><div class="ttdeci">void fix_parity_intervals(struct keyblock *kb, unsigned int *inh_idx)</div><div class="ttdoc">Helper program to half parity difference intervals.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00119">cascade_biconf.c:119</a></div></div>
 <div class="ttc" id="acomms_8h_html"><div class="ttname"><a href="comms_8h.html">comms.h</a></div><div class="ttdoc">code on communications w.r.t. error correction.</div></div>
 <div class="ttc" id="acascade__biconf_8h_html_aa4fdaf7672ee311d919ffee1516b17ae"><div class="ttname"><a href="cascade__biconf_8h.html#aa4fdaf7672ee311d919ffee1516b17ae">initiate_biconf</a></div><div class="ttdeci">int initiate_biconf(struct keyblock *kb)</div><div class="ttdoc">Function to initiate a BICONF procedure on Bob side.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00387">cascade_biconf.c:387</a></div></div>
 <div class="ttc" id="acascade__biconf_8h_html_a11ff668df61f51cc3f7e527cef353661"><div class="ttname"><a href="cascade__biconf_8h.html#a11ff668df61f51cc3f7e527cef353661">generate_biconfreply</a></div><div class="ttdeci">int generate_biconfreply(char *receivebuf)</div><div class="ttdoc">Start the parity generation process on Alice side.</div><div class="ttdef"><b>Definition:</b> <a href="cascade__biconf_8c_source.html#l00427">cascade_biconf.c:427</a></div></div>
 <div class="ttc" id="adebug_8h_html"><div class="ttname"><a href="debug_8h.html">debug.h</a></div><div class="ttdoc">debugging helper functions for ecd2</div></div>
-<div class="ttc" id="akeyblock_8h_html"><div class="ttname"><a href="keyblock_8h.html">keyblock.h</a></div><div class="ttdoc">Header file containing the definitions of the keyblock &amp; block related data for the error correction ...</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_69202652be06fd0e05a491cdb470f56e.html">errorcorrection</a></li><li class="navelem"><a class="el" href="cascade__biconf_8h.html">cascade_biconf.h</a></li>
+    <li class="navelem"><a class="el" href="dir_69202652be06fd0e05a491cdb470f56e.html">errorcorrection</a></li><li class="navelem"><a class="el" href="dir_1e980940fcb577eda0133bd99406c0b2.html">subcomponents</a></li><li class="navelem"><a class="el" href="cascade__biconf_8h.html">cascade_biconf.h</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.19 </li>

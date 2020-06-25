@@ -42,7 +42,7 @@
 /// \endcond
 
 #include "defaultdefinitions.h"
-#include "helpers.h"
+#include "../subcomponents/helpers.h"
 #include "packets.h"
 
 //  STRUCTS

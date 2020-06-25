@@ -1,6 +1,6 @@
-<map id="errorcorrection/cascade_biconf.h" name="errorcorrection/cascade_biconf.h">
-<area shape="rect" id="node1" title="Cascade biconf algorithm implementation." alt="" coords="93,5,252,47"/>
-<area shape="rect" id="node2" href="$cascade__biconf_8c.html" title=" " alt="" coords="5,95,164,136"/>
-<area shape="rect" id="node3" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="188,102,336,129"/>
-<area shape="rect" id="node4" href="$ecd2_8c.html" title=" " alt="" coords="188,184,336,211"/>
+<map id="errorcorrection/subcomponents/cascade_biconf.h" name="errorcorrection/subcomponents/cascade_biconf.h">
+<area shape="rect" id="node1" title="Cascade biconf algorithm implementation." alt="" coords="77,5,279,47"/>
+<area shape="rect" id="node2" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="5,102,153,129"/>
+<area shape="rect" id="node4" href="$cascade__biconf_8c.html" title=" " alt="" coords="177,95,379,136"/>
+<area shape="rect" id="node3" href="$ecd2_8c.html" title=" " alt="" coords="5,184,153,211"/>
 </map>

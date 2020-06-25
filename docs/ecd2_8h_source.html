@@ -88,170 +88,170 @@ $(document).ready(function(){initNavTree('ecd2_8h_source.html',''); initResizabl
 </div><!--header-->
 <div class="contents">
 <a href="ecd2_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="preprocessor">#ifndef ECD2_H</span></div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="preprocessor">#define ECD2_H</span></div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160; </div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="comment">// Libraries</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;getopt.h&gt;</span></div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="preprocessor">#include &lt;sys/stat.h&gt;</span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160; </div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment">// Definition header files</span></div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">defaultdefinitions.h</a>&quot;</span></div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">globalvars.h</a>&quot;</span></div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160; </div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment">// ecd2 Components</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cascade__biconf_8h.html">cascade_biconf.h</a>&quot;</span></div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="comms_8h.html">comms.h</a>&quot;</span></div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="helpers_8h.html">helpers.h</a>&quot;</span></div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="qber__estim_8h.html">qber_estim.h</a>&quot;</span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="thread__mgmt_8h.html">thread_mgmt.h</a>&quot;</span></div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="debug_8h.html">debug.h</a>&quot;</span></div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="priv__amp_8h.html">priv_amp.h</a>&quot;</span></div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160; </div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160; </div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="comment">/* structs */</span></div>
-<div class="line"><a name="l00203"></a><span class="lineno"><a class="line" href="globalvars_8h.html#a7f5d903352c2133a67099abbf29041dc">  203</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structblockpointer.html">blockpointer</a> *<a class="code" href="ecd2_8h.html#a7f5d903352c2133a67099abbf29041dc">blocklist</a> = NULL;</div>
-<div class="line"><a name="l00204"></a><span class="lineno"><a class="line" href="globalvars_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">  204</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structpacket__to__send.html">packet_to_send</a> *<a class="code" href="ecd2_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a> = NULL;</div>
-<div class="line"><a name="l00205"></a><span class="lineno"><a class="line" href="globalvars_8h.html#a533147eb4caa484f9a001a15a2a376d5">  205</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structpacket__to__send.html">packet_to_send</a> *<a class="code" href="ecd2_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a> = NULL;</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160; </div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment">/* global parameters and variables */</span></div>
-<div class="line"><a name="l00208"></a><span class="lineno"><a class="line" href="globalvars_8h.html#ada59c388a54132792188bb23541d03c1">  208</a></span>&#160;<a class="code" href="structarguments.html">Arguments</a> <a class="code" href="structarguments.html">arguments</a> = {</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a20610841bdaddedcf51131de8f973ed9">DEFAULT_VERBOSITY</a>,          <span class="comment">// verbosity_level</span></div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#ad53a417c047d3d5cee5401496f5e06ca">DEFAULT_RUNTIMEERRORMODE</a>,   <span class="comment">// runtimeerrormode</span></div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a94c768f8a25f442a8e10e5cdd446eb58">DEFAULT_BICONF_ROUNDS</a>,      <span class="comment">// biconf_rounds</span></div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a6a5a750b1c467bf24f5f922a5339b4e3">DEFAULT_ERR_MARGIN</a>,         <span class="comment">// errormargin</span></div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a434ff7ba8a95fc500000c6b94677aee2">DEFAULT_INITIAL_ERR</a>,        <span class="comment">// initialerr</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a22c6fd5038baa093a7028d80fc2f55df">DEFAULT_INTRINSIC</a>,          <span class="comment">// intrinsicerr</span></div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a98e046db9316871de564e6a4b966775c">DEFAULT_KILLMODE</a>,           <span class="comment">// remove_raw_keys_after_use</span></div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a6d9f01958be014ec79c7618bb7b14ffd">DEFAULT_ERR_SKIPMODE</a>,       <span class="comment">// skip_qber_estimation</span></div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24">False</a>,                      <span class="comment">// bellmode</span></div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24">False</a>                       <span class="comment">// disable_privacyamplification</span></div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;                                <span class="comment">// fname</span></div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;                                <span class="comment">// handle</span></div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;                                <span class="comment">// fhandle</span></div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;};</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160; </div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="comment">// Static variables in this case is used to reduce the need to pass variables between functions,</span></div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="comment">// Allowing for compartmentalized code while reducing pointer manipulation</span></div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;<span class="keyword">static</span> <span class="keyword">struct </span><a class="code" href="structpacket__received.html">packet_received</a> *rec_packetlist = NULL; </div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> input_last_index;          </div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *dpnt = NULL;             </div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *packet_to_process_buf;   </div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *readbuf = NULL;          </div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> send_index;                </div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> receive_index;             </div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="keyword">static</span> <span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___p_r_o_t_o.html">ERRC_PROTO</a> msgprotobuf; </div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *errormessage[] = {</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="stringliteral">&quot;No error.&quot;</span>,</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <span class="stringliteral">&quot;Error reading in verbosity argument.&quot;</span>, <span class="comment">/* 1 */</span></div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="stringliteral">&quot;Error reading name for command pipe.&quot;</span>,</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="stringliteral">&quot;Error reading name for sendpipe.&quot;</span>,</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="stringliteral">&quot;Error reading name for receive pipe.&quot;</span>,</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="stringliteral">&quot;Error reading directory name for raw key.&quot;</span>, <span class="comment">/* 5 */</span></div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="stringliteral">&quot;Error reading directory name for final key.&quot;</span>,</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="stringliteral">&quot;Error reading name for notify pipe.&quot;</span>,</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="stringliteral">&quot;Error reading name for query pipe.&quot;</span>,</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="stringliteral">&quot;Error reading name for response-to-query pipe.&quot;</span>,</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="stringliteral">&quot;Error parsing error threshold.&quot;</span>, <span class="comment">/* 10 */</span></div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="stringliteral">&quot;Error threshold out of range (0.01...0.3)&quot;</span>,</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="stringliteral">&quot;Error parsing initial error level&quot;</span>,</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <span class="stringliteral">&quot;Initial error level out of range (0.01...0.3)&quot;</span>,</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="stringliteral">&quot;Error parsing intrinsic error level&quot;</span>,</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="stringliteral">&quot;Intrinsic error level out of range (0...0.05)&quot;</span>, <span class="comment">/* 15 */</span></div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="stringliteral">&quot;Error parsing runtime behavior (range must be 0..?)&quot;</span>,</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="stringliteral">&quot;One of the pipelines of directories is not specified.&quot;</span>,</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="stringliteral">&quot;Cannot stat or open command handle&quot;</span>,</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="stringliteral">&quot;command handle is not a pipe&quot;</span>,</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="stringliteral">&quot;Cannot stat/open send pipe&quot;</span>, <span class="comment">/* 20 */</span></div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="stringliteral">&quot;send pipe is not a pipe&quot;</span>,</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <span class="stringliteral">&quot;Cannot stat/open receive pipe&quot;</span>,</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="stringliteral">&quot;receive pipe is not a pipe&quot;</span>,</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="stringliteral">&quot;Cannot open notify target&quot;</span>,</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="stringliteral">&quot;Cannot stat/open query input pipe&quot;</span>, <span class="comment">/* 25 */</span></div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="stringliteral">&quot;query intput channel is not a pipe&quot;</span>,</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="stringliteral">&quot;Cannot open query response pipe&quot;</span>,</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="stringliteral">&quot;select call failed in main loop&quot;</span>,</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="stringliteral">&quot;error writing to target pipe&quot;</span>,</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="stringliteral">&quot;command set to short&quot;</span>, <span class="comment">/* 30 */</span></div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <span class="stringliteral">&quot;estimated error out of range&quot;</span>,</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="stringliteral">&quot;wrong number of epochs specified.&quot;</span>,</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="stringliteral">&quot;overlap with existing epochs&quot;</span>,</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="stringliteral">&quot;error creating new thread&quot;</span>,</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="stringliteral">&quot;error initiating error estimation&quot;</span>, <span class="comment">/* 35 */</span></div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="stringliteral">&quot;error reading message&quot;</span>,</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="stringliteral">&quot;cannot malloc message buffer&quot;</span>,</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="stringliteral">&quot;cannot malloc message buffer header&quot;</span>,</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <span class="stringliteral">&quot;cannot open random number generator&quot;</span>,</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="stringliteral">&quot;cannot get enough random numbers&quot;</span>, <span class="comment">/* 40 */</span></div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="stringliteral">&quot;initial error out of useful bound&quot;</span>,</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="stringliteral">&quot;not enough bits for initial testing&quot;</span>,</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="stringliteral">&quot;cannot malloc send buffer pointer&quot;</span>,</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="stringliteral">&quot;received wrong packet type&quot;</span>,</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <span class="stringliteral">&quot;received unrecognized message subtype&quot;</span>, <span class="comment">/* 45 */</span></div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <span class="stringliteral">&quot;epoch overlap error on bob side&quot;</span>,</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="stringliteral">&quot;error reading in epochs in a thread on bob side&quot;</span>,</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="stringliteral">&quot;cannot get thread for message 0&quot;</span>,</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="stringliteral">&quot;cannot find thread in list&quot;</span>,</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="stringliteral">&quot;cannot find thread for message 2&quot;</span>, <span class="comment">/* 50 */</span></div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="stringliteral">&quot;received invalid seed.&quot;</span>,</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="stringliteral">&quot;inconsistent test-bit number received&quot;</span>,</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="stringliteral">&quot;can&#39;t malloc parity buffer&quot;</span>,</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="stringliteral">&quot;cannot malloc difference index buffer&quot;</span>,</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="stringliteral">&quot;cannot malloc binarysearch message buf&quot;</span>, <span class="comment">/* 55 */</span></div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="stringliteral">&quot;illegal role in binsearch&quot;</span>,</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="stringliteral">&quot;don&#39;t know index encoding&quot;</span>,</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="stringliteral">&quot;cannot malloc binarysearch message II buf&quot;</span>,</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="stringliteral">&quot;illegal pass argument&quot;</span>,</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="stringliteral">&quot;cannot malloc BCONF request message&quot;</span>, <span class="comment">/* 60 */</span></div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="stringliteral">&quot;cannot malloc BICONF response message&quot;</span>,</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="stringliteral">&quot;cannot malloc privamp message&quot;</span>,</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="stringliteral">&quot;cannot malloc final key structure&quot;</span>,</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    <span class="stringliteral">&quot;cannot open final key target file&quot;</span>,</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="stringliteral">&quot;write error in fnal key&quot;</span>, <span class="comment">/* 65 */</span></div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="stringliteral">&quot;cannot remove raw key file&quot;</span>,</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="stringliteral">&quot;cannot open raw key file&quot;</span>,</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="stringliteral">&quot;cannot read rawkey header&quot;</span>,</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="stringliteral">&quot;incorrect epoch in rawkey&quot;</span>,</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="stringliteral">&quot;wrong bitnumber in rawkey (must be 1)&quot;</span>, <span class="comment">/* 70 */</span></div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <span class="stringliteral">&quot;bitcount too large in rawkey&quot;</span>,</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="stringliteral">&quot;could not read enough bytes from rawkey&quot;</span>,</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="stringliteral">&quot;in errorest1: cannot get thread&quot;</span>,</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="stringliteral">&quot;wrong pass index&quot;</span>,</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="stringliteral">&quot;cmd input buffer overflow&quot;</span>, <span class="comment">/* 75 */</span></div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    <span class="stringliteral">&quot;cannot parse biconf round argument&quot;</span>,</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <span class="stringliteral">&quot;biconf round number exceeds bounds of 1...100&quot;</span>,</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="stringliteral">&quot;cannot parse final BER argument&quot;</span>,</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;    <span class="stringliteral">&quot;BER argument out of range&quot;</span>,</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;};</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160; </div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;<span class="comment">// Helper enums</span></div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160; </div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;<span class="comment">// HELPER FUNCTION DECLARATIONS</span></div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;<span class="comment">/* ------------------------------------------------------------------------- */</span></div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a>(<span class="keywordtype">int</span> code);</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a533d8ed350c93589b514cc9b2d7ec4e6">parse_options</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="preprocessor">#ifndef ECD2_H</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="preprocessor">#define ECD2_H</span></div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160; </div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="comment">// Libraries</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;getopt.h&gt;</span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="preprocessor">#include &lt;sys/stat.h&gt;</span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160; </div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment">// Definition header files</span></div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">definitions/defaultdefinitions.h</a>&quot;</span></div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">definitions/globalvars.h</a>&quot;</span></div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160; </div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="comment">// ecd2 Components</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="cascade__biconf_8h.html">subcomponents/cascade_biconf.h</a>&quot;</span></div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="comms_8h.html">subcomponents/comms.h</a>&quot;</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="helpers_8h.html">subcomponents/helpers.h</a>&quot;</span></div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="qber__estim_8h.html">subcomponents/qber_estim.h</a>&quot;</span></div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="thread__mgmt_8h.html">subcomponents/thread_mgmt.h</a>&quot;</span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="debug_8h.html">subcomponents/debug.h</a>&quot;</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="priv__amp_8h.html">subcomponents/priv_amp.h</a>&quot;</span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160; </div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160; </div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment">/* structs */</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno"><a class="line" href="ecd2_8h.html#a7f5d903352c2133a67099abbf29041dc">  208</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structblockpointer.html">blockpointer</a> *<a class="code" href="ecd2_8h.html#a7f5d903352c2133a67099abbf29041dc">blocklist</a> = NULL;</div>
+<div class="line"><a name="l00209"></a><span class="lineno"><a class="line" href="ecd2_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">  209</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structpacket__to__send.html">packet_to_send</a> *<a class="code" href="ecd2_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a> = NULL;</div>
+<div class="line"><a name="l00210"></a><span class="lineno"><a class="line" href="ecd2_8h.html#a533147eb4caa484f9a001a15a2a376d5">  210</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structpacket__to__send.html">packet_to_send</a> *<a class="code" href="ecd2_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a> = NULL;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160; </div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="comment">/* global parameters and variables */</span></div>
+<div class="line"><a name="l00213"></a><span class="lineno"><a class="line" href="ecd2_8h.html#ada59c388a54132792188bb23541d03c1">  213</a></span>&#160;<a class="code" href="structarguments.html">Arguments</a> <a class="code" href="structarguments.html">arguments</a> = {</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a20610841bdaddedcf51131de8f973ed9">DEFAULT_VERBOSITY</a>,          <span class="comment">// verbosity_level</span></div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#ad53a417c047d3d5cee5401496f5e06ca">DEFAULT_RUNTIMEERRORMODE</a>,   <span class="comment">// runtimeerrormode</span></div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a94c768f8a25f442a8e10e5cdd446eb58">DEFAULT_BICONF_ROUNDS</a>,      <span class="comment">// biconf_rounds</span></div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a6a5a750b1c467bf24f5f922a5339b4e3">DEFAULT_ERR_MARGIN</a>,         <span class="comment">// errormargin</span></div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a434ff7ba8a95fc500000c6b94677aee2">DEFAULT_INITIAL_ERR</a>,        <span class="comment">// initialerr</span></div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a22c6fd5038baa093a7028d80fc2f55df">DEFAULT_INTRINSIC</a>,          <span class="comment">// intrinsicerr</span></div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a98e046db9316871de564e6a4b966775c">DEFAULT_KILLMODE</a>,           <span class="comment">// remove_raw_keys_after_use</span></div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#a6d9f01958be014ec79c7618bb7b14ffd">DEFAULT_ERR_SKIPMODE</a>,       <span class="comment">// skip_qber_estimation</span></div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24">False</a>,                      <span class="comment">// bellmode</span></div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <a class="code" href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24">False</a>                       <span class="comment">// disable_privacyamplification</span></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;                                <span class="comment">// fname</span></div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;                                <span class="comment">// handle</span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;                                <span class="comment">// fhandle</span></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;};</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160; </div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;<span class="comment">// Static variables in this case is used to reduce the need to pass variables between functions,</span></div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="comment">// Allowing for compartmentalized code while reducing pointer manipulation</span></div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="keyword">static</span> <span class="keyword">struct </span><a class="code" href="structpacket__received.html">packet_received</a> *rec_packetlist = NULL; </div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> input_last_index;          </div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *dpnt = NULL;             </div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *packet_to_process_buf;   </div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *readbuf = NULL;          </div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> send_index;                </div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> receive_index;             </div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="keyword">static</span> <span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___p_r_o_t_o.html">ERRC_PROTO</a> msgprotobuf; </div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;<span class="keyword">static</span> <span class="keywordtype">char</span> *errormessage[] = {</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="stringliteral">&quot;No error.&quot;</span>,</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="stringliteral">&quot;Error reading in verbosity argument.&quot;</span>, <span class="comment">/* 1 */</span></div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="stringliteral">&quot;Error reading name for command pipe.&quot;</span>,</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="stringliteral">&quot;Error reading name for sendpipe.&quot;</span>,</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="stringliteral">&quot;Error reading name for receive pipe.&quot;</span>,</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="stringliteral">&quot;Error reading directory name for raw key.&quot;</span>, <span class="comment">/* 5 */</span></div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="stringliteral">&quot;Error reading directory name for final key.&quot;</span>,</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="stringliteral">&quot;Error reading name for notify pipe.&quot;</span>,</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <span class="stringliteral">&quot;Error reading name for query pipe.&quot;</span>,</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="stringliteral">&quot;Error reading name for response-to-query pipe.&quot;</span>,</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="stringliteral">&quot;Error parsing error threshold.&quot;</span>, <span class="comment">/* 10 */</span></div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="stringliteral">&quot;Error threshold out of range (0.01...0.3)&quot;</span>,</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="stringliteral">&quot;Error parsing initial error level&quot;</span>,</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="stringliteral">&quot;Initial error level out of range (0.01...0.3)&quot;</span>,</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="stringliteral">&quot;Error parsing intrinsic error level&quot;</span>,</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="stringliteral">&quot;Intrinsic error level out of range (0...0.05)&quot;</span>, <span class="comment">/* 15 */</span></div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="stringliteral">&quot;Error parsing runtime behavior (range must be 0..?)&quot;</span>,</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <span class="stringliteral">&quot;One of the pipelines of directories is not specified.&quot;</span>,</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="stringliteral">&quot;Cannot stat or open command handle&quot;</span>,</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="stringliteral">&quot;command handle is not a pipe&quot;</span>,</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="stringliteral">&quot;Cannot stat/open send pipe&quot;</span>, <span class="comment">/* 20 */</span></div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="stringliteral">&quot;send pipe is not a pipe&quot;</span>,</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="stringliteral">&quot;Cannot stat/open receive pipe&quot;</span>,</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="stringliteral">&quot;receive pipe is not a pipe&quot;</span>,</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="stringliteral">&quot;Cannot open notify target&quot;</span>,</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="stringliteral">&quot;Cannot stat/open query input pipe&quot;</span>, <span class="comment">/* 25 */</span></div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <span class="stringliteral">&quot;query intput channel is not a pipe&quot;</span>,</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="stringliteral">&quot;Cannot open query response pipe&quot;</span>,</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="stringliteral">&quot;select call failed in main loop&quot;</span>,</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="stringliteral">&quot;error writing to target pipe&quot;</span>,</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="stringliteral">&quot;command set to short&quot;</span>, <span class="comment">/* 30 */</span></div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="stringliteral">&quot;estimated error out of range&quot;</span>,</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="stringliteral">&quot;wrong number of epochs specified.&quot;</span>,</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="stringliteral">&quot;overlap with existing epochs&quot;</span>,</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <span class="stringliteral">&quot;error creating new thread&quot;</span>,</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="stringliteral">&quot;error initiating error estimation&quot;</span>, <span class="comment">/* 35 */</span></div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="stringliteral">&quot;error reading message&quot;</span>,</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="stringliteral">&quot;cannot malloc message buffer&quot;</span>,</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="stringliteral">&quot;cannot malloc message buffer header&quot;</span>,</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="stringliteral">&quot;cannot open random number generator&quot;</span>,</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <span class="stringliteral">&quot;cannot get enough random numbers&quot;</span>, <span class="comment">/* 40 */</span></div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <span class="stringliteral">&quot;initial error out of useful bound&quot;</span>,</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="stringliteral">&quot;not enough bits for initial testing&quot;</span>,</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="stringliteral">&quot;cannot malloc send buffer pointer&quot;</span>,</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="stringliteral">&quot;received wrong packet type&quot;</span>,</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="stringliteral">&quot;received unrecognized message subtype&quot;</span>, <span class="comment">/* 45 */</span></div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="stringliteral">&quot;epoch overlap error on bob side&quot;</span>,</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="stringliteral">&quot;error reading in epochs in a thread on bob side&quot;</span>,</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="stringliteral">&quot;cannot get thread for message 0&quot;</span>,</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="stringliteral">&quot;cannot find thread in list&quot;</span>,</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="stringliteral">&quot;cannot find thread for message 2&quot;</span>, <span class="comment">/* 50 */</span></div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="stringliteral">&quot;received invalid seed.&quot;</span>,</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="stringliteral">&quot;inconsistent test-bit number received&quot;</span>,</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="stringliteral">&quot;can&#39;t malloc parity buffer&quot;</span>,</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="stringliteral">&quot;cannot malloc difference index buffer&quot;</span>,</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="stringliteral">&quot;cannot malloc binarysearch message buf&quot;</span>, <span class="comment">/* 55 */</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="stringliteral">&quot;illegal role in binsearch&quot;</span>,</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="stringliteral">&quot;don&#39;t know index encoding&quot;</span>,</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="stringliteral">&quot;cannot malloc binarysearch message II buf&quot;</span>,</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    <span class="stringliteral">&quot;illegal pass argument&quot;</span>,</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="stringliteral">&quot;cannot malloc BCONF request message&quot;</span>, <span class="comment">/* 60 */</span></div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="stringliteral">&quot;cannot malloc BICONF response message&quot;</span>,</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="stringliteral">&quot;cannot malloc privamp message&quot;</span>,</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="stringliteral">&quot;cannot malloc final key structure&quot;</span>,</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="stringliteral">&quot;cannot open final key target file&quot;</span>,</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="stringliteral">&quot;write error in fnal key&quot;</span>, <span class="comment">/* 65 */</span></div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <span class="stringliteral">&quot;cannot remove raw key file&quot;</span>,</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="stringliteral">&quot;cannot open raw key file&quot;</span>,</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="stringliteral">&quot;cannot read rawkey header&quot;</span>,</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="stringliteral">&quot;incorrect epoch in rawkey&quot;</span>,</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="stringliteral">&quot;wrong bitnumber in rawkey (must be 1)&quot;</span>, <span class="comment">/* 70 */</span></div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    <span class="stringliteral">&quot;bitcount too large in rawkey&quot;</span>,</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <span class="stringliteral">&quot;could not read enough bytes from rawkey&quot;</span>,</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="stringliteral">&quot;in errorest1: cannot get thread&quot;</span>,</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;    <span class="stringliteral">&quot;wrong pass index&quot;</span>,</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;    <span class="stringliteral">&quot;cmd input buffer overflow&quot;</span>, <span class="comment">/* 75 */</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;    <span class="stringliteral">&quot;cannot parse biconf round argument&quot;</span>,</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;    <span class="stringliteral">&quot;biconf round number exceeds bounds of 1...100&quot;</span>,</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;    <span class="stringliteral">&quot;cannot parse final BER argument&quot;</span>,</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;    <span class="stringliteral">&quot;BER argument out of range&quot;</span>,</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;};</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160; </div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="comment">// Helper enums</span></div>
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160; </div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="comment">// for fd_set and select syscalls</span></div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#ac2a9111d875db77ed0a97a433177d750">has_pipe_event</a>(fd_set* readqueue_ptr, fd_set* writequeue_ptr, <span class="keywordtype">int</span> selectmax, <a class="code" href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13">Boolean</a> hasContentToSend, <span class="keyword">struct</span> timeval <a class="code" href="transferd_8h.html#a03a5df464f7f59f8fe9f8da62642ce06">timeout</a>);</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;<span class="comment">// for writing data into sendpipe</span></div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#aa3ad63163e9bd051e3a96cee884d1f9c">write_into_sendpipe</a>();</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;<span class="comment">// for reading command from cmdpipe into cmd_input</span></div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#acc11047ebb7d577c2bef453dcac255b3">read_from_cmdpipe</a>(<span class="keywordtype">char</span>* cmd_input);</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;<span class="comment">// for processing command in cmd_input to create thread &amp; start qber estimation</span></div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#afcf673b3dfbe3832a1908ab68b0a9a43">create_thread_and_start_qber_using_cmd</a>(<span class="keywordtype">char</span>* dpnt, <span class="keywordtype">char</span>* cmd_input);</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="comment">/* process a command (e.g. epoch epochNum), terminated with \0 */</span></div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a512509fe92d58e86e974fa3944b2e93c">process_command</a>(<span class="keywordtype">char</span> *in);      </div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;<span class="comment">// Read header from receive pipe</span></div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#ab80cb55a1207c201017b8454c3921021">read_header_from_receivepipe</a>();</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;<span class="comment">// Read body from  receive  pipe</span></div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a7002d7463cac95a030c281b2bbc0ec63">read_body_from_receivepipe</a>();</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160; </div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;<span class="comment">// MAIN FUNCTION DECLARATION</span></div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="comment">/* ------------------------------------------------------------------------- */</span></div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a0ddf1224851353fc92bfbff6f499fa97">main</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);   </div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160; </div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="comment">// HELPER FUNCTION DECLARATIONS</span></div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="comment">/* ------------------------------------------------------------------------- */</span></div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a>(<span class="keywordtype">int</span> code);</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a533d8ed350c93589b514cc9b2d7ec4e6">parse_options</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160; </div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;<span class="comment">// for fd_set and select syscalls</span></div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#ac2a9111d875db77ed0a97a433177d750">has_pipe_event</a>(fd_set* readqueue_ptr, fd_set* writequeue_ptr, <span class="keywordtype">int</span> selectmax, <a class="code" href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13">Boolean</a> hasContentToSend, <span class="keyword">struct</span> timeval <a class="code" href="transferd_8h.html#a03a5df464f7f59f8fe9f8da62642ce06">timeout</a>);</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;<span class="comment">// for writing data into sendpipe</span></div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#aa3ad63163e9bd051e3a96cee884d1f9c">write_into_sendpipe</a>();</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="comment">// for reading command from cmdpipe into cmd_input</span></div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#acc11047ebb7d577c2bef453dcac255b3">read_from_cmdpipe</a>(<span class="keywordtype">char</span>* cmd_input);</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;<span class="comment">// for processing command in cmd_input to create thread &amp; start qber estimation</span></div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#afcf673b3dfbe3832a1908ab68b0a9a43">create_thread_and_start_qber_using_cmd</a>(<span class="keywordtype">char</span>* dpnt, <span class="keywordtype">char</span>* cmd_input);</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;<span class="comment">/* process a command (e.g. epoch epochNum), terminated with \0 */</span></div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a512509fe92d58e86e974fa3944b2e93c">process_command</a>(<span class="keywordtype">char</span> *in);      </div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;<span class="comment">// Read header from receive pipe</span></div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#ab80cb55a1207c201017b8454c3921021">read_header_from_receivepipe</a>();</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;<span class="comment">// Read body from  receive  pipe</span></div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a7002d7463cac95a030c281b2bbc0ec63">read_body_from_receivepipe</a>();</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160; </div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;<span class="comment">// MAIN FUNCTION DECLARATION</span></div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;<span class="comment">/* ------------------------------------------------------------------------- */</span></div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;<span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a0ddf1224851353fc92bfbff6f499fa97">main</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]);   </div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160; </div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_H */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aqber__estim_8h_html"><div class="ttname"><a href="qber__estim_8h.html">qber_estim.h</a></div></div>
@@ -278,11 +278,11 @@ $(document).ready(function(){initNavTree('ecd2_8h_source.html',''); initResizabl
 <div class="ttc" id="adefaultdefinitions_8h_html_ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24"><div class="ttname"><a href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24">False</a></div><div class="ttdeci">@ False</div><div class="ttdef"><b>Definition:</b> <a href="defaultdefinitions_8h_source.html#l00068">defaultdefinitions.h:68</a></div></div>
 <div class="ttc" id="aecd2_8h_html_aa3ad63163e9bd051e3a96cee884d1f9c"><div class="ttname"><a href="ecd2_8h.html#aa3ad63163e9bd051e3a96cee884d1f9c">write_into_sendpipe</a></div><div class="ttdeci">int write_into_sendpipe()</div><div class="ttdoc">write data from next_packet_to_send into sendpipe</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8c_source.html#l00170">ecd2.c:170</a></div></div>
 <div class="ttc" id="aecd2_8h_html_ab80cb55a1207c201017b8454c3921021"><div class="ttname"><a href="ecd2_8h.html#ab80cb55a1207c201017b8454c3921021">read_header_from_receivepipe</a></div><div class="ttdeci">int read_header_from_receivepipe()</div><div class="ttdoc">read header from receivepipe into msgprotobuf, then malloc a buffer and point to it with readbuf</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8c_source.html#l00313">ecd2.c:313</a></div></div>
-<div class="ttc" id="aecd2_8h_html_a533147eb4caa484f9a001a15a2a376d5"><div class="ttname"><a href="ecd2_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a></div><div class="ttdeci">struct packet_to_send * last_packet_to_send</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00205">ecd2.h:205</a></div></div>
+<div class="ttc" id="aecd2_8h_html_a533147eb4caa484f9a001a15a2a376d5"><div class="ttname"><a href="ecd2_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a></div><div class="ttdeci">struct packet_to_send * last_packet_to_send</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00210">ecd2.h:210</a></div></div>
 <div class="ttc" id="aecd2_8h_html_acd2e1b2dee36ccbff485d8e70b117170"><div class="ttname"><a href="ecd2_8h.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a></div><div class="ttdeci">int emsg(int code)</div><div class="ttdoc">Print error message based on err code.</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8c_source.html#l00011">ecd2.c:11</a></div></div>
-<div class="ttc" id="aecd2_8h_html_a7f5d903352c2133a67099abbf29041dc"><div class="ttname"><a href="ecd2_8h.html#a7f5d903352c2133a67099abbf29041dc">blocklist</a></div><div class="ttdeci">struct blockpointer * blocklist</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00203">ecd2.h:203</a></div></div>
+<div class="ttc" id="aecd2_8h_html_a7f5d903352c2133a67099abbf29041dc"><div class="ttname"><a href="ecd2_8h.html#a7f5d903352c2133a67099abbf29041dc">blocklist</a></div><div class="ttdeci">struct blockpointer * blocklist</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00208">ecd2.h:208</a></div></div>
 <div class="ttc" id="aecd2_8h_html_a7002d7463cac95a030c281b2bbc0ec63"><div class="ttname"><a href="ecd2_8h.html#a7002d7463cac95a030c281b2bbc0ec63">read_body_from_receivepipe</a></div><div class="ttdeci">int read_body_from_receivepipe()</div><div class="ttdoc">read message body into buffer pointed by readbuf</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8c_source.html#l00340">ecd2.c:340</a></div></div>
-<div class="ttc" id="aecd2_8h_html_ad2ccf7edc49e0e4e4d3f6c40df187f9b"><div class="ttname"><a href="ecd2_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a></div><div class="ttdeci">struct packet_to_send * next_packet_to_send</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00204">ecd2.h:204</a></div></div>
+<div class="ttc" id="aecd2_8h_html_ad2ccf7edc49e0e4e4d3f6c40df187f9b"><div class="ttname"><a href="ecd2_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a></div><div class="ttdeci">struct packet_to_send * next_packet_to_send</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00209">ecd2.h:209</a></div></div>
 <div class="ttc" id="adefaultdefinitions_8h_html"><div class="ttname"><a href="defaultdefinitions_8h.html">defaultdefinitions.h</a></div><div class="ttdoc">Definition file for default variables in ecd2.</div></div>
 <div class="ttc" id="acomms_8h_html"><div class="ttname"><a href="comms_8h.html">comms.h</a></div><div class="ttdoc">code on communications w.r.t. error correction.</div></div>
 <div class="ttc" id="adefaultdefinitions_8h_html_a94c768f8a25f442a8e10e5cdd446eb58"><div class="ttname"><a href="defaultdefinitions_8h.html#a94c768f8a25f442a8e10e5cdd446eb58">DEFAULT_BICONF_ROUNDS</a></div><div class="ttdeci">#define DEFAULT_BICONF_ROUNDS</div><div class="ttdoc">number of BICONF rounds</div><div class="ttdef"><b>Definition:</b> <a href="defaultdefinitions_8h_source.html#l00061">defaultdefinitions.h:60</a></div></div>

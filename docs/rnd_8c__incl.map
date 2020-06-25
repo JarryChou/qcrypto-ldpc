@@ -1,4 +1,4 @@
-<map id="errorcorrection/rnd.c" name="errorcorrection/rnd.c">
-<area shape="rect" id="node1" title="functions for pseudorandom number generation and parity generation." alt="" coords="5,5,144,32"/>
-<area shape="rect" id="node2" href="$rnd_8h.html" title="Random number sources." alt="" coords="49,80,100,107"/>
+<map id="errorcorrection/subcomponents/rnd.c" name="errorcorrection/subcomponents/rnd.c">
+<area shape="rect" id="node1" title="functions for pseudorandom number generation and parity generation." alt="" coords="5,5,207,47"/>
+<area shape="rect" id="node2" href="$rnd_8h.html" title="Random number sources." alt="" coords="81,95,131,121"/>
 </map>

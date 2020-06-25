@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.19"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>qCrypto: errorcorrection/priv_amp.h Source File</title>
+<title>qCrypto: errorcorrection/subcomponents/priv_amp.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -96,11 +96,11 @@ $(document).ready(function(){initNavTree('priv__amp_8h_source.html',''); initRes
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">// Definition header files</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">defaultdefinitions.h</a>&quot;</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">globalvars.h</a>&quot;</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="packets_8h.html">packets.h</a>&quot;</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &quot;../packetheaders/pkt_header_7.h&quot;</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#include &quot;../definitions/defaultdefinitions.h&quot;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &quot;../definitions/globalvars.h&quot;</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;../definitions/keyblock.h&quot;</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;../definitions/packets.h&quot;</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &quot;../../packetheaders/pkt_header_7.h&quot;</span></div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">// Other components</span></div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="comms_8h.html">comms.h</a>&quot;</span></div>
@@ -119,23 +119,19 @@ $(document).ready(function(){initNavTree('priv__amp_8h_source.html',''); initRes
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="astructkeyblock_html"><div class="ttname"><a href="structkeyblock.html">keyblock</a></div><div class="ttdoc">Definition of a structure containing all informations about a block.</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00033">keyblock.h:33</a></div></div>
-<div class="ttc" id="aglobalvars_8h_html"><div class="ttname"><a href="globalvars_8h.html">globalvars.h</a></div><div class="ttdoc">Definition file for global variables and arguments in ecd2.</div></div>
 <div class="ttc" id="apriv__amp_8h_html_a7908e2233e4f07dbb3da7bfa6fcc409b"><div class="ttname"><a href="priv__amp_8h.html#a7908e2233e4f07dbb3da7bfa6fcc409b">phi</a></div><div class="ttdeci">float phi(float z)</div><div class="ttdoc">helper: eve's error knowledge</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00012">priv_amp.c:12</a></div></div>
 <div class="ttc" id="apriv__amp_8h_html_a6191b118553d1fbe518e4cb9dc10c3cd"><div class="ttname"><a href="priv__amp_8h.html#a6191b118553d1fbe518e4cb9dc10c3cd">binentrop</a></div><div class="ttdeci">float binentrop(float q)</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00022">priv_amp.c:22</a></div></div>
 <div class="ttc" id="ahelpers_8h_html"><div class="ttname"><a href="helpers_8h.html">helpers.h</a></div><div class="ttdoc">helper functions or helper enums for ecd2</div></div>
 <div class="ttc" id="athread__mgmt_8h_html"><div class="ttname"><a href="thread__mgmt_8h.html">thread_mgmt.h</a></div></div>
 <div class="ttc" id="apriv__amp_8h_html_ad859394d26f4d4609bee37a5a18cb135"><div class="ttname"><a href="priv__amp_8h.html#ad859394d26f4d4609bee37a5a18cb135">do_privacy_amplification</a></div><div class="ttdeci">int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits)</div><div class="ttdoc">Do core part of the privacy amplification.</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00108">priv_amp.c:108</a></div></div>
-<div class="ttc" id="apackets_8h_html"><div class="ttname"><a href="packets_8h.html">packets.h</a></div></div>
 <div class="ttc" id="apriv__amp_8h_html_af014f9642f652afb57efba0d1eddd37b"><div class="ttname"><a href="priv__amp_8h.html#af014f9642f652afb57efba0d1eddd37b">receive_privamp_msg</a></div><div class="ttdeci">int receive_privamp_msg(char *receivebuf)</div><div class="ttdoc">Function to process a privacy amplification message.</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00073">priv_amp.c:73</a></div></div>
 <div class="ttc" id="apriv__amp_8h_html_afa0aab17f062b64973ef26554d46c306"><div class="ttname"><a href="priv__amp_8h.html#afa0aab17f062b64973ef26554d46c306">initiate_privacyamplification</a></div><div class="ttdeci">int initiate_privacyamplification(struct keyblock *kb)</div><div class="ttdoc">Function to initiate the privacy amplification.</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00038">priv_amp.c:38</a></div></div>
-<div class="ttc" id="adefaultdefinitions_8h_html"><div class="ttname"><a href="defaultdefinitions_8h.html">defaultdefinitions.h</a></div><div class="ttdoc">Definition file for default variables in ecd2.</div></div>
 <div class="ttc" id="acomms_8h_html"><div class="ttname"><a href="comms_8h.html">comms.h</a></div><div class="ttdoc">code on communications w.r.t. error correction.</div></div>
 <div class="ttc" id="adebug_8h_html"><div class="ttname"><a href="debug_8h.html">debug.h</a></div><div class="ttdoc">debugging helper functions for ecd2</div></div>
-<div class="ttc" id="akeyblock_8h_html"><div class="ttname"><a href="keyblock_8h.html">keyblock.h</a></div><div class="ttdoc">Header file containing the definitions of the keyblock &amp; block related data for the error correction ...</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_69202652be06fd0e05a491cdb470f56e.html">errorcorrection</a></li><li class="navelem"><a class="el" href="priv__amp_8h.html">priv_amp.h</a></li>
+    <li class="navelem"><a class="el" href="dir_69202652be06fd0e05a491cdb470f56e.html">errorcorrection</a></li><li class="navelem"><a class="el" href="dir_1e980940fcb577eda0133bd99406c0b2.html">subcomponents</a></li><li class="navelem"><a class="el" href="priv__amp_8h.html">priv_amp.h</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.19 </li>

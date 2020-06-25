@@ -1,12 +1,12 @@
-<map id="errorcorrection/comms.h" name="errorcorrection/comms.h">
-<area shape="rect" id="node1" title="code on communications w.r.t. error correction." alt="" coords="233,5,395,32"/>
-<area shape="rect" id="node2" href="$cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="15,169,173,211"/>
-<area shape="rect" id="node4" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="188,266,336,293"/>
-<area shape="rect" id="node6" href="$priv__amp_8h.html" title="privacy amplification portions of the code" alt="" coords="249,80,379,121"/>
-<area shape="rect" id="node8" href="$comms_8c.html" title=" " alt="" coords="563,87,726,114"/>
-<area shape="rect" id="node9" href="$qber__estim_8h.html" title=" " alt="" coords="404,80,539,121"/>
-<area shape="rect" id="node3" href="$cascade__biconf_8c.html" title=" " alt="" coords="5,259,164,300"/>
-<area shape="rect" id="node5" href="$ecd2_8c.html" title=" " alt="" coords="188,348,336,375"/>
-<area shape="rect" id="node7" href="$priv__amp_8c.html" title=" " alt="" coords="299,169,430,211"/>
-<area shape="rect" id="node10" href="$qber__estim_8c.html" title=" " alt="" coords="505,169,640,211"/>
+<map id="errorcorrection/subcomponents/comms.h" name="errorcorrection/subcomponents/comms.h">
+<area shape="rect" id="node1" title="code on communications w.r.t. error correction." alt="" coords="292,5,493,47"/>
+<area shape="rect" id="node2" href="$cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="15,184,216,225"/>
+<area shape="rect" id="node3" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="231,281,379,307"/>
+<area shape="rect" id="node6" href="$priv__amp_8h.html" title="privacy amplification portions of the code" alt="" coords="292,95,493,136"/>
+<area shape="rect" id="node8" href="$qber__estim_8h.html" title=" " alt="" coords="517,95,719,136"/>
+<area shape="rect" id="node10" href="$comms_8c.html" title=" " alt="" coords="743,95,944,136"/>
+<area shape="rect" id="node5" href="$cascade__biconf_8c.html" title=" " alt="" coords="5,273,207,315"/>
+<area shape="rect" id="node4" href="$ecd2_8c.html" title=" " alt="" coords="231,363,379,389"/>
+<area shape="rect" id="node7" href="$priv__amp_8c.html" title=" " alt="" coords="343,184,544,225"/>
+<area shape="rect" id="node9" href="$qber__estim_8c.html" title=" " alt="" coords="620,184,821,225"/>
 </map>

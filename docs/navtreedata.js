@@ -54,15 +54,15 @@ var NAVTREEINDEX =
 [
 "alice_2init__ecd2_8sh.html",
 "costream_8c.html#a4553b2e65e49da4d10f241e8ca1676a8",
-"ffind_8c.html#a1a1e44698a5877f8cbdbbc6dd99ac09f",
-"fx2regs__c_8h.html#a35f3c2d6de4be5da74b18f85f649d130",
-"fx2regs__c_8h.html#a8bfd12599042246011fbb9aa7f6f8fe4",
-"fx2regs__c_8h.html#ae3a183501276072b802a46c0e400aca5",
-"install_8sh.html",
-"readevents3_8c.html#aab1ea8cf276d84072cde97f036a5ff74",
-"structdma__page__pointer.html#a4a4e3f7a44db89a5b34672ccf23fb732",
-"tp8_8c.html#afab02157b4f3b304bd188a26340fc22e",
-"usbtimetagdriver_2driver_2usbtimetagio_8h.html#ac9357d402346c359f7d7362ddf568dc5"
+"ffind_8c.html#a02d1d4ab121a5b7260f490ebdaf87cb1",
+"fx2regs__c_8h.html#a3579cbfb7fbf6deb1110a9d1d390e6eb",
+"fx2regs__c_8h.html#a8aac46e095b42e4c5a1e87d1afef782b",
+"fx2regs__c_8h.html#ae3355c8efe4aa390493ff530f306f967",
+"index.html",
+"readevents3_8c.html#aa9917c460d33c2c4b1df88aa5c503e08",
+"structcardinfo.html#af3c6be7c3ea3858d8de4ab98d486dffd",
+"tp8_8c.html#ade4f349d5792b0681458b3a5c07044d8",
+"usbtimetagdriver_2driver_2usbtimetagio_8h.html#ab54caa54ed717d9748ab68068e467bc7"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

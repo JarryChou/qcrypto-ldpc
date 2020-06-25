@@ -45,14 +45,14 @@
 /// \endcond
 
 // Definition files
-#include "proc_state.h"
-#include "helpers.h"
-#include "keyblock.h"
-#include "packets.h"
-#include "globalvars.h"
+#include "../definitions/proc_state.h"
+#include "../definitions/keyblock.h"
+#include "../definitions/packets.h"
+#include "../definitions/globalvars.h"
 
 // Other components
 #include "debug.h"
+#include "helpers.h"
 
 /// @name COMMUNICATIONNS HELPER FUNCTIONS
 /// @{

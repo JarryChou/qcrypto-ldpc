@@ -1,12 +1,12 @@
-<map id="errorcorrection/comms.h" name="errorcorrection/comms.h">
-<area shape="rect" id="node1" title="code on communications w.r.t. error correction." alt="" coords="165,5,327,32"/>
-<area shape="rect" id="node2" href="$proc__state_8h.html" title="Defines processing states." alt="" coords="5,80,100,107"/>
-<area shape="rect" id="node3" href="$helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="226,155,301,181"/>
-<area shape="rect" id="node5" href="$keyblock_8h.html" title="Header file containing the definitions of the keyblock &amp; block related data for the error correction ..." alt="" coords="137,229,222,256"/>
-<area shape="rect" id="node6" href="$packets_8h.html" title=" " alt="" coords="480,155,559,181"/>
-<area shape="rect" id="node7" href="$globalvars_8h.html" title="Definition file for global variables and arguments in ecd2." alt="" coords="332,80,424,107"/>
-<area shape="rect" id="node10" href="$debug_8h.html" title="debugging helper functions for ecd2" alt="" coords="176,80,244,107"/>
-<area shape="rect" id="node4" href="$rnd_8h.html" title="Random number sources." alt="" coords="246,229,297,256"/>
-<area shape="rect" id="node8" href="$defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="325,155,455,181"/>
-<area shape="rect" id="node9" title=" " alt="" coords="359,229,421,256"/>
+<map id="errorcorrection/subcomponents/comms.h" name="errorcorrection/subcomponents/comms.h">
+<area shape="rect" id="node1" title="code on communications w.r.t. error correction." alt="" coords="269,5,470,47"/>
+<area shape="rect" id="node2" href="$proc__state_8h.html" title="Defines processing states." alt="" coords="28,95,151,136"/>
+<area shape="rect" id="node3" href="$keyblock_8h.html" title="Header file containing the definitions of the keyblock &amp; block related data for the error correction ..." alt="" coords="480,259,640,285"/>
+<area shape="rect" id="node4" href="$packets_8h.html" title=" " alt="" coords="5,184,160,211"/>
+<area shape="rect" id="node5" href="$globalvars_8h.html" title="Definition file for global variables and arguments in ecd2." alt="" coords="226,102,393,129"/>
+<area shape="rect" id="node8" href="$helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="339,184,522,211"/>
+<area shape="rect" id="node10" href="$debug_8h.html" title="debugging helper functions for ecd2" alt="" coords="487,102,555,129"/>
+<area shape="rect" id="node6" href="$defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="184,184,315,211"/>
+<area shape="rect" id="node7" title=" " alt="" coords="218,259,281,285"/>
+<area shape="rect" id="node9" href="$rnd_8h.html" title="Random number sources." alt="" coords="405,259,456,285"/>
 </map>

@@ -1,7 +1,7 @@
 /**
- * @file ecd2_thread_mgmt.h   
- * @brief thread management portion of ecd2
- *   
+ * @file debug.h   
+ * @brief debugging helper functions for ecd2
+ * 
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below.
@@ -31,43 +31,37 @@
  * --
  * 
  * This is a refactored version of Kurtsiefer's ecd2.c to modularize parts of the
- * code. This section modularizes the parts of the code that is predominantly
- * used for thread management.
+ * code. 
  * 
  */
 
-#ifndef ECD2_THREAD_MGMT
-#define ECD2_THREAD_MGMT
+#ifndef ECD2_DEBUG
+#define ECD2_DEBUG
 
 // Libraries
 /// \cond for doxygen annotation
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 /// \endcond
 
-#include "defaultdefinitions.h"
-#include "globalvars.h"
-#include "proc_state.h"
-#include "keyblock.h"
-#include "packets.h"
-#include "../packetheaders/pkt_header_3.h"
-#include "../packetheaders/pkt_header_7.h"
+// Definitions
+#include "../definitions/keyblock.h"
 
-#include "debug.h"
-#include "helpers.h"
+// Definitions to enable certain debugging parts of the code
+#define DEBUG 1
+/* #define SYSTPERMUTATION */ /* for systematic rather than rand permut */
+/* #define mallocdebug */
 
-/// @name THREAD MANAGEMENT HELPER FUNCTIONS
+/// @name DEBUGGER HELPER FUNCTIONS
 /// @{
-int check_epochoverlap(unsigned int epoch, int num);
+char *malloc2(unsigned int s);
+void free2(void *p);
+void dumpmsg(struct keyblock *kb, char *msg);
+void dumpstate(struct keyblock *kb);
+void output_permutation(struct keyblock *kb);
 /// @}
 
-/// @name THREAD MANAGEMENT MAIN FUNCTIONS
-/// @{
-int create_thread(unsigned int epoch, int num, float inierr, float BellValue);
-struct keyblock *get_thread(unsigned int epoch);
-int remove_thread(unsigned int epoch);
-/// @}
-
-#endif /* ECD2_THREAD_MGMT */
+#endif /* ECD2_DEBUG */

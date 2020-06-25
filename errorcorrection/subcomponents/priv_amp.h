@@ -1,6 +1,6 @@
 /**
- * @file debug.h   
- * @brief debugging helper functions for ecd2
+ * @file priv_amp.h   
+ * @brief privacy amplification portions of the code
  * 
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
@@ -8,7 +8,6 @@
  * 
  *  Copyright (C) 2020 Matthew Lee, National University
  *                          of Singapore <crazoter@gmail.com>
- * 
  *  Copyright (C) 2005-2007 Christian Kurtsiefer, National University
  *                          of Singapore <christian.kurtsiefer@gmail.com>
  * 
@@ -31,37 +30,44 @@
  * --
  * 
  * This is a refactored version of Kurtsiefer's ecd2.c to modularize parts of the
- * code. 
+ * code. This section modularizes the parts of the code that is predominantly
+ * used for privacy amplification.
  * 
  */
 
-#ifndef ECD2_DEBUG
-#define ECD2_DEBUG
+#ifndef ECD2_PRIV_AMP
+#define ECD2_PRIV_AMP
 
 // Libraries
 /// \cond for doxygen annotation
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <fcntl.h>
 /// \endcond
 
-// Definitions
-#include "keyblock.h"
+// Definition header files
+#include "../definitions/defaultdefinitions.h"
+#include "../definitions/globalvars.h"
+#include "../definitions/keyblock.h"
+#include "../definitions/packets.h"
+#include "../../packetheaders/pkt_header_7.h"
 
-// Definitions to enable certain debugging parts of the code
-#define DEBUG 1
-/* #define SYSTPERMUTATION */ /* for systematic rather than rand permut */
-/* #define mallocdebug */
+// Other components
+#include "comms.h"
+#include "helpers.h"
+#include "debug.h"
+#include "thread_mgmt.h"
 
-/// @name DEBUGGER HELPER FUNCTIONS
+/// @name PRIVACY AMPLIFICATION HELPER FUNCTIONS
 /// @{
-char *malloc2(unsigned int s);
-void free2(void *p);
-void dumpmsg(struct keyblock *kb, char *msg);
-void dumpstate(struct keyblock *kb);
-void output_permutation(struct keyblock *kb);
+float phi(float z);
+float binentrop(float q);
 /// @}
 
-#endif /* ECD2_DEBUG */
+/// @name PRIVACY AMPLIFICATION MAIN FUNCTIONS
+/// @{
+int initiate_privacyamplification(struct keyblock *kb);
+int receive_privamp_msg(char *receivebuf);
+int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits);
+/// @}
+
+#endif /* ECD2_PRIV_AMP */

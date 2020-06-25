@@ -43,11 +43,11 @@
 #include <stdio.h>
 /// \endcond
 
-#include "defaultdefinitions.h"
-#include "globalvars.h"
-#include "keyblock.h"
-#include "packets.h"
-#include "proc_state.h"
+#include "../definitions/defaultdefinitions.h"
+#include "../definitions/globalvars.h"
+#include "../definitions/keyblock.h"
+#include "../definitions/packets.h"
+#include "../definitions/proc_state.h"
 
 #include "comms.h"
 #include "debug.h"

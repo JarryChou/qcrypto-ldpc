@@ -44,8 +44,9 @@
 #include <string.h>
 /// \endcond
 
+#include "../definitions/keyblock.h"
+
 #include "rnd.h"
-#include "keyblock.h"
 
 // HELPER ENUMS
 /**

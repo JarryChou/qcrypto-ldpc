@@ -1,13 +1,14 @@
 /**
- * @file priv_amp.h   
- * @brief privacy amplification portions of the code
- * 
+ * @file ecd2_thread_mgmt.h   
+ * @brief thread management portion of ecd2
+ *   
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
  *  see below.
  * 
  *  Copyright (C) 2020 Matthew Lee, National University
  *                          of Singapore <crazoter@gmail.com>
+ * 
  *  Copyright (C) 2005-2007 Christian Kurtsiefer, National University
  *                          of Singapore <christian.kurtsiefer@gmail.com>
  * 
@@ -31,43 +32,42 @@
  * 
  * This is a refactored version of Kurtsiefer's ecd2.c to modularize parts of the
  * code. This section modularizes the parts of the code that is predominantly
- * used for privacy amplification.
+ * used for thread management.
  * 
  */
 
-#ifndef ECD2_PRIV_AMP
-#define ECD2_PRIV_AMP
+#ifndef ECD2_THREAD_MGMT
+#define ECD2_THREAD_MGMT
 
 // Libraries
 /// \cond for doxygen annotation
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 /// \endcond
 
-// Definition header files
-#include "defaultdefinitions.h"
-#include "globalvars.h"
-#include "keyblock.h"
-#include "packets.h"
-#include "../packetheaders/pkt_header_7.h"
+#include "../definitions/defaultdefinitions.h"
+#include "../definitions/globalvars.h"
+#include "../definitions/proc_state.h"
+#include "../definitions/keyblock.h"
+#include "../definitions/packets.h"
+#include "../../packetheaders/pkt_header_3.h"
+#include "../../packetheaders/pkt_header_7.h"
 
-// Other components
-#include "comms.h"
-#include "helpers.h"
 #include "debug.h"
-#include "thread_mgmt.h"
+#include "helpers.h"
 
-/// @name PRIVACY AMPLIFICATION HELPER FUNCTIONS
+/// @name THREAD MANAGEMENT HELPER FUNCTIONS
 /// @{
-float phi(float z);
-float binentrop(float q);
+int check_epochoverlap(unsigned int epoch, int num);
 /// @}
 
-/// @name PRIVACY AMPLIFICATION MAIN FUNCTIONS
+/// @name THREAD MANAGEMENT MAIN FUNCTIONS
 /// @{
-int initiate_privacyamplification(struct keyblock *kb);
-int receive_privamp_msg(char *receivebuf);
-int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits);
+int create_thread(unsigned int epoch, int num, float inierr, float BellValue);
+struct keyblock *get_thread(unsigned int epoch);
+int remove_thread(unsigned int epoch);
 /// @}
 
-#endif /* ECD2_PRIV_AMP */
+#endif /* ECD2_THREAD_MGMT */
