@@ -6,7 +6,5 @@ var debug_8c =
     [ "malloc2", "debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711", null ],
     [ "output_permutation", "debug_8c.html#a4236e119dd934b5e8b0a99d28e8fdf7e", null ],
     [ "dumpindex", "debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc", null ],
-    [ "fcall", "debug_8c.html#abe2f99a6e635f750668f0b509bcb3f6e", null ],
-    [ "mcall", "debug_8c.html#a9045623c2407ffe5703512ad7cca677a", null ],
     [ "mdmpidx", "debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0", null ]
 ];

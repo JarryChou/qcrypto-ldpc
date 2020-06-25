@@ -189,7 +189,6 @@ var NAVTREEINDEX0 =
 "chopper_8c_source.html":[1,0,3,0],
 "classes.html":[0,1],
 "comms_8c.html":[1,0,0,2],
-"comms_8c.html#a60c0339c14502b4a8aa06e21f643b2e6":[1,0,0,2,4],
 "comms_8c.html#ab685a2df59da9e7fb20e4fd477eca731":[1,0,0,2,1],
 "comms_8c.html#aceeb2dd5c38b3d906e4670cdac1925db":[1,0,0,2,2],
 "comms_8c.html#ae360e287fe395beef547c08969660d3c":[1,0,0,2,3],
@@ -249,5 +248,6 @@ var NAVTREEINDEX0 =
 "costream_8c.html#a55b53b9026bf5d8859d3fbaf9149bce4":[1,0,3,2,104],
 "costream_8c.html#a57dfbcd54962163d7cdd8b915307ccb3":[1,0,3,2,77],
 "costream_8c.html#a5d8a66e9654b98e4d3156b394612e806":[1,0,3,2,58],
-"costream_8c.html#a5e16c91477e43e5874198a68f7ca7b09":[1,0,3,2,39]
+"costream_8c.html#a5e16c91477e43e5874198a68f7ca7b09":[1,0,3,2,39],
+"costream_8c.html#a5e4d5eded57665a7c40e22af8ff60b9a":[1,0,3,2,85]
 };

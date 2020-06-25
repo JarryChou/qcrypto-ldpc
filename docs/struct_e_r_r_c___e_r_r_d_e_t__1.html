@@ -90,30 +90,41 @@ $(document).ready(function(){initNavTree('struct_e_r_r_c___e_r_r_d_e_t__1.html',
 </div><!--header-->
 <div class="contents">
 
+<p>packet for explicitely indexed bit fields with a good RNG for err est  
+ <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="packets_8h_source.html">packets.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:a3524648d77c99ff0189ef25442e3fe00"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a3524648d77c99ff0189ef25442e3fe00">tag</a></td></tr>
+<tr class="memdesc:a3524648d77c99ff0189ef25442e3fe00"><td class="mdescLeft">&#160;</td><td class="mdescRight">always 6  <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a3524648d77c99ff0189ef25442e3fe00">More...</a><br /></td></tr>
 <tr class="separator:a3524648d77c99ff0189ef25442e3fe00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f4cd1aef3385c3939177a05d1f4b5ed"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a3f4cd1aef3385c3939177a05d1f4b5ed">bytelength</a></td></tr>
 <tr class="separator:a3f4cd1aef3385c3939177a05d1f4b5ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb216ea5148536811cf98280d6cfcca7"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#aeb216ea5148536811cf98280d6cfcca7">subtype</a></td></tr>
+<tr class="memdesc:aeb216ea5148536811cf98280d6cfcca7"><td class="mdescLeft">&#160;</td><td class="mdescRight">1 for good random number based subset  <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#aeb216ea5148536811cf98280d6cfcca7">More...</a><br /></td></tr>
 <tr class="separator:aeb216ea5148536811cf98280d6cfcca7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79b17d9e2f5b804677dbde2597706499"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a79b17d9e2f5b804677dbde2597706499">epoch</a></td></tr>
+<tr class="memdesc:a79b17d9e2f5b804677dbde2597706499"><td class="mdescLeft">&#160;</td><td class="mdescRight">defines epoch of first packet  <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a79b17d9e2f5b804677dbde2597706499">More...</a><br /></td></tr>
 <tr class="separator:a79b17d9e2f5b804677dbde2597706499"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab88e556a2fee1c9c7fca053782d35ac5"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#ab88e556a2fee1c9c7fca053782d35ac5">number_of_epochs</a></td></tr>
+<tr class="memdesc:ab88e556a2fee1c9c7fca053782d35ac5"><td class="mdescLeft">&#160;</td><td class="mdescRight">defines implicitly the block length  <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#ab88e556a2fee1c9c7fca053782d35ac5">More...</a><br /></td></tr>
 <tr class="separator:ab88e556a2fee1c9c7fca053782d35ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56330bd90a9d88c883bd6c3b44673f7e"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a56330bd90a9d88c883bd6c3b44673f7e">bitlength</a></td></tr>
+<tr class="memdesc:a56330bd90a9d88c883bd6c3b44673f7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">compression bit width for index diff  <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a56330bd90a9d88c883bd6c3b44673f7e">More...</a><br /></td></tr>
 <tr class="separator:a56330bd90a9d88c883bd6c3b44673f7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d83b468fe140060f3af339a04b8ac7b"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a9d83b468fe140060f3af339a04b8ac7b">numberofbits</a></td></tr>
+<tr class="memdesc:a9d83b468fe140060f3af339a04b8ac7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of bits to follow  <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a9d83b468fe140060f3af339a04b8ac7b">More...</a><br /></td></tr>
 <tr class="separator:a9d83b468fe140060f3af339a04b8ac7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a579eb3fbdba2e297c69930495ee8f596"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a579eb3fbdba2e297c69930495ee8f596">errormode</a></td></tr>
+<tr class="memdesc:a579eb3fbdba2e297c69930495ee8f596"><td class="mdescLeft">&#160;</td><td class="mdescRight">initial error est skip?  <a href="struct_e_r_r_c___e_r_r_d_e_t__1.html#a579eb3fbdba2e297c69930495ee8f596">More...</a><br /></td></tr>
 <tr class="separator:a579eb3fbdba2e297c69930495ee8f596"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00060">60</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<div class="textblock"><p>packet for explicitely indexed bit fields with a good RNG for err est </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00072">72</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a56330bd90a9d88c883bd6c3b44673f7e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a56330bd90a9d88c883bd6c3b44673f7e">&#9670;&nbsp;</a></span>bitlength</h2>
@@ -127,7 +138,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00066">66</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p>compression bit width for index diff </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00078">78</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -143,7 +156,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00062">62</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00074">74</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -159,7 +172,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00064">64</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p>defines epoch of first packet </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00076">76</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -175,7 +190,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00068">68</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p>initial error est skip? </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00080">80</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -191,7 +208,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00065">65</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p>defines implicitly the block length </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00077">77</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -207,7 +226,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00067">67</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p>number of bits to follow </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00079">79</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -223,7 +244,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00063">63</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p>1 for good random number based subset </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00075">75</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -239,7 +262,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00061">61</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p>always 6 </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00073">73</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>

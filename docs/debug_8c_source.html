@@ -91,131 +91,123 @@ $(document).ready(function(){initNavTree('debug_8c_source.html',''); initResizab
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">// DEBUGGER HELPER FUNCTIONS</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">/* ------------------------------------------------------------------------- */</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">/* debugging */</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno"><a class="line" href="debug_8c.html#a9045623c2407ffe5703512ad7cca677a">    6</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="debug_8c.html#a9045623c2407ffe5703512ad7cca677a">mcall</a> = 0, <a class="code" href="debug_8c.html#abe2f99a6e635f750668f0b509bcb3f6e">fcall</a> = 0;</div>
-<div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="debug_8h.html#af8c2db3d81151416ecd3dcb6f38e3711">    7</a></span>&#160;<span class="keywordtype">char</span> *<a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> s) {</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;  <span class="keywordtype">char</span> *p;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">  #ifdef mallocdebug</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  printf(<span class="stringliteral">&quot;process %d malloc call no. %d for %d bytes...&quot;</span>, getpid(), <a class="code" href="debug_8c.html#a9045623c2407ffe5703512ad7cca677a">mcall</a>, s);</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">  #endif</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <a class="code" href="debug_8c.html#a9045623c2407ffe5703512ad7cca677a">mcall</a>++;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  p = malloc(s);</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">  #ifdef mallocdebug</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  printf(<span class="stringliteral">&quot;returned: %p\n&quot;</span>, p);</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">  #endif</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keywordflow">return</span> p;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="debug_8h.html#ae9cba13dc8aa5d62e13112d01be090ba">   19</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#ae9cba13dc8aa5d62e13112d01be090ba">free2</a>(<span class="keywordtype">void</span> *p) {</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">  #ifdef mallocdebug</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  printf(<span class="stringliteral">&quot;process %d free call no. %d for %p\n&quot;</span>, getpid(), <a class="code" href="debug_8c.html#abe2f99a6e635f750668f0b509bcb3f6e">fcall</a>, p);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">  #endif</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  <a class="code" href="debug_8c.html#abe2f99a6e635f750668f0b509bcb3f6e">fcall</a>++;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  free(p);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;}</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">/* helper to dump message into a file */</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">   29</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a> = 0;</div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="debug_8h.html#aedb8e9adb6f914cd8d858f7b11fb4f31">   30</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#aedb8e9adb6f914cd8d858f7b11fb4f31">dumpmsg</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb, <span class="keywordtype">char</span> *msg) {</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordtype">char</span> dumpname[200];</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keywordtype">int</span> dha; <span class="comment">/* handle */</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keywordtype">int</span> tosend = ((<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *)msg)[1];</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keywordtype">int</span> sent = 0, <a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a>;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">  #ifdef DEBUG</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">  #else</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordflow">return</span>; <span class="comment">/* if debug is off */</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">  #endif</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  sprintf(dumpname, <span class="stringliteral">&quot;msgdump_%1d_%03d&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#abd35c2c70ed98176b326d929f0e1ce62">role</a>, <a class="code" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a>);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <a class="code" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a>++;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keywordflow">do</span> {</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a> = write(dha, msg, tosend - sent);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a> == -1) {</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;cannot save msg\n&quot;</span>);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      exit(-1);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    }</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    usleep(100000);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    sent += <a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  } <span class="keywordflow">while</span> (tosend - sent &gt; 0);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  close(dha);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">/* helper function to dump the state of the system to a disk file . Dumps the</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">   keyblock structure, if present the buffer files, the parity files and the</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">   diffidx buffers as plain binaries */</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">   60</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a> = 0;</div>
-<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="debug_8h.html#a28d64ae89e528f6024e10b107ccafee6">   61</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#a28d64ae89e528f6024e10b107ccafee6">dumpstate</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb) {</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keywordtype">char</span> dumpname[200];</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">int</span> dha; <span class="comment">/* handle */</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">  #ifndef DEBUG</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordflow">return</span>; <span class="comment">/* if debugging is off */</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">  #endif</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  sprintf(dumpname, <span class="stringliteral">&quot;kbdump_%1d_%03d&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#abd35c2c70ed98176b326d929f0e1ce62">role</a>, <a class="code" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a>);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <a class="code" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a>++;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keywordflow">if</span> (write(dha, kb, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a>)) == -1) {</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    fprintf(stderr, <span class="stringliteral">&quot;dump fail (1)\n&quot;</span>);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  }</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">mainbuf</a>)</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordflow">if</span> (-1 == write(dha, kb-&gt;<a class="code" href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">mainbuf</a>, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) *</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        (2 * kb-&gt;<a class="code" href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">initialbits</a> + 3 * ((kb-&gt;<a class="code" href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">initialbits</a> + 31) / 32)))) {</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;dump fail (2)\n&quot;</span>);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    }</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a576460f1ab24c9fb99e0b9fcbc86f53d">lp0</a>)</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordflow">if</span> (-1 == write(dha, kb-&gt;<a class="code" href="structkeyblock.html#a576460f1ab24c9fb99e0b9fcbc86f53d">lp0</a>, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) * 6 * ((kb-&gt;<a class="code" href="structkeyblock.html#ab8134707bcc838e29a0f412464b32542">workbits</a> + 31) / 32))) {</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;dump fail (4)\n&quot;</span>);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    }</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>)</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordflow">if</span> (-1 == write(dha, kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) * 2 * kb-&gt;<a class="code" href="structkeyblock.html#aef39f7503a2c4ac23d8c570644a366aa">diffnumber_max</a>)) {</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;dump fail (5)\n&quot;</span>);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    }</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  close(dha);</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;}</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">/* for debug: output permutation */</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno"><a class="line" href="debug_8h.html#a4236e119dd934b5e8b0a99d28e8fdf7e">   96</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#a4236e119dd934b5e8b0a99d28e8fdf7e">output_permutation</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb) {</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keywordtype">char</span> name[200] = <span class="stringliteral">&quot;permutlist_&quot;</span>;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  FILE *fp;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  sprintf(name, <span class="stringliteral">&quot;permutelist_%d&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#abd35c2c70ed98176b326d929f0e1ce62">role</a>);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  fp = fopen(name, <span class="stringliteral">&quot;w&quot;</span>);</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordflow">for</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = 0; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &lt; kb-&gt;<a class="code" href="structkeyblock.html#ab8134707bcc838e29a0f412464b32542">workbits</a>; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>++)</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    fprintf(fp, <span class="stringliteral">&quot;%d %d\n&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#ac4dcc0b30720dde9a17cba9347392d91">permuteindex</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>], kb-&gt;<a class="code" href="structkeyblock.html#ae46cb7c5f1fcebebf80bc354ef7263c9">reverseindex</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>]);</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  fclose(fp);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;}</div>
+<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="debug_8h.html#af8c2db3d81151416ecd3dcb6f38e3711">   11</a></span>&#160;<span class="keywordtype">char</span> *<a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> s) {</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <span class="keywordtype">char</span> *p;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">  #ifdef mallocdebug</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  printf(<span class="stringliteral">&quot;process %d malloc call no. %d for %d bytes...&quot;</span>, getpid(), mcall, s);</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">  #endif</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  <span class="comment">// mcall++; // unusued global int variable for debugging </span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  p = malloc(s);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">  #ifdef mallocdebug</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  printf(<span class="stringliteral">&quot;returned: %p\n&quot;</span>, p);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">  #endif</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keywordflow">return</span> p;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;}</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="debug_8h.html#ae9cba13dc8aa5d62e13112d01be090ba">   29</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#ae9cba13dc8aa5d62e13112d01be090ba">free2</a>(<span class="keywordtype">void</span> *p) {</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">  #ifdef mallocdebug</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  printf(<span class="stringliteral">&quot;process %d free call no. %d for %p\n&quot;</span>, getpid(), fcall, p);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">  #endif</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="comment">// fcall++; // unusued global int variable for debugging </span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  free(p);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;}</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">   38</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a> = 0; </div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="debug_8h.html#aedb8e9adb6f914cd8d858f7b11fb4f31">   45</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#aedb8e9adb6f914cd8d858f7b11fb4f31">dumpmsg</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb, <span class="keywordtype">char</span> *msg) {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordtype">char</span> dumpname[200];</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keywordtype">int</span> dha; <span class="comment">/* handle */</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordtype">int</span> tosend = ((<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *)msg)[1];</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="keywordtype">int</span> sent = 0, <a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">  #ifdef DEBUG</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">  #else</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordflow">return</span>; <span class="comment">/* if debug is off */</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">  #endif</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  sprintf(dumpname, <span class="stringliteral">&quot;msgdump_%1d_%03d&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#abd35c2c70ed98176b326d929f0e1ce62">role</a>, <a class="code" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a>);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <a class="code" href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a>++;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordflow">do</span> {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a> = write(dha, msg, tosend - sent);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a> == -1) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;cannot save msg\n&quot;</span>);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;      exit(-1);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    }</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    usleep(100000);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    sent += <a class="code" href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a>;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  } <span class="keywordflow">while</span> (tosend - sent &gt; 0);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  close(dha);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;}</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">   72</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a> = 0; </div>
+<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="debug_8h.html#a28d64ae89e528f6024e10b107ccafee6">   81</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#a28d64ae89e528f6024e10b107ccafee6">dumpstate</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb) {</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  <span class="keywordtype">char</span> dumpname[200];</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordtype">int</span> dha; <span class="comment">/* handle */</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">  #ifndef DEBUG</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordflow">return</span>; <span class="comment">/* if debugging is off */</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">  #endif</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  sprintf(dumpname, <span class="stringliteral">&quot;kbdump_%1d_%03d&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#abd35c2c70ed98176b326d929f0e1ce62">role</a>, <a class="code" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a>);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <a class="code" href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a>++;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  dha = open(dumpname, O_WRONLY | O_CREAT, 0644);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="keywordflow">if</span> (write(dha, kb, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a>)) == -1) {</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    fprintf(stderr, <span class="stringliteral">&quot;dump fail (1)\n&quot;</span>);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  }</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">mainbuf</a>)</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordflow">if</span> (-1 == write(dha, kb-&gt;<a class="code" href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">mainbuf</a>, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) *</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        (2 * kb-&gt;<a class="code" href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">initialbits</a> + 3 * ((kb-&gt;<a class="code" href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">initialbits</a> + 31) / 32)))) {</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;dump fail (2)\n&quot;</span>);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    }</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a576460f1ab24c9fb99e0b9fcbc86f53d">lp0</a>)</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordflow">if</span> (-1 == write(dha, kb-&gt;<a class="code" href="structkeyblock.html#a576460f1ab24c9fb99e0b9fcbc86f53d">lp0</a>, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) * 6 * ((kb-&gt;<a class="code" href="structkeyblock.html#ab8134707bcc838e29a0f412464b32542">workbits</a> + 31) / 32))) {</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;dump fail (4)\n&quot;</span>);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    }</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>)</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordflow">if</span> (-1 == write(dha, kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) * 2 * kb-&gt;<a class="code" href="structkeyblock.html#aef39f7503a2c4ac23d8c570644a366aa">diffnumber_max</a>)) {</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;dump fail (5)\n&quot;</span>);</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    }</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  close(dha);</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;}</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
+<div class="line"><a name="l00120"></a><span class="lineno"><a class="line" href="debug_8h.html#a4236e119dd934b5e8b0a99d28e8fdf7e">  120</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8c.html#a4236e119dd934b5e8b0a99d28e8fdf7e">output_permutation</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb) {</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="keywordtype">char</span> name[200] = <span class="stringliteral">&quot;permutlist_&quot;</span>;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  FILE *fp;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  sprintf(name, <span class="stringliteral">&quot;permutelist_%d&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#abd35c2c70ed98176b326d929f0e1ce62">role</a>);</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  fp = fopen(name, <span class="stringliteral">&quot;w&quot;</span>);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  <span class="keywordflow">for</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = 0; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &lt; kb-&gt;<a class="code" href="structkeyblock.html#ab8134707bcc838e29a0f412464b32542">workbits</a>; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>++)</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    fprintf(fp, <span class="stringliteral">&quot;%d %d\n&quot;</span>, kb-&gt;<a class="code" href="structkeyblock.html#ac4dcc0b30720dde9a17cba9347392d91">permuteindex</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>], kb-&gt;<a class="code" href="structkeyblock.html#ae46cb7c5f1fcebebf80bc354ef7263c9">reverseindex</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>]);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  fclose(fp);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="adebug_8c_html_ae9cba13dc8aa5d62e13112d01be090ba"><div class="ttname"><a href="debug_8c.html#ae9cba13dc8aa5d62e13112d01be090ba">free2</a></div><div class="ttdeci">void free2(void *p)</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00019">debug.c:19</a></div></div>
-<div class="ttc" id="adebug_8c_html_a9045623c2407ffe5703512ad7cca677a"><div class="ttname"><a href="debug_8c.html#a9045623c2407ffe5703512ad7cca677a">mcall</a></div><div class="ttdeci">int mcall</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00006">debug.c:6</a></div></div>
+<div class="ttc" id="adebug_8c_html_ae9cba13dc8aa5d62e13112d01be090ba"><div class="ttname"><a href="debug_8c.html#ae9cba13dc8aa5d62e13112d01be090ba">free2</a></div><div class="ttdeci">void free2(void *p)</div><div class="ttdoc">free wrapper for debugging purposes</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00029">debug.c:29</a></div></div>
 <div class="ttc" id="astructkeyblock_html_aef39f7503a2c4ac23d8c570644a366aa"><div class="ttname"><a href="structkeyblock.html#aef39f7503a2c4ac23d8c570644a366aa">keyblock::diffnumber_max</a></div><div class="ttdeci">int diffnumber_max</div><div class="ttdoc">number of malloced entries for diff indices</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00060">keyblock.h:60</a></div></div>
 <div class="ttc" id="astructkeyblock_html_ae46cb7c5f1fcebebf80bc354ef7263c9"><div class="ttname"><a href="structkeyblock.html#ae46cb7c5f1fcebebf80bc354ef7263c9">keyblock::reverseindex</a></div><div class="ttdeci">unsigned short int * reverseindex</div><div class="ttdoc">reverse permutation</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00041">keyblock.h:41</a></div></div>
 <div class="ttc" id="astructkeyblock_html_a7cc8739f33c53ca94123d468a1c090a4"><div class="ttname"><a href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">keyblock::initialbits</a></div><div class="ttdeci">int initialbits</div><div class="ttdoc">bits to start with</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00043">keyblock.h:43</a></div></div>
 <div class="ttc" id="astructkeyblock_html"><div class="ttname"><a href="structkeyblock.html">keyblock</a></div><div class="ttdoc">Definition of a structure containing all informations about a block.</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00033">keyblock.h:33</a></div></div>
-<div class="ttc" id="adebug_8c_html_aedb8e9adb6f914cd8d858f7b11fb4f31"><div class="ttname"><a href="debug_8c.html#aedb8e9adb6f914cd8d858f7b11fb4f31">dumpmsg</a></div><div class="ttdeci">void dumpmsg(struct keyblock *kb, char *msg)</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00030">debug.c:30</a></div></div>
+<div class="ttc" id="adebug_8c_html_aedb8e9adb6f914cd8d858f7b11fb4f31"><div class="ttname"><a href="debug_8c.html#aedb8e9adb6f914cd8d858f7b11fb4f31">dumpmsg</a></div><div class="ttdeci">void dumpmsg(struct keyblock *kb, char *msg)</div><div class="ttdoc">Helper to dump message into a file.</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00045">debug.c:45</a></div></div>
 <div class="ttc" id="astructkeyblock_html_a576460f1ab24c9fb99e0b9fcbc86f53d"><div class="ttname"><a href="structkeyblock.html#a576460f1ab24c9fb99e0b9fcbc86f53d">keyblock::lp0</a></div><div class="ttdeci">unsigned int * lp0</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00056">keyblock.h:56</a></div></div>
 <div class="ttc" id="astructkeyblock_html_a19b74f671254c24bedb3b167c2b73621"><div class="ttname"><a href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">keyblock::mainbuf</a></div><div class="ttdeci">unsigned int * mainbuf</div><div class="ttdoc">points to main buffer for key</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00037">keyblock.h:37</a></div></div>
 <div class="ttc" id="astructkeyblock_html_ac4dcc0b30720dde9a17cba9347392d91"><div class="ttname"><a href="structkeyblock.html#ac4dcc0b30720dde9a17cba9347392d91">keyblock::permuteindex</a></div><div class="ttdeci">unsigned short int * permuteindex</div><div class="ttdoc">keeps permutation</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00040">keyblock.h:40</a></div></div>
 <div class="ttc" id="astructkeyblock_html_abd35c2c70ed98176b326d929f0e1ce62"><div class="ttname"><a href="structkeyblock.html#abd35c2c70ed98176b326d929f0e1ce62">keyblock::role</a></div><div class="ttdeci">int role</div><div class="ttdoc">defines which role to take on a block: 0: Alice, 1: Bob</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00042">keyblock.h:42</a></div></div>
-<div class="ttc" id="adebug_8c_html_abe2f99a6e635f750668f0b509bcb3f6e"><div class="ttname"><a href="debug_8c.html#abe2f99a6e635f750668f0b509bcb3f6e">fcall</a></div><div class="ttdeci">int fcall</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00006">debug.c:6</a></div></div>
-<div class="ttc" id="adebug_8c_html_af8c2db3d81151416ecd3dcb6f38e3711"><div class="ttname"><a href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a></div><div class="ttdeci">char * malloc2(unsigned int s)</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00007">debug.c:7</a></div></div>
+<div class="ttc" id="adebug_8c_html_af8c2db3d81151416ecd3dcb6f38e3711"><div class="ttname"><a href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a></div><div class="ttdeci">char * malloc2(unsigned int s)</div><div class="ttdoc">malloc wrapper for debugging purposes</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00011">debug.c:11</a></div></div>
 <div class="ttc" id="atransferd_8h_html_a7f345697df7eb20c9aba1ab6980cae8f"><div class="ttname"><a href="transferd_8h.html#a7f345697df7eb20c9aba1ab6980cae8f">retval</a></div><div class="ttdeci">int retval</div><div class="ttdef"><b>Definition:</b> <a href="transferd_8h_source.html#l00321">transferd.h:321</a></div></div>
 <div class="ttc" id="astructkeyblock_html_a4ec05d5e560406d74383c7b3b2c805eb"><div class="ttname"><a href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">keyblock::diffidx</a></div><div class="ttdeci">unsigned int * diffidx</div><div class="ttdoc">pointer to a list of parity mismatch blocks</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00061">keyblock.h:61</a></div></div>
-<div class="ttc" id="adebug_8c_html_ac9247acc66e9eb05200b2b6cbaf74cd0"><div class="ttname"><a href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a></div><div class="ttdeci">int mdmpidx</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00029">debug.c:29</a></div></div>
+<div class="ttc" id="adebug_8c_html_ac9247acc66e9eb05200b2b6cbaf74cd0"><div class="ttname"><a href="debug_8c.html#ac9247acc66e9eb05200b2b6cbaf74cd0">mdmpidx</a></div><div class="ttdeci">int mdmpidx</div><div class="ttdoc">Debug value for printing.</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00038">debug.c:38</a></div></div>
 <div class="ttc" id="astructkeyblock_html_ab8134707bcc838e29a0f412464b32542"><div class="ttname"><a href="structkeyblock.html#ab8134707bcc838e29a0f412464b32542">keyblock::workbits</a></div><div class="ttdeci">int workbits</div><div class="ttdoc">bits to work with for BICONF/parity check</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00054">keyblock.h:54</a></div></div>
-<div class="ttc" id="adebug_8c_html_ae2bb952ebc4fe287cfe0e1523ec000cc"><div class="ttname"><a href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a></div><div class="ttdeci">int dumpindex</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00060">debug.c:60</a></div></div>
+<div class="ttc" id="adebug_8c_html_ae2bb952ebc4fe287cfe0e1523ec000cc"><div class="ttname"><a href="debug_8c.html#ae2bb952ebc4fe287cfe0e1523ec000cc">dumpindex</a></div><div class="ttdeci">int dumpindex</div><div class="ttdoc">Debug value for printing.</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00072">debug.c:72</a></div></div>
 <div class="ttc" id="atransferd_8h_html_acb559820d9ca11295b4500f179ef6392"><div class="ttname"><a href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a></div><div class="ttdeci">int i</div><div class="ttdef"><b>Definition:</b> <a href="transferd_8h_source.html#l00321">transferd.h:321</a></div></div>
-<div class="ttc" id="adebug_8c_html_a28d64ae89e528f6024e10b107ccafee6"><div class="ttname"><a href="debug_8c.html#a28d64ae89e528f6024e10b107ccafee6">dumpstate</a></div><div class="ttdeci">void dumpstate(struct keyblock *kb)</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00061">debug.c:61</a></div></div>
-<div class="ttc" id="adebug_8c_html_a4236e119dd934b5e8b0a99d28e8fdf7e"><div class="ttname"><a href="debug_8c.html#a4236e119dd934b5e8b0a99d28e8fdf7e">output_permutation</a></div><div class="ttdeci">void output_permutation(struct keyblock *kb)</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00096">debug.c:96</a></div></div>
-<div class="ttc" id="adebug_8h_html"><div class="ttname"><a href="debug_8h.html">debug.h</a></div></div>
+<div class="ttc" id="adebug_8c_html_a28d64ae89e528f6024e10b107ccafee6"><div class="ttname"><a href="debug_8c.html#a28d64ae89e528f6024e10b107ccafee6">dumpstate</a></div><div class="ttdeci">void dumpstate(struct keyblock *kb)</div><div class="ttdoc">Helper function to dump the state of the system to a disk file .</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00081">debug.c:81</a></div></div>
+<div class="ttc" id="adebug_8c_html_a4236e119dd934b5e8b0a99d28e8fdf7e"><div class="ttname"><a href="debug_8c.html#a4236e119dd934b5e8b0a99d28e8fdf7e">output_permutation</a></div><div class="ttdeci">void output_permutation(struct keyblock *kb)</div><div class="ttdoc">for debug: output permutation</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00120">debug.c:120</a></div></div>
+<div class="ttc" id="adebug_8h_html"><div class="ttname"><a href="debug_8h.html">debug.h</a></div><div class="ttdoc">debugging helper functions for ecd2</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

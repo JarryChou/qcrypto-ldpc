@@ -6,6 +6,9 @@
 		 correction procedure. See main file (ecd2.c) for usag
 		 details. Version as of 20071201
 	    
+ *  Copyright (C) 2020 Matthew Lee, National University
+ *                          of Singapore <crazoter@gmail.com>
+ * 
  Copyright (C) 2005-2007 Christian Kurtsiefer, National University
                          of Singapore <christian.kurtsiefer@gmail.com>
 
@@ -35,6 +38,17 @@
 
 #ifndef EC_PACKET_DEF
 #define EC_PACKET_DEF
+
+enum EcSubtypes {
+    SUBTYPE_QBER_ESTIM = 0,
+    SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES = 2,
+    SUBTYPE_QBER_ESTIM_ACK = 3,
+    SUBTYPE_CASCADE_PARITY_LIST = 4,
+    SUBTYPE_CASCADE_BIN_SEARCH_MSG = 5,
+    SUBTYPE_CASCADE_BICONF_INIT_REQ = 6,
+    SUBTYPE_CASCADE_BICONF_PARITY_RESP = 7,
+    SUBTYPE_START_PRIV_AMP = 8
+};
 
 /**
  * @brief this one is just a mockup for reading a message to determine its length.

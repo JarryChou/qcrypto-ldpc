@@ -1,0 +1,25 @@
+var structarguments =
+[
+    [ "VERBOSITY_EPOCH", "structarguments.html#a080652e5016191c73e72c1befc460008a86170152e69c6b979143dd82325a576d", null ],
+    [ "VERBOSITY_EPOCH_FIN", "structarguments.html#a080652e5016191c73e72c1befc460008a3bd00a002f20b54fc643e790f1b0c1e7", null ],
+    [ "VERBOSITY_EPOCH_INI_FIN_ERR", "structarguments.html#a080652e5016191c73e72c1befc460008a05be64936c9b05e94cf3ce5df76a250e", null ],
+    [ "VERBOSITY_EPOCH_INI_FIN_ERR_PLAIN", "structarguments.html#a080652e5016191c73e72c1befc460008abb6f2ddcd758ea0d0ed4c856346d8647", null ],
+    [ "VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT", "structarguments.html#a080652e5016191c73e72c1befc460008a5a759008f87bbd92a565da2d095f5c23", null ],
+    [ "VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT_WITH_COMMENTS", "structarguments.html#a080652e5016191c73e72c1befc460008aaa53af270f5cae24a0e6028acbc9aa79", null ],
+    [ "END_ON_ERR", "structarguments.html#adf7f9a973375af5cd6787872f88bb536a43604c05c2584d0797d3d7da7874b793", null ],
+    [ "IGNORE_INVALID_PACKETS", "structarguments.html#adf7f9a973375af5cd6787872f88bb536a244eb2e971d404494042b763079109ba", null ],
+    [ "IGNORE_ERRS_ON_OTHER_END", "structarguments.html#adf7f9a973375af5cd6787872f88bb536a6232ed1ae24ef7c4bc55f11c88a7edc1", null ],
+    [ "bellmode", "structarguments.html#af78000c59f253e0d7c3ca2f9fb3075c8", null ],
+    [ "biconf_rounds", "structarguments.html#a53a2a52420c14917ea4eaf982f4c2141", null ],
+    [ "disable_privacyamplification", "structarguments.html#a711839aa2b1afa834c68af6b96ef04d5", null ],
+    [ "errormargin", "structarguments.html#aeb38845130b2c911c9a3d61a550c89ed", null ],
+    [ "fhandle", "structarguments.html#acb34c8b6cb0bb283ab18ae33c2fcee21", null ],
+    [ "fname", "structarguments.html#ab9da3bd5390d5527981684a1d5064e44", null ],
+    [ "handle", "structarguments.html#a010b3658a3dcd362f7515ab8a6058d29", null ],
+    [ "initialerr", "structarguments.html#ae6c6810b046333fb7f8441f0320c60e8", null ],
+    [ "intrinsicerr", "structarguments.html#a0f97538134f3dbe06bdc5b0b1a4fee66", null ],
+    [ "remove_raw_keys_after_use", "structarguments.html#a6afa0ce773c34b814148815675df9a6b", null ],
+    [ "runtimeerrormode", "structarguments.html#af2b10ffb22553532bea52f212afe61e1", null ],
+    [ "skip_qber_estimation", "structarguments.html#ae86a9d076ca954b1f0800c2a18338727", null ],
+    [ "verbosity_level", "structarguments.html#ae541e46d81115b150ccff5b388741f9c", null ]
+];

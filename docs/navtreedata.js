@@ -30,7 +30,8 @@ var NAVTREE =
       [ "Data Structure Index", "classes.html", null ],
       [ "Data Fields", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
-        [ "Variables", "functions_vars.html", "functions_vars" ]
+        [ "Variables", "functions_vars.html", "functions_vars" ],
+        [ "Enumerator", "functions_eval.html", null ]
       ] ]
     ] ],
     [ "Files", "files.html", [
@@ -51,15 +52,15 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"costream_8c.html#a5e4d5eded57665a7c40e22af8ff60b9a",
-"fifobithelpers_8h.html#a51ed05f744dbe921f06813771b0bec76",
-"fx2regs__c_8h.html#a3ecbc79c30d3703b66f54644424cab8c",
-"fx2regs__c_8h.html#a958d1d904cfca1f58416d3cd2c3a4bf6",
-"fx2regs__c_8h.html#aec539b3755f9630424f435cf3ac221fa",
-"notif__handler_8cpp.html#aca404a5190935a8b42b23b6e4256ad2a",
-"splicer_8c.html",
-"structkeyblock.html#ae314ec8f6d803cc48f9451080aeb13e0",
-"transferd_8h.html#a4f33114b553b628e239aec2724cde8cf"
+"costream_8c.html#a5f14e56060eb89721c57df176c16ea1d",
+"fifobithelpers_8h.html#aa09d70e3bd62d8e2510706397431c3aa",
+"fx2regs__c_8h.html#a40734b968288461414e6374b28b74b1a",
+"fx2regs__c_8h.html#a967383630ea8d5ac4e252290f0796511",
+"fx2regs__c_8h.html#aee9ad6f87407a91ffdd3fec7699cdd52",
+"packets_8h.html#a5b50d13daf3bac6b1e99283e5e6831b2",
+"splicer_8c.html#a2766e7e3af5ffa406f6c7d41104db06a",
+"structkeyblock.html#aa80fc600c52bfd73abf5f80591bcab85",
+"transferd_8h.html#a2a1ce3f2040007303d36c0b682b5ac10"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

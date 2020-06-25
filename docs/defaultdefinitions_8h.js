@@ -6,7 +6,7 @@ var defaultdefinitions_8h =
     [ "DEFAULT_BICONF_ROUNDS", "defaultdefinitions_8h.html#a94c768f8a25f442a8e10e5cdd446eb58", null ],
     [ "DEFAULT_ERR_MARGIN", "defaultdefinitions_8h.html#a6a5a750b1c467bf24f5f922a5339b4e3", null ],
     [ "DEFAULT_ERR_SKIPMODE", "defaultdefinitions_8h.html#a6d9f01958be014ec79c7618bb7b14ffd", null ],
-    [ "DEFAULT_INIERR", "defaultdefinitions_8h.html#a57379322053c41585c336746149f46c6", null ],
+    [ "DEFAULT_INITIAL_ERR", "defaultdefinitions_8h.html#a434ff7ba8a95fc500000c6b94677aee2", null ],
     [ "DEFAULT_INTRINSIC", "defaultdefinitions_8h.html#a22c6fd5038baa093a7028d80fc2f55df", null ],
     [ "DEFAULT_KILLMODE", "defaultdefinitions_8h.html#a98e046db9316871de564e6a4b966775c", null ],
     [ "DEFAULT_RUNTIMEERRORMODE", "defaultdefinitions_8h.html#ad53a417c047d3d5cee5401496f5e06ca", null ],
@@ -28,6 +28,12 @@ var defaultdefinitions_8h =
     [ "MIN_ERR_MARGIN", "defaultdefinitions_8h.html#a4f5ccce5f92b3b188ac0fa110c47eb2d", null ],
     [ "MIN_INI_ERR", "defaultdefinitions_8h.html#a3f3192b59954406225891ead671764ec", null ],
     [ "OUTPERMISSIONS", "defaultdefinitions_8h.html#a2c11ab874c0a909ae05d17b0f21d9ac8", null ],
+    [ "PERFECT_BELL", "defaultdefinitions_8h.html#a6c0486d0de2df4486a24c2c2d6837f4f", null ],
     [ "TEMPARRAYSIZE", "defaultdefinitions_8h.html#a28946d96b62ea52ec941a46a3bcb393a", null ],
-    [ "USELESS_ERRORBOUND", "defaultdefinitions_8h.html#ae8e579fa65c1dc9227393833338bb083", null ]
+    [ "USELESS_ERRORBOUND", "defaultdefinitions_8h.html#ae8e579fa65c1dc9227393833338bb083", null ],
+    [ "Boolean", "defaultdefinitions_8h.html#a127a96e09108f503cca20256eaa4ddff", null ],
+    [ "Boolean", "defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13", [
+      [ "False", "defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24", null ],
+      [ "True", "defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13a6d32c34708a0a3507c4bdb89219d650b", null ]
+    ] ]
 ];

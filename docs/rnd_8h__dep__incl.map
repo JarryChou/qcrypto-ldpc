@@ -1,18 +1,19 @@
 <map id="errorcorrection/rnd.h" name="errorcorrection/rnd.h">
-<area shape="rect" id="node1" title=" " alt="" coords="351,5,490,32"/>
-<area shape="rect" id="node2" href="$helpers_8h.html" title=" " alt="" coords="339,80,502,107"/>
-<area shape="rect" id="node4" href="$cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="5,333,164,375"/>
-<area shape="rect" id="node16" href="$rnd_8c.html" title=" " alt="" coords="526,80,665,107"/>
-<area shape="rect" id="node3" href="$comms_8h.html" title=" " alt="" coords="483,162,646,189"/>
-<area shape="rect" id="node6" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="436,430,584,457"/>
-<area shape="rect" id="node8" href="$priv__amp_8h.html" title=" " alt="" coords="342,244,473,285"/>
-<area shape="rect" id="node11" href="$qber__estim_8h.html" title=" " alt="" coords="497,244,632,285"/>
-<area shape="rect" id="node13" href="$thread__mgmt_8h.html" title=" " alt="" coords="196,155,341,196"/>
-<area shape="rect" id="node15" href="$helpers_8c.html" title=" " alt="" coords="670,162,833,189"/>
-<area shape="rect" id="node10" href="$comms_8c.html" title=" " alt="" coords="657,251,819,278"/>
-<area shape="rect" id="node5" href="$cascade__biconf_8c.html" title=" " alt="" coords="5,423,164,464"/>
-<area shape="rect" id="node7" href="$ecd2_8c.html" title=" " alt="" coords="436,512,584,539"/>
-<area shape="rect" id="node9" href="$priv__amp_8c.html" title=" " alt="" coords="317,333,447,375"/>
-<area shape="rect" id="node12" href="$qber__estim_8c.html" title=" " alt="" coords="573,333,708,375"/>
-<area shape="rect" id="node14" href="$thread__mgmt_8c.html" title=" " alt="" coords="71,244,216,285"/>
+<area shape="rect" id="node1" title="Random number sources." alt="" coords="563,5,701,32"/>
+<area shape="rect" id="node2" href="$helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="551,80,713,107"/>
+<area shape="rect" id="node4" href="$cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="78,408,237,449"/>
+<area shape="rect" id="node17" href="$rnd_8c.html" title="functions for pseudorandom number generation and parity generation." alt="" coords="737,80,876,107"/>
+<area shape="rect" id="node3" href="$globalvars_8h.html" title="Definition file for global variables and arguments in ecd2." alt="" coords="543,155,721,181"/>
+<area shape="rect" id="node6" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="577,505,725,531"/>
+<area shape="rect" id="node8" href="$comms_8h.html" title="code on communications w.r.t. error correction." alt="" coords="305,237,468,263"/>
+<area shape="rect" id="node9" href="$priv__amp_8h.html" title="privacy amplification portions of the code" alt="" coords="432,319,563,360"/>
+<area shape="rect" id="node12" href="$qber__estim_8h.html" title=" " alt="" coords="703,319,838,360"/>
+<area shape="rect" id="node14" href="$thread__mgmt_8h.html" title=" " alt="" coords="730,229,875,271"/>
+<area shape="rect" id="node16" href="$helpers_8c.html" title=" " alt="" coords="796,155,959,181"/>
+<area shape="rect" id="node5" href="$cascade__biconf_8c.html" title=" " alt="" coords="78,497,237,539"/>
+<area shape="rect" id="node7" href="$ecd2_8c.html" title=" " alt="" coords="577,587,725,613"/>
+<area shape="rect" id="node11" href="$comms_8c.html" title=" " alt="" coords="195,326,357,353"/>
+<area shape="rect" id="node10" href="$priv__amp_8c.html" title=" " alt="" coords="432,408,563,449"/>
+<area shape="rect" id="node13" href="$qber__estim_8c.html" title=" " alt="" coords="739,408,874,449"/>
+<area shape="rect" id="node15" href="$thread__mgmt_8c.html" title=" " alt="" coords="931,319,1077,360"/>
 </map>

@@ -209,6 +209,7 @@ Functions</h2></td></tr>
 <tr class="memitem:a7e235e24fe70e448a4897ab0ebbd1c79"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#a7e235e24fe70e448a4897ab0ebbd1c79">initiate_phasetable</a> (struct <a class="el" href="structotto.html">otto</a> *patterntab)</td></tr>
 <tr class="separator:a7e235e24fe70e448a4897ab0ebbd1c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd2e1b2dee36ccbff485d8e70b117170"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a> (int code)</td></tr>
+<tr class="memdesc:acd2e1b2dee36ccbff485d8e70b117170"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print error message based on err code.  <a href="readevents3_8c.html#acd2e1b2dee36ccbff485d8e70b117170">More...</a><br /></td></tr>
 <tr class="separator:acd2e1b2dee36ccbff485d8e70b117170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf9cde8931d0469b21844ef9939d9f57"><td class="memItemLeft" align="right" valign="top">unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#adf9cde8931d0469b21844ef9939d9f57">my_time</a> (void)</td></tr>
 <tr class="separator:adf9cde8931d0469b21844ef9939d9f57"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -221,6 +222,7 @@ Functions</h2></td></tr>
 <tr class="memitem:a5f4fb0ea5a1d1067e46c4f5e214a7880"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#a5f4fb0ea5a1d1067e46c4f5e214a7880">process_quads</a> (void *sourcebuffer, int startquad, int endquad)</td></tr>
 <tr class="separator:a5f4fb0ea5a1d1067e46c4f5e214a7880"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ddf1224851353fc92bfbff6f499fa97"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#a0ddf1224851353fc92bfbff6f499fa97">main</a> (int argc, char *argv[])</td></tr>
+<tr class="memdesc:a0ddf1224851353fc92bfbff6f499fa97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main code.  <a href="readevents3_8c.html#a0ddf1224851353fc92bfbff6f499fa97">More...</a><br /></td></tr>
 <tr class="separator:a0ddf1224851353fc92bfbff6f499fa97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -805,6 +807,15 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Print error message based on err code. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">code</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>int </dd></dl>
+
 <p class="definition">Definition at line <a class="el" href="readevents3_8c_source.html#l00322">322</a> of file <a class="el" href="readevents3_8c_source.html">readevents3.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                   {</div>
 <div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;  fprintf(stderr,<span class="stringliteral">&quot;%s\n&quot;</span>,<a class="code" href="readevents3_8c.html#a61222323241c09cae5290bdb8e7d4916">errormessage</a>[code]);</div>
@@ -865,10 +876,21 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Main code. </p>
+<p>Contains the main loop.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">argc</td><td></td></tr>
+    <tr><td class="paramname">argv</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>int </dd></dl>
+
 <p class="definition">Definition at line <a class="el" href="readevents3_8c_source.html#l00679">679</a> of file <a class="el" href="readevents3_8c_source.html">readevents3.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;                                 {</div>
 <div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="transferd_8h.html#a217e4b46670419e6c3665b3c9f96b7da">opt</a>; <span class="comment">/* for parsing command line options */</span></div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="ecd2_8h.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a> = <a class="code" href="readevents3_8c.html#a20610841bdaddedcf51131de8f973ed9">DEFAULT_VERBOSITY</a>;</div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="chopper_8c.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a> = <a class="code" href="readevents3_8c.html#a20610841bdaddedcf51131de8f973ed9">DEFAULT_VERBOSITY</a>;</div>
 <div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    <span class="keywordtype">int</span> input_treshold = <a class="code" href="readevents3_8c.html#aa1b5ec30739a4565d0b98b4500da8586">DEFAULT_INPUT_TRESHOLD</a>;</div>
 <div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;    <span class="keywordtype">int</span> fh; <span class="comment">/* file handle for device file */</span></div>
 <div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *startad=NULL;  <span class="comment">/* pointer to DMA buffer */</span></div>
@@ -901,8 +923,8 @@ Variables</h2></td></tr>
 <div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;    <span class="keywordflow">while</span> ((<a class="code" href="transferd_8h.html#a217e4b46670419e6c3665b3c9f96b7da">opt</a>=getopt(argc, argv, <span class="stringliteral">&quot;t:q:rRAa:v:s:c:j:p:FiexS:m:d:D:uU:Y:&quot;</span>)) != EOF) {</div>
 <div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;    <span class="keywordflow">switch</span>(<a class="code" href="transferd_8h.html#a217e4b46670419e6c3665b3c9f96b7da">opt</a>) {</div>
 <div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;        <span class="keywordflow">case</span> <span class="charliteral">&#39;v&#39;</span>: <span class="comment">/* set verbosity level */</span></div>
-<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;        sscanf(optarg,<span class="stringliteral">&quot;%d&quot;</span>,&amp;<a class="code" href="ecd2_8h.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a>);</div>
-<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;        <span class="keywordflow">if</span> ((<a class="code" href="ecd2_8h.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a>&lt;0) || (<a class="code" href="ecd2_8h.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a>&gt;<a class="code" href="readevents3_8c.html#a7449a5807849c4a6858633f3d486c369">MAX_VERBOSITY</a>))</div>
+<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;        sscanf(optarg,<span class="stringliteral">&quot;%d&quot;</span>,&amp;<a class="code" href="chopper_8c.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a>);</div>
+<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;        <span class="keywordflow">if</span> ((<a class="code" href="chopper_8c.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a>&lt;0) || (<a class="code" href="chopper_8c.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a>&gt;<a class="code" href="readevents3_8c.html#a7449a5807849c4a6858633f3d486c369">MAX_VERBOSITY</a>))</div>
 <div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;            <span class="keywordflow">return</span> -<a class="code" href="readevents3_8c.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a>(1);</div>
 <div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;        <span class="keywordflow">break</span>;</div>
 <div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;        <span class="keywordflow">case</span> <span class="charliteral">&#39;t&#39;</span>: <span class="comment">/*set treshold value */</span></div>
@@ -2300,12 +2322,13 @@ Variables</h2></td></tr>
 <div class="ttc" id="areadevents3_8c_html_a1be6e08513f53f0cf598c123df230f35"><div class="ttname"><a href="readevents3_8c.html#a1be6e08513f53f0cf598c123df230f35">timer_handler</a></div><div class="ttdeci">void timer_handler(int sig)</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00366">readevents3.c:366</a></div></div>
 <div class="ttc" id="astructprocessedtime_html"><div class="ttname"><a href="structprocessedtime.html">processedtime</a></div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00420">readevents3.c:420</a></div></div>
 <div class="ttc" id="astructotto_html_a8d5059e1825d802c5e3044915eb71059"><div class="ttname"><a href="structotto.html#a8d5059e1825d802c5e3044915eb71059">otto::value</a></div><div class="ttdeci">int value</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00274">readevents3.c:274</a></div></div>
-<div class="ttc" id="areadevents3_8c_html_acd2e1b2dee36ccbff485d8e70b117170"><div class="ttname"><a href="readevents3_8c.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a></div><div class="ttdeci">int emsg(int code)</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00322">readevents3.c:322</a></div></div>
+<div class="ttc" id="areadevents3_8c_html_acd2e1b2dee36ccbff485d8e70b117170"><div class="ttname"><a href="readevents3_8c.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a></div><div class="ttdeci">int emsg(int code)</div><div class="ttdoc">Print error message based on err code.</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00322">readevents3.c:322</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_a28e0a0e50715b76a0173bab3492a9fd3"><div class="ttname"><a href="readevents3_8c.html#a28e0a0e50715b76a0173bab3492a9fd3">outbuf</a></div><div class="ttdeci">struct processedtime outbuf[dmasize_in_longints/2]</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00404">readevents3.c:421</a></div></div>
 <div class="ttc" id="atimetag__io2_8c_html_a8431eed1575f2a3d93ef124bddfc613f"><div class="ttname"><a href="timetag__io2_8c.html#a8431eed1575f2a3d93ef124bddfc613f">start_dma</a></div><div class="ttdeci">void start_dma(int handle)</div><div class="ttdef"><b>Definition:</b> <a href="timetag__io2_8c_source.html#l00179">timetag_io2.c:179</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_afccaee18c6b4a3cff1409b2970cd1d11"><div class="ttname"><a href="readevents3_8c.html#afccaee18c6b4a3cff1409b2970cd1d11">lasttime</a></div><div class="ttdeci">unsigned long long lasttime[16]</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00332">readevents3.c:332</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_a5b6cf1521f5a340b835091eaf48f7151"><div class="ttname"><a href="readevents3_8c.html#a5b6cf1521f5a340b835091eaf48f7151">skipnumber</a></div><div class="ttdeci">int skipnumber</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00245">readevents3.c:245</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_ae3521500ec29060e8ccf57bebef59031"><div class="ttname"><a href="readevents3_8c.html#ae3521500ec29060e8ccf57bebef59031">DEFAULT_CLOCKSOURCE</a></div><div class="ttdeci">#define DEFAULT_CLOCKSOURCE</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00213">readevents3.c:212</a></div></div>
+<div class="ttc" id="achopper_8c_html_a1f893df415a3af2c9b549367a95b99b2"><div class="ttname"><a href="chopper_8c.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a></div><div class="ttdeci">int verbosity_level</div><div class="ttdef"><b>Definition:</b> <a href="chopper_8c_source.html#l00434">chopper.c:434</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_a65f0b82d1722b3b5b6676bb3044e5a0c"><div class="ttname"><a href="readevents3_8c.html#a65f0b82d1722b3b5b6676bb3044e5a0c">dmabuf_complainwatermark</a></div><div class="ttdeci">#define dmabuf_complainwatermark</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00259">readevents3.c:258</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_a5dbca5ac4440e45630fec19e3b893487"><div class="ttname"><a href="readevents3_8c.html#a5dbca5ac4440e45630fec19e3b893487">trap_diffavg</a></div><div class="ttdeci">int trap_diffavg</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00241">readevents3.c:241</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_a38c4315c289af5482c6f9219ebea0e8e"><div class="ttname"><a href="readevents3_8c.html#a38c4315c289af5482c6f9219ebea0e8e">usbtimetag_devicename</a></div><div class="ttdeci">char usbtimetag_devicename[200]</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00249">readevents3.c:249</a></div></div>
@@ -2357,7 +2380,6 @@ Variables</h2></td></tr>
 <div class="ttc" id="areadevents3_8c_html_adf9cde8931d0469b21844ef9939d9f57"><div class="ttname"><a href="readevents3_8c.html#adf9cde8931d0469b21844ef9939d9f57">my_time</a></div><div class="ttdeci">unsigned long long my_time(void)</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00339">readevents3.c:339</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_a7ba00d8b422d3918ad15e4d7e86a63e9"><div class="ttname"><a href="readevents3_8c.html#a7ba00d8b422d3918ad15e4d7e86a63e9">maxevents</a></div><div class="ttdeci">int maxevents</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00231">readevents3.c:231</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_a217ecf42a8ab65210fcb0e98045ebf1a"><div class="ttname"><a href="readevents3_8c.html#a217ecf42a8ab65210fcb0e98045ebf1a">MAX_CAL_VALUE</a></div><div class="ttdeci">#define MAX_CAL_VALUE</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00216">readevents3.c:215</a></div></div>
-<div class="ttc" id="aecd2_8h_html_a1f893df415a3af2c9b549367a95b99b2"><div class="ttname"><a href="ecd2_8h.html#a1f893df415a3af2c9b549367a95b99b2">verbosity_level</a></div><div class="ttdeci">int verbosity_level</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00219">ecd2.h:219</a></div></div>
 <div class="ttc" id="atimetag__io2_8c_html_ab0fddc14148e3a37c76dadf90aa3cbde"><div class="ttname"><a href="timetag__io2_8c.html#ab0fddc14148e3a37c76dadf90aa3cbde">initialize_DAC</a></div><div class="ttdeci">int initialize_DAC(int handle)</div><div class="ttdef"><b>Definition:</b> <a href="timetag__io2_8c_source.html#l00052">timetag_io2.c:52</a></div></div>
 <div class="ttc" id="areadevents3_8c_html_aa9917c460d33c2c4b1df88aa5c503e08"><div class="ttname"><a href="readevents3_8c.html#aa9917c460d33c2c4b1df88aa5c503e08">controltime_getmeone</a></div><div class="ttdeci">unsigned int controltime_getmeone</div><div class="ttdef"><b>Definition:</b> <a href="readevents3_8c_source.html#l00362">readevents3.c:362</a></div></div>
 <div class="ttc" id="atransferd_8h_html_acb559820d9ca11295b4500f179ef6392"><div class="ttname"><a href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a></div><div class="ttdeci">int i</div><div class="ttdef"><b>Definition:</b> <a href="transferd_8h_source.html#l00321">transferd.h:321</a></div></div>

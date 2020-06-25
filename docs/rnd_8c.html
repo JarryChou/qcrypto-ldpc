@@ -90,14 +90,17 @@ $(document).ready(function(){initNavTree('rnd_8c.html',''); initResizable(); });
 <div class="title">rnd.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>functions for pseudorandom number generation and parity generation.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="rnd_8h_source.html">rnd.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for rnd.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="rnd_8c__incl.png" border="0" usemap="#aerrorcorrection_2rnd_8c" alt=""/></div>
 <map name="errorcorrection_2rnd_8c" id="aerrorcorrection_2rnd_8c">
-<area shape="rect" title=" " alt="" coords="5,5,144,32"/>
-<area shape="rect" href="rnd_8h.html" title=" " alt="" coords="49,80,100,107"/>
+<area shape="rect" title="functions for pseudorandom number generation and parity generation." alt="" coords="5,5,144,32"/>
+<area shape="rect" href="rnd_8h.html" title="Random number sources." alt="" coords="49,80,100,107"/>
 </map>
 </div>
 </div>
@@ -106,28 +109,49 @@ Include dependency graph for rnd.c:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:abcc0dd5e29de4965c7b9816465f933b7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a> (unsigned int a)</td></tr>
+<tr class="memdesc:abcc0dd5e29de4965c7b9816465f933b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">this is an implementation of an m-sequence  <a href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">More...</a><br /></td></tr>
 <tr class="separator:abcc0dd5e29de4965c7b9816465f933b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8effe8c813e65d7a4b250ab817cc826c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#a8effe8c813e65d7a4b250ab817cc826c">set_PRNG_seed</a> (unsigned int seed)</td></tr>
+<tr class="memdesc:a8effe8c813e65d7a4b250ab817cc826c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the PRNG seed object.  <a href="rnd_8c.html#a8effe8c813e65d7a4b250ab817cc826c">More...</a><br /></td></tr>
 <tr class="separator:a8effe8c813e65d7a4b250ab817cc826c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5abf20c27660e20972c8a1573267dfe1"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#a5abf20c27660e20972c8a1573267dfe1">PRNG_value</a> (int k)</td></tr>
+<tr class="memdesc:a5abf20c27660e20972c8a1573267dfe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">get k bits from PSRNG  <a href="rnd_8c.html#a5abf20c27660e20972c8a1573267dfe1">More...</a><br /></td></tr>
 <tr class="separator:a5abf20c27660e20972c8a1573267dfe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd261d6d18bfbb9463ea56f5a221770a"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#abd261d6d18bfbb9463ea56f5a221770a">PRNG_value2</a> (int k, unsigned int *state)</td></tr>
+<tr class="memdesc:abd261d6d18bfbb9463ea56f5a221770a"><td class="mdescLeft">&#160;</td><td class="mdescRight">version which iterates the PRNG from a given state location  <a href="rnd_8c.html#abd261d6d18bfbb9463ea56f5a221770a">More...</a><br /></td></tr>
 <tr class="separator:abd261d6d18bfbb9463ea56f5a221770a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a099de46fae1a39893ab79719bf42f2c2"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#a099de46fae1a39893ab79719bf42f2c2">PRNG_value2_32</a> (unsigned int *state)</td></tr>
 <tr class="separator:a099de46fae1a39893ab79719bf42f2c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2a777a0247b5da8c6f49b2da2edbc93"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#ad2a777a0247b5da8c6f49b2da2edbc93">RNG_calls</a> (void)</td></tr>
-<tr class="separator:ad2a777a0247b5da8c6f49b2da2edbc93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a5da93987a0344a3d175d566880df92"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#a6a5da93987a0344a3d175d566880df92">get_RNG_calls</a> (void)</td></tr>
+<tr class="memdesc:a6a5da93987a0344a3d175d566880df92"><td class="mdescLeft">&#160;</td><td class="mdescRight">get number of times RNG has been calle  <a href="rnd_8c.html#a6a5da93987a0344a3d175d566880df92">More...</a><br /></td></tr>
+<tr class="separator:a6a5da93987a0344a3d175d566880df92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9442118526276dea7a18026f1af5d33"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#ac9442118526276dea7a18026f1af5d33">get_r_seed</a> (void)</td></tr>
+<tr class="memdesc:ac9442118526276dea7a18026f1af5d33"><td class="mdescLeft">&#160;</td><td class="mdescRight">helper function to get a seed from the random device  <a href="rnd_8c.html#ac9442118526276dea7a18026f1af5d33">More...</a><br /></td></tr>
 <tr class="separator:ac9442118526276dea7a18026f1af5d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:ad8756d06439571bd71f80c6d4f564682"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a> = 0</td></tr>
+<tr class="memdesc:ad8756d06439571bd71f80c6d4f564682"><td class="mdescLeft">&#160;</td><td class="mdescRight">for test purposes  <a href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">More...</a><br /></td></tr>
 <tr class="separator:ad8756d06439571bd71f80c6d4f564682"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08cd6b456564193a95d61f08e1261b3a"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a></td></tr>
+<tr class="memdesc:a08cd6b456564193a95d61f08e1261b3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">PRNG state.  <a href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">More...</a><br /></td></tr>
 <tr class="separator:a08cd6b456564193a95d61f08e1261b3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>functions for pseudorandom number generation and parity generation. </p>
+<pre class="fragment">    Description &amp; reasoning see main error correction file
+    Version as of 20070101
+</pre><p>Copyright (C) 2005-2006 Christian Kurtsiefer, National University of Singapore <a href="#" onclick="location.href='mai'+'lto:'+'chr'+'is'+'tia'+'n.'+'kur'+'ts'+'ief'+'er'+'@gm'+'ai'+'l.c'+'om'; return false;">chris<span style="display: none;">.nosp@m.</span>tian<span style="display: none;">.nosp@m.</span>.kurt<span style="display: none;">.nosp@m.</span>sief<span style="display: none;">.nosp@m.</span>er@gm<span style="display: none;">.nosp@m.</span>ail.<span style="display: none;">.nosp@m.</span>com</a></p>
+<p>This source code is free software; you can redistribute it and/or modify it under the terms of the GNU Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>This source code is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Please refer to the GNU Public License for more details.</p>
+<p>You should have received a copy of the GNU Public License along with this source code; if not, write to: Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.</p>
+<hr  />
+<p>parity function. Should do something like a __builtin_parity, but runs on a gcc 3.3 atgument is a 32 bit unsigned int, result is 1 for odd and 0 for even parity</p>
+<p>status: 22.3.06 12:00 chk </p>
+
+<p class="definition">Definition in file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+</div><h2 class="groupheader">Function Documentation</h2>
 <a id="ac9442118526276dea7a18026f1af5d33"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac9442118526276dea7a18026f1af5d33">&#9670;&nbsp;</a></span>get_r_seed()</h2>
 
@@ -144,22 +168,50 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00101">101</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                              {</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">int</span> rndhandle; <span class="comment">/* keep device handle for random device */</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> reply;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  rndhandle = open(<a class="code" href="rnd_8h.html#aaea73438572cc3794c335c6ed21b7584">RANDOMGENERATOR</a>, O_RDONLY);</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordflow">if</span> (-1 == rndhandle) {</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    fprintf(stderr, <span class="stringliteral">&quot;errno: %d&quot;</span>, errno);</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keywordflow">return</span> 39;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  }</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordflow">if</span> (<span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) != read(rndhandle, &amp;reply, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>))) {</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordflow">return</span> 0; <span class="comment">/* not enough */</span></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  }</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  close(rndhandle);</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keywordflow">return</span> reply;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;}</div>
+<p>helper function to get a seed from the random device </p>
+<p>helper function to get a seed from the random device; returns seed or 0 on error</p>
+<dl class="section return"><dt>Returns</dt><dd>unsigned int, seed or 0 on error </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00142">142</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;                              {</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="keywordtype">int</span> rndhandle; <span class="comment">/* keep device handle for random device */</span></div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> reply;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160; </div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  rndhandle = open(<a class="code" href="rnd_8h.html#aaea73438572cc3794c335c6ed21b7584">RANDOMGENERATOR</a>, O_RDONLY);</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordflow">if</span> (-1 == rndhandle) {</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    fprintf(stderr, <span class="stringliteral">&quot;errno: %d&quot;</span>, errno);</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordflow">return</span> 39;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  }</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  <span class="keywordflow">if</span> (<span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) != read(rndhandle, &amp;reply, <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>))) {</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keywordflow">return</span> 0; <span class="comment">/* not enough */</span></div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;  }</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  close(rndhandle);</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="keywordflow">return</span> reply;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a6a5da93987a0344a3d175d566880df92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a5da93987a0344a3d175d566880df92">&#9670;&nbsp;</a></span>get_RNG_calls()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int get_RNG_calls </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>get number of times RNG has been calle </p>
+<dl class="section return"><dt>Returns</dt><dd>int </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00135">135</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;{ <span class="keywordflow">return</span> <a class="code" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a>; };</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -179,25 +231,35 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00037">37</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                           {</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">int</span> b;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordtype">int</span> c, d0;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keyword">asm</span>(<span class="stringliteral">&quot;movl $0,%2\n&quot;</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      <span class="stringliteral">&quot;\tmovl %3,%0\n&quot;</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      <span class="stringliteral">&quot;\tmovl %0,%1\n&quot;</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;      <span class="stringliteral">&quot;\tshrl $16,%1\n&quot;</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      <span class="stringliteral">&quot;\txorl %0,%1\n&quot;</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <span class="stringliteral">&quot;\tmovl %1,%0\n&quot;</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      <span class="stringliteral">&quot;\tshrl $8,%1\n&quot;</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="stringliteral">&quot;\txorl %1,%0\n&quot;</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="stringliteral">&quot;\tjpe 1f\n&quot;</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="stringliteral">&quot;\tmovl $1,%2\n&quot;</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      <span class="stringliteral">&quot;1:&quot;</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      : <span class="stringliteral">&quot;=&amp;a&quot;</span>(d0), <span class="stringliteral">&quot;=&amp;D&quot;</span>(c), <span class="stringliteral">&quot;=&amp;c&quot;</span>(b)</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      : <span class="stringliteral">&quot;d&quot;</span>(a));</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordflow">return</span> b;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
+<p>this is an implementation of an m-sequence </p>
+<p>takes less than 17 nsec on my laptop</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>int </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00043">43</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;                           {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keywordtype">int</span> b;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keywordtype">int</span> c, d0;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">asm</span>(<span class="stringliteral">&quot;movl $0,%2\n&quot;</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="stringliteral">&quot;\tmovl %3,%0\n&quot;</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="stringliteral">&quot;\tmovl %0,%1\n&quot;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="stringliteral">&quot;\tshrl $16,%1\n&quot;</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      <span class="stringliteral">&quot;\txorl %0,%1\n&quot;</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      <span class="stringliteral">&quot;\tmovl %1,%0\n&quot;</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      <span class="stringliteral">&quot;\tshrl $8,%1\n&quot;</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      <span class="stringliteral">&quot;\txorl %1,%0\n&quot;</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="stringliteral">&quot;\tjpe 1f\n&quot;</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;      <span class="stringliteral">&quot;\tmovl $1,%2\n&quot;</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;      <span class="stringliteral">&quot;1:&quot;</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;      : <span class="stringliteral">&quot;=&amp;a&quot;</span>(d0), <span class="stringliteral">&quot;=&amp;D&quot;</span>(c), <span class="stringliteral">&quot;=&amp;c&quot;</span>(b)</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;      : <span class="stringliteral">&quot;d&quot;</span>(a));</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordflow">return</span> b;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -217,17 +279,26 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00062">62</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                               {</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">int</span> k0;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordtype">int</span> b;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordflow">for</span> (k0 = k; k0; k0--) {</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    b = <a class="code" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a>(<a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> &lt;&lt;= 1;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> += b;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  }</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; k) - 1) &amp; <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a>;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;}</div>
+<p>get k bits from PSRNG </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>unsigned int </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00082">82</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                               {</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordtype">int</span> k0;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <span class="keywordtype">int</span> b;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keywordflow">for</span> (k0 = k; k0; k0--) {</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    b = <a class="code" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a>(<a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> &lt;&lt;= 1;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> += b;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  }</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; k) - 1) &amp; <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a>;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -257,18 +328,28 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00074">74</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                                                     {</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="keywordtype">int</span> k0;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="keywordtype">int</span> b;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="keywordflow">for</span> (k0 = k; k0; k0--) {</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    b = <a class="code" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    *state &lt;&lt;= 1;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    *state += b;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  }</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  <a class="code" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a>++;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; k) - 1) &amp; *state;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}</div>
+<p>version which iterates the PRNG from a given state location </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k</td><td></td></tr>
+    <tr><td class="paramname">state</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>unsigned int </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00100">100</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                                                     {</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordtype">int</span> k0;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">int</span> b;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordflow">for</span> (k0 = k; k0; k0--) {</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    b = <a class="code" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    *state &lt;&lt;= 1;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    *state += b;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  }</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <a class="code" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a>++;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; k) - 1) &amp; *state;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -287,40 +368,26 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">state</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>unsigned int </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00085">85</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                                                 {</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordtype">int</span> k0;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="keywordtype">int</span> b;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <span class="keywordflow">for</span> (k0 = 32; k0; k0--) {</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    b = <a class="code" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    *state &lt;&lt;= 1;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    *state += b;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  }</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <a class="code" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a>++;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <span class="keywordflow">return</span> *state;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;}</div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="ad2a777a0247b5da8c6f49b2da2edbc93"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad2a777a0247b5da8c6f49b2da2edbc93">&#9670;&nbsp;</a></span>RNG_calls()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int RNG_calls </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00097">97</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;{ <span class="keywordflow">return</span> <a class="code" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a>; };</div>
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00118">118</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                                                 {</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="keywordtype">int</span> k0;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="keywordtype">int</span> b;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="keywordflow">for</span> (k0 = 32; k0; k0--) {</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    b = <a class="code" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    *state &lt;&lt;= 1;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    *state += b;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  }</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  <a class="code" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a>++;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  <span class="keywordflow">return</span> *state;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -340,8 +407,17 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00060">60</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;{ <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> = seed; }</div>
+<p>Set the PRNG seed object. </p>
+<p>PSRNG fuction which sets a seed</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">seed</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00075">75</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;{ <a class="code" href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a> = seed; }</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -358,7 +434,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00059">59</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<p>PRNG state. </p>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00066">66</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
 
 </div>
 </div>
@@ -374,17 +452,19 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00034">34</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
+<p>for test purposes </p>
+
+<p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00033">33</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="arnd_8c_html_ad8756d06439571bd71f80c6d4f564682"><div class="ttname"><a href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a></div><div class="ttdeci">int __RNG_calls</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00034">rnd.c:34</a></div></div>
-<div class="ttc" id="arnd_8c_html_abcc0dd5e29de4965c7b9816465f933b7"><div class="ttname"><a href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a></div><div class="ttdeci">int parity(unsigned int a)</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00037">rnd.c:37</a></div></div>
-<div class="ttc" id="arnd_8h_html_ad2620c817b87013a6bae795ee428d8f2"><div class="ttname"><a href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a></div><div class="ttdeci">#define PRNG_FEEDBACK</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00041">rnd.h:40</a></div></div>
-<div class="ttc" id="arnd_8h_html_aaea73438572cc3794c335c6ed21b7584"><div class="ttname"><a href="rnd_8h.html#aaea73438572cc3794c335c6ed21b7584">RANDOMGENERATOR</a></div><div class="ttdeci">#define RANDOMGENERATOR</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00051">rnd.h:50</a></div></div>
-<div class="ttc" id="arnd_8c_html_a08cd6b456564193a95d61f08e1261b3a"><div class="ttname"><a href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a></div><div class="ttdeci">unsigned int __PRNG_state</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00059">rnd.c:59</a></div></div>
+<div class="ttc" id="arnd_8c_html_ad8756d06439571bd71f80c6d4f564682"><div class="ttname"><a href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a></div><div class="ttdeci">int __RNG_calls</div><div class="ttdoc">for test purposes</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00033">rnd.c:33</a></div></div>
+<div class="ttc" id="arnd_8c_html_abcc0dd5e29de4965c7b9816465f933b7"><div class="ttname"><a href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a></div><div class="ttdeci">int parity(unsigned int a)</div><div class="ttdoc">this is an implementation of an m-sequence</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00043">rnd.c:43</a></div></div>
+<div class="ttc" id="arnd_8h_html_ad2620c817b87013a6bae795ee428d8f2"><div class="ttname"><a href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a></div><div class="ttdeci">#define PRNG_FEEDBACK</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00044">rnd.h:43</a></div></div>
+<div class="ttc" id="arnd_8h_html_aaea73438572cc3794c335c6ed21b7584"><div class="ttname"><a href="rnd_8h.html#aaea73438572cc3794c335c6ed21b7584">RANDOMGENERATOR</a></div><div class="ttdeci">#define RANDOMGENERATOR</div><div class="ttdoc">typical file names</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00059">rnd.h:58</a></div></div>
+<div class="ttc" id="arnd_8c_html_a08cd6b456564193a95d61f08e1261b3a"><div class="ttname"><a href="rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a">__PRNG_state</a></div><div class="ttdeci">unsigned int __PRNG_state</div><div class="ttdoc">PRNG state.</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00066">rnd.c:66</a></div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

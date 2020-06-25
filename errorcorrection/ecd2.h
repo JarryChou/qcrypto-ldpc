@@ -7,6 +7,9 @@
  *  see below. Version as of 20071228, works also for Ekert-91
  *  type protocols.
  * 
+ *  Copyright (C) 2020 Matthew Lee, National University
+ *                          of Singapore <crazoter@gmail.com>
+ * 
  *  Copyright (C) 2005-2007 Christian Kurtsiefer, National University
  *                          of Singapore <christian.kurtsiefer@gmail.com>
  * 
@@ -307,14 +310,22 @@ char *errormessage[] = {
 };
 /// @}
 
+// Helper enums
+
 // HELPER FUNCTION DECLARATIONS
 /* ------------------------------------------------------------------------- */
 int emsg(int code);
 int parse_options(int argc, char *argv[]);
 
-// MAIN FUNCTION DECLARATIONS (OTHERS)
-/* ------------------------------------------------------------------------- */
+int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax, Boolean hasContentToSend, struct timeval timeout);
+int write_into_sendpipe(int *send_index_ptr);
+int process_cmd_pipe(char* dpnt, char* cmd_input, int ipt);
+int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt);
 int process_command(char *in);      /* process a command (e.g. epoch epochNum), terminated with \0 */
-int main(int argc, char *argv[]);
+int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, struct ERRC_PROTO *msgprotobuf_ptr);
+
+// MAIN FUNCTION DECLARATION
+/* ------------------------------------------------------------------------- */
+int main(int argc, char *argv[]);   
 
 #endif /* ECD2_H */

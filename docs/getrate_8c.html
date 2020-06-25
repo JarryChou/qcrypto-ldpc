@@ -146,8 +146,10 @@ Typedefs</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:acd2e1b2dee36ccbff485d8e70b117170"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="getrate_8c.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a> (int code)</td></tr>
+<tr class="memdesc:acd2e1b2dee36ccbff485d8e70b117170"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print error message based on err code.  <a href="getrate_8c.html#acd2e1b2dee36ccbff485d8e70b117170">More...</a><br /></td></tr>
 <tr class="separator:acd2e1b2dee36ccbff485d8e70b117170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ddf1224851353fc92bfbff6f499fa97"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="getrate_8c.html#a0ddf1224851353fc92bfbff6f499fa97">main</a> (int argc, char *argv[])</td></tr>
+<tr class="memdesc:a0ddf1224851353fc92bfbff6f499fa97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main code.  <a href="getrate_8c.html#a0ddf1224851353fc92bfbff6f499fa97">More...</a><br /></td></tr>
 <tr class="separator:a0ddf1224851353fc92bfbff6f499fa97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -334,6 +336,15 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Print error message based on err code. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">code</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>int </dd></dl>
+
 <p class="definition">Definition at line <a class="el" href="getrate_8c_source.html#l00106">106</a> of file <a class="el" href="getrate_8c_source.html">getrate.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                   {</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    fprintf(stderr,<span class="stringliteral">&quot;%s\n&quot;</span>,<a class="code" href="getrate_8c.html#a61222323241c09cae5290bdb8e7d4916">errormessage</a>[code]);</div>
@@ -367,6 +378,17 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Main code. </p>
+<p>Contains the main loop.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">argc</td><td></td></tr>
+    <tr><td class="paramname">argv</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>int </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="getrate_8c_source.html#l00118">118</a> of file <a class="el" href="getrate_8c_source.html">getrate.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                                  {</div>
@@ -653,7 +675,7 @@ Variables</h2></td></tr>
 <div class="ttc" id="agetrate_8c_html_af155d667a6783437fb24431b193e8882"><div class="ttname"><a href="getrate_8c.html#af155d667a6783437fb24431b193e8882">cmask</a></div><div class="ttdeci">unsigned int cmask[9]</div><div class="ttdef"><b>Definition:</b> <a href="getrate_8c_source.html#l00116">getrate.c:116</a></div></div>
 <div class="ttc" id="agetrate_8c_html_a4f33114b553b628e239aec2724cde8cf"><div class="ttname"><a href="getrate_8c.html#a4f33114b553b628e239aec2724cde8cf">FNAMFORMAT</a></div><div class="ttdeci">#define FNAMFORMAT</div><div class="ttdef"><b>Definition:</b> <a href="getrate_8c_source.html#l00083">getrate.c:82</a></div></div>
 <div class="ttc" id="agetrate_8c_html_ab66c7a4494d4e8fcd8b1542200f52317"><div class="ttname"><a href="getrate_8c.html#ab66c7a4494d4e8fcd8b1542200f52317">BUF_IN_INENVENTS</a></div><div class="ttdeci">#define BUF_IN_INENVENTS</div><div class="ttdef"><b>Definition:</b> <a href="getrate_8c_source.html#l00088">getrate.c:87</a></div></div>
-<div class="ttc" id="agetrate_8c_html_acd2e1b2dee36ccbff485d8e70b117170"><div class="ttname"><a href="getrate_8c.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a></div><div class="ttdeci">int emsg(int code)</div><div class="ttdef"><b>Definition:</b> <a href="getrate_8c_source.html#l00106">getrate.c:106</a></div></div>
+<div class="ttc" id="agetrate_8c_html_acd2e1b2dee36ccbff485d8e70b117170"><div class="ttname"><a href="getrate_8c.html#acd2e1b2dee36ccbff485d8e70b117170">emsg</a></div><div class="ttdeci">int emsg(int code)</div><div class="ttdoc">Print error message based on err code.</div><div class="ttdef"><b>Definition:</b> <a href="getrate_8c_source.html#l00106">getrate.c:106</a></div></div>
 <div class="ttc" id="agetrate_8c_html_ad89402dc17e6ad05d944a24396460c13"><div class="ttname"><a href="getrate_8c.html#ad89402dc17e6ad05d944a24396460c13">DEFAULT_SPLITOPTION</a></div><div class="ttdeci">#define DEFAULT_SPLITOPTION</div><div class="ttdef"><b>Definition:</b> <a href="getrate_8c_source.html#l00087">getrate.c:86</a></div></div>
 <div class="ttc" id="agetrate_8c_html_a5ab720e698e2cb8f94c83bdc6d89b31a"><div class="ttname"><a href="getrate_8c.html#a5ab720e698e2cb8f94c83bdc6d89b31a">DEFAULT_EVENTS</a></div><div class="ttdeci">#define DEFAULT_EVENTS</div><div class="ttdef"><b>Definition:</b> <a href="getrate_8c_source.html#l00086">getrate.c:85</a></div></div>
 <div class="ttc" id="atransferd_8h_html_a217e4b46670419e6c3665b3c9f96b7da"><div class="ttname"><a href="transferd_8h.html#a217e4b46670419e6c3665b3c9f96b7da">opt</a></div><div class="ttdeci">int opt</div><div class="ttdef"><b>Definition:</b> <a href="transferd_8h_source.html#l00321">transferd.h:321</a></div></div>

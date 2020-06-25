@@ -137,22 +137,116 @@ int open_pipelines() {
   return 0;
 }
 
-// MAIN FUNCTION DECLARATIONS (OTHERS)
-/*------------------------------------------------------------------------- */
+/**
+ * @brief 
+ * 
+ * @param readqueue_ptr 
+ * @param writequeue_ptr 
+ * @param selectmax 
+ * @param hasContentToSend 
+ * @param timeout 
+ * @return int 
+ */
+int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax, Boolean hasContentToSend, struct timeval timeout) {
+  /* prepare select call */
+  FD_ZERO(readqueue_ptr);
+  FD_ZERO(writequeue_ptr);
+  FD_SET(arguments.handle[handleId_queryPipe],readqueue_ptr); /* query pipe */
+  FD_SET(arguments.handle[handleId_receivePipe],readqueue_ptr); /* receive pipe */
+  FD_SET(arguments.handle[handleId_commandPipe],readqueue_ptr); /* command pipe */
+  if (hasContentToSend) {
+    FD_SET(arguments.handle[handleId_sendPipe], writequeue_ptr); /* content to send */
+  }
+  return select(selectmax, readqueue_ptr, writequeue_ptr, (fd_set *)0, &timeout);
+}
+
+/**
+ * @brief 
+ * 
+ * @param send_index_ptr 
+ * @return 0 if success, otherwise error code
+ */
+int write_into_sendpipe(int *send_index_ptr) {
+  #ifdef DEBUG
+  printf("Writing packet to sendpipe\n");
+  fflush(stdout);
+  #endif
+  int i = next_packet_to_send->length - *send_index_ptr;
+  int retval = write(arguments.handle[handleId_sendPipe], &next_packet_to_send->packet[*send_index_ptr], i);
+  if (retval == -1) return -emsg(29);
+  if (retval == i) { /* packet is sent */
+    free2(next_packet_to_send->packet);
+    struct packet_to_send *tmp_packetpointer = next_packet_to_send;
+    next_packet_to_send = next_packet_to_send->next;
+    if (last_packet_to_send == tmp_packetpointer)
+      last_packet_to_send = NULL;
+    free2(tmp_packetpointer); /* remove packet pointer */
+    *send_index_ptr = 0;           /* not digesting packet anymore */
+  } else {
+    *send_index_ptr += retval;
+  }
+
+  return 0;
+}
+
+/**
+ * @brief 
+ * 
+ * @param dpnt 
+ * @param cmd_input 
+ * @param ipt 
+ * @return 0 if success, -1 if exit program, otherwise error code
+ */
+int read_from_cmdpipe(char* cmd_input, int ipt) {
+  int retval = read(arguments.handle[handleId_commandPipe], &cmd_input[ipt], CMD_INBUFLEN - 1 - ipt);
+  if (retval < 0) return -1;
+  #ifdef DEBUG
+  printf("Read something from cmd pipe\n");
+  fflush(stdout);
+  #endif
+  ipt += retval;
+  cmd_input[ipt] = '\0';
+  if (ipt >= CMD_INBUFLEN) return -emsg(75); /* overflow, parse later... */
+
+  return 0;
+}
+
+int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt) {
+  int i, errcode, sl;
+  /* parse command string */
+  dpnt = index(cmd_input, '\n');
+  if (dpnt) { /* we got a newline */
+    dpnt[0] = 0;
+    sl = strlen(cmd_input);
+    errcode = process_command(cmd_input);
+    if (errcode && (arguments.runtimeerrormode == END_ON_ERR)) {
+      return -emsg(errcode); /* complain */
+    }
+    /* move back rest */
+    for (i = 0; i < ipt - sl - 1; i++) cmd_input[i] = dpnt[i + 1];
+    ipt -= sl + 1;
+    cmd_input[ipt] = '\0'; /* repair index */
+  }
+
+  return 0;
+}
+
 /**
  * @brief process an input string, terminated with 0, from the command pipe
+ * 
+ * When you process a command, you spawn a new thread and also begin the QBER estimation process.
  * 
  * @param in 
  * @return int 
  */
-int process_command(char *in) {
+int process_command(char *cmd_input) {
   int fieldsAssigned, errcode;
   unsigned int newepoch; /* command parser */
   int newepochnumber;
   float newesterror = 0; /* for initial parsing of a block */
   float BellValue;       /* for Ekert-type protocols */
 
-  fieldsAssigned = sscanf(in, "%x %i %f %f", &newepoch, &newepochnumber, &newesterror, &BellValue);
+  fieldsAssigned = sscanf(cmd_input, "%x %i %f %f", &newepoch, &newepochnumber, &newesterror, &BellValue);
   printf("got cmd: epoch: %08x, num: %d, esterr: %f fieldsAssigned: %d\n", newepoch, newepochnumber, newesterror, fieldsAssigned);
   #ifdef DEBUG
   fflush(stdout);
@@ -198,6 +292,70 @@ int process_command(char *in) {
   return 0;
 }
 
+/**
+ * @brief 
+ * 
+ * @param sbfp 
+ * @param receive_index_ptr 
+ * @param msgprotobuf_ptr 
+ * @return int 
+ */
+int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, struct ERRC_PROTO *msgprotobuf_ptr) {
+  char *tmpreadbuf = NULL;       /* pointer to hold initial read buffer */
+  struct packet_received *msgp;  /* temporary storage of message header */
+  int retval;
+  #ifdef DEBUG
+  printf("Read something from rcv pipe\n");
+  fflush(stdout);
+  #endif
+  // Read in a header if we've not read anything yet
+  if (*receive_index_ptr < sizeof(struct ERRC_PROTO)) {
+    int retval = read(arguments.handle[handleId_receivePipe], &((char *)msgprotobuf_ptr)[*receive_index_ptr], sizeof(*msgprotobuf_ptr) - *receive_index_ptr);
+    if (retval == -1) return -emsg(36); /* can that be better? */
+    *receive_index_ptr += retval;
+    if (*receive_index_ptr == sizeof(*msgprotobuf_ptr)) {
+      /* prepare for new buffer */
+      tmpreadbuf = (char *)malloc2(msgprotobuf_ptr->bytelength);
+      if (!tmpreadbuf) return -emsg(37);
+      /* transfer header */
+      memcpy(tmpreadbuf, &msgprotobuf_ptr, sizeof(msgprotobuf_ptr));
+    }
+  } else { 
+    // otherwise read in the body of the header
+    retval = read(arguments.handle[handleId_receivePipe], &tmpreadbuf[*receive_index_ptr], msgprotobuf_ptr->bytelength - *receive_index_ptr);
+    if (retval == -1) return -emsg(36); /* can that be better? */
+    *receive_index_ptr += retval;
+    if (*receive_index_ptr == msgprotobuf_ptr->bytelength) { /* got all */
+      msgp = (struct packet_received *)malloc2(sizeof(struct packet_received));
+      if (!msgp) return -emsg(38);
+      /* insert message in message chain */
+      msgp->next = NULL;
+      msgp->length = *receive_index_ptr;
+      msgp->packet = tmpreadbuf;
+      sbfp = rec_packetlist;
+      if (sbfp) {
+        while (sbfp->next) sbfp = sbfp->next;
+        sbfp->next = msgp;
+      } else {
+        rec_packetlist = msgp;
+      }
+      *receive_index_ptr = 0; /* ready for next one */
+    }
+  }
+
+  return 0;
+}
+
+// MAIN FUNCTION
+/* ------------------------------------------------------------------------- */
+
+/**
+ * @brief Main code. Contains the main loop.
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char *argv[]) {
   int i, noshutdown;
   fd_set readqueue, writequeue; /* for main event loop */
@@ -206,22 +364,20 @@ int main(int argc, char *argv[]) {
   int selectmax; /* keeps largest handle for select call */
   struct timeval HALFSECOND = {0, 500000};
   struct timeval TENMILLISEC = {0, 10000};
-  struct timeval timeout; /* for select command */
-  int send_index;         /* for sending out packets */
-  struct packet_to_send *tmp_packetpointer;
+  int send_index;                /* for sending out packets */
   int receive_index;             /* for receiving packets */
   struct ERRC_PROTO msgprotobuf; /* for reading header of receive packet */
-  char *tmpreadbuf = NULL;       /* pointer to hold initial read buffer */
-  struct packet_received *msgp;  /* temporary storage of message header */
-  struct packet_received *sbfp;  /* index to go through the linked list */
+  struct packet_received *sbfp = NULL;  /* index to go through the linked list */
   char cmd_input[CMD_INBUFLEN];  /* for parsing commands */
-  int ipt, sl;                   /* cmd input variables */
-  char *dpnt;                    /* ditto */
+  int ipt;                       /* cmd input variables */
+  char *dpnt = NULL;                    /* ditto */
   char *receivebuf;              /* pointer to the currently processed packet */
 
+  // Parameter passing
   errcode = parse_options(argc, argv);
   if (errcode) { return errcode; }
 
+  // Opening pipe and file handles
   errcode = open_pipelines();
   if (errcode) { return errcode; }
 
@@ -244,119 +400,46 @@ int main(int argc, char *argv[]) {
   ipt = 0;          /* input parsing */
 
   // Main loop
-  // Note: I decided to leave this section inlined for minor optimization reasons.
-  // 
-  // I have however made the comments more verbose to make things more clear.
+  // Note: I decided to compartmentalize the code to make it more usable for its users (who are mostly not from
+  // a programming background). This can translate to a slight dip in performance because of function calls, but
+  // I honestly don't think it will make a significant impact (if any) on performance, and at this point readability
+  // is much more important. May want to take this into account at the benchmarking phase of development though
   do {
     // Part 1 of the loop: use the select syscall to wait on events from multiple pipes 
-    /* prepare select call */
-    FD_ZERO(&readqueue);
-    FD_ZERO(&writequeue);
-    FD_SET(arguments.handle[handleId_queryPipe], &readqueue); /* query pipe */
-    FD_SET(arguments.handle[handleId_receivePipe], &readqueue); /* receive pipe */
-    FD_SET(arguments.handle[handleId_commandPipe], &readqueue); /* command pipe */
-    if (next_packet_to_send || send_index) {
-      FD_SET(arguments.handle[handleId_sendPipe], &writequeue); /* content to send */
-    }
-    /* keep timeout short if there is work to do */
-    timeout = ((cmd_input[0] || rec_packetlist) ? TENMILLISEC : HALFSECOND);
-    retval = select(selectmax, &readqueue, &writequeue, (fd_set *)0, &timeout);
+    // -------------------------------------------------------------
+    retval = has_pipe_event(&readqueue, &writequeue, selectmax, 
+        next_packet_to_send || send_index, 
+        (cmd_input[0] || rec_packetlist) ? TENMILLISEC : HALFSECOND);
 
     // Part 2 of the loop: if an error happened, retval would be -1
+    // -------------------------------------------------------------
     if (retval == -1) return -emsg(28);
 
     // If retval is not zero, there is something to read / write for the pipes
-    if (retval) {
-      // If there is something to write to send pipe
+    if (retval != 0) {
+      // If there is something to write into send pipe
       if (FD_ISSET(arguments.handle[handleId_sendPipe], &writequeue)) {
-        #ifdef DEBUG
-        printf("Writing packet to sendpipe\n");
-        fflush(stdout);
-        #endif
-        i = next_packet_to_send->length - send_index;
-        retval = write(arguments.handle[handleId_sendPipe], &next_packet_to_send->packet[send_index], i);
-        if (retval == -1) return -emsg(29);
-        if (retval == i) { /* packet is sent */
-          free2(next_packet_to_send->packet);
-          tmp_packetpointer = next_packet_to_send;
-          next_packet_to_send = next_packet_to_send->next;
-          if (last_packet_to_send == tmp_packetpointer)
-            last_packet_to_send = NULL;
-          free2(tmp_packetpointer); /* remove packet pointer */
-          send_index = 0;           /* not digesting packet anymore */
-        } else {
-          send_index += retval;
-        }
-      }
-      
+        errcode = write_into_sendpipe(&send_index);
+        if (errcode) return errcode;
+      } 
+
       // If there is something to read from cmd pipeline
       if (FD_ISSET(arguments.handle[handleId_commandPipe], &readqueue)) {
-        retval = read(arguments.handle[handleId_commandPipe], &cmd_input[ipt], CMD_INBUFLEN - 1 - ipt);
-        if (retval < 0) break;
-        #ifdef DEBUG
-        printf("Read something from cmd pipe\n");
-        fflush(stdout);
-        #endif
-        ipt += retval;
-        cmd_input[ipt] = '\0';
-        if (ipt >= CMD_INBUFLEN) return -emsg(75); /* overflow, parse later... */
-      }
-
-      /* parse command string */
-      dpnt = index(cmd_input, '\n');
-      if (dpnt) { /* we got a newline */
-        dpnt[0] = 0;
-        sl = strlen(cmd_input);
-        errcode = process_command(cmd_input);
-        if (errcode && (arguments.runtimeerrormode == END_ON_ERR)) {
-          return -emsg(errcode); /* complain */
+        // Read from cmd pipeline into cmd_input
+        errcode = read_from_cmdpipe((char *) &cmd_input, ipt);
+        if (errcode) {
+          if (errcode == -1) break; // Clean exit program
+          else return errcode;      // Otherwise an error really occurred
         }
-        /* move back rest */
-        for (i = 0; i < ipt - sl - 1; i++) cmd_input[i] = dpnt[i + 1];
-        ipt -= sl + 1;
-        cmd_input[ipt] = '\0'; /* repair index */
+        // Process cmd_input
+        errcode = create_thread_and_start_qber_using_cmd(dpnt, (char *) &cmd_input, ipt);
+        if (errcode) return errcode;
       }
 
       // If there is something to read from receive pipeline
       if (FD_ISSET(arguments.handle[handleId_receivePipe], &readqueue)) {
-        #ifdef DEBUG
-        printf("Read something from rcv pipe\n");
-        fflush(stdout);
-        #endif
-        // Read in a header if we've not read anything yet
-        if (receive_index < sizeof(struct ERRC_PROTO)) {
-          retval = read(arguments.handle[handleId_receivePipe], &((char *)&msgprotobuf)[receive_index], sizeof(msgprotobuf) - receive_index);
-          if (retval == -1) return -emsg(36); /* can that be better? */
-          receive_index += retval;
-          if (receive_index == sizeof(msgprotobuf)) {
-            /* prepare for new buffer */
-            tmpreadbuf = (char *)malloc2(msgprotobuf.bytelength);
-            if (!tmpreadbuf) return -emsg(37);
-            /* transfer header */
-            memcpy(tmpreadbuf, &msgprotobuf, sizeof(msgprotobuf));
-          }
-        } else { 
-          // otherwise read in the body of the header
-          retval = read(arguments.handle[handleId_receivePipe], &tmpreadbuf[receive_index], msgprotobuf.bytelength - receive_index);
-          if (retval == -1) return -emsg(36); /* can that be better? */
-          receive_index += retval;
-          if (receive_index == msgprotobuf.bytelength) { /* got all */
-            msgp = (struct packet_received *)malloc2(sizeof(struct packet_received));
-            if (!msgp) return -emsg(38);
-            /* insert message in message chain */
-            msgp->next = NULL;
-            msgp->length = receive_index;
-            msgp->packet = tmpreadbuf;
-            sbfp = rec_packetlist;
-            if (sbfp) {
-              while (sbfp->next) sbfp = sbfp->next;
-              sbfp->next = msgp;
-            } else {
-              rec_packetlist = msgp;
-            }
-            receive_index = 0; /* ready for next one */
-          }
-        }
+        errcode = read_from_receivepipe(sbfp, &receive_index, &msgprotobuf);
+        if (errcode) return errcode;
       }
 
       // If there is something to read from query pipeline (commented out because the body was empty)
@@ -364,6 +447,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Part 3 of the loop: processing packets in the rec_packetlist
+    // -------------------------------------------------------------
     // If there is something to process
     if ((sbfp = rec_packetlist)) {
       // Get pointer to the packet buffer
@@ -377,7 +461,7 @@ int main(int argc, char *argv[]) {
       #endif
       // Switch subtype
       switch (((unsigned int *)receivebuf)[2]) {
-        case 0: /* received an error estimation packet */
+        case SUBTYPE_QBER_ESTIM: /* received an error estimation packet */
           errcode = process_esti_message_0(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -385,7 +469,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case 2: /* received request for more bits */
+        case SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES: /* received request for more bits */
           errcode = send_more_esti_bits(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -393,7 +477,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case 3: /* reveived error confirmation message */
+        case SUBTYPE_QBER_ESTIM_ACK: /* reveived error confirmation message */
           errcode = prepare_dualpass(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -401,7 +485,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case 4: /* reveived parity list message */
+        case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
           errcode = start_binarysearch(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -409,7 +493,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case 5: /* reveive a binarysearch message */
+        case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
           errcode = process_binarysearch(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -417,7 +501,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case 6: /* receive a BICONF initiating request */
+        case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
           errcode = generate_biconfreply(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -425,7 +509,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case 7: /* receive a BICONF parity response */
+        case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
           errcode = receive_biconfreply(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -433,7 +517,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case 8: /* receive a privacy amplification start msg */
+        case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
           errcode = receive_privamp_msg(receivebuf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;

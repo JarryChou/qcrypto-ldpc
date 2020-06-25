@@ -88,60 +88,49 @@ $(document).ready(function(){initNavTree('priv__amp_8h_source.html',''); initRes
 </div><!--header-->
 <div class="contents">
 <a href="priv__amp_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#ifndef ECD2_PRIV_AMP</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#define ECD2_PRIV_AMP</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">// Libraries</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">// Definition header files</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">defaultdefinitions.h</a>&quot;</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">globalvars.h</a>&quot;</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="packets_8h.html">packets.h</a>&quot;</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;../packetheaders/pkt_header_7.h&quot;</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">// Other components</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="comms_8h.html">comms.h</a>&quot;</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="helpers_8h.html">helpers.h</a>&quot;</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="debug_8h.html">debug.h</a>&quot;</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="thread__mgmt_8h.html">thread_mgmt.h</a>&quot;</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">// PRIVACY AMPLIFICATION</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">/* ------------------------------------------------------------------------- */</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">// HELPER FUNCTIONS</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">// MAIN FUNCTIONS</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">/* function to initiate the privacy amplification. Sends out a message with</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">   a PRNG seed (message 8), and hand over to the core routine for the PA.</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">   Parameter is keyblock, return is error or 0 on success. */</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="keywordtype">int</span> <a class="code" href="priv__amp_8h.html#afa0aab17f062b64973ef26554d46c306">initiate_privacyamplification</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">/* function to process a privacy amplification message. parameter is incoming</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">   message, return value is 0 or an error code. Parses the message and passes</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">   the real work over to the do_privacyamplification part */</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keywordtype">int</span> <a class="code" href="priv__amp_8h.html#af014f9642f652afb57efba0d1eddd37b">receive_privamp_msg</a>(<span class="keywordtype">char</span> *receivebuf);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#ifndef ECD2_PRIV_AMP</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#define ECD2_PRIV_AMP</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">// Libraries</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">// Definition header files</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">defaultdefinitions.h</a>&quot;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">globalvars.h</a>&quot;</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="packets_8h.html">packets.h</a>&quot;</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &quot;../packetheaders/pkt_header_7.h&quot;</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">// Other components</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="comms_8h.html">comms.h</a>&quot;</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="helpers_8h.html">helpers.h</a>&quot;</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="debug_8h.html">debug.h</a>&quot;</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="thread__mgmt_8h.html">thread_mgmt.h</a>&quot;</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keywordtype">float</span> <a class="code" href="priv__amp_8h.html#a7908e2233e4f07dbb3da7bfa6fcc409b">phi</a>(<span class="keywordtype">float</span> z);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">float</span> <a class="code" href="priv__amp_8h.html#a6191b118553d1fbe518e4cb9dc10c3cd">binentrop</a>(<span class="keywordtype">float</span> q);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keywordtype">int</span> <a class="code" href="priv__amp_8h.html#afa0aab17f062b64973ef26554d46c306">initiate_privacyamplification</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keywordtype">int</span> <a class="code" href="priv__amp_8h.html#af014f9642f652afb57efba0d1eddd37b">receive_privamp_msg</a>(<span class="keywordtype">char</span> *receivebuf);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keywordtype">int</span> <a class="code" href="priv__amp_8h.html#ad859394d26f4d4609bee37a5a18cb135">do_privacy_amplification</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> seed, <span class="keywordtype">int</span> lostbits);</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">/* do core part of the privacy amplification. Calculates the compression ratio</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">   based on the lost bits, saves the final key and removes the thread from the</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">   list.    */</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keywordtype">int</span> <a class="code" href="priv__amp_8h.html#ad859394d26f4d4609bee37a5a18cb135">do_privacy_amplification</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> seed, <span class="keywordtype">int</span> lostbits);</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_PRIV_AMP */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_PRIV_AMP */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="astructkeyblock_html"><div class="ttname"><a href="structkeyblock.html">keyblock</a></div><div class="ttdoc">Definition of a structure containing all informations about a block.</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00033">keyblock.h:33</a></div></div>
-<div class="ttc" id="aglobalvars_8h_html"><div class="ttname"><a href="globalvars_8h.html">globalvars.h</a></div><div class="ttdoc">Definition file for global variables in ecd2.</div></div>
-<div class="ttc" id="ahelpers_8h_html"><div class="ttname"><a href="helpers_8h.html">helpers.h</a></div></div>
+<div class="ttc" id="aglobalvars_8h_html"><div class="ttname"><a href="globalvars_8h.html">globalvars.h</a></div><div class="ttdoc">Definition file for global variables and arguments in ecd2.</div></div>
+<div class="ttc" id="apriv__amp_8h_html_a7908e2233e4f07dbb3da7bfa6fcc409b"><div class="ttname"><a href="priv__amp_8h.html#a7908e2233e4f07dbb3da7bfa6fcc409b">phi</a></div><div class="ttdeci">float phi(float z)</div><div class="ttdoc">helper: eve's error knowledge</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00012">priv_amp.c:12</a></div></div>
+<div class="ttc" id="apriv__amp_8h_html_a6191b118553d1fbe518e4cb9dc10c3cd"><div class="ttname"><a href="priv__amp_8h.html#a6191b118553d1fbe518e4cb9dc10c3cd">binentrop</a></div><div class="ttdeci">float binentrop(float q)</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00022">priv_amp.c:22</a></div></div>
+<div class="ttc" id="ahelpers_8h_html"><div class="ttname"><a href="helpers_8h.html">helpers.h</a></div><div class="ttdoc">helper functions or helper enums for ecd2</div></div>
 <div class="ttc" id="athread__mgmt_8h_html"><div class="ttname"><a href="thread__mgmt_8h.html">thread_mgmt.h</a></div></div>
-<div class="ttc" id="apriv__amp_8h_html_ad859394d26f4d4609bee37a5a18cb135"><div class="ttname"><a href="priv__amp_8h.html#ad859394d26f4d4609bee37a5a18cb135">do_privacy_amplification</a></div><div class="ttdeci">int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits)</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00065">priv_amp.c:65</a></div></div>
+<div class="ttc" id="apriv__amp_8h_html_ad859394d26f4d4609bee37a5a18cb135"><div class="ttname"><a href="priv__amp_8h.html#ad859394d26f4d4609bee37a5a18cb135">do_privacy_amplification</a></div><div class="ttdeci">int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits)</div><div class="ttdoc">Do core part of the privacy amplification.</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00108">priv_amp.c:108</a></div></div>
 <div class="ttc" id="apackets_8h_html"><div class="ttname"><a href="packets_8h.html">packets.h</a></div></div>
-<div class="ttc" id="apriv__amp_8h_html_af014f9642f652afb57efba0d1eddd37b"><div class="ttname"><a href="priv__amp_8h.html#af014f9642f652afb57efba0d1eddd37b">receive_privamp_msg</a></div><div class="ttdeci">int receive_privamp_msg(char *receivebuf)</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00039">priv_amp.c:39</a></div></div>
-<div class="ttc" id="apriv__amp_8h_html_afa0aab17f062b64973ef26554d46c306"><div class="ttname"><a href="priv__amp_8h.html#afa0aab17f062b64973ef26554d46c306">initiate_privacyamplification</a></div><div class="ttdeci">int initiate_privacyamplification(struct keyblock *kb)</div><div class="ttdoc">priv_amp.h   Part of the quantum key distribution software for error correction and privacy amplifica...</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00011">priv_amp.c:11</a></div></div>
-<div class="ttc" id="adefaultdefinitions_8h_html"><div class="ttname"><a href="defaultdefinitions_8h.html">defaultdefinitions.h</a></div></div>
-<div class="ttc" id="acomms_8h_html"><div class="ttname"><a href="comms_8h.html">comms.h</a></div></div>
-<div class="ttc" id="adebug_8h_html"><div class="ttname"><a href="debug_8h.html">debug.h</a></div></div>
+<div class="ttc" id="apriv__amp_8h_html_af014f9642f652afb57efba0d1eddd37b"><div class="ttname"><a href="priv__amp_8h.html#af014f9642f652afb57efba0d1eddd37b">receive_privamp_msg</a></div><div class="ttdeci">int receive_privamp_msg(char *receivebuf)</div><div class="ttdoc">Function to process a privacy amplification message.</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00073">priv_amp.c:73</a></div></div>
+<div class="ttc" id="apriv__amp_8h_html_afa0aab17f062b64973ef26554d46c306"><div class="ttname"><a href="priv__amp_8h.html#afa0aab17f062b64973ef26554d46c306">initiate_privacyamplification</a></div><div class="ttdeci">int initiate_privacyamplification(struct keyblock *kb)</div><div class="ttdoc">Function to initiate the privacy amplification.</div><div class="ttdef"><b>Definition:</b> <a href="priv__amp_8c_source.html#l00038">priv_amp.c:38</a></div></div>
+<div class="ttc" id="adefaultdefinitions_8h_html"><div class="ttname"><a href="defaultdefinitions_8h.html">defaultdefinitions.h</a></div><div class="ttdoc">Definition file for default variables in ecd2.</div></div>
+<div class="ttc" id="acomms_8h_html"><div class="ttname"><a href="comms_8h.html">comms.h</a></div><div class="ttdoc">code on communications w.r.t. error correction.</div></div>
+<div class="ttc" id="adebug_8h_html"><div class="ttname"><a href="debug_8h.html">debug.h</a></div><div class="ttdoc">debugging helper functions for ecd2</div></div>
 <div class="ttc" id="akeyblock_8h_html"><div class="ttname"><a href="keyblock_8h.html">keyblock.h</a></div><div class="ttdoc">Header file containing the definitions of the keyblock &amp; block related data for the error correction ...</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

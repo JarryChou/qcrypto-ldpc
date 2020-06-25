@@ -1,5 +1,6 @@
 var annotated_dup =
 [
+    [ "arguments", "structarguments.html", "structarguments" ],
     [ "blockpointer", "structblockpointer.html", "structblockpointer" ],
     [ "cardinfo", "structcardinfo.html", "structcardinfo" ],
     [ "dma_page_pointer", "structdma__page__pointer.html", "structdma__page__pointer" ],
