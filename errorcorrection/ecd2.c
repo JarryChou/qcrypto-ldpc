@@ -35,8 +35,8 @@ int parse_options(int argc, char *argv[]) {
       case 'f': i++; /* finalkeydir, idx=4 */
       case 'd': i++; /* rawkeydir, idx=3 */
       case 'r': i++; /* commreceivepipe, idx=2 */
-      case 's': i++;    /* commsendpipe, idx=1 */
-      case 'c': /* commandpipe, idx=0 */
+      case 's': i++; /* commsendpipe, idx=1 */
+      case 'c':      /* commandpipe, idx=0 */
         if (1 != sscanf(optarg, FNAMFORMAT, arguments.fname[i])) return -emsg(2 + i);
         arguments.fname[i][FNAMELENGTH - 1] = 0; /* security termination */
         break;
@@ -161,7 +161,7 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
 }
 
 /**
- * @brief 
+ * @brief write data from next_packet_to_send into sendpipe 
  * 
  * @param send_index_ptr 
  * @return 0 if success, otherwise error code
@@ -190,12 +190,11 @@ int write_into_sendpipe(int *send_index_ptr) {
 }
 
 /**
- * @brief 
+ * @brief read from the command pipe into cmd_input
  * 
- * @param dpnt 
- * @param cmd_input 
+ * @param cmd_input char buffer
  * @param ipt 
- * @return 0 if success, -1 if exit program, otherwise error code
+ * @return int 
  */
 int read_from_cmdpipe(char* cmd_input, int ipt) {
   int retval = read(arguments.handle[handleId_commandPipe], &cmd_input[ipt], CMD_INBUFLEN - 1 - ipt);
@@ -211,6 +210,14 @@ int read_from_cmdpipe(char* cmd_input, int ipt) {
   return 0;
 }
 
+/**
+ * @brief Create a thread and start qber using cmd buffer
+ * 
+ * @param dpnt 
+ * @param cmd_input 
+ * @param ipt 
+ * @return int 
+ */
 int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt) {
   int i, errcode, sl;
   /* parse command string */
@@ -236,8 +243,8 @@ int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt)
  * 
  * When you process a command, you spawn a new thread and also begin the QBER estimation process.
  * 
- * @param in 
- * @return int 
+ * @param cmd_input buffer for command
+ * @return 0 if success, otherwise return error code 
  */
 int process_command(char *cmd_input) {
   int fieldsAssigned, errcode;
@@ -263,13 +270,13 @@ int process_command(char *cmd_input) {
       // Parameter validation
       if (newesterror < 0 || newesterror > MAX_INI_ERR) { // error rate out of bounds
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return 31;
+        return -emsg(31);
       } else if (newepochnumber < 1) { // epoch num out of bounds
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return 32;
+        return -emsg(32);
       } else if (check_epochoverlap(newepoch, newepochnumber)) { // ensure start epoch & epoch num has not been used
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return 33;
+        return -emsg(33);
       }
 
       /* create new thread */
@@ -301,16 +308,16 @@ int process_command(char *cmd_input) {
  * @return int 
  */
 int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, struct ERRC_PROTO *msgprotobuf_ptr) {
-  char *tmpreadbuf = NULL;       /* pointer to hold initial read buffer */
-  struct packet_received *msgp;  /* temporary storage of message header */
   int retval;
+  struct packet_received *msgp;
+  char *tmpreadbuf = NULL;
   #ifdef DEBUG
   printf("Read something from rcv pipe\n");
   fflush(stdout);
   #endif
-  // Read in a header if we've not read anything yet
   if (*receive_index_ptr < sizeof(struct ERRC_PROTO)) {
-    int retval = read(arguments.handle[handleId_receivePipe], &((char *)msgprotobuf_ptr)[*receive_index_ptr], sizeof(*msgprotobuf_ptr) - *receive_index_ptr);
+    retval = read(arguments.handle[handleId_receivePipe], &((char *)msgprotobuf_ptr)[*receive_index_ptr],
+                  sizeof(*msgprotobuf_ptr) - *receive_index_ptr);
     if (retval == -1) return -emsg(36); /* can that be better? */
     *receive_index_ptr += retval;
     if (*receive_index_ptr == sizeof(*msgprotobuf_ptr)) {
@@ -318,15 +325,16 @@ int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, 
       tmpreadbuf = (char *)malloc2(msgprotobuf_ptr->bytelength);
       if (!tmpreadbuf) return -emsg(37);
       /* transfer header */
-      memcpy(tmpreadbuf, &msgprotobuf_ptr, sizeof(msgprotobuf_ptr));
+      memcpy(tmpreadbuf, msgprotobuf_ptr, sizeof(*msgprotobuf_ptr));
     }
-  } else { 
-    // otherwise read in the body of the header
-    retval = read(arguments.handle[handleId_receivePipe], &tmpreadbuf[*receive_index_ptr], msgprotobuf_ptr->bytelength - *receive_index_ptr);
+  } else { /* we are reading the main message now */
+    retval = read(arguments.handle[handleId_receivePipe], &tmpreadbuf[*receive_index_ptr],
+                  msgprotobuf_ptr->bytelength - *receive_index_ptr);
     if (retval == -1) return -emsg(36); /* can that be better? */
     *receive_index_ptr += retval;
     if (*receive_index_ptr == msgprotobuf_ptr->bytelength) { /* got all */
-      msgp = (struct packet_received *)malloc2(sizeof(struct packet_received));
+      msgp = (struct packet_received *)malloc2(
+          sizeof(struct packet_received));
       if (!msgp) return -emsg(38);
       /* insert message in message chain */
       msgp->next = NULL;
