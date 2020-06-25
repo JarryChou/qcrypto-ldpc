@@ -138,14 +138,14 @@ int open_pipelines() {
 }
 
 /**
- * @brief 
+ * @brief wait for pipe event (with timeout) using select syscall
  * 
  * @param readqueue_ptr 
  * @param writequeue_ptr 
  * @param selectmax 
  * @param hasContentToSend 
  * @param timeout 
- * @return int 
+ * @return result from select syscall
  */
 int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax, Boolean hasContentToSend, struct timeval timeout) {
   /* prepare select call */
@@ -163,16 +163,17 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
 /**
  * @brief write data from next_packet_to_send into sendpipe 
  * 
- * @param send_index_ptr 
+ * Uses static variable send_index
+ * 
  * @return 0 if success, otherwise error code
  */
-int write_into_sendpipe(int *send_index_ptr) {
+int write_into_sendpipe() {
   #ifdef DEBUG
   printf("Writing packet to sendpipe\n");
   fflush(stdout);
   #endif
-  int i = next_packet_to_send->length - *send_index_ptr;
-  int retval = write(arguments.handle[handleId_sendPipe], &next_packet_to_send->packet[*send_index_ptr], i);
+  int i = next_packet_to_send->length - send_index;
+  int retval = write(arguments.handle[handleId_sendPipe], &next_packet_to_send->packet[send_index], i);
   if (retval == -1) return -emsg(29);
   if (retval == i) { /* packet is sent */
     free2(next_packet_to_send->packet);
@@ -181,44 +182,47 @@ int write_into_sendpipe(int *send_index_ptr) {
     if (last_packet_to_send == tmp_packetpointer)
       last_packet_to_send = NULL;
     free2(tmp_packetpointer); /* remove packet pointer */
-    *send_index_ptr = 0;           /* not digesting packet anymore */
+    send_index = 0;           /* not digesting packet anymore */
   } else {
-    *send_index_ptr += retval;
+    send_index += retval;
   }
 
   return 0;
 }
 
 /**
- * @brief read from the command pipe into cmd_input
+ * @brief read command from cmdpipe into cmd_input
  * 
- * @param cmd_input char buffer
- * @param ipt 
- * @return int 
+ * Uses static variable: input_last_index
+ * 
+ * @param cmd_input 
+ * @return -1 if clean exit requested (empty cmd sent), 0 if success, otherwise error code
  */
-int read_from_cmdpipe(char* cmd_input, int ipt) {
-  int retval = read(arguments.handle[handleId_commandPipe], &cmd_input[ipt], CMD_INBUFLEN - 1 - ipt);
+int read_from_cmdpipe(char* cmd_input) {
+  int retval = read(arguments.handle[handleId_commandPipe], &cmd_input[input_last_index], 
+      CMD_INBUFLEN - 1 - input_last_index);
   if (retval < 0) return -1;
   #ifdef DEBUG
   printf("Read something from cmd pipe\n");
   fflush(stdout);
   #endif
-  ipt += retval;
-  cmd_input[ipt] = '\0';
-  if (ipt >= CMD_INBUFLEN) return -emsg(75); /* overflow, parse later... */
+  input_last_index += retval;
+  cmd_input[input_last_index] = '\0';
+  if (input_last_index >= CMD_INBUFLEN) return -emsg(75); /* overflow, parse later... */
 
   return 0;
 }
 
 /**
- * @brief Create a thread and start qber using cmd buffer
+ * @brief Create a thread and start qber based on the cmd stored in cimd_input
+ * 
+ * Uses static variable: input_last_index
  * 
  * @param dpnt 
  * @param cmd_input 
- * @param ipt 
- * @return int 
+ * @return 0 if success otherwise error code 
  */
-int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt) {
+int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
   int i, errcode, sl;
   /* parse command string */
   dpnt = index(cmd_input, '\n');
@@ -230,9 +234,9 @@ int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt)
       return -emsg(errcode); /* complain */
     }
     /* move back rest */
-    for (i = 0; i < ipt - sl - 1; i++) cmd_input[i] = dpnt[i + 1];
-    ipt -= sl + 1;
-    cmd_input[ipt] = '\0'; /* repair index */
+    for (i = 0; i < input_last_index - sl - 1; i++) cmd_input[i] = dpnt[i + 1];
+    input_last_index -= sl + 1;
+    cmd_input[input_last_index] = '\0'; /* repair index */
   }
 
   return 0;
@@ -300,55 +304,64 @@ int process_command(char *cmd_input) {
 }
 
 /**
- * @brief 
+ * @brief read header from receivepipe into msgprotobuf, then malloc a buffer and point to it with readbuf
+ *
+ * Uses static variables: msgprotobuf, receive_index, readbuf
  * 
- * @param sbfp 
- * @param receive_index_ptr 
- * @param msgprotobuf_ptr 
- * @return int 
+ * @return 0 if success, otherwise error message 
  */
-int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, 
-    struct ERRC_PROTO *msgprotobuf_ptr, char *readbuf_ptr) {
-  int retval;
-  struct packet_received *msgp;
+int read_header_from_receivepipe() {
   #ifdef DEBUG
-  printf("Read something from rcv pipe\n");
+  printf("Read header from rcv pipe\n");
   fflush(stdout);
   #endif
-  if (*receive_index_ptr < sizeof(struct ERRC_PROTO)) {
-    retval = read(arguments.handle[handleId_receivePipe], &((char *)msgprotobuf_ptr)[*receive_index_ptr],
-                  sizeof(*msgprotobuf_ptr) - *receive_index_ptr);
-    if (retval == -1) return -emsg(36); /* can that be better? */
-    *receive_index_ptr += retval;
-    if (*receive_index_ptr == sizeof(*msgprotobuf_ptr)) {
-      /* prepare for new buffer */
-      readbuf_ptr = (char *)malloc2(msgprotobuf_ptr->bytelength);
-      if (!readbuf_ptr) return -emsg(37);
-      /* transfer header */
-      memcpy(readbuf_ptr, msgprotobuf_ptr, sizeof(*msgprotobuf_ptr));
+  int retval = read(arguments.handle[handleId_receivePipe], &((char *)&msgprotobuf)[receive_index],
+      sizeof(msgprotobuf) - receive_index);
+  if (retval == -1) return -emsg(36); /* can that be better? */
+  receive_index += retval;
+  if (receive_index == sizeof(msgprotobuf)) {
+    /* prepare for new buffer */
+    readbuf = (char *)malloc2(msgprotobuf.bytelength);
+    if (!readbuf) return -emsg(37);
+    /* transfer header */
+    memcpy(readbuf, &msgprotobuf, sizeof(msgprotobuf));
+  }
+
+  return 0;
+}
+
+/**
+ * @brief read message body into buffer pointed by readbuf
+ * 
+ * Uses static variables: msgprotobuf, receive_index, readbuf
+ * 
+ * @return 0  if success,  otherwise error message
+ */
+int read_body_from_receivepipe() {
+  #ifdef DEBUG
+  printf("Read body from rcv pipe\n");
+  fflush(stdout);
+  #endif
+  int retval = read(arguments.handle[handleId_receivePipe], &readbuf[receive_index],
+      msgprotobuf.bytelength - receive_index);
+  if (retval == -1) return -emsg(36); /* can that be better? */
+  receive_index += retval;
+  if (receive_index == msgprotobuf.bytelength) { /* got all */
+    struct packet_received *msgp = (struct packet_received *)malloc2(
+        sizeof(struct packet_received));
+    if (!msgp) return -emsg(38);
+    /* insert message in message chain */
+    msgp->next = NULL;
+    msgp->length = receive_index;
+    msgp->packet = readbuf;
+    struct packet_received *sbfp = rec_packetlist;
+    if (sbfp) {
+      while (sbfp->next) sbfp = sbfp->next;
+      sbfp->next = msgp;
+    } else {
+      rec_packetlist = msgp;
     }
-  } else { /* we are reading the main message now */
-    retval = read(arguments.handle[handleId_receivePipe], &readbuf_ptr[*receive_index_ptr],
-                  msgprotobuf_ptr->bytelength - *receive_index_ptr);
-    if (retval == -1) return -emsg(36); /* can that be better? */
-    *receive_index_ptr += retval;
-    if (*receive_index_ptr == msgprotobuf_ptr->bytelength) { /* got all */
-      msgp = (struct packet_received *)malloc2(
-          sizeof(struct packet_received));
-      if (!msgp) return -emsg(38);
-      /* insert message in message chain */
-      msgp->next = NULL;
-      msgp->length = *receive_index_ptr;
-      msgp->packet = readbuf_ptr;
-      sbfp = rec_packetlist;
-      if (sbfp) {
-        while (sbfp->next) sbfp = sbfp->next;
-        sbfp->next = msgp;
-      } else {
-        rec_packetlist = msgp;
-      }
-      *receive_index_ptr = 0; /* ready for next one */
-    }
+    receive_index = 0; /* ready for next one */
   }
 
   return 0;
@@ -365,22 +378,27 @@ int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr,
  * @return int 
  */
 int main(int argc, char *argv[]) {
-  int i, noshutdown;
-  fd_set readqueue, writequeue; /* for main event loop */
-  int retval;
-  int errcode;   // Similar use as retval, but used specifically for scenarios with no success options
-  int selectmax; /* keeps largest handle for select call */
+  // Variables
+  int retval, errcode;          // for checking if error occured in function, or return values in general
+  int i;                        // Helper iterator value
+  // For select syscall system 
+  fd_set readqueue, writequeue;  /* for main event loop */
+  int selectmax;                 /* keeps largest handle for select call */
   struct timeval HALFSECOND = {0, 500000};
   struct timeval TENMILLISEC = {0, 10000};
-  int send_index;                /* for sending out packets */
-  int receive_index;             /* for receiving packets */
-  struct ERRC_PROTO msgprotobuf; /* for reading header of receive packet */
+  /* Buffers or pointers for packet receive / send management */
   struct packet_received *sbfp = NULL;  /* index to go through the linked list */
-  char cmd_input[CMD_INBUFLEN];  /* for parsing commands */
-  int ipt;                       /* cmd input variables */
-  char *dpnt = NULL;             /* ditto */
-  char *packet_to_process_buf;   /* pointer to the currently processed packet */
-  char *readbuf_ptr = NULL;          /* pointer to temporary readbuffer storage */
+  next_packet_to_send = NULL; /* no packets to be sent */
+  last_packet_to_send = NULL;
+  send_index = 0;        /* index of next packet to send */
+  receive_index = 0;     /* index for reading in a longer packet */
+  blocklist = NULL;      /* no active key blocks in memory */
+  rec_packetlist = NULL; /* no receive packet s in queue */
+  // Variables for command input
+  char cmd_input[CMD_INBUFLEN];  /* For temporary storage of cmd input */
+  cmd_input[0] = '\0';    /* buffer for commands */
+  input_last_index = 0;   /* input parsing */
+
 
   // Parameter passing
   errcode = parse_options(argc, argv);
@@ -390,30 +408,19 @@ int main(int argc, char *argv[]) {
   errcode = open_pipelines();
   if (errcode) { return errcode; }
 
-  /* find largest handle for select call */
+  // Find largest handle for select call
   selectmax = 0;
   for (i = 0; i < handleId_numberOfHandles; i++)
     if (selectmax < arguments.handle[i]) selectmax = arguments.handle[i];
   selectmax += 1;
 
-  /* initializing buffers */
-  next_packet_to_send = NULL; /* no packets to be sent */
-  last_packet_to_send = NULL;
-  send_index = 0;        /* index of next packet to send */
-  receive_index = 0;     /* index for reading in a longer packet */
-  blocklist = NULL;      /* no active key blocks in memory */
-  rec_packetlist = NULL; /* no receive packet s in queue */
-
-  noshutdown = 1;   /* keep thing running */
-  cmd_input[0] = '\0'; /* buffer for commands */
-  ipt = 0;          /* input parsing */
-
   // Main loop
   // Note: I decided to compartmentalize the code to make it more usable for its users (who are mostly not from
-  // a programming background). This can translate to a slight dip in performance because of function calls, but
-  // I honestly don't think it will make a significant impact (if any) on performance, and at this point readability
-  // is much more important. May want to take this into account at the benchmarking phase of development though
-  do {
+  // a programming background). This can translate to a slight dip in performance because of function calls and pointer 
+  // usage, but I honestly don't think it will make a significant impact (if any) on performance, and at this point 
+  // readability is much more important. May want to take this into account at the benchmarking phase of development 
+  // though. Can also make the params global.
+  while (True) {
     // Part 1 of the loop: use the select syscall to wait on events from multiple pipes 
     // -------------------------------------------------------------
     retval = has_pipe_event(&readqueue, &writequeue, selectmax, 
@@ -435,19 +442,25 @@ int main(int argc, char *argv[]) {
       // If there is something to read from cmd pipeline
       if (FD_ISSET(arguments.handle[handleId_commandPipe], &readqueue)) {
         // Read from cmd pipeline into cmd_input
-        errcode = read_from_cmdpipe((char *) &cmd_input, ipt);
+        errcode = read_from_cmdpipe((char *) &cmd_input);
         if (errcode) {
           if (errcode == -1) break; // Clean exit program
           else return errcode;      // Otherwise an error really occurred
         }
         // Process cmd_input
-        errcode = create_thread_and_start_qber_using_cmd(dpnt, (char *) &cmd_input, ipt);
+        errcode = create_thread_and_start_qber_using_cmd(dpnt, (char *) &cmd_input);
         if (errcode) return errcode;
       }
 
       // If there is something to read from receive pipeline
       if (FD_ISSET(arguments.handle[handleId_receivePipe], &readqueue)) {
-        errcode = read_from_receivepipe(sbfp, &receive_index, &msgprotobuf, readbuf_ptr);
+        if (receive_index < sizeof(struct ERRC_PROTO)) {
+          // Read header (tag & length)
+          errcode = read_header_from_receivepipe();
+        } else {
+          // Read body (subtype & data)
+          errcode = read_body_from_receivepipe();
+        }
         if (errcode) return errcode;
       }
 
@@ -458,8 +471,6 @@ int main(int argc, char *argv[]) {
     // Part 3 of the loop: processing packets in the rec_packetlist
     // -------------------------------------------------------------
     // If there is something to process
-    printf("Has process? %d\n %d\n", sbfp, rec_packetlist);
-    fflush(stdout);
     if ((sbfp = rec_packetlist)) {
       // Get pointer to the packet buffer
       packet_to_process_buf = sbfp->packet;
@@ -470,7 +481,7 @@ int main(int argc, char *argv[]) {
       printf("received message, subtype: %d, len: %d\n", ((unsigned int *)packet_to_process_buf)[2], ((unsigned int *)packet_to_process_buf)[1]);
       fflush(stdout);
       #endif
-      // Switch subtype
+      // Process packet based on the subtype
       switch (((unsigned int *)packet_to_process_buf)[2]) {
         case SUBTYPE_QBER_ESTIM: /* received an error estimation packet */
           errcode = process_esti_message_0(packet_to_process_buf);
@@ -549,7 +560,7 @@ int main(int argc, char *argv[]) {
       free2(packet_to_process_buf);           /* free data section... */
       free2(sbfp);                 /* ...and pointer entry */
     }
-  } while (noshutdown);
+  }
   
   // close nicely
   fclose(arguments.fhandle[handleId_commandPipe]);

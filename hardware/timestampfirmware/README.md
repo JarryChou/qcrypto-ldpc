@@ -1,27 +1,31 @@
+\page "hardware - readme"
+
+This README is located in `qcrypto/hardware/timestampfirmware`.
+
 This directory contains the the firmware for a Cypress FX2 chip, together
 with some support files for the usb part of the timestamp unit.
 
 The files in this directory are:
 
- Makefile           used to generate the firmware file in various formats,
+ * **Makefile**           used to generate the firmware file in various formats,
                     and also to generate all the memory map and direct
 		    assembler files. Generates hexcode which can be uploaded
 		    into the FX2 chip with the upload script.
 
- fifobithelpers.h   Some definitions which lines of the core timestamp unit
+ * **fifobithelpers.h**  Some definitions which lines of the core timestamp unit
                     are connected to the fx2 chip
 
- fx2regs_c.h        external file for fx2 register definitions 
+ * **fx2regs_c.h**        external file for fx2 register definitions 
                     from Christer Weinigel, Nordnav Technologies A
 
- tp8.c              The firmware code itself
+ * **tp8.c**              The firmware code itself
 
- upload             A loader script to get the firmware into an unprogrammed
+ * **upload**             A loader script to get the firmware into an unprogrammed
                     FX2 chip. A modified code can be used to flash an EEPROM
 		    but this requires the Vend_Ax.hex file from the FX2
 		    development kit and I have no idea about the license
 
- usbtimetagio.h     Header file, mainly for ioctl definitions for a higher
+ * **usbtimetagio.h**     Header file, mainly for ioctl definitions for a higher
                     level usb driver on a host machine, but reused here for
 		    command parsing in the EP1 interpreter function.
 

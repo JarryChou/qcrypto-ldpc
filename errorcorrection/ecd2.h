@@ -224,9 +224,19 @@ Arguments arguments = {
 
 /// @name Static structs & variables (global only within the scope of ecd2)
 /// @{
-struct packet_received *rec_packetlist = NULL; /**< head node pointing to a simply joined list of entries */
+// Static variables in this case is used to reduce the need to pass variables between functions,
+// Allowing for compartmentalized code while reducing pointer manipulation
+static struct packet_received *rec_packetlist = NULL; /**< head node pointing to a simply joined list of entries */
 
-char *errormessage[] = {
+static int input_last_index;          /**< For parsing cmd input */
+static char *dpnt = NULL;             /**< For parsing cmd input */
+static char *packet_to_process_buf;   /**< pointer to the currently processed packet */
+static char *readbuf = NULL;          /**< pointer to temporary readbuffer storage */
+static int send_index;                /**< for sending out packets */
+static int receive_index;             /**< for receiving packets */
+static struct ERRC_PROTO msgprotobuf; /**< for reading header of receive packet */
+
+static char *errormessage[] = {
     "No error.",
     "Error reading in verbosity argument.", /* 1 */
     "Error reading name for command pipe.",
@@ -317,13 +327,20 @@ char *errormessage[] = {
 int emsg(int code);
 int parse_options(int argc, char *argv[]);
 
+// for fd_set and select syscalls
 int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax, Boolean hasContentToSend, struct timeval timeout);
-int write_into_sendpipe(int *send_index_ptr);
-int process_cmd_pipe(char* dpnt, char* cmd_input, int ipt);
-int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input, int ipt);
-int process_command(char *in);      /* process a command (e.g. epoch epochNum), terminated with \0 */
-int read_from_receivepipe(struct packet_received *sbfp, int* receive_index_ptr, 
-    struct ERRC_PROTO *msgprotobuf_ptr, char *readbuf_ptr);
+// for writing data into sendpipe
+int write_into_sendpipe();
+// for reading command from cmdpipe into cmd_input
+int read_from_cmdpipe(char* cmd_input);
+// for processing command in cmd_input to create thread & start qber estimation
+int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input);
+/* process a command (e.g. epoch epochNum), terminated with \0 */
+int process_command(char *in);      
+// Read header from receive pipe
+int read_header_from_receivepipe();
+// Read body from  receive  pipe
+int read_body_from_receivepipe();
 
 // MAIN FUNCTION DECLARATION
 /* ------------------------------------------------------------------------- */

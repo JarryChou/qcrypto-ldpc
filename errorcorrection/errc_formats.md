@@ -1,3 +1,7 @@
+\page "errorcorrection - formats"
+
+This document is located at `qcrypto/errorcorrection/` as `errc_formats.md`.
+
 status of this document: 22.3.06chk
 
 This is a collection of stream definitions for the data packets exchanged for
@@ -40,7 +44,7 @@ an external command to the error correction program.
 The specification of packet formats follow the requirements for a cascade
 error correction scheme:
 
-1. Preliminary error determination
+# 1. Preliminary error determination
 
 In this step, the initial error rate in the raw key is determined. This step
 also initiates the error correction procedure, and defines the role
@@ -55,12 +59,15 @@ an assumption about the expected error rate from previous packets.
 For both possibilities, packets are defined:
 
 1.1 packet for PRNG based subset for bit subset transmission
+
   packet name: ERRDET_0
+
   The packet format is a header of the following structure, followed by a data
   field with a length of multiple of 4 bytes.
 
   packet header:
 
+```
   struct ERRC_ERRDET_0 {
        unsigned int tag;
        unsigned int bytelength;
@@ -70,22 +77,23 @@ For both possibilities, packets are defined:
        unsigned int seed;
        unsigned int numberofbits;
        unsigned int errormode; }
+```
 
   element definition:
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet (including complete
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet (including complete
                         header) in bytes
-    subtype:            0 for PRNG based subset
-    epoch:              defines epoch of first packet
+* **subtype**:            0 for PRNG based subset
+* **epoch**:              defines epoch of first packet
     number_of_epochs    defines implicitly the length of the block
-    seed:               seed for a PRNG used to determine the bit selection
-    numberofbits:       number of bits to follow
-    errormode:		describes if an initial error estimation should be
+* **seed**:               seed for a PRNG used to determine the bit selection
+* **numberofbits**:       number of bits to follow
+* **errormode**:		describes if an initial error estimation should be
                         done or not. if this value is 0, errorest is done,
 			otherwise the value contains the assumed error for
 			block optimization in multiples of 2^-16.
 
-    data format: the data section contains the selected bits in a packed
+* **data format**: the data section contains the selected bits in a packed
     format; all bits are packed into 32 bit wide unsigned ints, with the first
     bit forming the MSB of the first integer. Tailing bits are padded with 0.
 
@@ -103,7 +111,7 @@ For both possibilities, packets are defined:
   packet name: ERRDET_1
 
   packet header:
-
+```
    struct ERRC_ERRDET_1 {
        unsigned int tag;
        unsigned int bytelength;
@@ -112,20 +120,20 @@ For both possibilities, packets are defined:
        unsigned int number_of_epochs;
        unsigned int bitlength;
        unsigned int numberofbits; }
-
+```
   element definition:
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet (including complete
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet (including complete
                         header) in bytes
-    subtype:            1 for good random number based subset
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    bitlength:          defines the compression bit width for the index
+* **subtype**:            1 for good random number based subset
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **bitlength**:          defines the compression bit width for the index
                         difference. should be smaller than 16 bit, otherwise
 			the compression is pointless.
-    numberofbits:       number of bits to follow
+* **numberofbits**:       number of bits to follow
 
-    data format: the data section contains the selected bits in a packed
+    **data format**: the data section contains the selected bits in a packed
     format; see definition of stream-4 packed index files and assume a
     bitlength of 1 for the desired information.
  
@@ -140,7 +148,7 @@ For both possibilities, packets are defined:
   packet name: ERRDET_2
 
   The packet consists only of the following structure:
-
+```
    struct ERRC_ERRDET_2 {
        unsigned int tag;
        unsigned int bytelength;
@@ -149,15 +157,16 @@ For both possibilities, packets are defined:
        unsigned int number_of_epochs;
        unsigned int requestedbits;
         }
+```
 
   element definition:
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet (including complete
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet (including complete
                         header) in bytes; This is fixed to 24
-    subtype:            2 for request of bit number packet
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    requestedbits:      the number of additionally required bits.
+* **subtype**:            2 for request of bit number packet
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **requestedbits**:      the number of additionally required bits.
 
 
 1.4 Acknowledgment packet for communicating the error rate.
@@ -172,7 +181,7 @@ For both possibilities, packets are defined:
   packet name: ERRDET_3
 
   The packet consists only of the following structure:
-
+```
    struct ERRC_ERRDET_3 {
        unsigned int tag;
        unsigned int bytelength;
@@ -182,19 +191,19 @@ For both possibilities, packets are defined:
        unsigned int tested_bits;
        unsigned int number_of_errors;
         }
-
+```
   element definition:
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet (including complete
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet (including complete
                         header) in bytes; This is fixed to 28
-    subtype:            3 for request of bit number packet
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    tested_bits:        the number of bits tested
-    number_of_errors:   how many mismatches were found.
+* **subtype**:            3 for request of bit number packet
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **tested_bits**:        the number of bits tested
+* **number_of_errors**:   how many mismatches were found.
 
 
-2. First round of parity bit generation
+# 2. First round of parity bit generation
 
 In this section, two versions of the bitstream are considered: The
 unpermutated version (0), and a second permutated copy (1). Both strings are
@@ -224,7 +233,7 @@ kept for possible extension.
    packet name: ERRDET_4		
      
    The packet consists of the following header structure and a data stream:
-
+```
    struct ERRC_ERRDET_4 {
        unsigned int tag;
        unsigned int bytelength;
@@ -236,24 +245,24 @@ kept for possible extension.
        unsigned int totalbits;
        unsigned int seed;
         }	
-
+```
   element definition:
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet (including complete
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet (including complete
                         header) in bytes;
-    subtype:            4 for request of bit number packet
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    k0, k1:             size of partitions
-    totalbits:          the number of bits considered for error estimation
-    seed:		seed for the PRNG to choose the permutation
+* **subtype**:            4 for request of bit number packet
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **k0, k1**:             size of partitions
+* **totalbits**:          the number of bits considered for error estimation
+* **seed**:		seed for the PRNG to choose the permutation
 
 Data format are unsigned ints (32bit), containing the parity results (0 even,
 1 odd) for the blocks in both runs. first bit is msb in the first longint, and
 each parity block starts at a new longint boundary.
 
 
-3. Binary search 
+# 3. Binary search 
 
 In this section, the errors in subblocks with nonmatching parity  should be
 isolated and the faulty bits finally corrected. For this, a packet is needed
@@ -272,7 +281,7 @@ used to transmit the same bit again (no information is lost this way).
    packet name: ERRDET_5		
      
    The packet consists of the following header structure and a data stream:
-
+```
    struct ERRC_ERRDET_5 {
        unsigned int tag;
        unsigned int bytelength;
@@ -283,64 +292,64 @@ used to transmit the same bit again (no information is lost this way).
        unsigned int index_present;
        unsigned int runlevel;
        }
-
+```
   element definition:
-   
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet (including complete
-                        header) in bytes;
-    subtype:            5 for request of bit number packet
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    number_entries	defines the number of blocks with parity mismatch
-    index_present:	decides if and in which format the index data is
-                        contained in the packet
-    runlevel:           a combined quantity which identifies the pass and 
-                        bisectioning depth of each block. The pass (0/1) is
-			encoded in the most significant bit, the bisectioning
-			depth in the least significant bits. For the fist
-			run, this quantity contains 0, referring to a
-                        splitting in two parts of the original section.
-                        There was a need to add another flag for indicating
-			the source buffer in case it is a BICONF_CHECK round.
 
-    The data section contains (a) a parity array, bit-packed similarly to the
-    original parity communication packet. It is an array of unsigned ints,
-    capable to contain all the number_entries bits. 
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet (including complete
+                    header) in bytes;
+* **subtype**:            5 for request of bit number packet
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **number_entries**:	defines the number of blocks with parity mismatch
+* **index_present**:	decides if and in which format the index data is
+                    contained in the packet
+* **runlevel**:           a combined quantity which identifies the pass and 
+                    bisectioning depth of each block. The pass (0/1) is
+  encoded in the most significant bit, the bisectioning
+  depth in the least significant bits. For the fist
+  run, this quantity contains 0, referring to a
+                    splitting in two parts of the original section.
+                    There was a need to add another flag for indicating
+  the source buffer in case it is a BICONF_CHECK round.
 
-    If the index_present word is 0, an array containing one bit per subblock
-    if the upper or lower in the same encoding as the parity bit follows,
-    which contains information if the error from the previous cycle is
-    contained in the first (0) or second (1) half of the interval.
+The data section contains (a) a parity array, bit-packed similarly to the
+original parity communication packet. It is an array of unsigned ints,
+capable to contain all the number_entries bits. 
 
-    If the newly tested interval length is 0, the parity bit will be zero.
+If the index_present word is 0, an array containing one bit per subblock
+if the upper or lower in the same encoding as the parity bit follows,
+which contains information if the error from the previous cycle is
+contained in the first (0) or second (1) half of the interval.
 
-    If the index_present word is >0, one of the following encoding schemes for
-    the indices are used:
+If the newly tested interval length is 0, the parity bit will be zero.
 
-    index_present = 1: plain uint encoding 
-       The data following the parity data is an array of unsigned ints
-       containing the block addresses directly.
+If the index_present word is >0, one of the following encoding schemes for
+the indices are used:
+
+index_present = 1: plain uint encoding 
+    The data following the parity data is an array of unsigned ints
+    containing the block addresses directly.
+
+  NEW VERSION: No, keep old version
+index_present = 2:  a single longint fields with an explicit start and end
+address for the subblock of the BICONF_binsearch cycle.
     
-     NEW VERSION: No, keep old version
-    index_present = 2:  a single longint fields with an explicit start and end
-    address for the subblock of the BICONF_binsearch cycle.
-        
-     OLD VERSION:
-    index_present = 2: plain shortint encoding
-       same as index 1, but with short integers as numbers. Array is padded
-       with 0 at the end to have a length of multiple of 4 bytes.
- 
-    index_present = 3: a packed bitfield for each original block is sent,
-       containing information if there is a mismatch (1) or match (0).The data
-       is padded with 0 at the end to form a inter multiple of 32words.
-    
-    OLD VERSION;  OBSOLETE? no, keep using it, but only with one entry.
-    index_present = 4: a two-entry longint fields with two explicit start
-        addresses for the two start addresses of the biconf blocks is
-	transmitted.  (first one is zero, second one is biconflen )
+  OLD VERSION:
+index_present = 2: plain shortint encoding
+    same as index 1, but with short integers as numbers. Array is padded
+    with 0 at the end to have a length of multiple of 4 bytes.
 
-4. Binary search/confirmation  
+index_present = 3: a packed bitfield for each original block is sent,
+    containing information if there is a mismatch (1) or match (0).The data
+    is padded with 0 at the end to form a inter multiple of 32words.
+
+OLD VERSION;  OBSOLETE? no, keep using it, but only with one entry.
+index_present = 4: a two-entry longint fields with two explicit start
+    addresses for the two start addresses of the biconf blocks is
+transmitted.  (first one is zero, second one is biconflen )
+
+# 4. Binary search/confirmation  
 To eliminate the final errors, and obtain a low residual bit error rate, a
 final error checking is performed on single stretches of long random sections
 of a permuted key. The initial parity evaluation is initated by bob after a
@@ -357,7 +366,7 @@ a given length.
    packet name: ERRDET_6
      
    The packet consists of the following header structure and a data stream:
-
+```
    struct ERRC_ERRDET_6 {
        unsigned int tag;
        unsigned int bytelength;
@@ -367,17 +376,17 @@ a given length.
        unsigned int seed;
        unsigned int number_of_bits;
        }
-
+```
   element definition:
    
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet in bytes;
-                        fixed to 28 for this message
-    subtype:            6 for request of bit number packet
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    seed:               defines seed for this biconf round
-    number_of_bits	defines the number bits requested for biconf
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet in bytes;
+                    fixed to 28 for this message
+* **subtype**:            6 for request of bit number packet
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **seed**:               defines seed for this biconf round
+* **number_of_bits**:	defines the number bits requested for biconf
 
 4.2 BICONF respond message
 
@@ -387,7 +396,7 @@ interval and the bit value of the parity of this section.
    packet name: ERRDET_7
      
    The packet consists of the following header structure and a data stream:
-
+```
    struct ERRC_ERRDET_7 {
        unsigned int tag;
        unsigned int bytelength;
@@ -396,19 +405,19 @@ interval and the bit value of the parity of this section.
        unsigned int number_of_epochs;
        unsigned int parity;
        }
-
+```
   element definition:
    
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet in bytes;
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet in bytes;
                         fixed to 24 for this message
-    subtype:            7 for request of bit number packet
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    parity:		result of the parity test (0 or 1)
+* **subtype**:            7 for request of bit number packet
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **parity**:		result of the parity test (0 or 1)
 
 
-5. Error correction scheme
+# 5. Error correction scheme
 After the biconf scheme, the next step is the error correction procedure
 before the release of the final key. This is initiated with one package
 containing a PRNG seed for the compression matrix, and the number of lost bits
@@ -418,7 +427,7 @@ for reference. The determination of the error rate should be implicit.
    packet name: ERRDET_7
      
    The packet consists of the following header structure and a data stream:
-
+```
    struct ERRC_ERRDET_8 {
        unsigned int tag;
        unsigned int bytelength;
@@ -429,17 +438,17 @@ for reference. The determination of the error rate should be implicit.
        unsigned int lostbits;
        unsigned int correctedbits;
 }
-
+```
   element definition:
    
-    tag:                6 for an error correction packet
-    bytelength:         contains the length of the packet in bytes;
+* **tag**:                6 for an error correction packet
+* **bytelength**:         contains the length of the packet in bytes;
                         fixed to 32 for this message
-    subtype:            7 for request of bit number packet
-    epoch:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
-    seed:		seed for the prng definition
-    lostbits:		number of lostbits in the communication 
+* **subtype**:            7 for request of bit number packet
+* **epoch**:              defines epoch of first packet
+* **number_of_epochs**:    defines implicitly the length of the block
+* **seed**:		seed for the prng definition
+* **lostbits**:		number of lostbits in the communication 
 			(should match)
-    correctedbits:      number of corrected bits on bob side
+* **correctedbits**:      number of corrected bits on bob side
 

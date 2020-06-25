@@ -4,6 +4,7 @@
  * 
  *  Copyright (C) 2020 Matthew Lee, National University
  *                          of Singapore <crazoter@gmail.com>
+ * 
  *  Copyright (C) 2005-2007 Christian Kurtsiefer, National University
  *                          of Singapore <christian.kurtsiefer@gmail.com>
  * 
@@ -36,7 +37,7 @@
 #define DEFAULT_ERR_MARGIN 0. /**< eavesdropper is assumed to have full knowledge on raw key */
 #define MIN_ERR_MARGIN 0.          /**< for checking error margin entries */
 #define MAX_ERR_MARGIN 100.        /**< for checking error margin entries */
-#define DEFAULT_INITIAL_ERR 0.075       /**< initial error rate */
+#define DEFAULT_INITIAL_ERR 0.075  /**< initial error rate */
 #define MIN_INI_ERR 0.005          /**< for checking entries */
 #define MAX_INI_ERR 0.14           /**< for checking entries */
 #define USELESS_ERRORBOUND 0.15    /**< for estimating the number of test bits */

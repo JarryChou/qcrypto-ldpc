@@ -88,31 +88,31 @@ $(document).ready(function(){initNavTree('debug_8h_source.html',''); initResizab
 </div><!--header-->
 <div class="contents">
 <a href="debug_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#ifndef ECD2_DEBUG</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#define ECD2_DEBUG</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">// Libraries</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &lt;errno.h&gt;</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">// Definitions</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">// Definitions to enable certain debugging parts of the code</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#define DEBUG 1</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="debug_8h.html#ad72dbcf6d0153db1b8d8a58001feed83">   54</a></span>&#160;<span class="comment">/* #define SYSTPERMUTATION */</span> <span class="comment">/* for systematic rather than rand permut */</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">/* #define mallocdebug */</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keywordtype">char</span> *<a class="code" href="debug_8h.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> s);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#ae9cba13dc8aa5d62e13112d01be090ba">free2</a>(<span class="keywordtype">void</span> *p);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#aedb8e9adb6f914cd8d858f7b11fb4f31">dumpmsg</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb, <span class="keywordtype">char</span> *msg);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#a28d64ae89e528f6024e10b107ccafee6">dumpstate</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#a4236e119dd934b5e8b0a99d28e8fdf7e">output_permutation</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_DEBUG */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#ifndef ECD2_DEBUG</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#define ECD2_DEBUG</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">// Libraries</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#include &lt;errno.h&gt;</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">// Definitions</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">// Definitions to enable certain debugging parts of the code</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#define DEBUG 1</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="debug_8h.html#ad72dbcf6d0153db1b8d8a58001feed83">   55</a></span>&#160;<span class="comment">/* #define SYSTPERMUTATION */</span> <span class="comment">/* for systematic rather than rand permut */</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">/* #define mallocdebug */</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keywordtype">char</span> *<a class="code" href="debug_8h.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> s);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#ae9cba13dc8aa5d62e13112d01be090ba">free2</a>(<span class="keywordtype">void</span> *p);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#aedb8e9adb6f914cd8d858f7b11fb4f31">dumpmsg</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb, <span class="keywordtype">char</span> *msg);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#a28d64ae89e528f6024e10b107ccafee6">dumpstate</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">void</span> <a class="code" href="debug_8h.html#a4236e119dd934b5e8b0a99d28e8fdf7e">output_permutation</a>(<span class="keyword">struct</span> <a class="code" href="structkeyblock.html">keyblock</a> *kb);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_DEBUG */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="adebug_8h_html_af8c2db3d81151416ecd3dcb6f38e3711"><div class="ttname"><a href="debug_8h.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a></div><div class="ttdeci">char * malloc2(unsigned int s)</div><div class="ttdoc">malloc wrapper for debugging purposes</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00011">debug.c:11</a></div></div>

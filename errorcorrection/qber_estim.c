@@ -98,7 +98,7 @@ int errorest_1(unsigned int epoch) {
  */
 int process_esti_message_0(char *receivebuf) {
   struct ERRC_ERRDET_0 *in_head; /* holds header */
-  struct keyblock *kb;           /* poits to thread info */
+  struct keyblock *kb;           /* points to thread info */
   unsigned int *in_data;         /* holds input data bits */
   /* int retval; */
   int i, seen_errors, rn_order, bipo;
@@ -128,8 +128,7 @@ int process_esti_message_0(char *receivebuf) {
     seen_errors = kb->estimatederror;
   } else {
     /* create a thread with the loaded files, get thead handle */
-    if ((i = create_thread(in_head->epoch, in_head->number_of_epochs, 0.0,
-                           0.0))) {
+    if ((i = create_thread(in_head->epoch, in_head->number_of_epochs, 0.0, 0.0))) {
       fprintf(stderr, "create_thread return code: %d epoch: %08x, number:%d\n",
               i, in_head->epoch, in_head->number_of_epochs);
       return 47; /* no success */

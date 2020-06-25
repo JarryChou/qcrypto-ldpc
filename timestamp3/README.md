@@ -1,3 +1,7 @@
+\page "timestamp3 - readme"
+
+This README is located in `qcrypto/timestamp3/`.
+
 This is a usb version of the readevents program, generating a stream of
 consolidated timestamp events from a timestamp card. This program is the
 interface to a timestamp card, cleans up some bitorder issues and allows to
@@ -7,12 +11,11 @@ readevents3.c
 
 Files contained in this directory:
 
-readevents3.c      main code for timestamp card reader
-timetag_io2.c	   functions close to the hardware 
-timetag_io2.h      header definition for main program
-usbtimetagio.h     definitions of commands used both for ioctls() to the
-                   device driver and to the firmware in the USB timestamp card
-makefile	   
+* readevents3.c      main code for timestamp card reader
+* timetag_io2.c	   functions close to the hardware 
+* timetag_io2.h      header definition for main program
+* usbtimetagio.h     definitions of commands used both for ioctls() to the device driver and to the firmware in the USB timestamp card
+* makefile	   
 
 Other files and information necessary to understand this better:
 
@@ -24,6 +27,6 @@ Other files and information necessary to understand this better:
 3. USB device driver for the timestamp card, in usbtimetagdriver directory
 
 
-First version 17.12.06
-consolidated 25.2.08
-repaired usb flush option in common version 24.7.08
+* First version 17.12.06
+* consolidated 25.2.08
+* repaired usb flush option in common version 24.7.08

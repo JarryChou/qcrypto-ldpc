@@ -25,6 +25,14 @@
 var NAVTREE =
 [
   [ "qCrypto", "index.html", [
+    [ "errorcorrection - formats", "errorcorrection_01-_01formats.html", null ],
+    [ "errorcorrection - readme", "errorcorrection_01-_01readme.html", null ],
+    [ "hardware - readme", "hardware_01-_01readme.html", null ],
+    [ "packetheaders - readme (filespec)", "packetheaders_01-_01readme_01_07filespec_08.html", null ],
+    [ "remotecrypto - readme", "remotecrypto_01-_01readme.html", null ],
+    [ "scripts - readme", "scripts_01-_01readme.html", null ],
+    [ "timestamp3 - readme", "timestamp3_01-_01readme.html", null ],
+    [ "usbtimetagdriver - readme", "usbtimetagdriver_01-_01readme.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -51,16 +59,17 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html",
-"costream_8c.html#a5f14e56060eb89721c57df176c16ea1d",
-"fifobithelpers_8h.html#aa09d70e3bd62d8e2510706397431c3aa",
-"fx2regs__c_8h.html#a40734b968288461414e6374b28b74b1a",
-"fx2regs__c_8h.html#a967383630ea8d5ac4e252290f0796511",
-"fx2regs__c_8h.html#aee9ad6f87407a91ffdd3fec7699cdd52",
-"packets_8h.html#a5b50d13daf3bac6b1e99283e5e6831b2",
-"splicer_8c.html#a2766e7e3af5ffa406f6c7d41104db06a",
-"structkeyblock.html#aa80fc600c52bfd73abf5f80591bcab85",
-"transferd_8h.html#a2a1ce3f2040007303d36c0b682b5ac10"
+"alice_2init__ecd2_8sh.html",
+"costream_8c.html#a4553b2e65e49da4d10f241e8ca1676a8",
+"ffind_8c.html#a1a1e44698a5877f8cbdbbc6dd99ac09f",
+"fx2regs__c_8h.html#a36e8ad3a10c137c3c6778aae82041a62",
+"fx2regs__c_8h.html#a8c6fcad8f3319aa7a361af1f86a83b9d",
+"fx2regs__c_8h.html#ae3c3a90c11418faa95f93d01eeda1953",
+"install__libs_8sh.html",
+"readevents3_8c.html#aac598d9863fabf7caf21d9652945743b",
+"structdma__page__pointer.html#a858ad61672a40182cc9016412a6f2d11",
+"tp8_8c_source.html",
+"usbtimetagdriver_2driver_2usbtimetagio_8h.html#ad368ba37e19aa72261a182b757c0eeaf"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,3 +1,7 @@
+\page "remotecrypto - readme"
+
+This README is located in `qcrypto/remotecrypto/`.
+
 This is a futile attempt of documenting the different programs for the quantum
 key distribution suite. It is notoriously incomplete, and the reader is
 strongly advised to consult the C code of the programs for coments and usage
@@ -23,7 +27,7 @@ LICENSE
  Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-PREREQUISITS
+PREREQUISITES
 
 This directory contains the core processing programs for a BB84 type key
 generation scheme. In order to work properly with the hardware, the user

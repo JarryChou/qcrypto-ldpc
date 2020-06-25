@@ -1,3 +1,7 @@
+\page "packetheaders - readme (filespec)"
+
+This README is located in `qcrypto/packetheaders/`.
+
 File specification for exchange of sifting / key information between two
 crypto clients; extended for deviceindependent protocol
 
@@ -23,8 +27,18 @@ order of 1 nsec small on a hardware side.
 The structure of events as emitted by the timestamp cards is a series of 64
 bit wide structures containing timing and detector event information:
 the data is emitted/saved as a sequence of two unsigned 32 bit wide integers,
-
-   struct rawevent {int msw; int lsw};
+```
+struct rawevent {
+        // 32 bit unsigned integers containing timing & detector event information
+        // [64       ...        16][15    ...    5][4        ...       0]
+        // [ Detection Time (49b) ][ Unused (11b) ][Detector Status (4b)]
+        // [64    ...   48]
+        // [Epoch ID (17b)]
+ 
+        unsigned int msw; // Most Significant Word
+        unsigned int lsw; // Least Significant Word
+    };
+```
 
 where the detection time is contained in the most significant 49 bits of the
 64 bit combination of msw/lsw. The time is recorded in multiples of 125
@@ -77,11 +91,13 @@ processing overhead and the ability to partition raw data into epochized
 packets. format (as saved in binary version on a x86 architecture; ints and
 unsigned ints refer to 32 bit wide integers):
 
-        struct header_1 {int tag;
-		         unsigned int epoc;
-		         unsigned int length;
-		         int bitsperentry;
-		         int basebits;}
+        struct header_1 {
+				int tag;			// 0x1 or 0x101
+				unsigned int epoc;	// Epoch Number
+				unsigned int length;// # of 64 bit entries (i.e. events)
+				int bitsperentry;	// # of bits per entry (fixed to 49)
+				int basebits;		// # of bits bits encoding detector clicks & coincidences, depends on timestamp card
+		}
 
 <tag> is either 1 for simple raw data or 0x101 for raw data with an extended
 epoch. <length> is optional and counts the number of 64 bit entries to
@@ -111,13 +127,16 @@ little computational overhead and is hopefully reasonably efficient (less than
 20% excess size compared to the informational optimum for this stream).
 
 header format:
-        struct header_2 {int tag;
-			 unsigned int epoc;
-			 unsigned int length;
-			 int timeorder;
-			 int basebits;
-			 int protocol;}
-
+```
+        struct header_2 {
+				int tag;			// 0x2 or 0x102
+				unsigned int epoc;	// Epoch number
+				unsigned int length;// # of events encoded
+				int timeorder;		// # of bits used for time-diff  encoding
+				int basebits;		// # of basis bits transmitted in stream (1 for BB84)
+				int protocol;		// Protocol num (See below)
+		}
+```
 The <tag> entry is either 0x2 for local epoch or 0x102 for an extended epoch
 definition. The <length> entry is optional and counts the number of events
 encoded in the whole stream. The <timeorder> entry contains the number of bits
@@ -176,11 +195,14 @@ sequence in the transmitted file type 2 already, only the packed bit
 information has to be stored.
 
 header format:
-
-        struct header_3 {int tag;
-			 unsigned int epoc;
-			 unsigned int length;
-			 int bitsperentry; }
+```
+        struct header_3 {		// Unsifted / Sifted Raw key format
+			int tag;			// 0x3 or 0x103
+			unsigned int epoc;	// Epoch number
+			unsigned int length;// # of encoded events
+			int bitsperentry; 	// # of bits per entry (1 or 2)
+		}
+```
 
 The <tag> entry is  either 0x3 for local epoch or 0x103 for an extended epoch
 definition. The <length> entry is optional and counts the number of events
@@ -213,11 +235,15 @@ submission is always more efficient than yes/no encoding for all queried
 events. The encoding is very similar to file format type 2.
 
 header format:
-        struct header_4 {int tag;
-			 unsigned int epoc;
-			 unsigned int length;
-			 int timeorder;
-			 int basebits;}
+```
+        struct header_4 {
+			int tag;			// 0x4 or 0x104
+			unsigned int epoc;	// epoch number
+			unsigned int length;// # of events encoded in stream
+			int timeorder;		// # of bits used for time-difference encoding
+			int basebits;		// # of basis bits transmitted (0 for BB84)
+		}
+```
 
 The <tag> entry is  either 0x4 for local epoc or 0x104 for an extended epoc
 definition. The <length> entry is optional and counts the number of events
@@ -243,10 +269,14 @@ contains only one bit per entry, so this information needs not to be
 encoded. This file format is therefore a simplification of he type 3 format.
 
 header format:
-        struct header_7 {int tag;
-    	       		 unsigned int epoc;	
-    			 unsigned int numberofepochs;
-    			 int numberofbits; }
+```
+        struct header_7 {
+			int tag; 					// 0x7 or 0x107 
+			unsigned int epoc;			// start epoch
+			unsigned int numberofepochs;// # of consecutive epochs
+			int numberofbits; 			// size of final key in bits (excl. header) 
+		}
+```
 
 The <tag> entry is  either 0x7 for local epoc or 0x107 for an extended epoc
 definition. The <epoch> entry represents the first data epoch used for
@@ -256,3 +286,6 @@ error correction deamon. Finally, <numberofbits> contains the number of bits
 following the header. Bits get filled in 32 bit wide words, starting from the
 most significant bit in each word. Thus, the length of the data section of
 this file is given by floor((<numberofbits>+31)/32).
+
+**Other notes**
+Due to time constraints, I only extracted headers 3 and 7 into the packetheaders directory. In the future would be good to extract all the headers into a general directory to store their header files. 

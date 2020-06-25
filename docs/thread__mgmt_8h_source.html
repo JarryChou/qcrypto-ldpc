@@ -88,33 +88,33 @@ $(document).ready(function(){initNavTree('thread__mgmt_8h_source.html',''); init
 </div><!--header-->
 <div class="contents">
 <a href="thread__mgmt_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#ifndef ECD2_THREAD_MGMT</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#define ECD2_THREAD_MGMT</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">// Libraries</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;errno.h&gt;</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">defaultdefinitions.h</a>&quot;</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">globalvars.h</a>&quot;</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="proc__state_8h.html">proc_state.h</a>&quot;</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="packets_8h.html">packets.h</a>&quot;</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#include &quot;../packetheaders/pkt_header_3.h&quot;</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &quot;../packetheaders/pkt_header_7.h&quot;</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="debug_8h.html">debug.h</a>&quot;</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="helpers_8h.html">helpers.h</a>&quot;</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keywordtype">int</span> <a class="code" href="thread__mgmt_8h.html#ae85a944ce8e93c3604cef0771bb4cf1d">check_epochoverlap</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structblockpointer.html#a4058d6d65150b1c09f2e8615a6b37755">epoch</a>, <span class="keywordtype">int</span> num);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keywordtype">int</span> <a class="code" href="thread__mgmt_8h.html#aedac9d351103f728998a59403338a03d">create_thread</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structblockpointer.html#a4058d6d65150b1c09f2e8615a6b37755">epoch</a>, <span class="keywordtype">int</span> num, <span class="keywordtype">float</span> inierr, <span class="keywordtype">float</span> BellValue);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">struct </span><a class="code" href="structkeyblock.html">keyblock</a> *<a class="code" href="thread__mgmt_8h.html#ae770bdf990c6463259dc2388ecb81666">get_thread</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> epoch);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keywordtype">int</span> <a class="code" href="thread__mgmt_8h.html#a50f74be3f39663e19901c3e1ed240698">remove_thread</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> epoch);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_THREAD_MGMT */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#ifndef ECD2_THREAD_MGMT</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#define ECD2_THREAD_MGMT</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">// Libraries</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"></span><span class="preprocessor">#include &lt;errno.h&gt;</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="defaultdefinitions_8h.html">defaultdefinitions.h</a>&quot;</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="globalvars_8h.html">globalvars.h</a>&quot;</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="proc__state_8h.html">proc_state.h</a>&quot;</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="keyblock_8h.html">keyblock.h</a>&quot;</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="packets_8h.html">packets.h</a>&quot;</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &quot;../packetheaders/pkt_header_3.h&quot;</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#include &quot;../packetheaders/pkt_header_7.h&quot;</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="debug_8h.html">debug.h</a>&quot;</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="helpers_8h.html">helpers.h</a>&quot;</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">int</span> <a class="code" href="thread__mgmt_8h.html#ae85a944ce8e93c3604cef0771bb4cf1d">check_epochoverlap</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structblockpointer.html#a4058d6d65150b1c09f2e8615a6b37755">epoch</a>, <span class="keywordtype">int</span> num);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keywordtype">int</span> <a class="code" href="thread__mgmt_8h.html#aedac9d351103f728998a59403338a03d">create_thread</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structblockpointer.html#a4058d6d65150b1c09f2e8615a6b37755">epoch</a>, <span class="keywordtype">int</span> num, <span class="keywordtype">float</span> inierr, <span class="keywordtype">float</span> BellValue);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">struct </span><a class="code" href="structkeyblock.html">keyblock</a> *<a class="code" href="thread__mgmt_8h.html#ae770bdf990c6463259dc2388ecb81666">get_thread</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> epoch);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keywordtype">int</span> <a class="code" href="thread__mgmt_8h.html#a50f74be3f39663e19901c3e1ed240698">remove_thread</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> epoch);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* ECD2_THREAD_MGMT */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="astructkeyblock_html"><div class="ttname"><a href="structkeyblock.html">keyblock</a></div><div class="ttdoc">Definition of a structure containing all informations about a block.</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00033">keyblock.h:33</a></div></div>
