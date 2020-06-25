@@ -42,7 +42,7 @@ int testbits_needed(float e) {
 /**
  * @brief function to initiate the error estimation procedure.
  * 
- * Note: uses globalvar ini_err_skipmode
+ * Note: uses globalvar skip_qber_estimation
  * 
  * @param epoch start epoch
  * @return int 0 on success, error code otherwise
@@ -65,7 +65,7 @@ int errorest_1(unsigned int epoch) {
   /*  evaluate how many bits are needed in this round */
   f_inierr = kb->initialerror / 65536.; /* float version */
 
-  if (ini_err_skipmode) { /* don't do error estimation */
+  if (arguments.skip_qber_estimation) { /* don't do error estimation */
     kb->errormode = 1;
     msg1 = fillsamplemessage(kb, 1, kb->initialerror, kb->BellValue);
   } else {

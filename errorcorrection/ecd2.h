@@ -92,20 +92,20 @@
  *                         if 100 error bits are found, one standard deviation
  *                         in the error rate QBER is QBER /Sqrt(10). )
  *                         Default is set to 0.
- *   -E expectederror:     an initial error rate can be given for choosing the
+ *   -E initialerr:         an initial error rate can be given for choosing the
  *                         length of the first test. Default is 0.05. This may
  *                         be overridden by a servoed quantity or by an explicit
  *                         statement in a command.
- *   -k                    killfile option. If set, the raw key files will be
+ *   -k                    remove_raw_keys_after_use option. If set, the raw key files will be
  *                         deleted after writing the final key into a file.
- *   -J basicerror:        Error rate which is assumed to be generated outside the
+ *   -J intrinsicerr:      Error rate which is assumed to be generated outside the
  *                         influence of an eavesdropper.
- *   -T errorbehavior:     Determines the way how to react on errors which should
+ *   -T runtimeerrormode:  Determines the way how to react on errors which should
  *                         not stop the demon. Default is 0. detailed behavior:
  *                         0: terminate program on everything
  *                         1: ignore errors on wrong packets???
  *                         2: ignore errors inherited from other side
- *   -V verbosity:         Defines verbosity mode on the logging output after a
+ *   -V verbosity_level:   Defines verbosity mode on the logging output after a
  *                         block has been processed. options:
  *                         0: just output the raw block name (epoch number in hex)
  *                         1: output the block name, number of final bits
@@ -115,21 +115,21 @@
  *                         4: same as 2, but with explicit number of leaked bits
  *                            in the error correction procedure
  *                         5: same as 4, but with plain text comments
- *   -I                    ignoreerroroption. If this option is on, the initial
+ *   -I                    skip_qber_estimation. If this option is on, the initial
  *                         error measurement for block optimization is skipped,
  *                         and the default value or supplied value is chosen. This
  *                         option should increase the efficiency of the key
  *                         regeneration if a servo for the error rate is on.
- *   -i                    deviceindependent option. If this option is set,
+ *   -i                    bellmode (deviceindependent) option. If this option is set,
  *                         the deamon expects to receive a value for the Bell
  *                         violation parameter to estimate the knowledge of an
  *                         eavesdropper.
- *   -p                    avoid privacy amplification. For debugging purposes, to
+ *   -p                    disable_privacyamplification option. avoid privacy amplification. For debugging purposes, to
  *                         find the residual error rate
- *   -B BER:               choose the number of BICONF rounds to meet a final
+ *   -B biconf_BER:        choose the number of BICONF rounds to meet a final
  *                         bit error probability of BER. This assumes a residual
  *                         error rate of 10^-4 after the first two rounds.
- *   -b rounds:            choose the number of BICONF rounds. Defaults to 10,
+ *   -b biconf_rounds:     choose the number of BICONF rounds. Defaults to 10,
  *                         corresponding to a BER of 10^-7.
  * 
  * 
@@ -202,29 +202,26 @@ struct packet_to_send *next_packet_to_send = NULL;
 struct packet_to_send *last_packet_to_send = NULL;
 
 /* global parameters and variables */
-int biconf_rounds = DEFAULT_BICONF_ROUNDS;   /**< how many times */
-
-int ini_err_skipmode = DEFAULT_ERR_SKIPMODE; /**< 1 if error est to be skipped */
-
-int killmode = DEFAULT_KILLMODE;   /**< decides on removal of raw key files */
-
-char fname[8][FNAMELENGTH] = {"", "", "", "", "", "", "", ""}; /**< filenames */
-int handle[8];    /**< handles for files accessed by raw I/O */
-FILE *fhandle[8]; /**< handles for files accessed by buffered I/O */
-
-int bellmode = 0; /**< 0: use estimated error, 1: use supplied bell value */
-int disable_privacyamplification = 0; /**< off normally, != 0 for debugging */
-float errormargin = DEFAULT_ERR_MARGIN;
-float intrinsicerr = DEFAULT_INTRINSIC; /**< error rate not under control of eve */
-int verbosity_level = DEFAULT_VERBOSITY;
+Arguments arguments = {
+    DEFAULT_VERBOSITY,          // verbosity_level
+    DEFAULT_RUNTIMEERRORMODE,   // runtimeerrormode
+    DEFAULT_BICONF_ROUNDS,      // biconf_rounds
+    DEFAULT_ERR_MARGIN,         // errormargin
+    DEFAULT_INITIAL_ERR,        // initialerr
+    DEFAULT_INTRINSIC,          // intrinsicerr
+    DEFAULT_KILLMODE,           // remove_raw_keys_after_use
+    DEFAULT_ERR_SKIPMODE,       // skip_qber_estimation
+    False,                      // bellmode
+    False                       // disable_privacyamplification
+                                // fname
+                                // handle
+                                // fhandle
+};
 /// @}
 
 /// @name Static structs & variables (global only within the scope of ecd2)
 /// @{
 struct packet_received *rec_packetlist = NULL; /**< head node pointing to a simply joined list of entries */
-float initialerr = DEFAULT_INIERR; /**< What error to assume initially */
-int runtimeerrormode = DEFAULT_RUNTIMEERRORMODE;
-int biconf_length = DEFAULT_BICONF_LENGTH;   /**< how long is a biconf */
 
 char *errormessage[] = {
     "No error.",
@@ -313,6 +310,7 @@ char *errormessage[] = {
 // HELPER FUNCTION DECLARATIONS
 /* ------------------------------------------------------------------------- */
 int emsg(int code);
+int parse_options(int argc, char *argv[]);
 
 // MAIN FUNCTION DECLARATIONS (OTHERS)
 /* ------------------------------------------------------------------------- */

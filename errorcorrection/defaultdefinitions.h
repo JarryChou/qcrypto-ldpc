@@ -27,6 +27,8 @@
 #ifndef ECD2_DEFAULTS
 #define ECD2_DEFAULTS
 
+#include <math.h>
+
 /// @name DEFAULT DEFINITIONS
 /// @{
 #define FNAMELENGTH 200    /**< length of file name buffers */
@@ -34,7 +36,7 @@
 #define DEFAULT_ERR_MARGIN 0. /**< eavesdropper is assumed to have full knowledge on raw key */
 #define MIN_ERR_MARGIN 0.          /**< for checking error margin entries */
 #define MAX_ERR_MARGIN 100.        /**< for checking error margin entries */
-#define DEFAULT_INIERR 0.075       /**< initial error rate */
+#define DEFAULT_INITIAL_ERR 0.075       /**< initial error rate */
 #define MIN_INI_ERR 0.005          /**< for checking entries */
 #define MAX_INI_ERR 0.14           /**< for checking entries */
 #define USELESS_ERRORBOUND 0.15    /**< for estimating the number of test bits */
@@ -59,6 +61,10 @@
 #define AVG_BINSEARCH_ERR 0.0032  /**< what I have seen at some point for 10k. This goes with the inverse of the length for block lengths between 5k-40k */
 #define DEFAULT_ERR_SKIPMODE 0 /**< initial error estimation is done */
 #define CMD_INBUFLEN 200
+#define PERFECT_BELL 2. * sqrt(2.)
 /// @}
+
+enum Boolean { False = 0, True = 1 };
+typedef int Boolean;
 
 #endif

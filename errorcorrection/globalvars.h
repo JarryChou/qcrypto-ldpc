@@ -1,6 +1,6 @@
 /**
  * @file globalvars.h     
- * @brief Definition file for global variables in ecd2
+ * @brief Definition file for global variables and arguments in ecd2
  * 
  *  Copyright (C) 2020 Matthew Lee, National University
  *                          of Singapore <crazoter@gmail.com>
@@ -42,11 +42,58 @@
 /// \endcond
 
 #include "defaultdefinitions.h"
+#include "helpers.h"
 #include "packets.h"
+
+//  STRUCTS
+/**
+ * @brief Arguments struct to be parsed in
+ * 
+ * Default values defined in ecd2.h
+ */
+struct arguments {
+    // Enums
+    enum { VERBOSITY_EPOCH = 0, 
+        VERBOSITY_EPOCH_FIN = 1, 
+        VERBOSITY_EPOCH_INI_FIN_ERR = 2, 
+        VERBOSITY_EPOCH_INI_FIN_ERR_PLAIN = 3, 
+        VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT = 4, 
+        VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT_WITH_COMMENTS = 5 
+    } verbosity_level;  /**< verbosity level of output, used by priv_amp */
+   
+    enum { END_ON_ERR = 0, 
+        IGNORE_INVALID_PACKETS = 1, 
+        IGNORE_ERRS_ON_OTHER_END = 2 
+    } runtimeerrormode; /**< Determines the way how to react on errors which should not stop the demon. */
+
+    int biconf_rounds;  /**< number of biconf rounds, used by cascade_biconf */
+    float errormargin;  /**< number of standard deviations of the detected errors should be added to eve's information leakage estimation, used by priv_amp*/ 
+    float initialerr;   /**< What error to assume initially */
+    float intrinsicerr; /**< error rate generated outside eavesdropper, used by priv_amp */
+    
+    // Helper parameter to help calculate # of biconf_rounds
+    // float biconf_BER;   /**< BER argument to determine biconf rounds */
+
+    /// @name booleans
+    /// @{
+    Boolean remove_raw_keys_after_use;
+    Boolean skip_qber_estimation; /**< used by qber_estim */
+    Boolean bellmode;   /**< Expect to receive a value for the Bell violation  param, used by priv_amp */
+    Boolean disable_privacyamplification; /**< used by priv_amp  */
+    //// @}
+
+    char fname[handleId_numberOfHandles][FNAMELENGTH];
+    int handle[handleId_numberOfHandles];
+    FILE *fhandle[8];
+};
+typedef struct arguments Arguments;
+
+// GLOBAL VARIABLES
+// Defined in ecd2.h
+extern Arguments arguments; /**< contains arguments read in when initializing program */
 
 /// @name Global variables used by thread_mgmt 
 /// @{
-extern int killmode;   /**< decides on removal of raw key files */
 extern struct blockpointer *blocklist;
 /// @}
 
@@ -56,30 +103,5 @@ extern struct packet_to_send *next_packet_to_send;
 extern struct packet_to_send *last_packet_to_send;
 /// @}
 
-/// @name Global variables used by qber_estim 
-/// @{
-extern int ini_err_skipmode; /**< 1 if error est to be skipped */
-/// @}
-
-/// @name Global variables used by cascade_biconf 
-/// @{
-extern int biconf_rounds;
-/// @}
-
-/// @name File handle(s) & meta info used across the application for I/O
-/// @{
-extern char fname[8][FNAMELENGTH]; /**< filenames */
-extern int handle[8];    /**< handles for files accessed by raw I/O */
-extern FILE *fhandle[8]; /**< handles for files accessed by buffered I/O */
-/// @}
-
-/// @name Global variables used by priv_amp 
-/// @{
-extern int bellmode;
-extern int disable_privacyamplification;
-extern float errormargin;
-extern float intrinsicerr;
-extern int verbosity_level;
-/// @}
 
 #endif

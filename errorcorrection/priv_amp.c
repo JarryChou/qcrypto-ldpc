@@ -147,19 +147,19 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
      is UNCORRELATED to errors caused by potential eavesdropping, and
      assume they add quadratically. Let's at least check that the true
      error is not smaller than the "basic" error..... */
-  if (intrinsicerr < trueerror) {
+  if (arguments.intrinsicerr < trueerror) {
     // Unused code
-    // cheeky_error = sqrt(trueerror * trueerror - intrinsicerr * intrinsicerr);
+    // cheeky_error = sqrt(trueerror * trueerror - arguments.intrinsicerr * arguments.intrinsicerr);
 
     /* Dodgy intrinsic error subtraction would happen here. */
 
     /* We now evaluate the knowledge of an eavesdropper on the initial raw
        key for a given error rate, excluding the communication on error
        correction */
-    if (!bellmode) { /* do single-photon source bound */
+    if (!arguments.bellmode) { /* do single-photon source bound */
 
       if (kb->correctederrors > 0) {
-        safe_error = trueerror * (1. + errormargin / sqrt(kb->correctederrors));
+        safe_error = trueerror * (1. + arguments.errormargin / sqrt(kb->correctederrors));
       } else {
         safe_error = trueerror;
       }
@@ -189,9 +189,9 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
 
   /* dirtwork for testing. I need to leave this in because it is the basis
    for may of the plots we have. */
-  printf("PA disable: %d\n", disable_privacyamplification);
+  printf("PA disable: %d\n", arguments.disable_privacyamplification);
 
-  if (disable_privacyamplification) {
+  if (arguments.disable_privacyamplification) {
     kb->finalkeybits = kb->workbits;
   }
 
@@ -227,7 +227,7 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
   bzero(finalkey, (kb->finalkeybits + 31) / 32 * 4);
 
   /* prepare final key */
-  if (disable_privacyamplification) { /* no PA fo debugging */
+  if (arguments.disable_privacyamplification) { /* no PA fo debugging */
     for (j = 0; j < numwords; j++) finalkey[j] = kb->mainbuf[j];
   } else { /* do privacy amplification */
     /* create compression matrix on the fly while preparing key */
@@ -240,44 +240,44 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
   }
 
   /* send final key to file */
-  strncpy(ffnam, fname[handleId_finalKeyDir], FNAMELENGTH);                /* fnal key directory */
+  strncpy(ffnam, arguments.fname[handleId_finalKeyDir], FNAMELENGTH);                /* fnal key directory */
   atohex(&ffnam[strlen(ffnam)], kb->startepoch);        /* add file name */
-  handle[handleId_finalKeyDir] = open(ffnam, FILEOUTMODE, OUTPERMISSIONS); /* open target */
-  if (-1 == handle[handleId_finalKeyDir]) return 64;
+  arguments.handle[handleId_finalKeyDir] = open(ffnam, FILEOUTMODE, OUTPERMISSIONS); /* open target */
+  if (-1 == arguments.handle[handleId_finalKeyDir]) return 64;
   written = 0;
   while (1) {
-    rv = write(handle[handleId_finalKeyDir], &((char *)outmsg)[written], mlen - written);
+    rv = write(arguments.handle[handleId_finalKeyDir], &((char *)outmsg)[written], mlen - written);
     if (rv == -1) return 65; /* write error happened */
     written += rv;
     if (written >= mlen) break;
     usleep(100000); /* sleep 100 msec */
   }
-  close(handle[handleId_finalKeyDir]);
+  close(arguments.handle[handleId_finalKeyDir]);
 
   /* send notification */
-  switch (verbosity_level) {
-    case 0: /* output raw block name */
-      fprintf(fhandle[handleId_notifyPipe], "%08x\n", kb->startepoch);
+  switch (arguments.verbosity_level) {
+    case VERBOSITY_EPOCH: /* output raw block name */
+      fprintf(arguments.fhandle[handleId_notifyPipe], "%08x\n", kb->startepoch);
       break;
-    case 1: /* block name and final bits */
-      fprintf(fhandle[handleId_notifyPipe], "%08x %d\n", kb->startepoch, kb->finalkeybits);
+    case VERBOSITY_EPOCH_FIN: /* block name and final bits */
+      fprintf(arguments.fhandle[handleId_notifyPipe], "%08x %d\n", kb->startepoch, kb->finalkeybits);
       break;
-    case 2: /* block name, ini bits, final bits, error rate */
-      fprintf(fhandle[handleId_notifyPipe], "%08x %d %d %.4f\n", kb->startepoch, kb->initialbits,
+    case VERBOSITY_EPOCH_INI_FIN_ERR: /* block name, ini bits, final bits, error rate */
+      fprintf(arguments.fhandle[handleId_notifyPipe], "%08x %d %d %.4f\n", kb->startepoch, kb->initialbits,
               kb->finalkeybits, trueerror);
       break;
-    case 3: /* same as with 2 but with text */
-      fprintf(fhandle[handleId_notifyPipe],
+    case VERBOSITY_EPOCH_INI_FIN_ERR_PLAIN: /* same as with 2 but with text */
+      fprintf(arguments.fhandle[handleId_notifyPipe],
               "startepoch: %08x initial bit number: %d final bit number: %d "
               "error rate: %.4f\n",
               kb->startepoch, kb->initialbits, kb->finalkeybits, trueerror);
       break;
-    case 4: /* block name, ini bits, final bits, error rate, leak bits */
-      fprintf(fhandle[handleId_notifyPipe], "%08x %d %d %.4f %d\n", kb->startepoch,
+    case VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT: /* block name, ini bits, final bits, error rate, leak bits */
+      fprintf(arguments.fhandle[handleId_notifyPipe], "%08x %d %d %.4f %d\n", kb->startepoch,
               kb->initialbits, kb->finalkeybits, trueerror, kb->leakagebits);
       break;
-    case 5: /* same as with 4 but with text */
-      fprintf(fhandle[handleId_notifyPipe],
+    case VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT_WITH_COMMENTS: /* same as with 4 but with text */
+      fprintf(arguments.fhandle[handleId_notifyPipe],
               "startepoch: %08x initial bit number: %d final bit number: %d "
               "error rate: %.4f leaked bits in EC: %d\n",
               kb->startepoch, kb->initialbits, kb->finalkeybits, trueerror,
@@ -291,7 +291,7 @@ int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
   fflush(stdout);
   #endif
 
-  fflush(fhandle[handleId_notifyPipe]);
+  fflush(arguments.fhandle[handleId_notifyPipe]);
   /* cleanup outmessage buf */
   free2(outmsg);
 

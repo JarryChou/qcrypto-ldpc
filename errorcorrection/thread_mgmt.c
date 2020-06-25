@@ -58,15 +58,15 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   bitcount = 0;
   for (enu = 0; enu < num; enu++) {
     epi = epoch + enu; /* current epoch index */
-    strncpy(ffnam, fname[handleId_rawKeyDir], FNAMELENGTH);
+    strncpy(ffnam, arguments.fname[handleId_rawKeyDir], FNAMELENGTH);
     atohex(&ffnam[strlen(ffnam)], epi);
-    handle[handleId_rawKeyDir] = open(ffnam, FILEINMODE); /* in blocking mode */
-    if (-1 == handle[handleId_rawKeyDir]) {
+    arguments.handle[handleId_rawKeyDir] = open(ffnam, FILEINMODE); /* in blocking mode */
+    if (-1 == arguments.handle[handleId_rawKeyDir]) {
       fprintf(stderr, "cannot open file >%s< errno: %d\n", ffnam, errno);
       return 67; /* error opening file */
     }
     /* read in file 3 header */
-    if (sizeof(h3) != (i = read(handle[handleId_rawKeyDir], &h3, sizeof(h3)))) {
+    if (sizeof(h3) != (i = read(arguments.handle[handleId_rawKeyDir], &h3, sizeof(h3)))) {
       fprintf(stderr, "error in read: return val:%d errno: %d\n", i, errno);
       return 68;
     }
@@ -81,12 +81,12 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
 
     i = (h3.length / 32) +
         ((h3.length & 0x1f) ? 1 : 0); /* number of words to read */
-    retval = read(handle[handleId_rawKeyDir], &temparray[newindex], i * sizeof(unsigned int));
+    retval = read(arguments.handle[handleId_rawKeyDir], &temparray[newindex], i * sizeof(unsigned int));
     if (retval != i * sizeof(unsigned int)) return 72; /* not enough read */
 
     /* close and possibly remove file */
-    close(handle[handleId_rawKeyDir]);
-    if (killmode) {
+    close(arguments.handle[handleId_rawKeyDir]);
+    if (arguments.remove_raw_keys_after_use) {
       retval = unlink(ffnam);
       if (retval) return 66;
     }

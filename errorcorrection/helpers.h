@@ -59,7 +59,8 @@ enum HandleId {
   handleId_finalKeyDir = 4,
   handleId_notifyPipe = 5,
   handleId_queryPipe = 6,
-  handleId_queryRespPipe = 7
+  handleId_queryRespPipe = 7,
+  handleId_numberOfHandles = 8
 };
 
 

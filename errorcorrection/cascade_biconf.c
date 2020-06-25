@@ -835,7 +835,7 @@ int process_binsearch_bob(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head) {
     kb->biconf_round++;
 
     /* eventully generate new biconf request */
-    if (kb->biconf_round < biconf_rounds) {
+    if (kb->biconf_round < arguments.biconf_rounds) {
       return initiate_biconf(kb); /* request another one */
     }
     /* initiate the privacy amplificaton */
@@ -892,7 +892,7 @@ int receive_biconfreply(char *receivebuf) {
   kb->biconf_round++;
 
   /* eventully generate new biconf request */
-  if (kb->biconf_round < biconf_rounds) {
+  if (kb->biconf_round < arguments.biconf_rounds) {
     return initiate_biconf(kb); /* request another one */
   }
   /* initiate the privacy amplificaton */

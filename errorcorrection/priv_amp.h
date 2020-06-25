@@ -57,6 +57,12 @@
 #include "debug.h"
 #include "thread_mgmt.h"
 
+/// @name PRIVACY AMPLIFICATION HELPER FUNCTIONS
+/// @{
+float phi(float z);
+float binentrop(float q);
+/// @}
+
 /// @name PRIVACY AMPLIFICATION MAIN FUNCTIONS
 /// @{
 int initiate_privacyamplification(struct keyblock *kb);
