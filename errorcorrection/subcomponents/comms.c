@@ -62,11 +62,11 @@ EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
   /* ...extract pointer to data structure... */
   msg1_data = (unsigned int *)&msg1[1];
   /* ..fill header.... */
-  msg1->tag = EC_PACKET_TAG;
-  msg1->totalLengthInBytes = msgsize;
-  msg1->subtype = SUBTYPE_QBER_EST_BITS;
-  msg1->epoch = kb->startEpoch;
-  msg1->number_of_epochs = kb->numberOfEpochs;
+  msg1->base.tag = EC_PACKET_TAG;
+  msg1->base.totalLengthInBytes = msgsize;
+  msg1->base.subtype = SUBTYPE_QBER_EST_BITS;
+  msg1->base.epoch = kb->startEpoch;
+  msg1->base.number_of_epochs = kb->numberOfEpochs;
   msg1->seed = kb->rngState; /* this is the seed */
   msg1->numberofbits = bitsneeded;
   msg1->fixedErrorRate = errormode;
@@ -119,11 +119,11 @@ EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *kb) {
            sizeof(EcPktHdr_CascadeBinSearchMsg);          /* ..plus one header */
   out_head = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msglen);
   if (!out_head) return NULL;
-  out_head->tag = EC_PACKET_TAG;
-  out_head->totalLengthInBytes = msglen;
-  out_head->subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
-  out_head->epoch = kb->startEpoch;
-  out_head->number_of_epochs = kb->numberOfEpochs;
+  out_head->base.tag = EC_PACKET_TAG;
+  out_head->base.totalLengthInBytes = msglen;
+  out_head->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
+  out_head->base.epoch = kb->startEpoch;
+  out_head->base.number_of_epochs = kb->numberOfEpochs;
   out_head->number_entries = kb->diffBlockCount;
   out_head->index_present = 0;              /* this is an ordidary reply */
   out_head->runlevel = kb->binarySearchDepth; /* next round */
@@ -193,11 +193,11 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
   h5 = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msg5size);
   if (!h5) return 55;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
-  h5->tag = EC_PACKET_TAG;
-  h5->subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
-  h5->totalLengthInBytes = msg5size;
-  h5->epoch = kb->startEpoch;
-  h5->number_of_epochs = kb->numberOfEpochs;
+  h5->base.tag = EC_PACKET_TAG;
+  h5->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
+  h5->base.totalLengthInBytes = msg5size;
+  h5->base.epoch = kb->startEpoch;
+  h5->base.number_of_epochs = kb->numberOfEpochs;
   h5->number_entries = kb->diffBlockCount;
   h5->index_present = 1;              /* this round we have an index table */
   h5->runlevel = kb->binarySearchDepth; /* keep local status */

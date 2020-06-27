@@ -70,12 +70,8 @@ typedef struct ERRC_PROTO {
  * @brief packet for PRNG based subset for bit subset transmission in err estim
  * 
  */
-typedef struct  ERRC_ERRDET_0 {
-    unsigned int tag;               /**< always 6 */
-    unsigned int totalLengthInBytes;        
-    unsigned int subtype;           /**< 0 for PRNG based subset */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< defines implicitly the block length */
+typedef struct ERRC_ERRDET_0 {
+    EcPktHdr_Base base;
     unsigned int seed;              /**< seed for PRNG */
     unsigned int numberofbits;      /**< bits to follow */
     unsigned int fixedErrorRate;         /**< initial error est skip? */
@@ -87,11 +83,7 @@ typedef struct  ERRC_ERRDET_0 {
  * 
  */
 typedef  struct  ERRC_ERRDET_1 {
-    unsigned int tag;               /**< always 6 */
-    unsigned int totalLengthInBytes;
-    unsigned int subtype;           /**< 1 for good random number based subset */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< defines implicitly the block length */
+    EcPktHdr_Base base;
     unsigned int bitlength;         /**< compression bit width for index diff */
     unsigned int numberofbits;      /**< number of bits to follow */
     unsigned int errormode;         /**< initial error est skip? */
@@ -101,12 +93,8 @@ typedef  struct  ERRC_ERRDET_1 {
  * @brief packet for requesting more sample bits
  * 
  */
-typedef struct  ERRC_ERRDET_2 {
-    unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int totalLengthInBytes;        /**< length of the packet; fixed to 24 */
-    unsigned int subtype;           /**< 2 for request of bit number packet */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< length of the block */
+typedef struct ERRC_ERRDET_2 {
+    EcPktHdr_Base base;
     unsigned int requestedbits;     /**< number of additionally required bits */
 } EcPktHdr_QberEstReqMoreBits;
 
@@ -115,12 +103,8 @@ typedef struct  ERRC_ERRDET_2 {
  * @brief Acknowledgment packet for communicating the error rate
  * 
  */
-typedef struct  ERRC_ERRDET_3 {
-    unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int totalLengthInBytes;        /**< the length of the packet incl header */
-    unsigned int subtype;           /**< 3 for request of bit number packet */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< length of the block */
+typedef struct ERRC_ERRDET_3 {
+    EcPktHdr_Base base;
     unsigned int tested_bits;       /**< number of bits tested */
     unsigned int number_of_errors;  /**< number of mismatches found */
 } EcPktHdr_QberEstBitsAck;
@@ -129,12 +113,8 @@ typedef struct  ERRC_ERRDET_3 {
  * @brief first parity check bit info
  * 
  */
-typedef struct  ERRC_ERRDET_4 {
-    unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int totalLengthInBytes;        /**< the length of the packet incl header */
-    unsigned int subtype;           /**< 4 for request of bit number packet */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< length of the block */
+typedef struct ERRC_ERRDET_4 {
+    EcPktHdr_Base base;
     unsigned int k0;                /**< size of partition 0 */
     unsigned int k1;                /**< size of partition 1 */
     unsigned int totalbits;         /**< number of bits considered */
@@ -145,12 +125,8 @@ typedef struct  ERRC_ERRDET_4 {
  * @brief Binary search message packet
  * 
  */
-typedef struct  ERRC_ERRDET_5 {
-    unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int totalLengthInBytes;        /**< the length of the packet incl header */
-    unsigned int subtype;           /**< 5 for request of bit number packet */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< length of the block */
+typedef struct ERRC_ERRDET_5 {
+    EcPktHdr_Base base;
     unsigned int number_entries;    /**< number of blocks with parity mismatch */
     unsigned int index_present;     /**< format /presence of index data  */
     unsigned int runlevel;          /**<  pass and bisectioning depth */
@@ -167,12 +143,8 @@ typedef struct  ERRC_ERRDET_5 {
  * @brief BICONF initiating message
  * 
  */
-typedef struct  ERRC_ERRDET_6 {
-    unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int totalLengthInBytes;        /**< the length of the packet (28) */
-    unsigned int subtype;           /**< 6 for request of bit number packet */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< length of the block */
+typedef struct ERRC_ERRDET_6 {
+    EcPktHdr_Base base;
     unsigned int seed;
     unsigned int number_of_bits;    /**< the number bits requested for biconf */
 } EcPktHdr_CascadeBiconfInitReq;	
@@ -181,12 +153,8 @@ typedef struct  ERRC_ERRDET_6 {
  * @brief BICONF response message
  * 
  */
-typedef struct  ERRC_ERRDET_7 {
-    unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int totalLengthInBytes;        /**< the length of the packet (24) */
-    unsigned int subtype;           /**< 7 for request of bit number packet */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< length of the block */
+typedef struct ERRC_ERRDET_7 {
+    EcPktHdr_Base base;
     unsigned int parity;            /**< result of the parity test (0 or 1) */
 } EcPktHdr_CascadeBiconfParityResp;	
 
@@ -195,11 +163,7 @@ typedef struct  ERRC_ERRDET_7 {
  * 
  */
 typedef struct ERRC_ERRDET_8 {
-    unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int totalLengthInBytes;        /**< the length of the packet (32) */
-    unsigned int subtype;           /**< 8 for request of bit number packet */
-    unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< length of the block */
+    EcPktHdr_Base base;
     unsigned int seed;              /**< new seed for PRNG */
     unsigned int lostbits ;         /**< number of lost bits in this run */
     unsigned int correctedbits;     /**< number of bits corrected in */

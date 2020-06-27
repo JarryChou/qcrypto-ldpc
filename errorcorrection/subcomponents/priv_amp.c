@@ -45,17 +45,17 @@ int initiate_privacyamplification(ProcessBlock *kb) {
   /* prepare messagehead */
   h8 = (EcPktHdr_StartPrivAmp *)malloc2(sizeof(EcPktHdr_StartPrivAmp));
   if (!h8) return 62; /* can't malloc */
-  h8->tag = EC_PACKET_TAG;
-  h8->totalLengthInBytes = sizeof(EcPktHdr_StartPrivAmp);
-  h8->subtype = SUBTYPE_START_PRIV_AMP;
-  h8->epoch = kb->startEpoch;
-  h8->number_of_epochs = kb->numberOfEpochs;
+  h8->base.tag = EC_PACKET_TAG;
+  h8->base.totalLengthInBytes = sizeof(EcPktHdr_StartPrivAmp);
+  h8->base.subtype = SUBTYPE_START_PRIV_AMP;
+  h8->base.epoch = kb->startEpoch;
+  h8->base.number_of_epochs = kb->numberOfEpochs;
   h8->seed = seed;                /* significant content */
   h8->lostbits = kb->leakageBits; /* this is what we use for PA */
   h8->correctedbits = kb->correctedErrors;
 
   /* insert message in msg pool */
-  insert_sendpacket((char *)h8, h8->totalLengthInBytes);
+  insert_sendpacket((char *)h8, h8->base.totalLengthInBytes);
 
   /* do actual privacy amplification */
   return do_privacy_amplification(kb, seed, kb->leakageBits);
@@ -78,9 +78,9 @@ int receive_privamp_msg(char *receivebuf) {
   in_head = (EcPktHdr_StartPrivAmp *)receivebuf;
 
   /* ...and find thread: */
-  kb = get_thread(in_head->epoch);
+  kb = get_thread(in_head->base.epoch);
   if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->epoch);
+    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
 

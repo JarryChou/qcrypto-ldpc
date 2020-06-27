@@ -370,7 +370,7 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
   kb->leakageBits += lost_bits;
 
   /* mark message for sending */
-  insert_sendpacket((char *)out_head, out_head->totalLengthInBytes);
+  insert_sendpacket((char *)out_head, out_head->base.totalLengthInBytes);
 
   return 0;
 }
@@ -402,17 +402,17 @@ int initiate_biconf(ProcessBlock *kb) {
   generate_BICONF_bitstring(kb);
 
   /* fill message */
-  h6->tag = EC_PACKET_TAG;
-  h6->totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfInitReq);
-  h6->subtype = SUBTYPE_CASCADE_BICONF_INIT_REQ;
-  h6->epoch = kb->startEpoch;
-  h6->number_of_epochs = kb->numberOfEpochs;
+  h6->base.tag = EC_PACKET_TAG;
+  h6->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfInitReq);
+  h6->base.subtype = SUBTYPE_CASCADE_BICONF_INIT_REQ;
+  h6->base.epoch = kb->startEpoch;
+  h6->base.number_of_epochs = kb->numberOfEpochs;
   h6->seed = seed;
   h6->number_of_bits = kb->biconflength;
   kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
 
   /* submit message */
-  insert_sendpacket((char *)h6, h6->totalLengthInBytes);
+  insert_sendpacket((char *)h6, h6->base.totalLengthInBytes);
   return 0;
 }
 
@@ -434,9 +434,9 @@ int generate_biconfreply(char *receivebuf) {
   in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf;
 
   /* ...and find thread: */
-  kb = get_thread(in_head->epoch);
+  kb = get_thread(in_head->base.epoch);
   if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->epoch);
+    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
 
@@ -464,11 +464,11 @@ int generate_biconfreply(char *receivebuf) {
   /* fill the response header */
   h7 = (EcPktHdr_CascadeBiconfParityResp *)malloc2(sizeof(EcPktHdr_CascadeBiconfParityResp));
   if (!h7) return 61;
-  h7->tag = EC_PACKET_TAG;
-  h7->totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfParityResp);
-  h7->subtype = SUBTYPE_CASCADE_BICONF_PARITY_RESP;
-  h7->epoch = kb->startEpoch;
-  h7->number_of_epochs = kb->numberOfEpochs;
+  h7->base.tag = EC_PACKET_TAG;
+  h7->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfParityResp);
+  h7->base.subtype = SUBTYPE_CASCADE_BICONF_PARITY_RESP;
+  h7->base.epoch = kb->startEpoch;
+  h7->base.number_of_epochs = kb->numberOfEpochs;
 
   /* evaluate the parity (updated to use testbit buffer */
   h7->parity = single_line_parity(kb->testedBitsMarker, 0, bitlen - 1);
@@ -477,7 +477,7 @@ int generate_biconfreply(char *receivebuf) {
   kb->leakageBits++; /* one is lost */
 
   /* send out response header */
-  insert_sendpacket((char *)h7, h7->totalLengthInBytes);
+  insert_sendpacket((char *)h7, h7->base.totalLengthInBytes);
 
   return 0; /* return nicely */
 }
@@ -516,11 +516,11 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   h5 = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msg5size);
   if (!h5) return 55;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
-  h5->tag = EC_PACKET_TAG;
-  h5->subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
-  h5->totalLengthInBytes = msg5size;
-  h5->epoch = kb->startEpoch;
-  h5->number_of_epochs = kb->numberOfEpochs;
+  h5->base.tag = EC_PACKET_TAG;
+  h5->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
+  h5->base.totalLengthInBytes = msg5size;
+  h5->base.epoch = kb->startEpoch;
+  h5->base.number_of_epochs = kb->numberOfEpochs;
   h5->number_entries = kb->diffBlockCount;
   h5->index_present = 4; /* NEW this round we have a start/stop table */
 
@@ -566,9 +566,9 @@ int start_binarysearch(char *receivebuf) {
   in_head = (EcPktHdr_CascadeParityList *)receivebuf;
 
   /* ...and find thread: */
-  kb = get_thread(in_head->epoch);
+  kb = get_thread(in_head->base.epoch);
   if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->epoch);
+    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
 
@@ -632,9 +632,9 @@ int process_binarysearch(char *receivebuf) {
   in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf;
 
   /* ...and find thread: */
-  kb = get_thread(in_head->epoch);
+  kb = get_thread(in_head->base.epoch);
   if (!kb) {
-    fprintf(stderr, "binsearch 5 epoch %08x: ", in_head->epoch);
+    fprintf(stderr, "binsearch 5 epoch %08x: ", in_head->base.epoch);
     return 49;
   }
   switch (kb->role) {
@@ -793,7 +793,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
                       : (thispass ? kb->k1 : kb->k0))) {
     /* need to continue with this search; make packet 5 ready to send */
     kb->leakageBits += lost_bits;
-    insert_sendpacket((char *)out_head, out_head->totalLengthInBytes);
+    insert_sendpacket((char *)out_head, out_head->base.totalLengthInBytes);
     return 0;
   }
 
@@ -868,9 +868,9 @@ int receive_biconfreply(char *receivebuf) {
   in_head = (EcPktHdr_CascadeBiconfParityResp *)receivebuf;
 
   /* ...and find thread: */
-  kb = get_thread(in_head->epoch);
+  kb = get_thread(in_head->base.epoch);
   if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->epoch);
+    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
 

@@ -81,7 +81,7 @@ int errorest_1(unsigned int epoch) {
   if (!msg1) return 43; /* a malloc error occured */
 
   /* send this structure to the other side */
-  insert_sendpacket((char *)msg1, msg1->totalLengthInBytes);
+  insert_sendpacket((char *)msg1, msg1->base.totalLengthInBytes);
 
   /* go dormant again.  */
   return 0;
@@ -115,26 +115,26 @@ int process_esti_message_0(char *receivebuf) {
   in_data = (unsigned int *)(&receivebuf[sizeof(EcPktHdr_QberEstBits)]);
 
   /* try to find overlap with existing files */
-  overlapreply = check_epochoverlap(in_head->epoch, in_head->number_of_epochs);
+  overlapreply = check_epochoverlap(in_head->base.epoch, in_head->base.number_of_epochs);
 
   if (overlapreply && in_head->seed) return 46; /* conflict */
   if ((!overlapreply) && !(in_head->seed)) return 51;
 
   if (overlapreply) { /* we have an update message to request more bits */
-    kb = get_thread(in_head->epoch);
+    kb = get_thread(in_head->base.epoch);
     if (!kb) return 48; /* cannot find thread */
     kb->leakageBits += in_head->numberofbits;
     kb->estimatedSampleSize += in_head->numberofbits;
     seen_errors = kb->estimatedError;
   } else {
     /* create a thread with the loaded files, get thead handle */
-    if ((i = create_thread(in_head->epoch, in_head->number_of_epochs, 0.0, 0.0))) {
+    if ((i = create_thread(in_head->base.epoch, in_head->base.number_of_epochs, 0.0, 0.0))) {
       fprintf(stderr, "create_thread return code: %d epoch: %08x, number:%d\n",
-              i, in_head->epoch, in_head->number_of_epochs);
+              i, in_head->base.epoch, in_head->base.number_of_epochs);
       return 47; /* no success */
     }
 
-    kb = get_thread(in_head->epoch);
+    kb = get_thread(in_head->base.epoch);
     if (!kb) return 48; /* should not happen */
 
     /* update the thread with the type status, and with the info form the
@@ -209,25 +209,25 @@ int process_esti_message_0(char *receivebuf) {
     case replyMode_continue: /* send message 3 */
       h3 = (EcPktHdr_QberEstBitsAck *)malloc2(sizeof(EcPktHdr_QberEstBitsAck));
       if (!h3) return 43; /* cannot malloc */
-      h3->tag = EC_PACKET_TAG;
-      h3->subtype = SUBTYPE_QBER_EST_BITS_ACK;
-      h3->totalLengthInBytes = sizeof(EcPktHdr_QberEstBitsAck);
-      h3->epoch = kb->startEpoch;
-      h3->number_of_epochs = kb->numberOfEpochs;
+      h3->base.tag = EC_PACKET_TAG;
+      h3->base.subtype = SUBTYPE_QBER_EST_BITS_ACK;
+      h3->base.totalLengthInBytes = sizeof(EcPktHdr_QberEstBitsAck);
+      h3->base.epoch = kb->startEpoch;
+      h3->base.number_of_epochs = kb->numberOfEpochs;
       h3->tested_bits = kb->leakageBits;
       h3->number_of_errors = seen_errors;
-      insert_sendpacket((char *)h3, h3->totalLengthInBytes); /* error trap? */
+      insert_sendpacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
       break;
     case replyMode_moreBits: /* send message 2 */
       h2 = (EcPktHdr_QberEstReqMoreBits *)malloc2(sizeof(EcPktHdr_QberEstReqMoreBits));
-      h2->tag = EC_PACKET_TAG;
-      h2->subtype = SUBTYPE_QBER_EST_REQ_MORE_BITS;
-      h2->totalLengthInBytes = sizeof(EcPktHdr_QberEstReqMoreBits);
-      h2->epoch = kb->startEpoch;
-      h2->number_of_epochs = kb->numberOfEpochs;
+      h2->base.tag = EC_PACKET_TAG;
+      h2->base.subtype = SUBTYPE_QBER_EST_REQ_MORE_BITS;
+      h2->base.totalLengthInBytes = sizeof(EcPktHdr_QberEstReqMoreBits);
+      h2->base.epoch = kb->startEpoch;
+      h2->base.number_of_epochs = kb->numberOfEpochs;
       /* this is the important number */
       h2->requestedbits = newbitsneeded - kb->estimatedSampleSize;
-      insert_sendpacket((char *)h2, h2->totalLengthInBytes);
+      insert_sendpacket((char *)h2, h2->base.totalLengthInBytes);
       break;
   }
 
@@ -279,9 +279,9 @@ int send_more_esti_bits(char *receivebuf) {
   in_head = (EcPktHdr_QberEstReqMoreBits *)receivebuf;
 
   /* ...and find thread: */
-  kb = get_thread(in_head->epoch);
+  kb = get_thread(in_head->base.epoch);
   if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->epoch);
+    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
   /* extract relevant information from thread */
@@ -294,7 +294,7 @@ int send_more_esti_bits(char *receivebuf) {
   /* adjust message reply to hide the seed/indicate a second reply */
   msg1->seed = 0;
   /* send this structure to outgoing mailbox */
-  insert_sendpacket((char *)msg1, msg1->totalLengthInBytes);
+  insert_sendpacket((char *)msg1, msg1->base.totalLengthInBytes);
 
   /* everything is fine */
   return 0;
@@ -325,9 +325,9 @@ int prepare_dualpass(char *receivebuf) {
   in_head = (EcPktHdr_QberEstBitsAck *)receivebuf;
 
   /* ...and find thread: */
-  kb = get_thread(in_head->epoch);
+  kb = get_thread(in_head->base.epoch);
   if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->epoch);
+    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
   /* extract error information out of message */
@@ -397,11 +397,11 @@ int prepare_dualpass(char *receivebuf) {
   /* both data arrays */
   h4_d0 = (unsigned int *)&h4[1];
   h4_d1 = &h4_d0[(kb->partitions0 + 31) / 32];
-  h4->tag = EC_PACKET_TAG;
-  h4->totalLengthInBytes = sizeof(EcPktHdr_CascadeParityList) + msg4datalen;
-  h4->subtype = SUBTYPE_CASCADE_PARITY_LIST;
-  h4->epoch = kb->startEpoch;
-  h4->number_of_epochs = kb->numberOfEpochs; /* length of the block */
+  h4->base.tag = EC_PACKET_TAG;
+  h4->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeParityList) + msg4datalen;
+  h4->base.subtype = SUBTYPE_CASCADE_PARITY_LIST;
+  h4->base.epoch = kb->startEpoch;
+  h4->base.number_of_epochs = kb->numberOfEpochs; /* length of the block */
   h4->seed = newseed;                        /* permutator seed */
 
   /* these are optional; should we drop them? */
@@ -417,7 +417,7 @@ int prepare_dualpass(char *receivebuf) {
   kb->leakageBits += kb->partitions0 + kb->partitions1;
 
   /* transmit message */
-  retval = insert_sendpacket((char *)h4, h4->totalLengthInBytes);
+  retval = insert_sendpacket((char *)h4, h4->base.totalLengthInBytes);
   if (retval) return retval;
 
   return 0; /* go dormant again... */
