@@ -197,7 +197,7 @@
 #include "subcomponents/comms.h"
 #include "subcomponents/helpers.h"
 #include "subcomponents/qber_estim.h"
-#include "subcomponents/thread_mgmt.h"
+#include "subcomponents/processblock_mgmt.h"
 #include "subcomponents/debug.h"
 #include "subcomponents/priv_amp.h"
 
@@ -205,9 +205,9 @@
 /// @name GLOBAL VARIABLES (defined in globalvar.h)
 /// @{
 /* structs */
-ProcessBlockDequeNode *blocklist = NULL;
-struct packet_to_send *next_packet_to_send = NULL;
-struct packet_to_send *last_packet_to_send = NULL;
+ProcessBlockDequeNode *processBlockDeque = NULL;
+struct packet_to_send *nextPacketToSend = NULL;
+struct packet_to_send *lastPacketToSend = NULL;
 
 /* global parameters and variables */
 Arguments arguments = {
@@ -231,14 +231,13 @@ Arguments arguments = {
 /// @{
 // Static variables in this case is used to reduce the need to pass variables between functions,
 // Allowing for compartmentalized code while reducing pointer manipulation
-static struct packet_received *rec_packetlist = NULL; /**< head node pointing to a simply joined list of entries */
+static ReceivedPacketNode *receivedPacketLinkedList = NULL; /**< head node pointing to a simply joined list of entries */
 
 static int input_last_index;          /**< For parsing cmd input */
 static char *dpnt = NULL;             /**< For parsing cmd input */
-static char *packet_to_process_buf;   /**< pointer to the currently processed packet */
 static char *readbuf = NULL;          /**< pointer to temporary readbuffer storage */
-static int send_index;                /**< for sending out packets */
-static int receive_index;             /**< for receiving packets */
+static int sendIndex;                /**< for sending out packets */
+static int receiveIndex;             /**< for receiving packets */
 static EcPktHdr_Base msgprotobuf; /**< for reading header of receive packet */
 
 static char *errormessage[] = {
@@ -276,7 +275,7 @@ static char *errormessage[] = {
     "estimated error out of range",
     "wrong number of epochs specified.",
     "overlap with existing epochs",
-    "error creating new thread",
+    "error creating new processblock",
     "error initiating error estimation", /* 35 */
     "error reading message",
     "cannot malloc message buffer",
@@ -289,10 +288,10 @@ static char *errormessage[] = {
     "received wrong packet type",
     "received unrecognized message subtype", /* 45 */
     "epoch overlap error on bob side",
-    "error reading in epochs in a thread on bob side",
-    "cannot get thread for message 0",
-    "cannot find thread in list",
-    "cannot find thread for message 2", /* 50 */
+    "error reading in epochs in a processblock on bob side",
+    "cannot get processblock for message 0",
+    "cannot find processblock in list",
+    "cannot find processblock for message 2", /* 50 */
     "received invalid seed.",
     "inconsistent test-bit number received",
     "can't malloc parity buffer",
@@ -315,7 +314,7 @@ static char *errormessage[] = {
     "wrong bitnumber in rawkey (must be 1)", /* 70 */
     "bitcount too large in rawkey",
     "could not read enough bytes from rawkey",
-    "in errorest1: cannot get thread",
+    "in errorest1: cannot get processblock",
     "wrong pass index",
     "cmd input buffer overflow", /* 75 */
     "cannot parse biconf round argument",
@@ -338,8 +337,8 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
 int write_into_sendpipe();
 // for reading command from cmdpipe into cmd_input
 int read_from_cmdpipe(char* cmd_input);
-// for processing command in cmd_input to create thread & start qber estimation
-int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input);
+// for processing command in cmd_input to create processblock & start qber estimation
+int create_processblock_and_start_qber_using_cmd(char* dpnt, char* cmd_input);
 /* process a command (e.g. epoch epochNum), terminated with \0 */
 int process_command(char *in);      
 // Read header from receive pipe

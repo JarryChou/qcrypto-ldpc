@@ -74,7 +74,7 @@ For both possibilities, packets are defined:
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int seed;
        unsigned int numberofbits;
        unsigned int errormode; }
@@ -86,7 +86,7 @@ For both possibilities, packets are defined:
                         header) in bytes
 * **subtype**:            0 for PRNG based subset
 * **epoch**:              defines epoch of first packet
-    number_of_epochs    defines implicitly the length of the block
+    numberOfEpochs    defines implicitly the length of the block
 * **seed**:               seed for a PRNG used to determine the bit selection
 * **numberofbits**:       number of bits to follow
 * **errormode**:		describes if an initial error estimation should be
@@ -118,7 +118,7 @@ For both possibilities, packets are defined:
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int bitlength;
        unsigned int numberofbits; }
 ```
@@ -128,7 +128,7 @@ For both possibilities, packets are defined:
                         header) in bytes
 * **subtype**:            1 for good random number based subset
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **bitlength**:          defines the compression bit width for the index
                         difference. should be smaller than 16 bit, otherwise
 			the compression is pointless.
@@ -155,7 +155,7 @@ For both possibilities, packets are defined:
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int requestedbits;
         }
 ```
@@ -166,7 +166,7 @@ For both possibilities, packets are defined:
                         header) in bytes; This is fixed to 24
 * **subtype**:            2 for request of bit number packet
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **requestedbits**:      the number of additionally required bits.
 
 
@@ -188,7 +188,7 @@ For both possibilities, packets are defined:
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int tested_bits;
        unsigned int number_of_errors;
         }
@@ -199,7 +199,7 @@ For both possibilities, packets are defined:
                         header) in bytes; This is fixed to 28
 * **subtype**:            3 for request of bit number packet
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **tested_bits**:        the number of bits tested
 * **number_of_errors**:   how many mismatches were found.
 
@@ -240,7 +240,7 @@ kept for possible extension.
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int k0; 
        unsigned int k1;
        unsigned int totalbits;
@@ -253,7 +253,7 @@ kept for possible extension.
                         header) in bytes;
 * **subtype**:            4 for request of bit number packet
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **k0, k1**:             size of partitions
 * **totalbits**:          the number of bits considered for error estimation
 * **seed**:		seed for the PRNG to choose the permutation
@@ -288,7 +288,7 @@ used to transmit the same bit again (no information is lost this way).
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int number_entries;
        unsigned int index_present;
        unsigned int runlevel;
@@ -301,7 +301,7 @@ used to transmit the same bit again (no information is lost this way).
                     header) in bytes;
 * **subtype**:            5 for request of bit number packet
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **number_entries**:	defines the number of blocks with parity mismatch
 * **index_present**:	decides if and in which format the index data is
                     contained in the packet
@@ -373,7 +373,7 @@ a given length.
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int seed;
        unsigned int number_of_bits;
        }
@@ -385,7 +385,7 @@ a given length.
                     fixed to 28 for this message
 * **subtype**:            6 for request of bit number packet
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **seed**:               defines seed for this biconf round
 * **number_of_bits**:	defines the number bits requested for biconf
 
@@ -403,7 +403,7 @@ interval and the bit value of the parity of this section.
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int parity;
        }
 ```
@@ -414,7 +414,7 @@ interval and the bit value of the parity of this section.
                         fixed to 24 for this message
 * **subtype**:            7 for request of bit number packet
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **parity**:		result of the parity test (0 or 1)
 
 
@@ -434,7 +434,7 @@ for reference. The determination of the error rate should be implicit.
        unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
-       unsigned int number_of_epochs;
+       unsigned int numberOfEpochs;
        unsigned int seed;
        unsigned int lostbits;
        unsigned int correctedbits;
@@ -447,7 +447,7 @@ for reference. The determination of the error rate should be implicit.
                         fixed to 32 for this message
 * **subtype**:            7 for request of bit number packet
 * **epoch**:              defines epoch of first packet
-* **number_of_epochs**:    defines implicitly the length of the block
+* **numberOfEpochs**:    defines implicitly the length of the block
 * **seed**:		seed for the prng definition
 * **lostbits**:		number of lostbits in the communication 
 			(should match)

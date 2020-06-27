@@ -92,15 +92,15 @@ typedef struct arguments Arguments;
 // Defined in ecd2.h
 extern Arguments arguments; /**< contains arguments read in when initializing program */
 
-/// @name Global variables used by thread_mgmt 
+/// @name Global variables used by processblock_mgmt 
 /// @{
-extern ProcessBlockDequeNode *blocklist;
+extern ProcessBlockDequeNode *processBlockDeque;
 /// @}
 
 /// @name Global variables used by comms
 /// @{
-extern struct packet_to_send *next_packet_to_send;
-extern struct packet_to_send *last_packet_to_send;
+extern struct packet_to_send *nextPacketToSend;
+extern struct packet_to_send *lastPacketToSend;
 /// @}
 
 

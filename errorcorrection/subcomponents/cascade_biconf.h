@@ -58,7 +58,7 @@
 #include "helpers.h"
 #include "priv_amp.h"
 #include "rnd.h"
-#include "thread_mgmt.h"
+#include "processblock_mgmt.h"
 
 /// @name PERMUTATION HELPER FUNCTIONS
 /// @{

@@ -23,13 +23,13 @@ int insert_sendpacket(char *message, int length) {
   newpacket->packet = message; /* content */
   newpacket->next = NULL;
 
-  lp = last_packet_to_send;
+  lp = lastPacketToSend;
   if (lp) lp->next = newpacket; /* insetr in chain */
-  last_packet_to_send = newpacket;
-  if (!next_packet_to_send) next_packet_to_send = newpacket;
+  lastPacketToSend = newpacket;
+  if (!nextPacketToSend) nextPacketToSend = newpacket;
 
   /* for debug: send message, take identity from first available slot */
-  /*dumpmsg(blocklist->content, message); */
+  /*dumpmsg(processBlockDeque->content, message); */
 
   return 0; /* success */
 }
@@ -66,7 +66,7 @@ EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
   msg1->base.totalLengthInBytes = msgsize;
   msg1->base.subtype = SUBTYPE_QBER_EST_BITS;
   msg1->base.epoch = kb->startEpoch;
-  msg1->base.number_of_epochs = kb->numberOfEpochs;
+  msg1->base.numberOfEpochs = kb->numberOfEpochs;
   msg1->seed = kb->rngState; /* this is the seed */
   msg1->numberofbits = bitsneeded;
   msg1->fixedErrorRate = errormode;
@@ -99,7 +99,7 @@ EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
     msg1_data[i / 32] = localdata;
   } /* there was something left */
 
-  /* update thread structure with used bits */
+  /* update processblock structure with used bits */
   kb->leakageBits += bitsneeded;
   kb->processingState = PRS_WAITRESPONSE1;
 
@@ -123,7 +123,7 @@ EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *kb) {
   out_head->base.totalLengthInBytes = msglen;
   out_head->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
   out_head->base.epoch = kb->startEpoch;
-  out_head->base.number_of_epochs = kb->numberOfEpochs;
+  out_head->base.numberOfEpochs = kb->numberOfEpochs;
   out_head->number_entries = kb->diffBlockCount;
   out_head->index_present = 0;              /* this is an ordidary reply */
   out_head->runlevel = kb->binarySearchDepth; /* next round */
@@ -197,7 +197,7 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
   h5->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
   h5->base.totalLengthInBytes = msg5size;
   h5->base.epoch = kb->startEpoch;
-  h5->base.number_of_epochs = kb->numberOfEpochs;
+  h5->base.numberOfEpochs = kb->numberOfEpochs;
   h5->number_entries = kb->diffBlockCount;
   h5->index_present = 1;              /* this round we have an index table */
   h5->runlevel = kb->binarySearchDepth; /* keep local status */

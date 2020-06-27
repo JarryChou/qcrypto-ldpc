@@ -54,7 +54,7 @@
 #define FILEOUTMODE O_WRONLY | O_CREAT | O_TRUNC
 #define OUTPERMISSIONS 0600
 #define TEMPARRAYSIZE (1 << 11) /**< to capture 64 kbit of raw key */
-#define MAXBITSPERTHREAD (1 << 16)
+#define MAXBITSPERprocessblock (1 << 16)
 #define DEFAULT_VERBOSITY 0
 #define DEFAULT_BICONF_LENGTH 256 /**< length of a final check */
 #define DEFAULT_BICONF_ROUNDS 10  /**< number of BICONF rounds */

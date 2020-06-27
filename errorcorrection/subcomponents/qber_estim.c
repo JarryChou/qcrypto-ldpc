@@ -53,11 +53,11 @@ int errorest_1(unsigned int epoch) {
   int bits_needed;            /* number of bits needed to send */
   EcPktHdr_QberEstBits *msg1; /* for header to be sent */
 
-  if (!(kb = get_thread(epoch))) return 73; /* cannot find key block */
+  if (!(kb = getProcessBlock(epoch))) return 73; /* cannot find key block */
 
   /* set role in block to alice (initiating the seed) in keybloc struct */
   kb->role = 0;
-  /* seed the rng, (the state has to be kept with the thread, use a lock
+  /* seed the rng, (the state has to be kept with the processblock, use a lock
      system for the rng in case several ) */
   kb->RNG_usage = 0; /* use simple RNG */
   if (!(kb->rngState = get_r_seed())) return 39;
@@ -98,7 +98,7 @@ int errorest_1(unsigned int epoch) {
  */
 int process_esti_message_0(char *receivebuf) {
   EcPktHdr_QberEstBits *in_head; /* holds header */
-  ProcessBlock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to processblock info */
   unsigned int *in_data;         /* holds input data bits */
   /* int retval; */
   int i, seen_errors, rn_order, bipo;
@@ -115,29 +115,29 @@ int process_esti_message_0(char *receivebuf) {
   in_data = (unsigned int *)(&receivebuf[sizeof(EcPktHdr_QberEstBits)]);
 
   /* try to find overlap with existing files */
-  overlapreply = check_epochoverlap(in_head->base.epoch, in_head->base.number_of_epochs);
+  overlapreply = check_epochoverlap(in_head->base.epoch, in_head->base.numberOfEpochs);
 
   if (overlapreply && in_head->seed) return 46; /* conflict */
   if ((!overlapreply) && !(in_head->seed)) return 51;
 
   if (overlapreply) { /* we have an update message to request more bits */
-    kb = get_thread(in_head->base.epoch);
-    if (!kb) return 48; /* cannot find thread */
+    kb = getProcessBlock(in_head->base.epoch);
+    if (!kb) return 48; /* cannot find processblock */
     kb->leakageBits += in_head->numberofbits;
     kb->estimatedSampleSize += in_head->numberofbits;
     seen_errors = kb->estimatedError;
   } else {
-    /* create a thread with the loaded files, get thead handle */
-    if ((i = create_thread(in_head->base.epoch, in_head->base.number_of_epochs, 0.0, 0.0))) {
-      fprintf(stderr, "create_thread return code: %d epoch: %08x, number:%d\n",
-              i, in_head->base.epoch, in_head->base.number_of_epochs);
+    /* create a processblock with the loaded files, get thead handle */
+    if ((i = create_processblock(in_head->base.epoch, in_head->base.numberOfEpochs, 0.0, 0.0))) {
+      fprintf(stderr, "create_processblock return code: %d epoch: %08x, number:%d\n",
+              i, in_head->base.epoch, in_head->base.numberOfEpochs);
       return 47; /* no success */
     }
 
-    kb = get_thread(in_head->base.epoch);
+    kb = getProcessBlock(in_head->base.epoch);
     if (!kb) return 48; /* should not happen */
 
-    /* update the thread with the type status, and with the info form the
+    /* update the processblock with the type status, and with the info form the
        other side */
     kb->rngState = in_head->seed;
     kb->RNG_usage = 0; /* use PRNG sequence */
@@ -213,7 +213,7 @@ int process_esti_message_0(char *receivebuf) {
       h3->base.subtype = SUBTYPE_QBER_EST_BITS_ACK;
       h3->base.totalLengthInBytes = sizeof(EcPktHdr_QberEstBitsAck);
       h3->base.epoch = kb->startEpoch;
-      h3->base.number_of_epochs = kb->numberOfEpochs;
+      h3->base.numberOfEpochs = kb->numberOfEpochs;
       h3->tested_bits = kb->leakageBits;
       h3->number_of_errors = seen_errors;
       insert_sendpacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
@@ -224,21 +224,21 @@ int process_esti_message_0(char *receivebuf) {
       h2->base.subtype = SUBTYPE_QBER_EST_REQ_MORE_BITS;
       h2->base.totalLengthInBytes = sizeof(EcPktHdr_QberEstReqMoreBits);
       h2->base.epoch = kb->startEpoch;
-      h2->base.number_of_epochs = kb->numberOfEpochs;
+      h2->base.numberOfEpochs = kb->numberOfEpochs;
       /* this is the important number */
       h2->requestedbits = newbitsneeded - kb->estimatedSampleSize;
       insert_sendpacket((char *)h2, h2->base.totalLengthInBytes);
       break;
   }
 
-  /* update thread */
+  /* update processblock */
   switch (replymode) {
-    case replyMode_terminate: /* kill the thread due to excessive errors */
+    case replyMode_terminate: /* kill the processblock due to excessive errors */
       #ifdef DEBUG
-      printf("Kill the thread due to excessive errors\n");
+      printf("Kill the processblock due to excessive errors\n");
       fflush(stdout);
       #endif
-      remove_thread(kb->startEpoch);
+      remove_processblock(kb->startEpoch);
       break;
     case replyMode_moreBits: /* wait for more bits to come */
       kb->processingState = PRS_GETMOREEST;
@@ -271,20 +271,20 @@ int process_esti_message_0(char *receivebuf) {
  */
 int send_more_esti_bits(char *receivebuf) {
   EcPktHdr_QberEstReqMoreBits *in_head; /* holds header */
-  ProcessBlock *kb;           /* poits to thread info */
+  ProcessBlock *kb;           /* poits to processblock info */
   int bitsneeded;                /* number of bits needed to send */
   EcPktHdr_QberEstBits *msg1;    /* for header to be sent */
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_QberEstReqMoreBits *)receivebuf;
 
-  /* ...and find thread: */
-  kb = get_thread(in_head->base.epoch);
+  /* ...and find processblock: */
+  kb = getProcessBlock(in_head->base.epoch);
   if (!kb) {
     fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
-  /* extract relevant information from thread */
+  /* extract relevant information from processblock */
   bitsneeded = in_head->requestedbits;
 
   /* prepare a response message block / fill the response with sample bits */
@@ -312,7 +312,7 @@ int send_more_esti_bits(char *receivebuf) {
  */
 int prepare_dualpass(char *receivebuf) {
   EcPktHdr_QberEstBitsAck *in_head; /* holds header */
-  ProcessBlock *kb;           /* poits to thread info */
+  ProcessBlock *kb;           /* poits to processblock info */
   float localerror, ldi;
   int errormark, newbitsneeded;
   unsigned int newseed; /* seed for permutation */
@@ -324,8 +324,8 @@ int prepare_dualpass(char *receivebuf) {
   /* get pointers for header...*/
   in_head = (EcPktHdr_QberEstBitsAck *)receivebuf;
 
-  /* ...and find thread: */
-  kb = get_thread(in_head->base.epoch);
+  /* ...and find processblock: */
+  kb = getProcessBlock(in_head->base.epoch);
   if (!kb) {
     fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
@@ -358,7 +358,7 @@ int prepare_dualpass(char *receivebuf) {
     fflush(stdout);
     #endif
     if (errormark) { /* not worth going */
-      remove_thread(kb->startEpoch);
+      remove_processblock(kb->startEpoch);
       return 0;
     }
   }
@@ -401,7 +401,7 @@ int prepare_dualpass(char *receivebuf) {
   h4->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeParityList) + msg4datalen;
   h4->base.subtype = SUBTYPE_CASCADE_PARITY_LIST;
   h4->base.epoch = kb->startEpoch;
-  h4->base.number_of_epochs = kb->numberOfEpochs; /* length of the block */
+  h4->base.numberOfEpochs = kb->numberOfEpochs; /* length of the block */
   h4->seed = newseed;                        /* permutator seed */
 
   /* these are optional; should we drop them? */

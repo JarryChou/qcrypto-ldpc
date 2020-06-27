@@ -49,7 +49,7 @@ typedef struct processblock {
   int estimatedSampleSize;          /**< sample size for error  estimation  */
   int finalerrors;                  /**< number of discovered errors */
   int RNG_usage;                    /**< defines mode of randomness. 0: PRNG, 1: good stuff (which has not been implemented) */
-  unsigned int rngState;           /**< keeps the state of the PRNG for this thread */
+  unsigned int rngState;           /**< keeps the state of the PRNG for this processblock */
   int k0, k1;                       /**< binary block search lengths */
   int workbits;                     /**< bits to work with for BICONF/parity check */
   int partitions0, partitions1;     /**< number of partitions of k0,k1 length */

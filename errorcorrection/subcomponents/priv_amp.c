@@ -49,7 +49,7 @@ int initiate_privacyamplification(ProcessBlock *kb) {
   h8->base.totalLengthInBytes = sizeof(EcPktHdr_StartPrivAmp);
   h8->base.subtype = SUBTYPE_START_PRIV_AMP;
   h8->base.epoch = kb->startEpoch;
-  h8->base.number_of_epochs = kb->numberOfEpochs;
+  h8->base.numberOfEpochs = kb->numberOfEpochs;
   h8->seed = seed;                /* significant content */
   h8->lostbits = kb->leakageBits; /* this is what we use for PA */
   h8->correctedbits = kb->correctedErrors;
@@ -72,13 +72,13 @@ int initiate_privacyamplification(ProcessBlock *kb) {
  */
 int receive_privamp_msg(char *receivebuf) {
   EcPktHdr_StartPrivAmp *in_head; /* holds header */
-  ProcessBlock *kb;           /* poits to thread info */
+  ProcessBlock *kb;           /* poits to processblock info */
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_StartPrivAmp *)receivebuf;
 
-  /* ...and find thread: */
-  kb = get_thread(in_head->base.epoch);
+  /* ...and find processblock: */
+  kb = getProcessBlock(in_head->base.epoch);
   if (!kb) {
     fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
@@ -97,7 +97,7 @@ int receive_privamp_msg(char *receivebuf) {
  * @brief Do core part of the privacy amplification.
  * 
  * Calculates the compression ratio
-   based on the lost bits, saves the final key and removes the thread from the
+   based on the lost bits, saves the final key and removes the processblock from the
    list. 
  * 
  * @param kb processblock ptr
@@ -295,10 +295,10 @@ int do_privacy_amplification(ProcessBlock *kb, unsigned int seed,
   /* cleanup outmessage buf */
   free2(outmsg);
 
-  /* destroy thread */
-  printf("remove thread\n");
+  /* destroy processblock */
+  printf("remove processblock\n");
   fflush(stdout);
-  return remove_thread(kb->startEpoch);
+  return remove_processblock(kb->startEpoch);
 
   /* return benignly */
   return 0;

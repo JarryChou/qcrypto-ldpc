@@ -23,18 +23,18 @@ priv_amp.o: subcomponents/priv_amp.c
 qber_estim.o: subcomponents/qber_estim.c
 	gcc -Wall -O3 -c subcomponents/qber_estim.c
 
-thread_mgmt.o: subcomponents/thread_mgmt.c
-	gcc -Wall -O3 -c subcomponents/thread_mgmt.c
+processblock_mgmt.o: subcomponents/processblock_mgmt.c
+	gcc -Wall -O3 -c subcomponents/processblock_mgmt.c
 
 # ecd2
 ecd2.o: ecd2.c
 	gcc -Wall -O3 -c ecd2.c
 
 ecd2: rnd.o cascade_biconf.o comms.o debug.o helpers.o \
-		priv_amp.o qber_estim.o thread_mgmt.o ecd2.o
+		priv_amp.o qber_estim.o processblock_mgmt.o ecd2.o
 	gcc -Wall -O3 -o ecd2 rnd.o cascade_biconf.o comms.o \
 		debug.o helpers.o priv_amp.o qber_estim.o \
-		thread_mgmt.o ecd2.o -lm
+		processblock_mgmt.o ecd2.o -lm
 
 clean:
 	rm -f *.o

@@ -1,6 +1,6 @@
 /**
- * @file ecd2_thread_mgmt.h   
- * @brief thread management portion of ecd2
+ * @file ecd2_processblock_mgmt.h   
+ * @brief processblock management portion of ecd2
  *   
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
@@ -32,12 +32,12 @@
  * 
  * This is a refactored version of Kurtsiefer's ecd2.c to modularize parts of the
  * code. This section modularizes the parts of the code that is predominantly
- * used for thread management.
+ * used for processblock management.
  * 
  */
 
-#ifndef ECD2_THREAD_MGMT
-#define ECD2_THREAD_MGMT
+#ifndef ECD2_processblock_MGMT
+#define ECD2_processblock_MGMT
 
 // Libraries
 /// \cond for doxygen annotation
@@ -58,16 +58,16 @@
 #include "debug.h"
 #include "helpers.h"
 
-/// @name THREAD MANAGEMENT HELPER FUNCTIONS
+/// @name processblock MANAGEMENT HELPER FUNCTIONS
 /// @{
 int check_epochoverlap(unsigned int epoch, int num);
 /// @}
 
-/// @name THREAD MANAGEMENT MAIN FUNCTIONS
+/// @name processblock MANAGEMENT MAIN FUNCTIONS
 /// @{
-int create_thread(unsigned int epoch, int num, float inierr, float bellValue);
-ProcessBlock *get_thread(unsigned int epoch);
-int remove_thread(unsigned int epoch);
+int create_processblock(unsigned int epoch, int num, float inierr, float bellValue);
+ProcessBlock *getProcessBlock(unsigned int epoch);
+int remove_processblock(unsigned int epoch);
 /// @}
 
-#endif /* ECD2_THREAD_MGMT */
+#endif /* ECD2_processblock_MGMT */

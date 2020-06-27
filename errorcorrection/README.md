@@ -20,7 +20,7 @@ COMPONENTS OF ECD2
 * priv_amp.h
 * qber_estim.h
 * rnd.h
-* thread_mgmt.h
+* processblock_mgmt.h
 
 DEFINITION FILES
 * packets.h

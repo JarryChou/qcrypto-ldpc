@@ -1,17 +1,17 @@
-#include "thread_mgmt.h"
+#include "processblock_mgmt.h"
 
-// THREAD MANAGEMENT HELPER FUNCTIONS
+// processblock MANAGEMENT HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
 
 /**
- * @brief code to check if a requested bunch of epochs already exists in the thread list.
+ * @brief code to check if a requested bunch of epochs already exists in the processblock list.
  * 
  * @param epoch start epoch
  * @param num number of consecutive epochs
  * @return int 0 if requested epochs are not used yet, otherwise 1
  */
 int check_epochoverlap(unsigned int epoch, int num) {
-  ProcessBlockDequeNode *bp = blocklist;
+  ProcessBlockDequeNode *bp = processBlockDeque;
   unsigned int se;
   int en;
   while (bp) { /* as long as there are more blocks to test */
@@ -26,10 +26,10 @@ int check_epochoverlap(unsigned int epoch, int num) {
   return 0;
 }
 
-// THREAD MANAGEMENT MAIN FUNCTIONS
+// processblock MANAGEMENT MAIN FUNCTIONS
 /* ------------------------------------------------------------------------- */
 /**
- * @brief code to prepare a new thread from a series of raw key files. 
+ * @brief code to prepare a new processblock from a series of raw key files. 
  * 
  * @param epoch start epoch
  * @param num number of consecutive epochs
@@ -37,7 +37,7 @@ int check_epochoverlap(unsigned int epoch, int num) {
  * @param bellValue 
  * @return int 0 on success, otherwise error code
  */
-int create_thread(unsigned int epoch, int num, float inierr, float bellValue) {
+int create_processblock(unsigned int epoch, int num, float inierr, float bellValue) {
   static unsigned int temparray[TEMPARRAYSIZE];
   static struct header_3 h3;           /* header for raw key file */
   unsigned int residue, residue2, tmp; /* leftover bits at end */
@@ -47,7 +47,7 @@ int create_thread(unsigned int epoch, int num, float inierr, float bellValue) {
   unsigned int enu;
   int retval, i, bitcount;
   char ffnam[FNAMELENGTH + 10]; /* to store filename */
-  ProcessBlockDequeNode *bp;      /* to hold new thread */
+  ProcessBlockDequeNode *bp;      /* to hold new processblock */
   int getbytes;                 /* how much memory to ask for */
   unsigned int *rawMemPtr;         /* to store raw key */
 
@@ -76,7 +76,7 @@ int create_thread(unsigned int epoch, int num, float inierr, float bellValue) {
     }
 
     if (h3.bitsperentry != 1) return 70; /* not a BB84 raw key */
-    if (bitcount + h3.length >= MAXBITSPERTHREAD)
+    if (bitcount + h3.length >= MAXBITSPERprocessblock)
       return 71; /* not enough space */
 
     i = (h3.length / 32) +
@@ -116,7 +116,7 @@ int create_thread(unsigned int epoch, int num, float inierr, float bellValue) {
     newindex++;
   } /* now newindex contains the number of words for this key */
 
-  /* create thread structure */
+  /* create processblock structure */
   bp = (ProcessBlockDequeNode *)malloc2(sizeof(ProcessBlockDequeNode));
   if (!bp) return 34; /* malloc failed */
   bp->content = (ProcessBlock *)malloc2(sizeof(ProcessBlock));
@@ -139,7 +139,7 @@ int create_thread(unsigned int epoch, int num, float inierr, float bellValue) {
       (unsigned short int *)&bp->content->testedBitsMarker[newindex];
   bp->content->reverseIndex =
       (unsigned short int *)&bp->content->permuteIndex[bitcount];
-  /* copy raw key into thread and clear testbits, permutebits */
+  /* copy raw key into processblock and clear testbits, permutebits */
   for (i = 0; i < newindex; i++) {
     bp->content->mainBufPtr[i] = temparray[i];
     bp->content->permuteBufPtr[i] = 0;
@@ -150,23 +150,23 @@ int create_thread(unsigned int epoch, int num, float inierr, float bellValue) {
   bp->content->processingState = PRS_JUSTLOADED; /* just read in */
   bp->content->initialError = (int)(inierr * (1 << 16));
   bp->content->bellValue = bellValue;
-  /* insert thread in thread list */
+  /* insert processblock in processblock list */
   bp->epoch = epoch;
   bp->previous = NULL;
-  bp->next = blocklist;
-  if (blocklist) blocklist->previous = bp; /* update existing first entry */
-  blocklist = bp;                          /* update blocklist */
+  bp->next = processBlockDeque;
+  if (processBlockDeque) processBlockDeque->previous = bp; /* update existing first entry */
+  processBlockDeque = bp;                          /* update processBlockDeque */
   return 0;
 }
 
 /**
- * @brief Function to obtain the pointer to the thread for a given epoch index.
+ * @brief Function to obtain the pointer to the processblock for a given epoch index.
  * 
  * @param epoch epoch 
  * @return ProcessBlock* pointer to a processblock, or NULL if none found
  */
-ProcessBlock *get_thread(unsigned int epoch) {
-  ProcessBlockDequeNode *bp = blocklist;
+ProcessBlock *getProcessBlock(unsigned int epoch) {
+  ProcessBlockDequeNode *bp = processBlockDeque;
   while (bp) {
     if (bp->epoch == epoch) return bp->content;
     bp = bp->next;
@@ -175,16 +175,16 @@ ProcessBlock *get_thread(unsigned int epoch) {
 }
 
 /**
- * @brief Function to remove a thread out of the list.
+ * @brief Function to remove a processblock out of the list.
  * 
  *  This function is called if
-   there is no hope for error recovery or for a finished thread.
+   there is no hope for error recovery or for a finished processblock.
  * 
  * @param epoch epoch index
  * @return int 0 if success, 1 for error
  */
-int remove_thread(unsigned int epoch) {
-  ProcessBlockDequeNode *bp = blocklist;
+int remove_processblock(unsigned int epoch) {
+  ProcessBlockDequeNode *bp = processBlockDeque;
   while (bp) {
     if (bp->epoch == epoch) break;
     bp = bp->next;
@@ -194,19 +194,19 @@ int remove_thread(unsigned int epoch) {
   free2(bp->content->rawMemPtr); /* bit buffers, changed to rawMemPtr 11.6.06chk */
   if (bp->content->lp0) free(bp->content->lp0); /* parity storage */
   if (bp->content->diffidx) free2(bp->content->diffidx);
-  free2(bp->content); /* main thread frame */
+  free2(bp->content); /* main processblock frame */
 
-  /* unlink thread out of list */
+  /* unlink processblock out of list */
   if (bp->previous) {
     bp->previous->next = bp->next;
   } else {
-    blocklist = bp->next;
+    processBlockDeque = bp->next;
   }
   if (bp->next) bp->next->previous = bp->previous;
 
-  printf("removed thread %08x, new blocklist: %p \n", epoch, blocklist);
+  printf("removed processblock %08x, new processBlockDeque: %p \n", epoch, processBlockDeque);
   fflush(stdout);
-  /* remove thread list entry */
+  /* remove processblock list entry */
   free2(bp);
   return 0;
 }

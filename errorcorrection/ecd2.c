@@ -161,9 +161,9 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
 }
 
 /**
- * @brief write data from next_packet_to_send into sendpipe 
+ * @brief write data from nextPacketToSend into sendpipe 
  * 
- * Uses static variable send_index
+ * Uses static variable sendIndex
  * 
  * @return 0 if success, otherwise error code
  */
@@ -172,19 +172,19 @@ int write_into_sendpipe() {
   printf("Writing packet to sendpipe\n");
   fflush(stdout);
   #endif
-  int i = next_packet_to_send->length - send_index;
-  int retval = write(arguments.handle[handleId_sendPipe], &next_packet_to_send->packet[send_index], i);
+  int i = nextPacketToSend->length - sendIndex;
+  int retval = write(arguments.handle[handleId_sendPipe], &nextPacketToSend->packet[sendIndex], i);
   if (retval == -1) return -emsg(29);
   if (retval == i) { /* packet is sent */
-    free2(next_packet_to_send->packet);
-    struct packet_to_send *tmp_packetpointer = next_packet_to_send;
-    next_packet_to_send = next_packet_to_send->next;
-    if (last_packet_to_send == tmp_packetpointer)
-      last_packet_to_send = NULL;
+    free2(nextPacketToSend->packet);
+    struct packet_to_send *tmp_packetpointer = nextPacketToSend;
+    nextPacketToSend = nextPacketToSend->next;
+    if (lastPacketToSend == tmp_packetpointer)
+      lastPacketToSend = NULL;
     free2(tmp_packetpointer); /* remove packet pointer */
-    send_index = 0;           /* not digesting packet anymore */
+    sendIndex = 0;           /* not digesting packet anymore */
   } else {
-    send_index += retval;
+    sendIndex += retval;
   }
 
   return 0;
@@ -214,7 +214,7 @@ int read_from_cmdpipe(char* cmd_input) {
 }
 
 /**
- * @brief Create a thread and start qber based on the cmd stored in cimd_input
+ * @brief Create a processblock and start qber based on the cmd stored in cimd_input
  * 
  * Uses static variable: input_last_index
  * 
@@ -222,7 +222,7 @@ int read_from_cmdpipe(char* cmd_input) {
  * @param cmd_input 
  * @return 0 if success otherwise error code 
  */
-int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
+int create_processblock_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
   int i, errcode, sl;
   /* parse command string */
   dpnt = index(cmd_input, '\n');
@@ -245,7 +245,7 @@ int create_thread_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
 /**
  * @brief process an input string, terminated with 0, from the command pipe
  * 
- * When you process a command, you spawn a new thread and also begin the QBER estimation process.
+ * When you process a command, you spawn a new processblock and also begin the QBER estimation process.
  * 
  * @param cmd_input buffer for command
  * @return 0 if success, otherwise return error code 
@@ -283,8 +283,8 @@ int process_command(char *cmd_input) {
         return -emsg(33);
       }
 
-      /* create new thread */
-      if ((errcode = create_thread(newepoch, newepochnumber, newesterror, bellValue))) {
+      /* create new processblock */
+      if ((errcode = create_processblock(newepoch, newepochnumber, newesterror, bellValue))) {
         if (arguments.runtimeerrormode != END_ON_ERR) break;
         return errcode; /* error reading files */
       }
@@ -295,7 +295,7 @@ int process_command(char *cmd_input) {
         return errcode; /* error initiating err est */
       }
 
-      printf("got a thread and will send msg1\n");
+      printf("got a processblock and will send msg1\n");
       #ifdef DEBUG
       fflush(stdout);
       #endif
@@ -306,7 +306,7 @@ int process_command(char *cmd_input) {
 /**
  * @brief read header from receivepipe into msgprotobuf, then malloc a buffer and point to it with readbuf
  *
- * Uses static variables: msgprotobuf, receive_index, readbuf
+ * Uses static variables: msgprotobuf, receiveIndex, readbuf
  * 
  * @return 0 if success, otherwise error message 
  */
@@ -315,11 +315,11 @@ int read_header_from_receivepipe() {
   printf("Read header from rcv pipe\n");
   fflush(stdout);
   #endif
-  int retval = read(arguments.handle[handleId_receivePipe], &((char *)&msgprotobuf)[receive_index],
-      sizeof(msgprotobuf) - receive_index);
+  int retval = read(arguments.handle[handleId_receivePipe], &((char *)&msgprotobuf)[receiveIndex],
+      sizeof(msgprotobuf) - receiveIndex);
   if (retval == -1) return -emsg(36); /* can that be better? */
-  receive_index += retval;
-  if (receive_index == sizeof(msgprotobuf)) {
+  receiveIndex += retval;
+  if (receiveIndex == sizeof(msgprotobuf)) {
     /* prepare for new buffer */
     readbuf = (char *)malloc2(msgprotobuf.totalLengthInBytes);
     if (!readbuf) return -emsg(37);
@@ -333,7 +333,7 @@ int read_header_from_receivepipe() {
 /**
  * @brief read message body into buffer pointed by readbuf
  * 
- * Uses static variables: msgprotobuf, receive_index, readbuf
+ * Uses static variables: msgprotobuf, receiveIndex, readbuf
  * 
  * @return 0  if success,  otherwise error message
  */
@@ -342,26 +342,26 @@ int read_body_from_receivepipe() {
   printf("Read body from rcv pipe\n");
   fflush(stdout);
   #endif
-  int retval = read(arguments.handle[handleId_receivePipe], &readbuf[receive_index],
-      msgprotobuf.totalLengthInBytes - receive_index);
+  int retval = read(arguments.handle[handleId_receivePipe], &readbuf[receiveIndex],
+      msgprotobuf.totalLengthInBytes - receiveIndex);
   if (retval == -1) return -emsg(36); /* can that be better? */
-  receive_index += retval;
-  if (receive_index == msgprotobuf.totalLengthInBytes) { /* got all */
-    struct packet_received *msgp = (struct packet_received *)malloc2(
-        sizeof(struct packet_received));
+  receiveIndex += retval;
+  if (receiveIndex == msgprotobuf.totalLengthInBytes) { /* got all */
+    ReceivedPacketNode *msgp = (ReceivedPacketNode *)malloc2(
+        sizeof(ReceivedPacketNode));
     if (!msgp) return -emsg(38);
     /* insert message in message chain */
     msgp->next = NULL;
-    msgp->length = receive_index;
+    msgp->length = receiveIndex;
     msgp->packet = readbuf;
-    struct packet_received *sbfp = rec_packetlist;
-    if (sbfp) {
-      while (sbfp->next) sbfp = sbfp->next;
-      sbfp->next = msgp;
+    ReceivedPacketNode *tempReceivedPacketNode = receivedPacketLinkedList;
+    if (tempReceivedPacketNode) {
+      while (tempReceivedPacketNode->next) tempReceivedPacketNode = tempReceivedPacketNode->next;
+      tempReceivedPacketNode->next = msgp;
     } else {
-      rec_packetlist = msgp;
+      receivedPacketLinkedList = msgp;
     }
-    receive_index = 0; /* ready for next one */
+    receiveIndex = 0; /* ready for next one */
   }
 
   return 0;
@@ -387,13 +387,15 @@ int main(int argc, char *argv[]) {
   struct timeval HALFSECOND = {0, 500000};
   struct timeval TENMILLISEC = {0, 10000};
   /* Buffers or pointers for packet receive / send management */
-  struct packet_received *sbfp = NULL;  /* index to go through the linked list */
-  next_packet_to_send = NULL; /* no packets to be sent */
-  last_packet_to_send = NULL;
-  send_index = 0;        /* index of next packet to send */
-  receive_index = 0;     /* index for reading in a longer packet */
-  blocklist = NULL;      /* no active key blocks in memory */
-  rec_packetlist = NULL; /* no receive packet s in queue */
+  ReceivedPacketNode *tempReceivedPacketNode = NULL;  /* index to go through the linked list */
+  nextPacketToSend = NULL; /* no packets to be sent */
+  lastPacketToSend = NULL;
+  sendIndex = 0;        /* index of next packet to send */
+  receiveIndex = 0;     /* index for reading in a longer packet */
+  processBlockDeque = NULL;      /* no active key blocks in memory */
+  receivedPacketLinkedList = NULL; /* no receive packet s in queue */
+  EcPktHdr_Base *tmpBaseHeader = NULL;
+  // char *;           /* pointer to the currently processed packet */
   // Variables for command input
   char cmd_input[CMD_INBUFLEN];  /* For temporary storage of cmd input */
   cmd_input[0] = '\0';    /* buffer for commands */
@@ -424,8 +426,8 @@ int main(int argc, char *argv[]) {
     // Part 1 of the loop: use the select syscall to wait on events from multiple pipes 
     // -------------------------------------------------------------
     retval = has_pipe_event(&readqueue, &writequeue, selectmax, 
-        next_packet_to_send || send_index, 
-        (cmd_input[0] || rec_packetlist) ? TENMILLISEC : HALFSECOND);
+        nextPacketToSend || sendIndex, 
+        (cmd_input[0] || receivedPacketLinkedList) ? TENMILLISEC : HALFSECOND);
 
     // Part 2 of the loop: if an error happened, retval would be -1
     // -------------------------------------------------------------
@@ -435,7 +437,7 @@ int main(int argc, char *argv[]) {
     if (retval != 0) {
       // If there is something to write into send pipe
       if (FD_ISSET(arguments.handle[handleId_sendPipe], &writequeue)) {
-        errcode = write_into_sendpipe(&send_index);
+        errcode = write_into_sendpipe(&sendIndex);
         if (errcode) return errcode;
       } 
 
@@ -448,13 +450,13 @@ int main(int argc, char *argv[]) {
           else return errcode;      // Otherwise an error really occurred
         }
         // Process cmd_input
-        errcode = create_thread_and_start_qber_using_cmd(dpnt, (char *) &cmd_input);
+        errcode = create_processblock_and_start_qber_using_cmd(dpnt, (char *) &cmd_input);
         if (errcode) return errcode;
       }
 
       // If there is something to read from receive pipeline
       if (FD_ISSET(arguments.handle[handleId_receivePipe], &readqueue)) {
-        if (receive_index < sizeof(EcPktHdr_Base)) {
+        if (receiveIndex < sizeof(EcPktHdr_Base)) {
           // Read header (tag & length)
           errcode = read_header_from_receivepipe();
         } else {
@@ -468,97 +470,74 @@ int main(int argc, char *argv[]) {
       // if (FD_ISSET(arguments.handle[handleId_queryPipe], &readqueue)) { }
     }
 
-    // Part 3 of the loop: processing packets in the rec_packetlist
+    // Part 3 of the loop: processing packets in the receivedPacketLinkedList
     // -------------------------------------------------------------
     // If there is something to process
-    if ((sbfp = rec_packetlist)) {
-      // Get pointer to the packet buffer
-      packet_to_process_buf = sbfp->packet;
+    if ((tempReceivedPacketNode = receivedPacketLinkedList)) {
       // If packet is not an error correction packet based on tag, then throw error
-      if (((unsigned int *)packet_to_process_buf)[0] != EC_PACKET_TAG) { return -emsg(44); }
-      // Print debug message
-      #ifdef DEBUG
-      printf("received message, subtype: %d, len: %d\n", ((unsigned int *)packet_to_process_buf)[2], ((unsigned int *)packet_to_process_buf)[1]);
-      fflush(stdout);
-      #endif
-      // Process packet based on the subtype
-      switch (((unsigned int *)packet_to_process_buf)[2]) {
-        case SUBTYPE_QBER_EST_BITS: /* received an error estimation packet */
-          errcode = process_esti_message_0(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+      if (((unsigned int *)tempReceivedPacketNode->packet)[0] != EC_PACKET_TAG) { 
+        errcode = 44; 
+      } else {
+        // Set helper header
+        tmpBaseHeader = (EcPktHdr_Base *) tempReceivedPacketNode->packet;
+        // Print debug message
+        #ifdef DEBUG
+        printf("received message, subtype: %d, len: %d\n", tmpBaseHeader->subtype, tmpBaseHeader->totalLengthInBytes);
+        fflush(stdout);
+        #endif
+        // Process packet based on the subtype
+        switch (tmpBaseHeader->subtype) {
+          case SUBTYPE_QBER_EST_BITS: /* received an error estimation packet */
+            errcode = process_esti_message_0(tempReceivedPacketNode->packet);
+            break;
 
-        case SUBTYPE_QBER_EST_REQ_MORE_BITS: /* received request for more bits */
-          errcode = send_more_esti_bits(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+          case SUBTYPE_QBER_EST_REQ_MORE_BITS: /* received request for more bits */
+            errcode = send_more_esti_bits(tempReceivedPacketNode->packet);
+            break;
 
-        case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
-          errcode = prepare_dualpass(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+          case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
+            errcode = prepare_dualpass(tempReceivedPacketNode->packet);
+            break;
 
-        case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
-          errcode = start_binarysearch(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+          case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
+            errcode = start_binarysearch(tempReceivedPacketNode->packet);
+            break;
 
-        case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
-          errcode = process_binarysearch(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+          case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
+            errcode = process_binarysearch(tempReceivedPacketNode->packet);
+            break;
 
-        case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-          errcode = generate_biconfreply(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+          case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
+            errcode = generate_biconfreply(tempReceivedPacketNode->packet);
+            break;
 
-        case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
-          errcode = receive_biconfreply(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+          case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
+            errcode = receive_biconfreply(tempReceivedPacketNode->packet);
+            break;
 
-        case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
-          errcode = receive_privamp_msg(packet_to_process_buf);
-          if (errcode) { /* an error occured */
-            if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
-            return -emsg(errcode);
-          }
-          break;
+          case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
+            errcode = receive_privamp_msg(tempReceivedPacketNode->packet);
+            break;
 
-        default: /* packet subtype not known */
-          fprintf(stderr, "received subtype %d; ", ((unsigned int *)packet_to_process_buf)[2]);
-          return -emsg(45);
+          default: /* packet subtype not known */
+            fprintf(stderr, "received subtype %d; ", tmpBaseHeader->subtype);
+            errcode = 45;
+        }
       }
 
-      /* printf("receive packet successfully digested\n");
-         fflush(stdout); */
+      if (errcode) { /* an error occured */
+        emsg(errcode); // Always print errors
+        if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) {
+          errcode = 0; // reset
+        } else {
+          return -errcode;
+        }
+      }
       
-      // Remove packet from rec_packetlist
-      rec_packetlist = sbfp->next; /* update packet pointer */
-      free2(packet_to_process_buf);           /* free data section... */
-      free2(sbfp);                 /* ...and pointer entry */
+      // Remove packet from receivedPacketLinkedList
+      receivedPacketLinkedList = tempReceivedPacketNode->next;  /* update packet pointer */
+      free2(tempReceivedPacketNode->packet);                    /* free data section... */
+      free2(tempReceivedPacketNode);                            /* ...and pointer entry */
     }
   }
   

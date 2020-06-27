@@ -55,7 +55,7 @@
 #include "comms.h"
 #include "helpers.h"
 #include "debug.h"
-#include "thread_mgmt.h"
+#include "processblock_mgmt.h"
 
 /// @name PRIVACY AMPLIFICATION HELPER FUNCTIONS
 /// @{

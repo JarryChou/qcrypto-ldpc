@@ -406,7 +406,7 @@ int initiate_biconf(ProcessBlock *kb) {
   h6->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfInitReq);
   h6->base.subtype = SUBTYPE_CASCADE_BICONF_INIT_REQ;
   h6->base.epoch = kb->startEpoch;
-  h6->base.number_of_epochs = kb->numberOfEpochs;
+  h6->base.numberOfEpochs = kb->numberOfEpochs;
   h6->seed = seed;
   h6->number_of_bits = kb->biconflength;
   kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
@@ -427,20 +427,20 @@ int initiate_biconf(ProcessBlock *kb) {
 int generate_biconfreply(char *receivebuf) {
   EcPktHdr_CascadeBiconfInitReq *in_head; /* holds received message header */
   EcPktHdr_CascadeBiconfParityResp *h7;      /* holds response message header */
-  ProcessBlock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to processblock info */
   int bitlen;                    /* number of bits requested */
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf;
 
-  /* ...and find thread: */
-  kb = get_thread(in_head->base.epoch);
+  /* ...and find processblock: */
+  kb = getProcessBlock(in_head->base.epoch);
   if (!kb) {
     fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
   }
 
-  /* update thread status */
+  /* update processblock status */
   switch (kb->processingState) {
     case PRS_PERFORMEDPARITY1:                /* just finished BICONF */
       kb->processingState = PRS_DOING_BICONF; /* update state */
@@ -468,7 +468,7 @@ int generate_biconfreply(char *receivebuf) {
   h7->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfParityResp);
   h7->base.subtype = SUBTYPE_CASCADE_BICONF_PARITY_RESP;
   h7->base.epoch = kb->startEpoch;
-  h7->base.number_of_epochs = kb->numberOfEpochs;
+  h7->base.numberOfEpochs = kb->numberOfEpochs;
 
   /* evaluate the parity (updated to use testbit buffer */
   h7->parity = single_line_parity(kb->testedBitsMarker, 0, bitlen - 1);
@@ -520,7 +520,7 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   h5->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
   h5->base.totalLengthInBytes = msg5size;
   h5->base.epoch = kb->startEpoch;
-  h5->base.number_of_epochs = kb->numberOfEpochs;
+  h5->base.numberOfEpochs = kb->numberOfEpochs;
   h5->number_entries = kb->diffBlockCount;
   h5->index_present = 4; /* NEW this round we have a start/stop table */
 
@@ -559,14 +559,14 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
  */
 int start_binarysearch(char *receivebuf) {
   EcPktHdr_CascadeParityList *in_head; /* holds received message header */
-  ProcessBlock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to processblock info */
   int l0, l1;                    /* helpers;  number of words for bitarrays */
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_CascadeParityList *)receivebuf;
 
-  /* ...and find thread: */
-  kb = get_thread(in_head->base.epoch);
+  /* ...and find processblock: */
+  kb = getProcessBlock(in_head->base.epoch);
   if (!kb) {
     fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;
@@ -626,13 +626,13 @@ int start_binarysearch(char *receivebuf) {
  */
 int process_binarysearch(char *receivebuf) {
   EcPktHdr_CascadeBinSearchMsg *in_head; /* holds received message header */
-  ProcessBlock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to processblock info */
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf;
 
-  /* ...and find thread: */
-  kb = get_thread(in_head->base.epoch);
+  /* ...and find processblock: */
+  kb = getProcessBlock(in_head->base.epoch);
   if (!kb) {
     fprintf(stderr, "binsearch 5 epoch %08x: ", in_head->base.epoch);
     return 49;
@@ -861,14 +861,14 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
   */
 int receive_biconfreply(char *receivebuf) {
   EcPktHdr_CascadeBiconfParityResp *in_head; /* holds received message header */
-  ProcessBlock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to processblock info */
   int localparity;
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_CascadeBiconfParityResp *)receivebuf;
 
-  /* ...and find thread: */
-  kb = get_thread(in_head->base.epoch);
+  /* ...and find processblock: */
+  kb = getProcessBlock(in_head->base.epoch);
   if (!kb) {
     fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
     return 49;

@@ -63,7 +63,7 @@ typedef struct ERRC_PROTO {
     unsigned int totalLengthInBytes; /**< including header */
     unsigned int subtype;           /**< 0 for PRNG based subset */
     unsigned int epoch;             /**< defines epoch of first packet */
-    unsigned int number_of_epochs;  /**< defines implicitly the block length */
+    unsigned int numberOfEpochs;  /**< defines implicitly the block length */
 } EcPktHdr_Base;
 
 /**
@@ -187,6 +187,6 @@ typedef struct packet_received {
   int length;                   /**< in bytes */
   char *packet;                 /**< pointer to content */
   struct packet_received *next; /**< next in chain */
-} PacketReceivedNode;
+} ReceivedPacketNode;
 
 #endif
