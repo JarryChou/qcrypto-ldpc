@@ -40,15 +40,17 @@
 #define EC_PACKET_DEF
 
 enum EcSubtypes {
-    SUBTYPE_QBER_ESTIM = 0,
-    SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES = 2,
-    SUBTYPE_QBER_ESTIM_ACK = 3,
+    SUBTYPE_QBER_EST_BITS = 0,
+    SUBTYPE_QBER_EST_REQ_MORE_BITS = 2,
+    SUBTYPE_QBER_EST_BITS_ACK = 3,
     SUBTYPE_CASCADE_PARITY_LIST = 4,
     SUBTYPE_CASCADE_BIN_SEARCH_MSG = 5,
     SUBTYPE_CASCADE_BICONF_INIT_REQ = 6,
     SUBTYPE_CASCADE_BICONF_PARITY_RESP = 7,
     SUBTYPE_START_PRIV_AMP = 8
 };
+
+#define EC_PACKET_TAG 6
 
 /**
  * @brief this one is just a mockup for reading a message to determine its length.
@@ -58,9 +60,11 @@ enum EcSubtypes {
  */
 typedef struct ERRC_PROTO {
     unsigned int tag; /**< always 6 */
-    unsigned int bytelength; /**< including header */
-} errc_p__;
-#define ERRC_PROTO_tag 6
+    unsigned int totalLengthInBytes; /**< including header */
+    unsigned int subtype;           /**< 0 for PRNG based subset */
+    unsigned int epoch;             /**< defines epoch of first packet */
+    unsigned int number_of_epochs;  /**< defines implicitly the block length */
+} EcPktHdr_Base;
 
 /**
  * @brief packet for PRNG based subset for bit subset transmission in err estim
@@ -68,7 +72,7 @@ typedef struct ERRC_PROTO {
  */
 typedef struct  ERRC_ERRDET_0 {
     unsigned int tag;               /**< always 6 */
-    unsigned int bytelength;        
+    unsigned int totalLengthInBytes;        
     unsigned int subtype;           /**< 0 for PRNG based subset */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< defines implicitly the block length */
@@ -76,16 +80,15 @@ typedef struct  ERRC_ERRDET_0 {
     unsigned int numberofbits;      /**< bits to follow */
     unsigned int fixedErrorRate;         /**< initial error est skip? */
     float bellValue;                /**< may contain a value for Bell violat */
-} errc_ed_0__;
-#define ERRC_ERRDET_0_subtype 0
+} EcPktHdr_QberEstBits;
 
 /**
  * @brief packet for explicitely indexed bit fields with a good RNG for err est
  * 
  */
-typedef  struct ERRC_ERRDET_1 {
+typedef  struct  ERRC_ERRDET_1 {
     unsigned int tag;               /**< always 6 */
-    unsigned int bytelength;
+    unsigned int totalLengthInBytes;
     unsigned int subtype;           /**< 1 for good random number based subset */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< defines implicitly the block length */
@@ -98,39 +101,37 @@ typedef  struct ERRC_ERRDET_1 {
  * @brief packet for requesting more sample bits
  * 
  */
-typedef struct ERRC_ERRDET_2 {
+typedef struct  ERRC_ERRDET_2 {
     unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int bytelength;        /**< length of the packet; fixed to 24 */
+    unsigned int totalLengthInBytes;        /**< length of the packet; fixed to 24 */
     unsigned int subtype;           /**< 2 for request of bit number packet */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< length of the block */
     unsigned int requestedbits;     /**< number of additionally required bits */
-} errc_ed_2__;
+} EcPktHdr_QberEstReqMoreBits;
 
-#define ERRC_ERRDET_2_subtype 2
 
 /**
  * @brief Acknowledgment packet for communicating the error rate
  * 
  */
-typedef struct ERRC_ERRDET_3 {
+typedef struct  ERRC_ERRDET_3 {
     unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int bytelength;        /**< the length of the packet incl header */
+    unsigned int totalLengthInBytes;        /**< the length of the packet incl header */
     unsigned int subtype;           /**< 3 for request of bit number packet */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< length of the block */
     unsigned int tested_bits;       /**< number of bits tested */
     unsigned int number_of_errors;  /**< number of mismatches found */
-} errc_ed_3__;
-#define ERRC_ERRDET_3_subtype 3
+} EcPktHdr_QberEstBitsAck;
 
 /**
  * @brief first parity check bit info
  * 
  */
-typedef struct ERRC_ERRDET_4 {
+typedef struct  ERRC_ERRDET_4 {
     unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int bytelength;        /**< the length of the packet incl header */
+    unsigned int totalLengthInBytes;        /**< the length of the packet incl header */
     unsigned int subtype;           /**< 4 for request of bit number packet */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< length of the block */
@@ -138,24 +139,22 @@ typedef struct ERRC_ERRDET_4 {
     unsigned int k1;                /**< size of partition 1 */
     unsigned int totalbits;         /**< number of bits considered */
     unsigned int seed;              /**< seed for PRNG doing permutation */
-} errc_ed_4__;	
-#define ERRC_ERRDET_4_subtype 4
+} EcPktHdr_CascadeParityList;	
 
 /**
  * @brief Binary search message packet
  * 
  */
-typedef struct ERRC_ERRDET_5 {
+typedef struct  ERRC_ERRDET_5 {
     unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int bytelength;        /**< the length of the packet incl header */
+    unsigned int totalLengthInBytes;        /**< the length of the packet incl header */
     unsigned int subtype;           /**< 5 for request of bit number packet */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< length of the block */
     unsigned int number_entries;    /**< number of blocks with parity mismatch */
     unsigned int index_present;     /**< format /presence of index data  */
     unsigned int runlevel;          /**<  pass and bisectioning depth */
-} errc_ed_5__;	
-#define ERRC_ERRDET_5_subtype 5
+} EcPktHdr_CascadeBinSearchMsg;	
 
 #define RUNLEVEL_FIRSTPASS 0 /**< for message 5 */
 #define RUNLEVEL_SECONDPASS 0x80000000 /**< for message 5 */
@@ -168,30 +167,28 @@ typedef struct ERRC_ERRDET_5 {
  * @brief BICONF initiating message
  * 
  */
-typedef struct ERRC_ERRDET_6 {
+typedef struct  ERRC_ERRDET_6 {
     unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int bytelength;        /**< the length of the packet (28) */
+    unsigned int totalLengthInBytes;        /**< the length of the packet (28) */
     unsigned int subtype;           /**< 6 for request of bit number packet */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< length of the block */
     unsigned int seed;
     unsigned int number_of_bits;    /**< the number bits requested for biconf */
-} errc_ed_6__;	
-#define ERRC_ERRDET_6_subtype 6
+} EcPktHdr_CascadeBiconfInitReq;	
 
 /**
  * @brief BICONF response message
  * 
  */
-typedef struct ERRC_ERRDET_7 {
+typedef struct  ERRC_ERRDET_7 {
     unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int bytelength;        /**< the length of the packet (24) */
+    unsigned int totalLengthInBytes;        /**< the length of the packet (24) */
     unsigned int subtype;           /**< 7 for request of bit number packet */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< length of the block */
     unsigned int parity;            /**< result of the parity test (0 or 1) */
-} errc_ed_7__;	
-#define ERRC_ERRDET_7_subtype 7
+} EcPktHdr_CascadeBiconfParityResp;	
 
 /**
  * @brief privacy amplification start message
@@ -199,15 +196,14 @@ typedef struct ERRC_ERRDET_7 {
  */
 typedef struct ERRC_ERRDET_8 {
     unsigned int tag;               /**< 6 for an error correction packet */
-    unsigned int bytelength;        /**< the length of the packet (32) */
+    unsigned int totalLengthInBytes;        /**< the length of the packet (32) */
     unsigned int subtype;           /**< 8 for request of bit number packet */
     unsigned int epoch;             /**< defines epoch of first packet */
     unsigned int number_of_epochs;  /**< length of the block */
     unsigned int seed;              /**< new seed for PRNG */
     unsigned int lostbits ;         /**< number of lost bits in this run */
     unsigned int correctedbits;     /**< number of bits corrected in */
-} errc_ed_8__;	
-#define ERRC_ERRDET_8_subtype 8
+} EcPktHdr_StartPrivAmp;	
 
 /**
  * @brief structure which holds packets to send
@@ -217,7 +213,7 @@ typedef struct packet_to_send {
   int length;                  /**< in bytes */
   char *packet;                /**< pointer to content */
   struct packet_to_send *next; /**< next one to send */
-} pkt_s;
+} PacketToSendNode;
 
 /**
  * @brief structure to hold received messages
@@ -227,6 +223,6 @@ typedef struct packet_received {
   int length;                   /**< in bytes */
   char *packet;                 /**< pointer to content */
   struct packet_received *next; /**< next in chain */
-} pack_r;
+} PacketReceivedNode;
 
 #endif

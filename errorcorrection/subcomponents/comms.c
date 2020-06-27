@@ -44,27 +44,27 @@ int insert_sendpacket(char *message, int length) {
  * @param bitsneeded 
  * @param errormode 0 for normal error est, err*2^16 forskip
  * @param bellValue 
- * @return struct ERRC_ERRDET_0* pointer tht emessage, NULL on error
+ * @return EcPktHdr_QberEstBits* pointer tht emessage, NULL on error
  */
-struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
+EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
                                         int errormode, float bellValue) {
   int msgsize;                 /* keeps size of message */
-  struct ERRC_ERRDET_0 *msg1;  /* for header to be sent */
+  EcPktHdr_QberEstBits *msg1;  /* for header to be sent */
   unsigned int *msg1_data;     /* pointer to data array */
   int i, bipo, rn_order;       /* counting index, bit position */
   unsigned int localdata, bpm; /* for bit extraction */
 
   /* prepare a structure to be sent out to the other side */
   /* first: get buffer.... */
-  msgsize = sizeof(struct ERRC_ERRDET_0) + 4 * ((bitsneeded + 31) / 32);
-  msg1 = (struct ERRC_ERRDET_0 *)malloc2(msgsize);
+  msgsize = sizeof(EcPktHdr_QberEstBits) + 4 * ((bitsneeded + 31) / 32);
+  msg1 = (EcPktHdr_QberEstBits *)malloc2(msgsize);
   if (!msg1) return NULL; /* cannot malloc */
   /* ...extract pointer to data structure... */
   msg1_data = (unsigned int *)&msg1[1];
   /* ..fill header.... */
-  msg1->tag = ERRC_PROTO_tag;
-  msg1->bytelength = msgsize;
-  msg1->subtype = ERRC_ERRDET_0_subtype;
+  msg1->tag = EC_PACKET_TAG;
+  msg1->totalLengthInBytes = msgsize;
+  msg1->subtype = SUBTYPE_QBER_EST_BITS;
   msg1->epoch = kb->startEpoch;
   msg1->number_of_epochs = kb->numberOfEpochs;
   msg1->seed = kb->rngState; /* this is the seed */
@@ -110,18 +110,18 @@ struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
  * @brief Helper function for binsearch replies; mallocs and fills msg header
  * 
  * @param kb 
- * @return struct ERRC_ERRDET_5* 
+ * @return EcPktHdr_CascadeBinSearchMsg* 
  */
-struct ERRC_ERRDET_5 *make_messagehead_5(ProcessBlock *kb) {
+EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *kb) {
   int msglen; /* length of outgoing structure (data+header) */
-  struct ERRC_ERRDET_5 *out_head;                 /* return value */
+  EcPktHdr_CascadeBinSearchMsg *out_head;                 /* return value */
   msglen = ((kb->diffBlockCount + 31) / 32) * 4 * 2 + /* two bitfields */
-           sizeof(struct ERRC_ERRDET_5);          /* ..plus one header */
-  out_head = (struct ERRC_ERRDET_5 *)malloc2(msglen);
+           sizeof(EcPktHdr_CascadeBinSearchMsg);          /* ..plus one header */
+  out_head = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msglen);
   if (!out_head) return NULL;
-  out_head->tag = ERRC_PROTO_tag;
-  out_head->bytelength = msglen;
-  out_head->subtype = ERRC_ERRDET_5_subtype;
+  out_head->tag = EC_PACKET_TAG;
+  out_head->totalLengthInBytes = msglen;
+  out_head->subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
   out_head->epoch = kb->startEpoch;
   out_head->number_of_epochs = kb->numberOfEpochs;
   out_head->number_entries = kb->diffBlockCount;
@@ -148,7 +148,7 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
   int k;                                /* length of processblocks */
   unsigned int *pd;                     /* parity difference bitfield pointer */
   unsigned int msg5size;                /* size of message */
-  struct ERRC_ERRDET_5 *h5;             /* pointer to first message */
+  EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
   unsigned int *h5_data, *h5_idx;       /* data pointers */
   unsigned int *d;                      /* temporary pointer on parity data */
   unsigned int resbuf, tmp_par, lm, fm; /* parity determination variables */
@@ -186,16 +186,16 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
                         0; /* first round */
 
   /* prepare message buffer for first binsearch message  */
-  msg5size = sizeof(struct ERRC_ERRDET_5) /* header need */
+  msg5size = sizeof(EcPktHdr_CascadeBinSearchMsg) /* header need */
              + ((kb->diffBlockCount + 31) / 32) *
                    sizeof(unsigned int)               /* parity data need */
              + kb->diffBlockCount * sizeof(unsigned int); /* indexing need */
-  h5 = (struct ERRC_ERRDET_5 *)malloc2(msg5size);
+  h5 = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msg5size);
   if (!h5) return 55;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
-  h5->tag = ERRC_PROTO_tag;
-  h5->subtype = ERRC_ERRDET_5_subtype;
-  h5->bytelength = msg5size;
+  h5->tag = EC_PACKET_TAG;
+  h5->subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
+  h5->totalLengthInBytes = msg5size;
   h5->epoch = kb->startEpoch;
   h5->number_of_epochs = kb->numberOfEpochs;
   h5->number_entries = kb->diffBlockCount;

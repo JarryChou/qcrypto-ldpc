@@ -37,17 +37,17 @@ float binentrop(float q) {
  */
 int initiate_privacyamplification(ProcessBlock *kb) {
   unsigned int seed;
-  struct ERRC_ERRDET_8 *h8; /* head for trigger message */
+  EcPktHdr_StartPrivAmp *h8; /* head for trigger message */
 
   /* generate local RNG seed */
   seed = get_r_seed();
 
   /* prepare messagehead */
-  h8 = (struct ERRC_ERRDET_8 *)malloc2(sizeof(struct ERRC_ERRDET_8));
+  h8 = (EcPktHdr_StartPrivAmp *)malloc2(sizeof(EcPktHdr_StartPrivAmp));
   if (!h8) return 62; /* can't malloc */
-  h8->tag = ERRC_PROTO_tag;
-  h8->bytelength = sizeof(struct ERRC_ERRDET_8);
-  h8->subtype = ERRC_ERRDET_8_subtype;
+  h8->tag = EC_PACKET_TAG;
+  h8->totalLengthInBytes = sizeof(EcPktHdr_StartPrivAmp);
+  h8->subtype = SUBTYPE_START_PRIV_AMP;
   h8->epoch = kb->startEpoch;
   h8->number_of_epochs = kb->numberOfEpochs;
   h8->seed = seed;                /* significant content */
@@ -55,7 +55,7 @@ int initiate_privacyamplification(ProcessBlock *kb) {
   h8->correctedbits = kb->correctedErrors;
 
   /* insert message in msg pool */
-  insert_sendpacket((char *)h8, h8->bytelength);
+  insert_sendpacket((char *)h8, h8->totalLengthInBytes);
 
   /* do actual privacy amplification */
   return do_privacy_amplification(kb, seed, kb->leakageBits);
@@ -71,11 +71,11 @@ int initiate_privacyamplification(ProcessBlock *kb) {
  * @return int 0 if success, otherwise error code
  */
 int receive_privamp_msg(char *receivebuf) {
-  struct ERRC_ERRDET_8 *in_head; /* holds header */
+  EcPktHdr_StartPrivAmp *in_head; /* holds header */
   ProcessBlock *kb;           /* poits to thread info */
 
   /* get pointers for header...*/
-  in_head = (struct ERRC_ERRDET_8 *)receivebuf;
+  in_head = (EcPktHdr_StartPrivAmp *)receivebuf;
 
   /* ...and find thread: */
   kb = get_thread(in_head->epoch);

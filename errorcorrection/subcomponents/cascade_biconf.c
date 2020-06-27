@@ -204,10 +204,10 @@ int single_line_parity_masked(unsigned int *d, unsigned int *m, int start,
  * @param in_head header for incoming request
  * @return error code, 0 if success
  */
-int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
+int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
-  struct ERRC_ERRDET_5 *out_head; /* for reply message */
+  EcPktHdr_CascadeBinSearchMsg *out_head; /* for reply message */
   unsigned int *out_parity;       /* pointer to outgoing parity result info */
   unsigned int *out_match;        /* pointer to outgoing matching info */
   unsigned int *d;                /* points to internal key data */
@@ -370,7 +370,7 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   kb->leakageBits += lost_bits;
 
   /* mark message for sending */
-  insert_sendpacket((char *)out_head, out_head->bytelength);
+  insert_sendpacket((char *)out_head, out_head->totalLengthInBytes);
 
   return 0;
 }
@@ -385,10 +385,10 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
  * @return error code, 0 if success
  */
 int initiate_biconf(ProcessBlock *kb) {
-  struct ERRC_ERRDET_6 *h6; /* header for that message */
+  EcPktHdr_CascadeBiconfInitReq *h6; /* header for that message */
   unsigned int seed;        /* seed for permutation */
 
-  h6 = (struct ERRC_ERRDET_6 *)malloc2(sizeof(struct ERRC_ERRDET_6));
+  h6 = (EcPktHdr_CascadeBiconfInitReq *)malloc2(sizeof(EcPktHdr_CascadeBiconfInitReq));
   if (!h6) return 60;
 
   /* prepare seed */
@@ -402,9 +402,9 @@ int initiate_biconf(ProcessBlock *kb) {
   generate_BICONF_bitstring(kb);
 
   /* fill message */
-  h6->tag = ERRC_PROTO_tag;
-  h6->bytelength = sizeof(struct ERRC_ERRDET_6);
-  h6->subtype = ERRC_ERRDET_6_subtype;
+  h6->tag = EC_PACKET_TAG;
+  h6->totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfInitReq);
+  h6->subtype = SUBTYPE_CASCADE_BICONF_INIT_REQ;
   h6->epoch = kb->startEpoch;
   h6->number_of_epochs = kb->numberOfEpochs;
   h6->seed = seed;
@@ -412,7 +412,7 @@ int initiate_biconf(ProcessBlock *kb) {
   kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
 
   /* submit message */
-  insert_sendpacket((char *)h6, h6->bytelength);
+  insert_sendpacket((char *)h6, h6->totalLengthInBytes);
   return 0;
 }
 
@@ -425,13 +425,13 @@ int initiate_biconf(ProcessBlock *kb) {
  * @return error code, 0 if success
  */
 int generate_biconfreply(char *receivebuf) {
-  struct ERRC_ERRDET_6 *in_head; /* holds received message header */
-  struct ERRC_ERRDET_7 *h7;      /* holds response message header */
+  EcPktHdr_CascadeBiconfInitReq *in_head; /* holds received message header */
+  EcPktHdr_CascadeBiconfParityResp *h7;      /* holds response message header */
   ProcessBlock *kb;           /* points to thread info */
   int bitlen;                    /* number of bits requested */
 
   /* get pointers for header...*/
-  in_head = (struct ERRC_ERRDET_6 *)receivebuf;
+  in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf;
 
   /* ...and find thread: */
   kb = get_thread(in_head->epoch);
@@ -462,11 +462,11 @@ int generate_biconfreply(char *receivebuf) {
   generate_BICONF_bitstring(kb);
 
   /* fill the response header */
-  h7 = (struct ERRC_ERRDET_7 *)malloc2(sizeof(struct ERRC_ERRDET_7));
+  h7 = (EcPktHdr_CascadeBiconfParityResp *)malloc2(sizeof(EcPktHdr_CascadeBiconfParityResp));
   if (!h7) return 61;
-  h7->tag = ERRC_PROTO_tag;
-  h7->bytelength = sizeof(struct ERRC_ERRDET_7);
-  h7->subtype = ERRC_ERRDET_7_subtype;
+  h7->tag = EC_PACKET_TAG;
+  h7->totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfParityResp);
+  h7->subtype = SUBTYPE_CASCADE_BICONF_PARITY_RESP;
   h7->epoch = kb->startEpoch;
   h7->number_of_epochs = kb->numberOfEpochs;
 
@@ -477,7 +477,7 @@ int generate_biconfreply(char *receivebuf) {
   kb->leakageBits++; /* one is lost */
 
   /* send out response header */
-  insert_sendpacket((char *)h7, h7->bytelength);
+  insert_sendpacket((char *)h7, h7->totalLengthInBytes);
 
   return 0; /* return nicely */
 }
@@ -496,7 +496,7 @@ int generate_biconfreply(char *receivebuf) {
  */
 int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   unsigned int msg5size;          /* size of message */
-  struct ERRC_ERRDET_5 *h5;       /* pointer to first message */
+  EcPktHdr_CascadeBinSearchMsg *h5;       /* pointer to first message */
   unsigned int *h5_data, *h5_idx; /* data pointers */
 
   kb->diffBlockCount = 1;
@@ -510,15 +510,15 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
 
   /* prepare message buffer for first binsearch message  */
   msg5size =
-      sizeof(struct ERRC_ERRDET_5) /* header need */
+      sizeof(EcPktHdr_CascadeBinSearchMsg) /* header need */
       + sizeof(unsigned int)       /* parity data need */
       + 2 * sizeof(unsigned int);  /* indexing need for selection and compl */
-  h5 = (struct ERRC_ERRDET_5 *)malloc2(msg5size);
+  h5 = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msg5size);
   if (!h5) return 55;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
-  h5->tag = ERRC_PROTO_tag;
-  h5->subtype = ERRC_ERRDET_5_subtype;
-  h5->bytelength = msg5size;
+  h5->tag = EC_PACKET_TAG;
+  h5->subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
+  h5->totalLengthInBytes = msg5size;
   h5->epoch = kb->startEpoch;
   h5->number_of_epochs = kb->numberOfEpochs;
   h5->number_entries = kb->diffBlockCount;
@@ -558,12 +558,12 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
  * @return error code, 0 if success 
  */
 int start_binarysearch(char *receivebuf) {
-  struct ERRC_ERRDET_4 *in_head; /* holds received message header */
+  EcPktHdr_CascadeParityList *in_head; /* holds received message header */
   ProcessBlock *kb;           /* points to thread info */
   int l0, l1;                    /* helpers;  number of words for bitarrays */
 
   /* get pointers for header...*/
-  in_head = (struct ERRC_ERRDET_4 *)receivebuf;
+  in_head = (EcPktHdr_CascadeParityList *)receivebuf;
 
   /* ...and find thread: */
   kb = get_thread(in_head->epoch);
@@ -625,11 +625,11 @@ int start_binarysearch(char *receivebuf) {
  * @return error code, 0 if success 
  */
 int process_binarysearch(char *receivebuf) {
-  struct ERRC_ERRDET_5 *in_head; /* holds received message header */
+  EcPktHdr_CascadeBinSearchMsg *in_head; /* holds received message header */
   ProcessBlock *kb;           /* points to thread info */
 
   /* get pointers for header...*/
-  in_head = (struct ERRC_ERRDET_5 *)receivebuf;
+  in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf;
 
   /* ...and find thread: */
   kb = get_thread(in_head->epoch);
@@ -660,10 +660,10 @@ int process_binarysearch(char *receivebuf) {
  * @param in_head header of incoming type-5 ec packet
  * @return error code, 0 if success 
  */
-int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
+int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
-  struct ERRC_ERRDET_5 *out_head; /* for reply message */
+  EcPktHdr_CascadeBinSearchMsg *out_head; /* for reply message */
   unsigned int *out_parity;       /* pointer to outgoing parity result info */
   unsigned int *out_match;        /* pointer to outgoing matching info */
   unsigned int *d = NULL;         /* points to internal key data */
@@ -793,7 +793,7 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
                       : (thispass ? kb->k1 : kb->k0))) {
     /* need to continue with this search; make packet 5 ready to send */
     kb->leakageBits += lost_bits;
-    insert_sendpacket((char *)out_head, out_head->bytelength);
+    insert_sendpacket((char *)out_head, out_head->totalLengthInBytes);
     return 0;
   }
 
@@ -860,12 +860,12 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   * @return error message, 0 if success
   */
 int receive_biconfreply(char *receivebuf) {
-  struct ERRC_ERRDET_7 *in_head; /* holds received message header */
+  EcPktHdr_CascadeBiconfParityResp *in_head; /* holds received message header */
   ProcessBlock *kb;           /* points to thread info */
   int localparity;
 
   /* get pointers for header...*/
-  in_head = (struct ERRC_ERRDET_7 *)receivebuf;
+  in_head = (EcPktHdr_CascadeBiconfParityResp *)receivebuf;
 
   /* ...and find thread: */
   kb = get_thread(in_head->epoch);

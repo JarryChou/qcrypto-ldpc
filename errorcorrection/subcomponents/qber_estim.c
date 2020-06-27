@@ -51,7 +51,7 @@ int errorest_1(unsigned int epoch) {
   ProcessBlock *kb;        /* points to current processblock */
   float f_inierr, f_di;       /* for error estimation */
   int bits_needed;            /* number of bits needed to send */
-  struct ERRC_ERRDET_0 *msg1; /* for header to be sent */
+  EcPktHdr_QberEstBits *msg1; /* for header to be sent */
 
   if (!(kb = get_thread(epoch))) return 73; /* cannot find key block */
 
@@ -81,7 +81,7 @@ int errorest_1(unsigned int epoch) {
   if (!msg1) return 43; /* a malloc error occured */
 
   /* send this structure to the other side */
-  insert_sendpacket((char *)msg1, msg1->bytelength);
+  insert_sendpacket((char *)msg1, msg1->totalLengthInBytes);
 
   /* go dormant again.  */
   return 0;
@@ -97,22 +97,22 @@ int errorest_1(unsigned int epoch) {
  * @return int 0 on success, otherwise error code
  */
 int process_esti_message_0(char *receivebuf) {
-  struct ERRC_ERRDET_0 *in_head; /* holds header */
+  EcPktHdr_QberEstBits *in_head; /* holds header */
   ProcessBlock *kb;           /* points to thread info */
   unsigned int *in_data;         /* holds input data bits */
   /* int retval; */
   int i, seen_errors, rn_order, bipo;
   unsigned int bpm;
-  struct ERRC_ERRDET_2 *h2; /* for more requests */
-  struct ERRC_ERRDET_3 *h3; /* reply message */
+  EcPktHdr_QberEstReqMoreBits *h2; /* for more requests */
+  EcPktHdr_QberEstBitsAck *h3; /* reply message */
   int replymode;            /* 0: terminate, 1: more bits, 2: continue */
   float localerror, ldi;
   int newbitsneeded = 0; /* to keep compiler happy */
   int overlapreply;
 
   /* get convenient pointers */
-  in_head = (struct ERRC_ERRDET_0 *)receivebuf;
-  in_data = (unsigned int *)(&receivebuf[sizeof(struct ERRC_ERRDET_0)]);
+  in_head = (EcPktHdr_QberEstBits *)receivebuf;
+  in_data = (unsigned int *)(&receivebuf[sizeof(EcPktHdr_QberEstBits)]);
 
   /* try to find overlap with existing files */
   overlapreply = check_epochoverlap(in_head->epoch, in_head->number_of_epochs);
@@ -207,27 +207,27 @@ int process_esti_message_0(char *receivebuf) {
   switch (replymode) {
     case replyMode_terminate:
     case replyMode_continue: /* send message 3 */
-      h3 = (struct ERRC_ERRDET_3 *)malloc2(sizeof(struct ERRC_ERRDET_3));
+      h3 = (EcPktHdr_QberEstBitsAck *)malloc2(sizeof(EcPktHdr_QberEstBitsAck));
       if (!h3) return 43; /* cannot malloc */
-      h3->tag = ERRC_PROTO_tag;
-      h3->subtype = ERRC_ERRDET_3_subtype;
-      h3->bytelength = sizeof(struct ERRC_ERRDET_3);
+      h3->tag = EC_PACKET_TAG;
+      h3->subtype = SUBTYPE_QBER_EST_BITS_ACK;
+      h3->totalLengthInBytes = sizeof(EcPktHdr_QberEstBitsAck);
       h3->epoch = kb->startEpoch;
       h3->number_of_epochs = kb->numberOfEpochs;
       h3->tested_bits = kb->leakageBits;
       h3->number_of_errors = seen_errors;
-      insert_sendpacket((char *)h3, h3->bytelength); /* error trap? */
+      insert_sendpacket((char *)h3, h3->totalLengthInBytes); /* error trap? */
       break;
     case replyMode_moreBits: /* send message 2 */
-      h2 = (struct ERRC_ERRDET_2 *)malloc2(sizeof(struct ERRC_ERRDET_2));
-      h2->tag = ERRC_PROTO_tag;
-      h2->subtype = ERRC_ERRDET_2_subtype;
-      h2->bytelength = sizeof(struct ERRC_ERRDET_2);
+      h2 = (EcPktHdr_QberEstReqMoreBits *)malloc2(sizeof(EcPktHdr_QberEstReqMoreBits));
+      h2->tag = EC_PACKET_TAG;
+      h2->subtype = SUBTYPE_QBER_EST_REQ_MORE_BITS;
+      h2->totalLengthInBytes = sizeof(EcPktHdr_QberEstReqMoreBits);
       h2->epoch = kb->startEpoch;
       h2->number_of_epochs = kb->numberOfEpochs;
       /* this is the important number */
       h2->requestedbits = newbitsneeded - kb->estimatedSampleSize;
-      insert_sendpacket((char *)h2, h2->bytelength);
+      insert_sendpacket((char *)h2, h2->totalLengthInBytes);
       break;
   }
 
@@ -270,13 +270,13 @@ int process_esti_message_0(char *receivebuf) {
  * @return int 0 on success, error code otherwise
  */
 int send_more_esti_bits(char *receivebuf) {
-  struct ERRC_ERRDET_2 *in_head; /* holds header */
+  EcPktHdr_QberEstReqMoreBits *in_head; /* holds header */
   ProcessBlock *kb;           /* poits to thread info */
   int bitsneeded;                /* number of bits needed to send */
-  struct ERRC_ERRDET_0 *msg1;    /* for header to be sent */
+  EcPktHdr_QberEstBits *msg1;    /* for header to be sent */
 
   /* get pointers for header...*/
-  in_head = (struct ERRC_ERRDET_2 *)receivebuf;
+  in_head = (EcPktHdr_QberEstReqMoreBits *)receivebuf;
 
   /* ...and find thread: */
   kb = get_thread(in_head->epoch);
@@ -294,7 +294,7 @@ int send_more_esti_bits(char *receivebuf) {
   /* adjust message reply to hide the seed/indicate a second reply */
   msg1->seed = 0;
   /* send this structure to outgoing mailbox */
-  insert_sendpacket((char *)msg1, msg1->bytelength);
+  insert_sendpacket((char *)msg1, msg1->totalLengthInBytes);
 
   /* everything is fine */
   return 0;
@@ -311,18 +311,18 @@ int send_more_esti_bits(char *receivebuf) {
  * @return int 0 on success, error code otherwise
  */
 int prepare_dualpass(char *receivebuf) {
-  struct ERRC_ERRDET_3 *in_head; /* holds header */
+  EcPktHdr_QberEstBitsAck *in_head; /* holds header */
   ProcessBlock *kb;           /* poits to thread info */
   float localerror, ldi;
   int errormark, newbitsneeded;
   unsigned int newseed; /* seed for permutation */
   int msg4datalen;
-  struct ERRC_ERRDET_4 *h4;    /* header pointer */
+  EcPktHdr_CascadeParityList *h4;    /* header pointer */
   unsigned int *h4_d0, *h4_d1; /* pointer to data tracks  */
   int retval;
 
   /* get pointers for header...*/
-  in_head = (struct ERRC_ERRDET_3 *)receivebuf;
+  in_head = (EcPktHdr_QberEstBitsAck *)receivebuf;
 
   /* ...and find thread: */
   kb = get_thread(in_head->epoch);
@@ -391,15 +391,15 @@ int prepare_dualpass(char *receivebuf) {
 
   /* get raw buffer */
   msg4datalen = ((kb->partitions0 + 31) / 32 + (kb->partitions1 + 31) / 32) * 4;
-  h4 = (struct ERRC_ERRDET_4 *)malloc2(sizeof(struct ERRC_ERRDET_4) +
+  h4 = (EcPktHdr_CascadeParityList *)malloc2(sizeof(EcPktHdr_CascadeParityList) +
                                        msg4datalen);
   if (!h4) return 43; /* cannot malloc */
   /* both data arrays */
   h4_d0 = (unsigned int *)&h4[1];
   h4_d1 = &h4_d0[(kb->partitions0 + 31) / 32];
-  h4->tag = ERRC_PROTO_tag;
-  h4->bytelength = sizeof(struct ERRC_ERRDET_4) + msg4datalen;
-  h4->subtype = ERRC_ERRDET_4_subtype;
+  h4->tag = EC_PACKET_TAG;
+  h4->totalLengthInBytes = sizeof(EcPktHdr_CascadeParityList) + msg4datalen;
+  h4->subtype = SUBTYPE_CASCADE_PARITY_LIST;
   h4->epoch = kb->startEpoch;
   h4->number_of_epochs = kb->numberOfEpochs; /* length of the block */
   h4->seed = newseed;                        /* permutator seed */
@@ -417,7 +417,7 @@ int prepare_dualpass(char *receivebuf) {
   kb->leakageBits += kb->partitions0 + kb->partitions1;
 
   /* transmit message */
-  retval = insert_sendpacket((char *)h4, h4->bytelength);
+  retval = insert_sendpacket((char *)h4, h4->totalLengthInBytes);
   if (retval) return retval;
 
   return 0; /* go dormant again... */

@@ -69,9 +69,9 @@ For both possibilities, packets are defined:
   packet header:
 
 ```
-  struct ERRC_ERRDET_0 {
+  EcPktHdr_QberEstBits {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -82,7 +82,7 @@ For both possibilities, packets are defined:
 
   element definition:
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet (including complete
+* **totalLengthInBytes**:         contains the length of the packet (including complete
                         header) in bytes
 * **subtype**:            0 for PRNG based subset
 * **epoch**:              defines epoch of first packet
@@ -115,7 +115,7 @@ For both possibilities, packets are defined:
 ```
    struct ERRC_ERRDET_1 {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -124,7 +124,7 @@ For both possibilities, packets are defined:
 ```
   element definition:
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet (including complete
+* **totalLengthInBytes**:         contains the length of the packet (including complete
                         header) in bytes
 * **subtype**:            1 for good random number based subset
 * **epoch**:              defines epoch of first packet
@@ -150,9 +150,9 @@ For both possibilities, packets are defined:
 
   The packet consists only of the following structure:
 ```
-   struct ERRC_ERRDET_2 {
+   EcPktHdr_QberEstReqMoreBits {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -162,7 +162,7 @@ For both possibilities, packets are defined:
 
   element definition:
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet (including complete
+* **totalLengthInBytes**:         contains the length of the packet (including complete
                         header) in bytes; This is fixed to 24
 * **subtype**:            2 for request of bit number packet
 * **epoch**:              defines epoch of first packet
@@ -183,9 +183,9 @@ For both possibilities, packets are defined:
 
   The packet consists only of the following structure:
 ```
-   struct ERRC_ERRDET_3 {
+   EcPktHdr_QberEstBitsAck {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -195,7 +195,7 @@ For both possibilities, packets are defined:
 ```
   element definition:
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet (including complete
+* **totalLengthInBytes**:         contains the length of the packet (including complete
                         header) in bytes; This is fixed to 28
 * **subtype**:            3 for request of bit number packet
 * **epoch**:              defines epoch of first packet
@@ -235,9 +235,9 @@ kept for possible extension.
      
    The packet consists of the following header structure and a data stream:
 ```
-   struct ERRC_ERRDET_4 {
+   EcPktHdr_CascadeParityList {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -249,7 +249,7 @@ kept for possible extension.
 ```
   element definition:
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet (including complete
+* **totalLengthInBytes**:         contains the length of the packet (including complete
                         header) in bytes;
 * **subtype**:            4 for request of bit number packet
 * **epoch**:              defines epoch of first packet
@@ -283,9 +283,9 @@ used to transmit the same bit again (no information is lost this way).
      
    The packet consists of the following header structure and a data stream:
 ```
-   struct ERRC_ERRDET_5 {
+   EcPktHdr_CascadeBinSearchMsg {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -297,7 +297,7 @@ used to transmit the same bit again (no information is lost this way).
   element definition:
 
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet (including complete
+* **totalLengthInBytes**:         contains the length of the packet (including complete
                     header) in bytes;
 * **subtype**:            5 for request of bit number packet
 * **epoch**:              defines epoch of first packet
@@ -368,9 +368,9 @@ a given length.
      
    The packet consists of the following header structure and a data stream:
 ```
-   struct ERRC_ERRDET_6 {
+   EcPktHdr_CascadeBiconfInitReq {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -381,7 +381,7 @@ a given length.
   element definition:
    
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet in bytes;
+* **totalLengthInBytes**:         contains the length of the packet in bytes;
                     fixed to 28 for this message
 * **subtype**:            6 for request of bit number packet
 * **epoch**:              defines epoch of first packet
@@ -398,9 +398,9 @@ interval and the bit value of the parity of this section.
      
    The packet consists of the following header structure and a data stream:
 ```
-   struct ERRC_ERRDET_7 {
+   EcPktHdr_CascadeBiconfParityResp {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -410,7 +410,7 @@ interval and the bit value of the parity of this section.
   element definition:
    
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet in bytes;
+* **totalLengthInBytes**:         contains the length of the packet in bytes;
                         fixed to 24 for this message
 * **subtype**:            7 for request of bit number packet
 * **epoch**:              defines epoch of first packet
@@ -429,9 +429,9 @@ for reference. The determination of the error rate should be implicit.
      
    The packet consists of the following header structure and a data stream:
 ```
-   struct ERRC_ERRDET_8 {
+   EcPktHdr_StartPrivAmp {
        unsigned int tag;
-       unsigned int bytelength;
+       unsigned int totalLengthInBytes;
        unsigned int subtype;
        unsigned int epoch;
        unsigned int number_of_epochs;
@@ -443,7 +443,7 @@ for reference. The determination of the error rate should be implicit.
   element definition:
    
 * **tag**:                6 for an error correction packet
-* **bytelength**:         contains the length of the packet in bytes;
+* **totalLengthInBytes**:         contains the length of the packet in bytes;
                         fixed to 32 for this message
 * **subtype**:            7 for request of bit number packet
 * **epoch**:              defines epoch of first packet

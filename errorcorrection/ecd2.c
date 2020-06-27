@@ -321,7 +321,7 @@ int read_header_from_receivepipe() {
   receive_index += retval;
   if (receive_index == sizeof(msgprotobuf)) {
     /* prepare for new buffer */
-    readbuf = (char *)malloc2(msgprotobuf.bytelength);
+    readbuf = (char *)malloc2(msgprotobuf.totalLengthInBytes);
     if (!readbuf) return -emsg(37);
     /* transfer header */
     memcpy(readbuf, &msgprotobuf, sizeof(msgprotobuf));
@@ -343,10 +343,10 @@ int read_body_from_receivepipe() {
   fflush(stdout);
   #endif
   int retval = read(arguments.handle[handleId_receivePipe], &readbuf[receive_index],
-      msgprotobuf.bytelength - receive_index);
+      msgprotobuf.totalLengthInBytes - receive_index);
   if (retval == -1) return -emsg(36); /* can that be better? */
   receive_index += retval;
-  if (receive_index == msgprotobuf.bytelength) { /* got all */
+  if (receive_index == msgprotobuf.totalLengthInBytes) { /* got all */
     struct packet_received *msgp = (struct packet_received *)malloc2(
         sizeof(struct packet_received));
     if (!msgp) return -emsg(38);
@@ -454,7 +454,7 @@ int main(int argc, char *argv[]) {
 
       // If there is something to read from receive pipeline
       if (FD_ISSET(arguments.handle[handleId_receivePipe], &readqueue)) {
-        if (receive_index < sizeof(struct ERRC_PROTO)) {
+        if (receive_index < sizeof(EcPktHdr_Base)) {
           // Read header (tag & length)
           errcode = read_header_from_receivepipe();
         } else {
@@ -475,7 +475,7 @@ int main(int argc, char *argv[]) {
       // Get pointer to the packet buffer
       packet_to_process_buf = sbfp->packet;
       // If packet is not an error correction packet based on tag, then throw error
-      if (((unsigned int *)packet_to_process_buf)[0] != ERRC_PROTO_tag) { return -emsg(44); }
+      if (((unsigned int *)packet_to_process_buf)[0] != EC_PACKET_TAG) { return -emsg(44); }
       // Print debug message
       #ifdef DEBUG
       printf("received message, subtype: %d, len: %d\n", ((unsigned int *)packet_to_process_buf)[2], ((unsigned int *)packet_to_process_buf)[1]);
@@ -483,7 +483,7 @@ int main(int argc, char *argv[]) {
       #endif
       // Process packet based on the subtype
       switch (((unsigned int *)packet_to_process_buf)[2]) {
-        case SUBTYPE_QBER_ESTIM: /* received an error estimation packet */
+        case SUBTYPE_QBER_EST_BITS: /* received an error estimation packet */
           errcode = process_esti_message_0(packet_to_process_buf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -491,7 +491,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES: /* received request for more bits */
+        case SUBTYPE_QBER_EST_REQ_MORE_BITS: /* received request for more bits */
           errcode = send_more_esti_bits(packet_to_process_buf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;
@@ -499,7 +499,7 @@ int main(int argc, char *argv[]) {
           }
           break;
 
-        case SUBTYPE_QBER_ESTIM_ACK: /* reveived error confirmation message */
+        case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
           errcode = prepare_dualpass(packet_to_process_buf);
           if (errcode) { /* an error occured */
             if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) break;

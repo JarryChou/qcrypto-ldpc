@@ -79,13 +79,13 @@ int single_line_parity_masked(unsigned int *d, unsigned int *m, int start, int e
 
 /// @name CASCADE BICONF MAIN FUNCTIONS
 /// @{
-int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head);
+int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int initiate_biconf(ProcessBlock *kb);
 int generate_biconfreply(char *receivebuf);
 int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength);
 int start_binarysearch(char *receivebuf);
 int process_binarysearch(char *receivebuf);
-int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head);
+int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int receive_biconfreply(char *receivebuf);
 /// @}
 

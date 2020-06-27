@@ -239,7 +239,7 @@ static char *packet_to_process_buf;   /**< pointer to the currently processed pa
 static char *readbuf = NULL;          /**< pointer to temporary readbuffer storage */
 static int send_index;                /**< for sending out packets */
 static int receive_index;             /**< for receiving packets */
-static struct ERRC_PROTO msgprotobuf; /**< for reading header of receive packet */
+static EcPktHdr_Base msgprotobuf; /**< for reading header of receive packet */
 
 static char *errormessage[] = {
     "No error.",
