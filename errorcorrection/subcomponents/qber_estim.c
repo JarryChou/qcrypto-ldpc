@@ -13,8 +13,8 @@
  * @param d1 pointer to paritybuffer 1
  */
 void prepare_paritylist1(ProcessBlock *kb, unsigned int *d0, unsigned int *d1) {
-  prepare_paritylist_basic(kb->mainbuf, d0, kb->k0, kb->workbits);
-  prepare_paritylist_basic(kb->permutebuf, d1, kb->k1, kb->workbits);
+  prepare_paritylist_basic(kb->mainBufPtr, d0, kb->k0, kb->workbits);
+  prepare_paritylist_basic(kb->permuteBufPtr, d1, kb->k1, kb->workbits);
   return;
 }
 
@@ -60,23 +60,23 @@ int errorest_1(unsigned int epoch) {
   /* seed the rng, (the state has to be kept with the thread, use a lock
      system for the rng in case several ) */
   kb->RNG_usage = 0; /* use simple RNG */
-  if (!(kb->RNG_state = get_r_seed())) return 39;
+  if (!(kb->rngState = get_r_seed())) return 39;
 
   /*  evaluate how many bits are needed in this round */
-  f_inierr = kb->initialerror / 65536.; /* float version */
+  f_inierr = kb->initialError / 65536.; /* float version */
 
   if (arguments.skip_qber_estimation) { /* don't do error estimation */
     kb->errormode = 1;
-    msg1 = fillsamplemessage(kb, 1, kb->initialerror, kb->BellValue);
+    msg1 = fillsamplemessage(kb, 1, kb->initialError, kb->bellValue);
   } else {
     kb->errormode = 0;
     f_di = USELESS_ERRORBOUND - f_inierr;
     if (f_di <= 0) return 41; /* no error extractable */
     bits_needed = testbits_needed(f_inierr);
 
-    if (bits_needed >= kb->initialbits) return 42; /* not possible */
+    if (bits_needed >= kb->initialBits) return 42; /* not possible */
     /* fill message with sample bits */
-    msg1 = fillsamplemessage(kb, bits_needed, 0, kb->BellValue);
+    msg1 = fillsamplemessage(kb, bits_needed, 0, kb->bellValue);
   }
   if (!msg1) return 43; /* a malloc error occured */
 
@@ -123,9 +123,9 @@ int process_esti_message_0(char *receivebuf) {
   if (overlapreply) { /* we have an update message to request more bits */
     kb = get_thread(in_head->epoch);
     if (!kb) return 48; /* cannot find thread */
-    kb->leakagebits += in_head->numberofbits;
-    kb->estimatedsamplesize += in_head->numberofbits;
-    seen_errors = kb->estimatederror;
+    kb->leakageBits += in_head->numberofbits;
+    kb->estimatedSampleSize += in_head->numberofbits;
+    seen_errors = kb->estimatedError;
   } else {
     /* create a thread with the loaded files, get thead handle */
     if ((i = create_thread(in_head->epoch, in_head->number_of_epochs, 0.0, 0.0))) {
@@ -139,27 +139,27 @@ int process_esti_message_0(char *receivebuf) {
 
     /* update the thread with the type status, and with the info form the
        other side */
-    kb->RNG_state = in_head->seed;
+    kb->rngState = in_head->seed;
     kb->RNG_usage = 0; /* use PRNG sequence */
-    kb->leakagebits = in_head->numberofbits;
+    kb->leakageBits = in_head->numberofbits;
     kb->role = 1; /* being bob */
     seen_errors = 0;
-    kb->estimatedsamplesize = in_head->numberofbits;
-    kb->BellValue = in_head->BellValue;
+    kb->estimatedSampleSize = in_head->numberofbits;
+    kb->bellValue = in_head->bellValue;
   }
 
   /* do the error estimation */
-  rn_order = get_order_2(kb->initialbits);
+  rn_order = get_order_2(kb->initialBits);
 
   for (i = 0; i < (in_head->numberofbits); i++) {
     do { /* generate a bit position */
-      bipo = PRNG_value2(rn_order, &kb->RNG_state);
-      if (bipo > kb->initialbits) continue;          /* out of range */
+      bipo = PRNG_value2(rn_order, &kb->rngState);
+      if (bipo > kb->initialBits) continue;          /* out of range */
       bpm = bt_mask(bipo);                           /* bit mask */
-      if (kb->testmarker[bipo / 32] & bpm) continue; /* already used */
+      if (kb->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
       /* got finally a bit */
-      kb->testmarker[bipo / 32] |= bpm; /* mark as used */
-      if (((kb->mainbuf[bipo / 32] & bpm) ? 1 : 0) ^
+      kb->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
+      if (((kb->mainBufPtr[bipo / 32] & bpm) ? 1 : 0) ^
           ((in_data[i / 32] & bt_mask(i)) ? 1 : 0)) { /* error */
         seen_errors++;
       }
@@ -168,26 +168,26 @@ int process_esti_message_0(char *receivebuf) {
   }
 
   /* save error status */
-  kb->estimatederror = seen_errors;
+  kb->estimatedError = seen_errors;
 
-  if (in_head->errormode) { /* skip the error estimation */
+  if (in_head->fixedErrorRate) { /* skip the error estimation */
     kb->errormode = 1;
-    localerror = (float)in_head->errormode / 65536.0;
+    localerror = (float)in_head->fixedErrorRate / 65536.0;
     replymode = replyMode_continue; /* skip error est part */
   } else {
     kb->errormode = 0;
     /* make decision if to ask for more bits */
-    localerror = (float)seen_errors / (float)(kb->estimatedsamplesize);
+    localerror = (float)seen_errors / (float)(kb->estimatedSampleSize);
 
     ldi = USELESS_ERRORBOUND - localerror;
     if (ldi <= 0.) { /* ignore key bits : send error number to terminate */
       replymode = replyMode_terminate;
     } else {
       newbitsneeded = testbits_needed(localerror);
-      if (newbitsneeded > kb->initialbits) { /* will never work */
+      if (newbitsneeded > kb->initialBits) { /* will never work */
         replymode = replyMode_terminate;
       } else {
-        if (newbitsneeded > kb->estimatedsamplesize) { /*  more bits */
+        if (newbitsneeded > kb->estimatedSampleSize) { /*  more bits */
           replymode = replyMode_moreBits;
         } else { /* send confirmation message */
           replymode = replyMode_continue;
@@ -199,8 +199,8 @@ int process_esti_message_0(char *receivebuf) {
   #ifdef DEBUG
   printf("process_esti_message_0: estErr: %d errMode: %d \
  lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d\n",
-    kb->estimatederror, kb->errormode, 
-    localerror, kb->estimatedsamplesize, newbitsneeded, kb->initialbits);
+    kb->estimatedError, kb->errormode, 
+    localerror, kb->estimatedSampleSize, newbitsneeded, kb->initialBits);
   #endif
 
   /* prepare reply message */
@@ -212,9 +212,9 @@ int process_esti_message_0(char *receivebuf) {
       h3->tag = ERRC_PROTO_tag;
       h3->subtype = ERRC_ERRDET_3_subtype;
       h3->bytelength = sizeof(struct ERRC_ERRDET_3);
-      h3->epoch = kb->startepoch;
-      h3->number_of_epochs = kb->numberofepochs;
-      h3->tested_bits = kb->leakagebits;
+      h3->epoch = kb->startEpoch;
+      h3->number_of_epochs = kb->numberOfEpochs;
+      h3->tested_bits = kb->leakageBits;
       h3->number_of_errors = seen_errors;
       insert_sendpacket((char *)h3, h3->bytelength); /* error trap? */
       break;
@@ -223,10 +223,10 @@ int process_esti_message_0(char *receivebuf) {
       h2->tag = ERRC_PROTO_tag;
       h2->subtype = ERRC_ERRDET_2_subtype;
       h2->bytelength = sizeof(struct ERRC_ERRDET_2);
-      h2->epoch = kb->startepoch;
-      h2->number_of_epochs = kb->numberofepochs;
+      h2->epoch = kb->startEpoch;
+      h2->number_of_epochs = kb->numberOfEpochs;
       /* this is the important number */
-      h2->requestedbits = newbitsneeded - kb->estimatedsamplesize;
+      h2->requestedbits = newbitsneeded - kb->estimatedSampleSize;
       insert_sendpacket((char *)h2, h2->bytelength);
       break;
   }
@@ -238,14 +238,14 @@ int process_esti_message_0(char *receivebuf) {
       printf("Kill the thread due to excessive errors\n");
       fflush(stdout);
       #endif
-      remove_thread(kb->startepoch);
+      remove_thread(kb->startEpoch);
       break;
     case replyMode_moreBits: /* wait for more bits to come */
-      kb->processingstate = PRS_GETMOREEST;
+      kb->processingState = PRS_GETMOREEST;
       break;
     case replyMode_continue: /* error estimation is done, proceed to next step */
-      kb->processingstate = PRS_KNOWMYERROR;
-      kb->estimatedsamplesize = kb->leakagebits; /* is this needed? */
+      kb->processingState = PRS_KNOWMYERROR;
+      kb->estimatedSampleSize = kb->leakageBits; /* is this needed? */
       /****** more to do here *************/
       /* calculate k0 and k1 for further uses */
       if (localerror < 0.01444) {
@@ -288,7 +288,7 @@ int send_more_esti_bits(char *receivebuf) {
   bitsneeded = in_head->requestedbits;
 
   /* prepare a response message block / fill the response with sample bits */
-  msg1 = fillsamplemessage(kb, bitsneeded, 0, kb->BellValue);
+  msg1 = fillsamplemessage(kb, bitsneeded, 0, kb->bellValue);
   if (!msg1) return 43; /* a malloc error occured */
 
   /* adjust message reply to hide the seed/indicate a second reply */
@@ -331,42 +331,42 @@ int prepare_dualpass(char *receivebuf) {
     return 49;
   }
   /* extract error information out of message */
-  if (in_head->tested_bits != kb->leakagebits) return 52;
-  kb->estimatedsamplesize = in_head->tested_bits;
-  kb->estimatederror = in_head->number_of_errors;
+  if (in_head->tested_bits != kb->leakageBits) return 52;
+  kb->estimatedSampleSize = in_head->tested_bits;
+  kb->estimatedError = in_head->number_of_errors;
 
   /* decide if to proceed */
   if (kb->errormode) {
-    localerror = (float)kb->initialerror / 65536.;
+    localerror = (float)kb->initialError / 65536.;
   } else {
-    localerror = (float)kb->estimatederror / (float)kb->estimatedsamplesize;
+    localerror = (float)kb->estimatedError / (float)kb->estimatedSampleSize;
     ldi = USELESS_ERRORBOUND - localerror;
     errormark = 0;
     if (ldi <= 0.) {
       errormark = 1; /* will not work */
     } else {
       newbitsneeded = testbits_needed(localerror);
-      if (newbitsneeded > kb->initialbits) { /* will never work */
+      if (newbitsneeded > kb->initialBits) { /* will never work */
         errormark = 1;
       }
     }
     #ifdef DEBUG
     printf("prepare_dualpass kb. estSampleSize: %d estErr: %d errMode: %d lclErr: %.4f \
  ldi: %.4f newBitsNeeded: %d initBits: %d errMark: %d\n",
-      kb->estimatedsamplesize, kb->estimatederror, kb->errormode, 
-      localerror, ldi, newbitsneeded, kb->initialbits, errormark);
+      kb->estimatedSampleSize, kb->estimatedError, kb->errormode, 
+      localerror, ldi, newbitsneeded, kb->initialBits, errormark);
     fflush(stdout);
     #endif
     if (errormark) { /* not worth going */
-      remove_thread(kb->startepoch);
+      remove_thread(kb->startEpoch);
       return 0;
     }
   }
 
   /* determine process variables */
-  kb->processingstate = PRS_KNOWMYERROR;
+  kb->processingState = PRS_KNOWMYERROR;
 
-  kb->estimatedsamplesize = kb->leakagebits; /* is this needed? */
+  kb->estimatedSampleSize = kb->leakageBits; /* is this needed? */
 
   /****** more to do here *************/
   /* calculate k0 and k1 for further uses */
@@ -380,7 +380,7 @@ int prepare_dualpass(char *receivebuf) {
   /* install new seed */
   kb->RNG_usage = 0; /* use simple RNG */
   if (!(newseed = get_r_seed())) return 39;
-  kb->RNG_state = newseed; /* get new seed for RNG */
+  kb->rngState = newseed; /* get new seed for RNG */
 
   /* prepare permutation array */
   prepare_permutation(kb);
@@ -400,8 +400,8 @@ int prepare_dualpass(char *receivebuf) {
   h4->tag = ERRC_PROTO_tag;
   h4->bytelength = sizeof(struct ERRC_ERRDET_4) + msg4datalen;
   h4->subtype = ERRC_ERRDET_4_subtype;
-  h4->epoch = kb->startepoch;
-  h4->number_of_epochs = kb->numberofepochs; /* length of the block */
+  h4->epoch = kb->startEpoch;
+  h4->number_of_epochs = kb->numberOfEpochs; /* length of the block */
   h4->seed = newseed;                        /* permutator seed */
 
   /* these are optional; should we drop them? */
@@ -413,8 +413,8 @@ int prepare_dualpass(char *receivebuf) {
   prepare_paritylist1(kb, h4_d0, h4_d1);
 
   /* update status */
-  kb->processingstate = PRS_PERFORMEDPARITY1;
-  kb->leakagebits += kb->partitions0 + kb->partitions1;
+  kb->processingState = PRS_PERFORMEDPARITY1;
+  kb->leakageBits += kb->partitions0 + kb->partitions1;
 
   /* transmit message */
   retval = insert_sendpacket((char *)h4, h4->bytelength);

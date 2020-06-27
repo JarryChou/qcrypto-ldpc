@@ -137,7 +137,7 @@
  *   -B biconf_BER:        choose the number of BICONF rounds to meet a final
  *                         bit error probability of BER. This assumes a residual
  *                         error rate of 10^-4 after the first two rounds.
- *   -b biconf_rounds:     choose the number of BICONF rounds. Defaults to 10,
+ *   -b biconfRounds:     choose the number of BICONF rounds. Defaults to 10,
  *                         corresponding to a BER of 10^-7.
  * 
  * 
@@ -213,7 +213,7 @@ struct packet_to_send *last_packet_to_send = NULL;
 Arguments arguments = {
     DEFAULT_VERBOSITY,          // verbosity_level
     DEFAULT_RUNTIMEERRORMODE,   // runtimeerrormode
-    DEFAULT_BICONF_ROUNDS,      // biconf_rounds
+    DEFAULT_BICONF_ROUNDS,      // biconfRounds
     DEFAULT_ERR_MARGIN,         // errormargin
     DEFAULT_INITIAL_ERR,        // initialerr
     DEFAULT_INTRINSIC,          // intrinsicerr

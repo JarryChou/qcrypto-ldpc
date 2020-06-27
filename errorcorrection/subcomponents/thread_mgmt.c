@@ -15,8 +15,8 @@ int check_epochoverlap(unsigned int epoch, int num) {
   unsigned int se;
   int en;
   while (bp) { /* as long as there are more blocks to test */
-    se = bp->content->startepoch;
-    en = bp->content->numberofepochs;
+    se = bp->content->startEpoch;
+    en = bp->content->numberOfEpochs;
     if (MAX(se, epoch) <= (MIN(se + en, epoch + num) - 1)) {
       return 1; /* overlap!! */
     }
@@ -34,10 +34,10 @@ int check_epochoverlap(unsigned int epoch, int num) {
  * @param epoch start epoch
  * @param num number of consecutive epochs
  * @param inierr initially estimated error
- * @param BellValue 
+ * @param bellValue 
  * @return int 0 on success, otherwise error code
  */
-int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
+int create_thread(unsigned int epoch, int num, float inierr, float bellValue) {
   static unsigned int temparray[TEMPARRAYSIZE];
   static struct header_3 h3;           /* header for raw key file */
   unsigned int residue, residue2, tmp; /* leftover bits at end */
@@ -49,7 +49,7 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   char ffnam[FNAMELENGTH + 10]; /* to store filename */
   ProcessBlockDequeNode *bp;      /* to hold new thread */
   int getbytes;                 /* how much memory to ask for */
-  unsigned int *rawmem;         /* to store raw key */
+  unsigned int *rawMemPtr;         /* to store raw key */
 
   /* read in file by file in temporary array */
   newindex = 0;
@@ -127,29 +127,29 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
      raw key, permuted key, test selection, two permutation indices */
   getbytes = newindex * 3 * sizeof(unsigned int) +
              bitcount * 2 * sizeof(unsigned short int);
-  rawmem = (unsigned int *)malloc2(getbytes);
-  if (!rawmem) return 34;       /* malloc failed */
-  bp->content->rawmem = rawmem; /* for later free statement */
-  bp->content->startepoch = epoch;
-  bp->content->numberofepochs = num;
-  bp->content->mainbuf = rawmem; /* main key; keep this in mind for free */
-  bp->content->permutebuf = &bp->content->mainbuf[newindex];
-  bp->content->testmarker = &bp->content->permutebuf[newindex];
-  bp->content->permuteindex =
-      (unsigned short int *)&bp->content->testmarker[newindex];
-  bp->content->reverseindex =
-      (unsigned short int *)&bp->content->permuteindex[bitcount];
+  rawMemPtr = (unsigned int *)malloc2(getbytes);
+  if (!rawMemPtr) return 34;       /* malloc failed */
+  bp->content->rawMemPtr = rawMemPtr; /* for later free statement */
+  bp->content->startEpoch = epoch;
+  bp->content->numberOfEpochs = num;
+  bp->content->mainBufPtr = rawMemPtr; /* main key; keep this in mind for free */
+  bp->content->permuteBufPtr = &bp->content->mainBufPtr[newindex];
+  bp->content->testedBitsMarker = &bp->content->permuteBufPtr[newindex];
+  bp->content->permuteIndex =
+      (unsigned short int *)&bp->content->testedBitsMarker[newindex];
+  bp->content->reverseIndex =
+      (unsigned short int *)&bp->content->permuteIndex[bitcount];
   /* copy raw key into thread and clear testbits, permutebits */
   for (i = 0; i < newindex; i++) {
-    bp->content->mainbuf[i] = temparray[i];
-    bp->content->permutebuf[i] = 0;
-    bp->content->testmarker[i] = 0;
+    bp->content->mainBufPtr[i] = temparray[i];
+    bp->content->permuteBufPtr[i] = 0;
+    bp->content->testedBitsMarker[i] = 0;
   }
-  bp->content->initialbits = bitcount; /* number of bits in stream */
-  bp->content->leakagebits = 0;        /* start with no initially lost bits */
-  bp->content->processingstate = PRS_JUSTLOADED; /* just read in */
-  bp->content->initialerror = (int)(inierr * (1 << 16));
-  bp->content->BellValue = BellValue;
+  bp->content->initialBits = bitcount; /* number of bits in stream */
+  bp->content->leakageBits = 0;        /* start with no initially lost bits */
+  bp->content->processingState = PRS_JUSTLOADED; /* just read in */
+  bp->content->initialError = (int)(inierr * (1 << 16));
+  bp->content->bellValue = bellValue;
   /* insert thread in thread list */
   bp->epoch = epoch;
   bp->previous = NULL;
@@ -191,7 +191,7 @@ int remove_thread(unsigned int epoch) {
   }
   if (!bp) return 49; /* no block there */
   /* remove all internal structures */
-  free2(bp->content->rawmem); /* bit buffers, changed to rawmem 11.6.06chk */
+  free2(bp->content->rawMemPtr); /* bit buffers, changed to rawMemPtr 11.6.06chk */
   if (bp->content->lp0) free(bp->content->lp0); /* parity storage */
   if (bp->content->diffidx) free2(bp->content->diffidx);
   free2(bp->content); /* main thread frame */

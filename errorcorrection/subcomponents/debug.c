@@ -92,9 +92,9 @@ void dumpstate(ProcessBlock *kb) {
   if (write(dha, kb, sizeof(ProcessBlock)) == -1) {
     fprintf(stderr, "dump fail (1)\n");
   }
-  if (kb->mainbuf)
-    if (-1 == write(dha, kb->mainbuf, sizeof(unsigned int) *
-        (2 * kb->initialbits + 3 * ((kb->initialbits + 31) / 32)))) {
+  if (kb->mainBufPtr)
+    if (-1 == write(dha, kb->mainBufPtr, sizeof(unsigned int) *
+        (2 * kb->initialBits + 3 * ((kb->initialBits + 31) / 32)))) {
       fprintf(stderr, "dump fail (2)\n");
     }
 
@@ -104,7 +104,7 @@ void dumpstate(ProcessBlock *kb) {
     }
 
   if (kb->diffidx)
-    if (-1 == write(dha, kb->diffidx, sizeof(unsigned int) * 2 * kb->diffnumber_max)) {
+    if (-1 == write(dha, kb->diffidx, sizeof(unsigned int) * 2 * kb->diffBlockCountMax)) {
       fprintf(stderr, "dump fail (5)\n");
     }
 
@@ -124,6 +124,6 @@ void output_permutation(ProcessBlock *kb) {
   sprintf(name, "permutelist_%d", kb->role);
   fp = fopen(name, "w");
   for (i = 0; i < kb->workbits; i++)
-    fprintf(fp, "%d %d\n", kb->permuteindex[i], kb->reverseindex[i]);
+    fprintf(fp, "%d %d\n", kb->permuteIndex[i], kb->reverseIndex[i]);
   fclose(fp);
 }

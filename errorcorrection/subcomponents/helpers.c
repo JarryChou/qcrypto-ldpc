@@ -71,9 +71,9 @@ void atohex(char *target, unsigned int v) {
  * @param kb 
  */
 void cleanup_revealed_bits(ProcessBlock *kb) {
-  int lastbit = kb->initialbits - 1;
-  unsigned int *d = kb->mainbuf;    /* data buffer */
-  unsigned int *m = kb->testmarker; /* index for spent bits */
+  int lastbit = kb->initialBits - 1;
+  unsigned int *d = kb->mainBufPtr;    /* data buffer */
+  unsigned int *m = kb->testedBitsMarker; /* index for spent bits */
   unsigned int bm;                  /* temp storage of bitmask */
   int i;
 
@@ -97,13 +97,13 @@ void cleanup_revealed_bits(ProcessBlock *kb) {
 
   /* fill rest of buffer with zeros for not loosing any bits */
   d[i / 32] &= ((i & 31) ? (0xffffffff << (32 - (i & 31))) : 0);
-  for (i = ((kb->workbits / 32) + 1); i < (kb->initialbits + 31) / 32; i++) {
+  for (i = ((kb->workbits / 32) + 1); i < (kb->initialBits + 31) / 32; i++) {
     d[i] = 0;
     /* printf("   i= %d\n",i); */
   }
 
   /* update number of lost bits */
-  kb->leakagebits = 0;
+  kb->leakageBits = 0;
 
   return;
 }
@@ -130,7 +130,7 @@ void prepare_permutation(ProcessBlock *kb) {
   /* assume last k1 block is filled with good bits and zeros */
   workbits = ((workbits / kb->k1) + 1) * kb->k1;
   /* forget the last bits if it is larger than the buffer */
-  if (workbits > kb->initialbits) workbits -= kb->k1;
+  if (workbits > kb->initialBits) workbits -= kb->k1;
 
   kb->workbits = workbits;
 
@@ -138,9 +138,9 @@ void prepare_permutation(ProcessBlock *kb) {
   prepare_permut_core(kb);
   /* now the permutated buffer is renamed and the final permutation is
      performed */
-  tmpbuf = kb->mainbuf;
-  kb->mainbuf = kb->permutebuf;
-  kb->permutebuf = tmpbuf;
+  tmpbuf = kb->mainBufPtr;
+  kb->mainBufPtr = kb->permuteBufPtr;
+  kb->permuteBufPtr = tmpbuf;
   /* fo final permutation */
   prepare_permut_core(kb);
   return;
@@ -164,29 +164,29 @@ void prepare_permut_core(ProcessBlock *kb) {
      blocknumber must be coprime with 127 - larger primes? */
   for (i = 0; i < workbits; i++) {
     k = (127 * i * kb->k0 + i * kb->k0 / workbits) % workbits;
-    kb->permuteindex[k] = i;
-    kb->reverseindex[i] = k;
+    kb->permuteIndex[k] = i;
+    kb->reverseIndex[i] = k;
   }
   #else
   /* this is prepares a pseudorandom distribution */
-  for (i = 0; i < workbits; i++) kb->permuteindex[i] = 0xffff; /* mark unused */
+  for (i = 0; i < workbits; i++) kb->permuteIndex[i] = 0xffff; /* mark unused */
   /* this routine causes trouble */
   for (i = 0; i < workbits; i++) { /* do permutation  */
     do {                           /* find a permutation index */
-      j = PRNG_value2(rn_order, &kb->RNG_state);
+      j = PRNG_value2(rn_order, &kb->rngState);
     } while ((j >= workbits) ||
-             (kb->permuteindex[j] != 0xffff)); /* out of range */
+             (kb->permuteIndex[j] != 0xffff)); /* out of range */
     k = j;
-    kb->permuteindex[k] = i;
-    kb->reverseindex[i] = k;
+    kb->permuteIndex[k] = i;
+    kb->reverseIndex[i] = k;
   }
 
   #endif
 
-  bzero(kb->permutebuf, ((workbits + 31) / 32) * 4); /* clear permuted buffer */
+  bzero(kb->permuteBufPtr, ((workbits + 31) / 32) * 4); /* clear permuted buffer */
   for (i = 0; i < workbits; i++) {                   /*  do bit permutation  */
-    k = kb->permuteindex[i];
-    if (bt_mask(i) & kb->mainbuf[i / 32]) kb->permutebuf[k / 32] |= bt_mask(k);
+    k = kb->permuteIndex[i];
+    if (bt_mask(i) & kb->mainBufPtr[i / 32]) kb->permuteBufPtr[k / 32] |= bt_mask(k);
   }
 
   /* for debug: output that stuff */

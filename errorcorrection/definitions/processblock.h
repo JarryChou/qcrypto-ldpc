@@ -31,41 +31,41 @@
 /** @struct processblock
  * @brief Definition of a structure containing all informations about a block */
 typedef struct processblock {
-  unsigned int startepoch;          /**< initial epoch of block */
-  unsigned int numberofepochs;      /**< number of consecutive epochs being processed */
-  unsigned int *rawmem;             /**< buffer root for freeing block afterwards */
-  unsigned int *mainbuf;            /**< points to main buffer for key */
-  unsigned int *permutebuf;         /**< keeps permuted bits */
-  unsigned int *testmarker;         /**< marks tested bits */
-  unsigned short int *permuteindex; /**< keeps permutation */
-  unsigned short int *reverseindex; /**< reverse permutation */
+  unsigned int startEpoch;          /**< initial epoch of block */
+  unsigned int numberOfEpochs;      /**< number of consecutive epochs being processed */
+  unsigned int *rawMemPtr;             /**< buffer root for freeing block afterwards */
+  unsigned int *mainBufPtr;            /**< points to main buffer for key */
+  unsigned int *permuteBufPtr;         /**< keeps permuted bits */
+  unsigned int *testedBitsMarker;         /**< marks tested bits */
+  unsigned short int *permuteIndex; /**< keeps permutation */
+  unsigned short int *reverseIndex; /**< reverse permutation */
   int role;                         /**< defines which role to take on a block: 0: Alice, 1: Bob */
-  int initialbits;                  /**< bits to start with */
-  int leakagebits;                  /**< information which has gone public */
-  int processingstate;              /**< determines processing status  current block. See defines below for interpretation */
-  int initialerror;                 /**< in multiples of 2^-16 */
+  int initialBits;                  /**< bits to start with */
+  int leakageBits;                  /**< information which has gone public */
+  int processingState;              /**< determines processing status  current block. See defines below for interpretation */
+  int initialError;                 /**< in multiples of 2^-16 */
   int errormode;                    /**< determines if error estimation has to be done */
-  int estimatederror;               /**< number of estimated error bits */
-  int estimatedsamplesize;          /**< sample size for error  estimation  */
+  int estimatedError;               /**< number of estimated error bits */
+  int estimatedSampleSize;          /**< sample size for error  estimation  */
   int finalerrors;                  /**< number of discovered errors */
   int RNG_usage;                    /**< defines mode of randomness. 0: PRNG, 1: good stuff (which has not been implemented) */
-  unsigned int RNG_state;           /**< keeps the state of the PRNG for this thread */
+  unsigned int rngState;           /**< keeps the state of the PRNG for this thread */
   int k0, k1;                       /**< binary block search lengths */
   int workbits;                     /**< bits to work with for BICONF/parity check */
   int partitions0, partitions1;     /**< number of partitions of k0,k1 length */
   unsigned int *lp0, *lp1;          /**< pointer to local parity info 0 / 1 */
   unsigned int *rp0, *rp1;          /**< pointer to remote parity info 0 / 1 */
   unsigned int *pd0, *pd1;          /**< pointer to parity difference fileld */
-  int diffnumber;                   /**< number of different blocks in current round */
-  int diffnumber_max;               /**< number of malloced entries for diff indices */
+  int diffBlockCount;                   /**< number of different blocks in current round */
+  int diffBlockCountMax;               /**< number of malloced entries for diff indices */
   unsigned int *diffidx;            /**< pointer to a list of parity mismatch blocks */
   unsigned int *diffidxe;           /**< end of interval */
-  int binsearch_depth;              /**< encodes state of the scan. Starts with 0, and contains the pass (0/1) in the MSB */
-  int biconf_round;                 /**< contains the biconf round number, starting with 0 */
+  int binarySearchDepth;              /**< encodes state of the scan. Starts with 0, and contains the pass (0/1) in the MSB */
+  int biconfRound;                 /**< contains the biconf round number, starting with 0 */
   int biconflength;                 /**< current length of a biconf check range */
-  int correctederrors;              /**< number of corrected bits */
-  int finalkeybits;                 /**< how much is left */
-  float BellValue;                  /**< for Ekert-type protocols */
+  int correctedErrors;              /**< number of corrected bits */
+  int finalKeyBits;                 /**< how much is left */
+  float bellValue;                  /**< for Ekert-type protocols */
 } ProcessBlock;
 
 /** @struct blockpointer

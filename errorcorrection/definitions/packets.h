@@ -74,8 +74,8 @@ typedef struct  ERRC_ERRDET_0 {
     unsigned int number_of_epochs;  /**< defines implicitly the block length */
     unsigned int seed;              /**< seed for PRNG */
     unsigned int numberofbits;      /**< bits to follow */
-    unsigned int errormode;         /**< initial error est skip? */
-    float BellValue;                /**< may contain a value for Bell violat */
+    unsigned int fixedErrorRate;         /**< initial error est skip? */
+    float bellValue;                /**< may contain a value for Bell violat */
 } errc_ed_0__;
 #define ERRC_ERRDET_0_subtype 0
 

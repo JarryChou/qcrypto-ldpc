@@ -63,7 +63,7 @@ int parity(unsigned int a) {
  * @brief PRNG state
  * 
  */
-unsigned int __PRNG_state;
+unsigned int __PrngState;
 
 /**
  * @brief Set the PRNG seed object
@@ -72,7 +72,7 @@ unsigned int __PRNG_state;
  * 
  * @param seed 
  */
-void set_PRNG_seed(unsigned int seed) { __PRNG_state = seed; }
+void set_PRNG_seed(unsigned int seed) { __PrngState = seed; }
 /**
  * @brief get k bits from PSRNG
  * 
@@ -83,11 +83,11 @@ unsigned int PRNG_value(int k) {
   int k0;
   int b;
   for (k0 = k; k0; k0--) {
-    b = parity(__PRNG_state & PRNG_FEEDBACK);
-    __PRNG_state <<= 1;
-    __PRNG_state += b;
+    b = parity(__PrngState & PRNG_FEEDBACK);
+    __PrngState <<= 1;
+    __PrngState += b;
   }
-  return ((1 << k) - 1) & __PRNG_state;
+  return ((1 << k) - 1) & __PrngState;
 }
 
 /**

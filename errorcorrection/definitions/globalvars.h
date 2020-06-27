@@ -66,12 +66,12 @@ struct arguments {
         IGNORE_ERRS_ON_OTHER_END = 2 
     } runtimeerrormode; /**< Determines the way how to react on errors which should not stop the demon. */
 
-    int biconf_rounds;  /**< number of biconf rounds, used by cascade_biconf */
+    int biconfRounds;  /**< number of biconf rounds, used by cascade_biconf */
     float errormargin;  /**< number of standard deviations of the detected errors should be added to eve's information leakage estimation, used by priv_amp*/ 
     float initialerr;   /**< What error to assume initially */
     float intrinsicerr; /**< error rate generated outside eavesdropper, used by priv_amp */
     
-    // Helper parameter to help calculate # of biconf_rounds
+    // Helper parameter to help calculate # of biconfRounds
     // float biconf_BER;   /**< BER argument to determine biconf rounds */
 
     /// @name booleans

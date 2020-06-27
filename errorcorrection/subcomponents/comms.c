@@ -43,11 +43,11 @@ int insert_sendpacket(char *message, int length) {
  * @param kb Pointer to the processblock
  * @param bitsneeded 
  * @param errormode 0 for normal error est, err*2^16 forskip
- * @param BellValue 
+ * @param bellValue 
  * @return struct ERRC_ERRDET_0* pointer tht emessage, NULL on error
  */
 struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
-                                        int errormode, float BellValue) {
+                                        int errormode, float bellValue) {
   int msgsize;                 /* keeps size of message */
   struct ERRC_ERRDET_0 *msg1;  /* for header to be sent */
   unsigned int *msg1_data;     /* pointer to data array */
@@ -65,27 +65,27 @@ struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
   msg1->tag = ERRC_PROTO_tag;
   msg1->bytelength = msgsize;
   msg1->subtype = ERRC_ERRDET_0_subtype;
-  msg1->epoch = kb->startepoch;
-  msg1->number_of_epochs = kb->numberofepochs;
-  msg1->seed = kb->RNG_state; /* this is the seed */
+  msg1->epoch = kb->startEpoch;
+  msg1->number_of_epochs = kb->numberOfEpochs;
+  msg1->seed = kb->rngState; /* this is the seed */
   msg1->numberofbits = bitsneeded;
-  msg1->errormode = errormode;
-  msg1->BellValue = BellValue;
+  msg1->fixedErrorRate = errormode;
+  msg1->bellValue = bellValue;
 
   /* determine random number order needed for given bitlength */
   /* can this go into the processblock preparation ??? */
-  rn_order = get_order_2(kb->initialbits);
+  rn_order = get_order_2(kb->initialBits);
   /* mark selected bits in this stream and fill this structure with bits */
   localdata = 0;                     /* storage for bits */
   for (i = 0; i < bitsneeded; i++) { /* count through all needed bits */
     do {                             /* generate a bit position */
-      bipo = PRNG_value2(rn_order, &kb->RNG_state);
-      if (bipo > kb->initialbits) continue;          /* out of range */
+      bipo = PRNG_value2(rn_order, &kb->rngState);
+      if (bipo > kb->initialBits) continue;          /* out of range */
       bpm = bt_mask(bipo);                           /* bit mask */
-      if (kb->testmarker[bipo / 32] & bpm) continue; /* already used */
+      if (kb->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
       /* got finally a bit */
-      kb->testmarker[bipo / 32] |= bpm; /* mark as used */
-      if (kb->mainbuf[bipo / 32] & bpm) localdata |= bt_mask(i);
+      kb->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
+      if (kb->mainBufPtr[bipo / 32] & bpm) localdata |= bt_mask(i);
       if ((i & 31) == 31) {
         msg1_data[i / 32] = localdata;
         localdata = 0; /* reset buffer */
@@ -100,8 +100,8 @@ struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
   } /* there was something left */
 
   /* update thread structure with used bits */
-  kb->leakagebits += bitsneeded;
-  kb->processingstate = PRS_WAITRESPONSE1;
+  kb->leakageBits += bitsneeded;
+  kb->processingState = PRS_WAITRESPONSE1;
 
   return msg1; /* pointer to message */
 }
@@ -115,18 +115,18 @@ struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
 struct ERRC_ERRDET_5 *make_messagehead_5(ProcessBlock *kb) {
   int msglen; /* length of outgoing structure (data+header) */
   struct ERRC_ERRDET_5 *out_head;                 /* return value */
-  msglen = ((kb->diffnumber + 31) / 32) * 4 * 2 + /* two bitfields */
+  msglen = ((kb->diffBlockCount + 31) / 32) * 4 * 2 + /* two bitfields */
            sizeof(struct ERRC_ERRDET_5);          /* ..plus one header */
   out_head = (struct ERRC_ERRDET_5 *)malloc2(msglen);
   if (!out_head) return NULL;
   out_head->tag = ERRC_PROTO_tag;
   out_head->bytelength = msglen;
   out_head->subtype = ERRC_ERRDET_5_subtype;
-  out_head->epoch = kb->startepoch;
-  out_head->number_of_epochs = kb->numberofepochs;
-  out_head->number_entries = kb->diffnumber;
+  out_head->epoch = kb->startEpoch;
+  out_head->number_of_epochs = kb->numberOfEpochs;
+  out_head->number_entries = kb->diffBlockCount;
   out_head->index_present = 0;              /* this is an ordidary reply */
-  out_head->runlevel = kb->binsearch_depth; /* next round */
+  out_head->runlevel = kb->binarySearchDepth; /* next round */
 
   return out_head;
 }
@@ -160,13 +160,13 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
       pd = kb->pd0;
       k = kb->k0;
       partitions = kb->partitions0;
-      d = kb->mainbuf; /* unpermuted key */
+      d = kb->mainBufPtr; /* unpermuted key */
       break;
     case 1: /* permutated pass */
       pd = kb->pd1;
       k = kb->k1;
       partitions = kb->partitions1;
-      d = kb->permutebuf; /* permuted key */
+      d = kb->permuteBufPtr; /* permuted key */
       break;
     default:     /* illegal */
       return 59; /* illegal pass arg */
@@ -182,34 +182,34 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
     }
   }
   /* mark pass/round correctly in kb */
-  kb->binsearch_depth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) |
+  kb->binarySearchDepth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) |
                         0; /* first round */
 
   /* prepare message buffer for first binsearch message  */
   msg5size = sizeof(struct ERRC_ERRDET_5) /* header need */
-             + ((kb->diffnumber + 31) / 32) *
+             + ((kb->diffBlockCount + 31) / 32) *
                    sizeof(unsigned int)               /* parity data need */
-             + kb->diffnumber * sizeof(unsigned int); /* indexing need */
+             + kb->diffBlockCount * sizeof(unsigned int); /* indexing need */
   h5 = (struct ERRC_ERRDET_5 *)malloc2(msg5size);
   if (!h5) return 55;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
   h5->tag = ERRC_PROTO_tag;
   h5->subtype = ERRC_ERRDET_5_subtype;
   h5->bytelength = msg5size;
-  h5->epoch = kb->startepoch;
-  h5->number_of_epochs = kb->numberofepochs;
-  h5->number_entries = kb->diffnumber;
+  h5->epoch = kb->startEpoch;
+  h5->number_of_epochs = kb->numberOfEpochs;
+  h5->number_entries = kb->diffBlockCount;
   h5->index_present = 1;              /* this round we have an index table */
-  h5->runlevel = kb->binsearch_depth; /* keep local status */
+  h5->runlevel = kb->binarySearchDepth; /* keep local status */
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[((kb->diffnumber + 31) / 32)];
-  for (i = 0; i < kb->diffnumber; i++) h5_idx[i] = kb->diffidx[i];
+  h5_idx = &h5_data[((kb->diffBlockCount + 31) / 32)];
+  for (i = 0; i < kb->diffBlockCount; i++) h5_idx[i] = kb->diffidx[i];
 
   /* prepare parity results */
   resbuf = 0;
   tmp_par = 0;
-  for (i = 0; i < kb->diffnumber; i++) {          /* go through all processblocks */
+  for (i = 0; i < kb->diffBlockCount; i++) {          /* go through all processblocks */
     kdiff = kb->diffidxe[i] - kb->diffidx[i] + 1; /* left length */
     fbi = kb->diffidx[i];
     lbi = fbi + kdiff / 2 - 1; /* first and last bitidx */
@@ -232,7 +232,7 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
     h5_data[i / 32] = resbuf << (32 - (i & 31)); /* last parity bits */
 
   /* increment lost bits */
-  kb->leakagebits += kb->diffnumber;
+  kb->leakageBits += kb->diffBlockCount;
 
   /* send out message */
   insert_sendpacket((char *)h5, msg5size);

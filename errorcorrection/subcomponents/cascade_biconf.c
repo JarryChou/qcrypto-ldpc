@@ -4,21 +4,21 @@
 /* ------------------------------------------------------------------------- */
 /** @brief Helper to fix the permuted/unpermuted bit changes.
   
-  Decides via a parameter in kb->binsearch_depth MSB what polarity to take.
+  Decides via a parameter in kb->binarySearchDepth MSB what polarity to take.
 
   @param kb ptr to processblock to fix */
 void fix_permutedbits(ProcessBlock *kb) {
   int i, k;
   unsigned int *src, *dst;
   unsigned short *idx; /* pointers to data loc and permute idx */
-  if (kb->binsearch_depth & RUNLEVEL_LEVELMASK) { /* we are in pass 1 */
-    src = kb->permutebuf;
-    dst = kb->mainbuf;
-    idx = kb->reverseindex;
+  if (kb->binarySearchDepth & RUNLEVEL_LEVELMASK) { /* we are in pass 1 */
+    src = kb->permuteBufPtr;
+    dst = kb->mainBufPtr;
+    idx = kb->reverseIndex;
   } else { /* we are in pass 0 */
-    src = kb->mainbuf;
-    dst = kb->permutebuf;
-    idx = kb->permuteindex;
+    src = kb->mainBufPtr;
+    dst = kb->permuteBufPtr;
+    idx = kb->permuteIndex;
   }
   bzero(dst, ((kb->workbits + 31) / 32) * 4); /* clear dest */
   for (i = 0; i < kb->workbits; i++) {
@@ -38,11 +38,11 @@ void fix_permutedbits(ProcessBlock *kb) {
  */
 void generate_selectbitstring(ProcessBlock *kb, unsigned int seed) {
   int i;                                    /* number of bits to be set */
-  kb->RNG_state = seed;                     /* set new seed */
+  kb->rngState = seed;                     /* set new seed */
   for (i = 0; i < (kb->workbits) / 32; i++) /* take care of the full bits */
-    kb->testmarker[i] = PRNG_value2_32(&kb->RNG_state);
-  kb->testmarker[kb->workbits / 32] = /* prepare last few bits */
-      PRNG_value2_32(&kb->RNG_state) & lastmask((kb->workbits - 1) & 31);
+    kb->testedBitsMarker[i] = PRNG_value2_32(&kb->rngState);
+  kb->testedBitsMarker[kb->workbits / 32] = /* prepare last few bits */
+      PRNG_value2_32(&kb->rngState) & lastmask((kb->workbits - 1) & 31);
   return;
 }
 
@@ -56,12 +56,12 @@ void generate_selectbitstring(ProcessBlock *kb, unsigned int seed) {
 void generate_BICONF_bitstring(ProcessBlock *kb) {
   int i;                                      /* number of bits to be set */
   for (i = 0; i < (kb->workbits) / 32; i++) { /* take care of the full bits */
-    kb->testmarker[i] = PRNG_value2_32(&kb->RNG_state) &
-                        kb->permutebuf[i]; /* get permuted bit */
+    kb->testedBitsMarker[i] = PRNG_value2_32(&kb->rngState) &
+                        kb->permuteBufPtr[i]; /* get permuted bit */
   }
-  kb->testmarker[kb->workbits / 32] = /* prepare last few bits */
-      PRNG_value2_32(&kb->RNG_state) & lastmask((kb->workbits - 1) & 31) &
-      kb->permutebuf[kb->workbits / 32];
+  kb->testedBitsMarker[kb->workbits / 32] = /* prepare last few bits */
+      PRNG_value2_32(&kb->rngState) & lastmask((kb->workbits - 1) & 31) &
+      kb->permuteBufPtr[kb->workbits / 32];
   return;
 }
 
@@ -81,7 +81,7 @@ int do_paritylist_and_diffs(ProcessBlock *kb, int pass) {
   switch (pass) {
     case 0:
       k = kb->k0;
-      d = kb->mainbuf;
+      d = kb->mainBufPtr;
       lp = kb->lp0;
       rp = kb->rp0;
       pd = kb->pd0;
@@ -89,7 +89,7 @@ int do_paritylist_and_diffs(ProcessBlock *kb, int pass) {
       break;
     case 1:
       k = kb->k1;
-      d = kb->permutebuf;
+      d = kb->permuteBufPtr;
       lp = kb->lp1;
       rp = kb->rp1;
       pd = kb->pd1;
@@ -118,7 +118,7 @@ int do_paritylist_and_diffs(ProcessBlock *kb, int pass) {
   */
 void fix_parity_intervals(ProcessBlock *kb, unsigned int *inh_idx) {
   int i, fbi, lbi;                       /* running index */
-  for (i = 0; i < kb->diffnumber; i++) { /* go through all different blocks */
+  for (i = 0; i < kb->diffBlockCount; i++) { /* go through all different blocks */
     fbi = kb->diffidx[i];
     lbi = kb->diffidxe[i]; /* old bitindices */
     if (fbi > lbi) {
@@ -222,9 +222,9 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   /* find out if difference index should be installed */
   while (in_head->index_present) {
     if (kb->diffidx) { /* there is already a diffindex */
-      if (kb->diffnumber_max >= in_head->number_entries) {
+      if (kb->diffBlockCountMax >= in_head->number_entries) {
         /* just re-assign */
-        kb->diffnumber = in_head->number_entries;
+        kb->diffBlockCount = in_head->number_entries;
         break;
       }
       /* otherwise: not enough space; remove the old one... */
@@ -232,23 +232,23 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
       /* ....and continue re-assigning... */
     }
     /* allocate difference idx memory */
-    kb->diffnumber = in_head->number_entries; /* from far cons check? */
-    kb->diffnumber_max = kb->diffnumber;
+    kb->diffBlockCount = in_head->number_entries; /* from far cons check? */
+    kb->diffBlockCountMax = kb->diffBlockCount;
     kb->diffidx =
-        (unsigned int *)malloc2(kb->diffnumber * sizeof(unsigned int) * 2);
+        (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
     if (!kb->diffidx) return 54;                 /* can't malloc */
-    kb->diffidxe = &kb->diffidx[kb->diffnumber]; /* end of interval */
+    kb->diffidxe = &kb->diffidx[kb->diffBlockCount]; /* end of interval */
     break;
   }
 
-  inh_idx = &inh_data[(kb->diffnumber + 31) / 32]; /* index or matching part */
+  inh_idx = &inh_data[(kb->diffBlockCount + 31) / 32]; /* index or matching part */
 
   /* sort out pass-dependent variables */
   if (in_head->runlevel & RUNLEVEL_LEVELMASK) { /* this is pass 1 */
-    d = kb->permutebuf;
+    d = kb->permuteBufPtr;
     k = kb->k1;
   } else { /* this is pass 0 */
-    d = kb->mainbuf;
+    d = kb->mainBufPtr;
     k = kb->k0;
   }
 
@@ -256,7 +256,7 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
      the variables d and k contain worng values at this point.
      this is taken care now */
   if (in_head->runlevel & RUNLEVEL_BICONF) {
-    d = kb->testmarker;
+    d = kb->testedBitsMarker;
     k = kb->biconflength;
   }
 
@@ -266,7 +266,7 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
       fix_parity_intervals(kb, inh_idx);
       break;
     case 1: /* simple unsigned int encoding */
-      for (i = 0; i < kb->diffnumber; i++) {
+      for (i = 0; i < kb->diffBlockCount; i++) {
         kb->diffidx[i] = inh_idx[i];            /* store start bit index */
         kb->diffidxe[i] = inh_idx[i] + (k - 1); /* last bit */
       }
@@ -281,9 +281,9 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   }
 
   /* other stuff in local keyblk to update */
-  kb->leakagebits += kb->diffnumber; /* for incoming parity bits */
+  kb->leakageBits += kb->diffBlockCount; /* for incoming parity bits */
   /* check if this masking is correct? let biconf status survive  */
-  kb->binsearch_depth =
+  kb->binarySearchDepth =
       ((in_head->runlevel + 1) & RUNLEVEL_ROUNDMASK) +
       (in_head->runlevel & (RUNLEVEL_LEVELMASK | RUNLEVEL_BICONF));
 
@@ -291,12 +291,12 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   out_head = make_messagehead_5(kb);
   if (!out_head) return 58;
   out_parity = (unsigned int *)&out_head[1];
-  out_match = &out_parity[(kb->diffnumber + 31) / 32];
+  out_match = &out_parity[(kb->diffBlockCount + 31) / 32];
 
-  lost_bits = kb->diffnumber; /* to keep track of lost bits */
+  lost_bits = kb->diffBlockCount; /* to keep track of lost bits */
 
   /* go through all entries */
-  for (i = 0; i < kb->diffnumber; i++) {
+  for (i = 0; i < kb->diffBlockCount; i++) {
     parityresult <<= 1;
     matchresult <<= 1; /* make more room */
     /* first, determine parity on local inverval */
@@ -366,8 +366,8 @@ int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
     out_parity[i / 32] = parityresult << (32 - (i & 31));
   }
 
-  /* update outgoing info leakagebits */
-  kb->leakagebits += lost_bits;
+  /* update outgoing info leakageBits */
+  kb->leakageBits += lost_bits;
 
   /* mark message for sending */
   insert_sendpacket((char *)out_head, out_head->bytelength);
@@ -396,7 +396,7 @@ int initiate_biconf(ProcessBlock *kb) {
 
   /* update state variables */
   kb->biconflength = kb->workbits; /* old was /2 - do we still need this? */
-  kb->RNG_state = seed;
+  kb->rngState = seed;
 
   /* generate local bit string for test mask */
   generate_BICONF_bitstring(kb);
@@ -405,11 +405,11 @@ int initiate_biconf(ProcessBlock *kb) {
   h6->tag = ERRC_PROTO_tag;
   h6->bytelength = sizeof(struct ERRC_ERRDET_6);
   h6->subtype = ERRC_ERRDET_6_subtype;
-  h6->epoch = kb->startepoch;
-  h6->number_of_epochs = kb->numberofepochs;
+  h6->epoch = kb->startEpoch;
+  h6->number_of_epochs = kb->numberOfEpochs;
   h6->seed = seed;
   h6->number_of_bits = kb->biconflength;
-  kb->binsearch_depth = 0; /* keep it to main buffer TODO: is this relevant? */
+  kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
 
   /* submit message */
   insert_sendpacket((char *)h6, h6->bytelength);
@@ -441,18 +441,18 @@ int generate_biconfreply(char *receivebuf) {
   }
 
   /* update thread status */
-  switch (kb->processingstate) {
+  switch (kb->processingState) {
     case PRS_PERFORMEDPARITY1:                /* just finished BICONF */
-      kb->processingstate = PRS_DOING_BICONF; /* update state */
-      kb->biconf_round = 0;                   /* first round */
+      kb->processingState = PRS_DOING_BICONF; /* update state */
+      kb->biconfRound = 0;                   /* first round */
       break;
     case PRS_DOING_BICONF: /* already did a biconf */
-      kb->biconf_round++;  /* increment processing round; more checks? */
+      kb->biconfRound++;  /* increment processing round; more checks? */
       break;
   }
   /* extract number of bits and seed */
   bitlen = in_head->number_of_bits; /* do more checks? */
-  kb->RNG_state = in_head->seed;    /* check for 0?*/
+  kb->rngState = in_head->seed;    /* check for 0?*/
   kb->biconflength = bitlen;
 
   /* prepare permutation list */
@@ -467,14 +467,14 @@ int generate_biconfreply(char *receivebuf) {
   h7->tag = ERRC_PROTO_tag;
   h7->bytelength = sizeof(struct ERRC_ERRDET_7);
   h7->subtype = ERRC_ERRDET_7_subtype;
-  h7->epoch = kb->startepoch;
-  h7->number_of_epochs = kb->numberofepochs;
+  h7->epoch = kb->startEpoch;
+  h7->number_of_epochs = kb->numberOfEpochs;
 
   /* evaluate the parity (updated to use testbit buffer */
-  h7->parity = single_line_parity(kb->testmarker, 0, bitlen - 1);
+  h7->parity = single_line_parity(kb->testedBitsMarker, 0, bitlen - 1);
 
   /* update bitloss */
-  kb->leakagebits++; /* one is lost */
+  kb->leakageBits++; /* one is lost */
 
   /* send out response header */
   insert_sendpacket((char *)h7, h7->bytelength);
@@ -499,14 +499,14 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   struct ERRC_ERRDET_5 *h5;       /* pointer to first message */
   unsigned int *h5_data, *h5_idx; /* data pointers */
 
-  kb->diffnumber = 1;
+  kb->diffBlockCount = 1;
   kb->diffidx[0] = 0;
   kb->diffidxe[0] = biconflength - 1;
 
   /* obsolete:
      kb->diffidx[1]=biconflength;kb->diffidxe[1]=kb->workbits-1; */
 
-  kb->binsearch_depth = RUNLEVEL_SECONDPASS; /* only pass 1 */
+  kb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* only pass 1 */
 
   /* prepare message buffer for first binsearch message  */
   msg5size =
@@ -519,13 +519,13 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   h5->tag = ERRC_PROTO_tag;
   h5->subtype = ERRC_ERRDET_5_subtype;
   h5->bytelength = msg5size;
-  h5->epoch = kb->startepoch;
-  h5->number_of_epochs = kb->numberofepochs;
-  h5->number_entries = kb->diffnumber;
+  h5->epoch = kb->startEpoch;
+  h5->number_of_epochs = kb->numberOfEpochs;
+  h5->number_entries = kb->diffBlockCount;
   h5->index_present = 4; /* NEW this round we have a start/stop table */
 
   /* keep local status and indicate the BICONF round to Alice */
-  h5->runlevel = kb->binsearch_depth | RUNLEVEL_BICONF;
+  h5->runlevel = kb->binarySearchDepth | RUNLEVEL_BICONF;
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
   h5_idx = &h5_data[1];
@@ -537,10 +537,10 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
 
   /* set parity */
   h5_data[0] =
-      (single_line_parity(kb->testmarker, 0, biconflength / 2 - 1) << 31);
+      (single_line_parity(kb->testedBitsMarker, 0, biconflength / 2 - 1) << 31);
 
   /* increment lost bits */
-  kb->leakagebits += 1;
+  kb->leakageBits += 1;
 
   /* send out message */
   insert_sendpacket((char *)h5, msg5size);
@@ -573,15 +573,15 @@ int start_binarysearch(char *receivebuf) {
   }
 
   /* prepare local parity info */
-  kb->RNG_state = in_head->seed; /* new rng seed */
+  kb->rngState = in_head->seed; /* new rng seed */
   prepare_permutation(kb);       /* also updates workbits */
 
-  /* update partition numbers and leakagebits */
+  /* update partition numbers and leakageBits */
   kb->partitions0 = (kb->workbits + kb->k0 - 1) / kb->k0;
   kb->partitions1 = (kb->workbits + kb->k1 - 1) / kb->k1;
 
   /* freshen up internal info on bit numbers etc */
-  kb->leakagebits += kb->partitions0 + kb->partitions1;
+  kb->leakageBits += kb->partitions0 + kb->partitions1;
 
   /* prepare parity list and difference buffers  */
   l0 = (kb->partitions0 + 31) / 32;
@@ -599,15 +599,15 @@ int start_binarysearch(char *receivebuf) {
          (l0 + l1) * 4);
 
   /* fill local parity list, get the number of differences */
-  kb->diffnumber = do_paritylist_and_diffs(kb, 0);
-  if (kb->diffnumber == -1) return 74;
-  kb->diffnumber_max = kb->diffnumber;
+  kb->diffBlockCount = do_paritylist_and_diffs(kb, 0);
+  if (kb->diffBlockCount == -1) return 74;
+  kb->diffBlockCountMax = kb->diffBlockCount;
 
   /* reserve difference index memory for pass 0 */
   kb->diffidx =
-      (unsigned int *)malloc2(kb->diffnumber * sizeof(unsigned int) * 2);
+      (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
   if (!kb->diffidx) return 54;                 /* can't malloc */
-  kb->diffidxe = &kb->diffidx[kb->diffnumber]; /* end of interval */
+  kb->diffidxe = &kb->diffidx[kb->diffBlockCount]; /* end of interval */
 
   /* now hand over to the procedure preoaring the first binsearch msg
      for the first pass 0 */
@@ -654,7 +654,7 @@ int process_binarysearch(char *receivebuf) {
    lists and does corrections if necessary.
    initiates the next step (BICONF on pass 1) for the next round if ready.
 
-   Note: uses globalvar biconf_rounds
+   Note: uses globalvar biconfRounds
 
  * @param kb processblock ptr
  * @param in_head header of incoming type-5 ec packet
@@ -676,46 +676,46 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   int biconfmark; /* indicates if this is a biconf round */
 
   inh_data = (unsigned int *)&in_head[1];          /* parity pattern */
-  inh_idx = &inh_data[(kb->diffnumber + 31) / 32]; /* index or matching part */
+  inh_idx = &inh_data[(kb->diffBlockCount + 31) / 32]; /* index or matching part */
 
   /* repair index according to previous basis match */
   fix_parity_intervals(kb, inh_idx);
 
   /* other stuff in local keyblk to update */
-  kb->leakagebits += kb->diffnumber;           /* for incoming parity bits */
-  kb->binsearch_depth = in_head->runlevel + 1; /* better some checks? */
+  kb->leakageBits += kb->diffBlockCount;           /* for incoming parity bits */
+  kb->binarySearchDepth = in_head->runlevel + 1; /* better some checks? */
 
   /* prepare outgoing message header */
   out_head = make_messagehead_5(kb);
   if (!out_head) return 58;
   out_parity = (unsigned int *)&out_head[1];
-  out_match = &out_parity[((kb->diffnumber + 31) / 32)];
+  out_match = &out_parity[((kb->diffBlockCount + 31) / 32)];
 
-  lost_bits = kb->diffnumber; /* initially we will loose those for outgoing
+  lost_bits = kb->diffBlockCount; /* initially we will loose those for outgoing
                                  parity bits */
 
   /* make pass-dependent settings */
-  thispass = (kb->binsearch_depth & RUNLEVEL_LEVELMASK) ? 1 : 0;
+  thispass = (kb->binarySearchDepth & RUNLEVEL_LEVELMASK) ? 1 : 0;
 
   switch (thispass) {
     case 0: /* level 0 */
-      d = kb->mainbuf;
+      d = kb->mainBufPtr;
       break;
     case 1: /* level 1 */
-      d = kb->permutebuf;
+      d = kb->permuteBufPtr;
   }
 
   biconfmark = 0; /* default is no biconf */
 
   /* select test buffer in case this is a BICONF test round */
-  if (kb->binsearch_depth & RUNLEVEL_BICONF) {
+  if (kb->binarySearchDepth & RUNLEVEL_BICONF) {
     biconfmark = 1;
-    d = kb->testmarker;
-    d2 = kb->permutebuf; /* for repairing also the permuted buffer */
+    d = kb->testedBitsMarker;
+    d2 = kb->permuteBufPtr; /* for repairing also the permuted buffer */
   }
 
   /* go through all entries */
-  for (i = 0; i < kb->diffnumber; i++) {
+  for (i = 0; i < kb->diffBlockCount; i++) {
     matchresult <<= 1;
     parityresult <<= 1; /* make room for next bits */
     /* first, determine parity on local inverval */
@@ -729,7 +729,7 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
     if (fbi == lbi) { /* we have found the bit error */
       if (biconfmark) correct_bit(d2, fbi);
       correct_bit(d, fbi);
-      kb->correctederrors++;
+      kb->correctedErrors++;
       lost_bits -= 2;           /* No initial parity, no outgoing */
       kb->diffidx[i] = fbi + 1; /* mark as emty */
       goto skipparity;          /* no more parity evaluation, skip rest */
@@ -757,7 +757,7 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
     if (fbi == lbi) { /* end of interval, correct for error */
       if (biconfmark) correct_bit(d2, fbi);
       correct_bit(d, fbi);
-      kb->correctederrors++;
+      kb->correctedErrors++;
       lost_bits--; /* we don't reveal anything on this one anymore */
       goto skipparity;
     }
@@ -787,17 +787,17 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   }
 
   /* a blocklength k decides on a max number of rounds */
-  if ((kb->binsearch_depth & RUNLEVEL_ROUNDMASK) <
-      get_order_2((kb->processingstate == PRS_DOING_BICONF)
+  if ((kb->binarySearchDepth & RUNLEVEL_ROUNDMASK) <
+      get_order_2((kb->processingState == PRS_DOING_BICONF)
                       ? (kb->biconflength)
                       : (thispass ? kb->k1 : kb->k0))) {
     /* need to continue with this search; make packet 5 ready to send */
-    kb->leakagebits += lost_bits;
+    kb->leakageBits += lost_bits;
     insert_sendpacket((char *)out_head, out_head->bytelength);
     return 0;
   }
 
-  kb->leakagebits += lost_bits; /* correction for unreceived parity bits and
+  kb->leakageBits += lost_bits; /* correction for unreceived parity bits and
                                    nonsent parities */
 
   /* cleanup changed bits in the other permuted field */
@@ -805,18 +805,18 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
 
   /* prepare for alternate round; start with re-evaluation of parity. */
   while (1) { /* just a break construction.... */
-    kb->binsearch_depth = thispass ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS;
-    kb->diffnumber =
+    kb->binarySearchDepth = thispass ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS;
+    kb->diffBlockCount =
         do_paritylist_and_diffs(kb, 1 - thispass);       /* new differences */
-    if (kb->diffnumber == -1) return 74;                 /* wrong pass */
-    if ((kb->diffnumber == 0) && (thispass == 1)) break; /* no more errors */
-    if (kb->diffnumber > kb->diffnumber_max) {           /* need more space */
+    if (kb->diffBlockCount == -1) return 74;                 /* wrong pass */
+    if ((kb->diffBlockCount == 0) && (thispass == 1)) break; /* no more errors */
+    if (kb->diffBlockCount > kb->diffBlockCountMax) {           /* need more space */
       free2(kb->diffidx); /* re-assign diff buf */
-      kb->diffnumber_max = kb->diffnumber;
+      kb->diffBlockCountMax = kb->diffBlockCount;
       kb->diffidx =
-          (unsigned int *)malloc2(kb->diffnumber * sizeof(unsigned int) * 2);
+          (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
       if (!kb->diffidx) return 54;                 /* can't malloc */
-      kb->diffidxe = &kb->diffidx[kb->diffnumber]; /* end of interval */
+      kb->diffidxe = &kb->diffidx[kb->diffBlockCount]; /* end of interval */
     }
 
     /* do basically a start_binarysearch for next round */
@@ -827,15 +827,15 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
      errors in both passes.  */
 
   /* check for biconf reply  */
-  if (kb->processingstate ==
+  if (kb->processingState ==
       PRS_DOING_BICONF) { /* we are finally finished
                                                                    with the
                              BICONF corrections */
     /* update biconf status */
-    kb->biconf_round++;
+    kb->biconfRound++;
 
     /* eventully generate new biconf request */
-    if (kb->biconf_round < arguments.biconf_rounds) {
+    if (kb->biconfRound < arguments.biconfRounds) {
       return initiate_biconf(kb); /* request another one */
     }
     /* initiate the privacy amplificaton */
@@ -846,8 +846,8 @@ int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
      in BICONF mode */
 
   /* initiate the BICONF state */
-  kb->processingstate = PRS_DOING_BICONF;
-  kb->biconf_round = 0; /* first BICONF round */
+  kb->processingState = PRS_DOING_BICONF;
+  kb->biconfRound = 0; /* first BICONF round */
   return initiate_biconf(kb);
 }
 
@@ -874,13 +874,13 @@ int receive_biconfreply(char *receivebuf) {
     return 49;
   }
 
-  kb->binsearch_depth = RUNLEVEL_SECONDPASS; /* use permuted buf */
+  kb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* use permuted buf */
 
   /* update incoming bit leakage */
-  kb->leakagebits++;
+  kb->leakageBits++;
 
   /* evaluate local parity */
-  localparity = single_line_parity(kb->testmarker, 0, kb->biconflength - 1);
+  localparity = single_line_parity(kb->testedBitsMarker, 0, kb->biconflength - 1);
 
   /* eventually start binary search */
   if (localparity != in_head->parity) {
@@ -889,10 +889,10 @@ int receive_biconfreply(char *receivebuf) {
   /* this location gets ONLY visited if there is no error in BICONF search */
 
   /* update biconf status */
-  kb->biconf_round++;
+  kb->biconfRound++;
 
   /* eventully generate new biconf request */
-  if (kb->biconf_round < arguments.biconf_rounds) {
+  if (kb->biconfRound < arguments.biconfRounds) {
     return initiate_biconf(kb); /* request another one */
   }
   /* initiate the privacy amplificaton */

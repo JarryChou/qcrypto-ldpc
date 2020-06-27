@@ -65,7 +65,7 @@ int check_epochoverlap(unsigned int epoch, int num);
 
 /// @name THREAD MANAGEMENT MAIN FUNCTIONS
 /// @{
-int create_thread(unsigned int epoch, int num, float inierr, float BellValue);
+int create_thread(unsigned int epoch, int num, float inierr, float bellValue);
 ProcessBlock *get_thread(unsigned int epoch);
 int remove_thread(unsigned int epoch);
 /// @}

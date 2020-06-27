@@ -57,7 +57,7 @@
 /// @name COMMUNICATIONNS HELPER FUNCTIONS
 /// @{
 int insert_sendpacket(char *message, int length);
-struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded, int errormode, float BellValue);
+struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded, int errormode, float bellValue);
 struct ERRC_ERRDET_5 *make_messagehead_5(ProcessBlock *kb);
 int prepare_first_binsearch_msg(ProcessBlock *kb, int pass);
 /// @}

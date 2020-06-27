@@ -69,17 +69,17 @@ int parse_options(int argc, char *argv[]) {
       case 'p': arguments.disable_privacyamplification = 1; /* disable privacy amplification */
         break;
       case 'b': /* set BICONF rounds */
-        if (1 != sscanf(optarg, "%d", &arguments.biconf_rounds)) return -emsg(76);
-        if ((arguments.biconf_rounds <= 0) || (arguments.biconf_rounds > MAX_BICONF_ROUNDS))
+        if (1 != sscanf(optarg, "%d", &arguments.biconfRounds)) return -emsg(76);
+        if ((arguments.biconfRounds <= 0) || (arguments.biconfRounds > MAX_BICONF_ROUNDS))
           return -emsg(77);
         break;
       case 'B': /* take BER argument to determine biconf rounds */
         if (1 != sscanf(optarg, "%f", &biconf_BER)) return -emsg(78);
         if ((biconf_BER <= 0) || (biconf_BER > 1)) return -emsg(79);
-        arguments.biconf_rounds = (int)(-log(biconf_BER / AVG_BINSEARCH_ERR) / log(2));
-        if (arguments.biconf_rounds <= 0) arguments.biconf_rounds = 1; /* at least one */
-        if (arguments.biconf_rounds > MAX_BICONF_ROUNDS) return -emsg(77);
-        printf("biconf rounds used: %d\n", arguments.biconf_rounds);
+        arguments.biconfRounds = (int)(-log(biconf_BER / AVG_BINSEARCH_ERR) / log(2));
+        if (arguments.biconfRounds <= 0) arguments.biconfRounds = 1; /* at least one */
+        if (arguments.biconfRounds > MAX_BICONF_ROUNDS) return -emsg(77);
+        printf("biconf rounds used: %d\n", arguments.biconfRounds);
         break;
     }
   }
@@ -255,9 +255,9 @@ int process_command(char *cmd_input) {
   unsigned int newepoch; /* command parser */
   int newepochnumber;
   float newesterror = 0; /* for initial parsing of a block */
-  float BellValue;       /* for Ekert-type protocols */
+  float bellValue;       /* for Ekert-type protocols */
 
-  fieldsAssigned = sscanf(cmd_input, "%x %i %f %f", &newepoch, &newepochnumber, &newesterror, &BellValue);
+  fieldsAssigned = sscanf(cmd_input, "%x %i %f %f", &newepoch, &newepochnumber, &newesterror, &bellValue);
   printf("got cmd: epoch: %08x, num: %d, esterr: %f fieldsAssigned: %d\n", newepoch, newepochnumber, newesterror, fieldsAssigned);
   #ifdef DEBUG
   fflush(stdout);
@@ -269,7 +269,7 @@ int process_command(char *cmd_input) {
       return -emsg(30);                         /* not enough arguments */
     case 1: newepochnumber = 1;                 /* use default epoch number */
     case 2: newesterror = arguments.initialerr; // use default initial error rate, or error rate passed in
-    case 3: BellValue = PERFECT_BELL;           /* assume perfect Bell */
+    case 3: bellValue = PERFECT_BELL;           /* assume perfect Bell */
     case 4:                                     /* everything is there */
       // Parameter validation
       if (newesterror < 0 || newesterror > MAX_INI_ERR) { // error rate out of bounds
@@ -284,7 +284,7 @@ int process_command(char *cmd_input) {
       }
 
       /* create new thread */
-      if ((errcode = create_thread(newepoch, newepochnumber, newesterror, BellValue))) {
+      if ((errcode = create_thread(newepoch, newepochnumber, newesterror, bellValue))) {
         if (arguments.runtimeerrormode != END_ON_ERR) break;
         return errcode; /* error reading files */
       }
