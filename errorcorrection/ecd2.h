@@ -153,7 +153,7 @@
  *        24.10.08         fixed error estimation for BB84
  * 
  * 
- *        introduce rawbuf variable to clean buffer in keyblock struct (status?)
+ *        introduce rawbuf variable to clean buffer in processblock struct (status?)
  * 
  * modified version of errcd to take care of the followig problems:
  *    - initial key permutation
@@ -205,7 +205,7 @@
 /// @name GLOBAL VARIABLES (defined in globalvar.h)
 /// @{
 /* structs */
-struct blockpointer *blocklist = NULL;
+ProcessBlockDequeNode *blocklist = NULL;
 struct packet_to_send *next_packet_to_send = NULL;
 struct packet_to_send *last_packet_to_send = NULL;
 

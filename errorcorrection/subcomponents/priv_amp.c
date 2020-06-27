@@ -32,10 +32,10 @@ float binentrop(float q) {
  *  Sends out a message with
    a PRNG seed (message 8), and hand over to the core routine for the PA.
  * 
- * @param kb keyblock ptr
+ * @param kb processblock ptr
  * @return int 0 if success, otherwise error code
  */
-int initiate_privacyamplification(struct keyblock *kb) {
+int initiate_privacyamplification(ProcessBlock *kb) {
   unsigned int seed;
   struct ERRC_ERRDET_8 *h8; /* head for trigger message */
 
@@ -72,7 +72,7 @@ int initiate_privacyamplification(struct keyblock *kb) {
  */
 int receive_privamp_msg(char *receivebuf) {
   struct ERRC_ERRDET_8 *in_head; /* holds header */
-  struct keyblock *kb;           /* poits to thread info */
+  ProcessBlock *kb;           /* poits to thread info */
 
   /* get pointers for header...*/
   in_head = (struct ERRC_ERRDET_8 *)receivebuf;
@@ -100,12 +100,12 @@ int receive_privamp_msg(char *receivebuf) {
    based on the lost bits, saves the final key and removes the thread from the
    list. 
  * 
- * @param kb keyblock ptr
+ * @param kb processblock ptr
  * @param seed 
  * @param lostbits 
  * @return int 0 if success, otherwise error code
  */
-int do_privacy_amplification(struct keyblock *kb, unsigned int seed,
+int do_privacy_amplification(ProcessBlock *kb, unsigned int seed,
                              int lostbits) {
   int sneakloss;
   float trueerror, safe_error;

@@ -50,7 +50,7 @@
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
 #include "../definitions/proc_state.h"
-#include "../definitions/keyblock.h"
+#include "../definitions/processblock.h"
 #include "../definitions/packets.h"
 #include "../../packetheaders/pkt_header_3.h"
 #include "../../packetheaders/pkt_header_7.h"
@@ -66,7 +66,7 @@ int check_epochoverlap(unsigned int epoch, int num);
 /// @name THREAD MANAGEMENT MAIN FUNCTIONS
 /// @{
 int create_thread(unsigned int epoch, int num, float inierr, float BellValue);
-struct keyblock *get_thread(unsigned int epoch);
+ProcessBlock *get_thread(unsigned int epoch);
 int remove_thread(unsigned int epoch);
 /// @}
 

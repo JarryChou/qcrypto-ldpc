@@ -11,7 +11,7 @@
  * @return int 0 if requested epochs are not used yet, otherwise 1
  */
 int check_epochoverlap(unsigned int epoch, int num) {
-  struct blockpointer *bp = blocklist;
+  ProcessBlockDequeNode *bp = blocklist;
   unsigned int se;
   int en;
   while (bp) { /* as long as there are more blocks to test */
@@ -47,7 +47,7 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   unsigned int enu;
   int retval, i, bitcount;
   char ffnam[FNAMELENGTH + 10]; /* to store filename */
-  struct blockpointer *bp;      /* to hold new thread */
+  ProcessBlockDequeNode *bp;      /* to hold new thread */
   int getbytes;                 /* how much memory to ask for */
   unsigned int *rawmem;         /* to store raw key */
 
@@ -117,12 +117,12 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
   } /* now newindex contains the number of words for this key */
 
   /* create thread structure */
-  bp = (struct blockpointer *)malloc2(sizeof(struct blockpointer));
+  bp = (ProcessBlockDequeNode *)malloc2(sizeof(ProcessBlockDequeNode));
   if (!bp) return 34; /* malloc failed */
-  bp->content = (struct keyblock *)malloc2(sizeof(struct keyblock));
+  bp->content = (ProcessBlock *)malloc2(sizeof(ProcessBlock));
   if (!(bp->content)) return 34; /* malloc failed */
-  /* zero all otherwise unset keyblock entries */
-  bzero(bp->content, sizeof(struct keyblock));
+  /* zero all otherwise unset processblock entries */
+  bzero(bp->content, sizeof(ProcessBlock));
   /* how much memory is needed ?
      raw key, permuted key, test selection, two permutation indices */
   getbytes = newindex * 3 * sizeof(unsigned int) +
@@ -163,10 +163,10 @@ int create_thread(unsigned int epoch, int num, float inierr, float BellValue) {
  * @brief Function to obtain the pointer to the thread for a given epoch index.
  * 
  * @param epoch epoch 
- * @return struct keyblock* pointer to a keyblock, or NULL if none found
+ * @return ProcessBlock* pointer to a processblock, or NULL if none found
  */
-struct keyblock *get_thread(unsigned int epoch) {
-  struct blockpointer *bp = blocklist;
+ProcessBlock *get_thread(unsigned int epoch) {
+  ProcessBlockDequeNode *bp = blocklist;
   while (bp) {
     if (bp->epoch == epoch) return bp->content;
     bp = bp->next;
@@ -184,7 +184,7 @@ struct keyblock *get_thread(unsigned int epoch) {
  * @return int 0 if success, 1 for error
  */
 int remove_thread(unsigned int epoch) {
-  struct blockpointer *bp = blocklist;
+  ProcessBlockDequeNode *bp = blocklist;
   while (bp) {
     if (bp->epoch == epoch) break;
     bp = bp->next;

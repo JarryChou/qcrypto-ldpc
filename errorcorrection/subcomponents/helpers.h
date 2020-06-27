@@ -44,7 +44,7 @@
 #include <string.h>
 /// \endcond
 
-#include "../definitions/keyblock.h"
+#include "../definitions/processblock.h"
 
 #include "rnd.h"
 
@@ -106,9 +106,9 @@ void atohex(char *target, unsigned int v);
 
 /// @name HELPER PERMUTATION FUNCTIONS USED FOR QBER ESTIMATION & CASCADE
 /// @{
-void cleanup_revealed_bits(struct keyblock *kb);
-void prepare_permut_core(struct keyblock *kb);
-void prepare_permutation(struct keyblock *kb);
+void cleanup_revealed_bits(ProcessBlock *kb);
+void prepare_permut_core(ProcessBlock *kb);
+void prepare_permutation(ProcessBlock *kb);
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
 /// @}
 

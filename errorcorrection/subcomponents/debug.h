@@ -48,7 +48,7 @@
 /// \endcond
 
 // Definitions
-#include "../definitions/keyblock.h"
+#include "../definitions/processblock.h"
 
 // Definitions to enable certain debugging parts of the code
 #define DEBUG 1
@@ -59,9 +59,9 @@
 /// @{
 char *malloc2(unsigned int s);
 void free2(void *p);
-void dumpmsg(struct keyblock *kb, char *msg);
-void dumpstate(struct keyblock *kb);
-void output_permutation(struct keyblock *kb);
+void dumpmsg(ProcessBlock *kb, char *msg);
+void dumpstate(ProcessBlock *kb);
+void output_permutation(ProcessBlock *kb);
 /// @}
 
 #endif /* ECD2_DEBUG */

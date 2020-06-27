@@ -46,7 +46,7 @@
 
 // Definition files
 #include "../definitions/proc_state.h"
-#include "../definitions/keyblock.h"
+#include "../definitions/processblock.h"
 #include "../definitions/packets.h"
 #include "../definitions/globalvars.h"
 
@@ -57,9 +57,9 @@
 /// @name COMMUNICATIONNS HELPER FUNCTIONS
 /// @{
 int insert_sendpacket(char *message, int length);
-struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded, int errormode, float BellValue);
-struct ERRC_ERRDET_5 *make_messagehead_5(struct keyblock *kb);
-int prepare_first_binsearch_msg(struct keyblock *kb, int pass);
+struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded, int errormode, float BellValue);
+struct ERRC_ERRDET_5 *make_messagehead_5(ProcessBlock *kb);
+int prepare_first_binsearch_msg(ProcessBlock *kb, int pass);
 /// @}
 
 #endif /* ECD2_COMMS */

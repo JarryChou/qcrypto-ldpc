@@ -6,8 +6,8 @@
   
   Decides via a parameter in kb->binsearch_depth MSB what polarity to take.
 
-  @param kb ptr to keyblock to fix */
-void fix_permutedbits(struct keyblock *kb) {
+  @param kb ptr to processblock to fix */
+void fix_permutedbits(ProcessBlock *kb) {
   int i, k;
   unsigned int *src, *dst;
   unsigned short *idx; /* pointers to data loc and permute idx */
@@ -33,10 +33,10 @@ void fix_permutedbits(struct keyblock *kb) {
 /** @brief Helper function to generate a pseudorandom bit pattern into the test bit
    buffer. 
    
-  @param kb keyblock pointer (kb contains other params for final parity test)
+  @param kb processblock pointer (kb contains other params for final parity test)
   @param seed seed for the RNG
  */
-void generate_selectbitstring(struct keyblock *kb, unsigned int seed) {
+void generate_selectbitstring(ProcessBlock *kb, unsigned int seed) {
   int i;                                    /* number of bits to be set */
   kb->RNG_state = seed;                     /* set new seed */
   for (i = 0; i < (kb->workbits) / 32; i++) /* take care of the full bits */
@@ -51,9 +51,9 @@ void generate_selectbitstring(struct keyblock *kb, unsigned int seed) {
      
    For a more compact parity generation in the last round.
 
-   @param kb keyblock pointer (kb contains other params for final parity test)
+   @param kb processblock pointer (kb contains other params for final parity test)
  */
-void generate_BICONF_bitstring(struct keyblock *kb) {
+void generate_BICONF_bitstring(ProcessBlock *kb) {
   int i;                                      /* number of bits to be set */
   for (i = 0; i < (kb->workbits) / 32; i++) { /* take care of the full bits */
     kb->testmarker[i] = PRNG_value2_32(&kb->RNG_state) &
@@ -68,11 +68,11 @@ void generate_BICONF_bitstring(struct keyblock *kb) {
 /** @brief Helper function to prepare a parity list of a given pass in a block, compare
    it with the received list & return number of differing bits
    
-  @param kb keyblock pointer
+  @param kb processblock pointer
   @param pass pass 
   @return Number of differing bits  
  */
-int do_paritylist_and_diffs(struct keyblock *kb, int pass) {
+int do_paritylist_and_diffs(ProcessBlock *kb, int pass) {
   int numberofbits = 0;
   int i, partitions;          /* counting index, num of blocks */
   unsigned int *lp, *rp, *pd; /* local/received & diff parity pointer */
@@ -112,11 +112,11 @@ int do_paritylist_and_diffs(struct keyblock *kb, int pass) {
  * 
  * no weired stuff should happen.
  * 
- * @param kb keyblock pointer
+ * @param kb processblock pointer
  * @param inh_idx inh_index 
   * @return Number of initially dead intervals 
   */
-void fix_parity_intervals(struct keyblock *kb, unsigned int *inh_idx) {
+void fix_parity_intervals(ProcessBlock *kb, unsigned int *inh_idx) {
   int i, fbi, lbi;                       /* running index */
   for (i = 0; i < kb->diffnumber; i++) { /* go through all different blocks */
     fbi = kb->diffidx[i];
@@ -200,11 +200,11 @@ int single_line_parity_masked(unsigned int *d, unsigned int *m, int start,
  * 
  * Note that this marks a packet to be sent by insert_sendpacket.
  * 
- * @param kb keyblock ptr
+ * @param kb processblock ptr
  * @param in_head header for incoming request
  * @return error code, 0 if success
  */
-int process_binsearch_alice(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head) {
+int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   struct ERRC_ERRDET_5 *out_head; /* for reply message */
@@ -381,10 +381,10 @@ int process_binsearch_alice(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head) 
  * generate_BICONF_bitstring into kb, then
  * sends out a package calling for a BICONF reply.
  * 
- * @param kb keyblock pointer
+ * @param kb processblock pointer
  * @return error code, 0 if success
  */
-int initiate_biconf(struct keyblock *kb) {
+int initiate_biconf(ProcessBlock *kb) {
   struct ERRC_ERRDET_6 *h6; /* header for that message */
   unsigned int seed;        /* seed for permutation */
 
@@ -427,7 +427,7 @@ int initiate_biconf(struct keyblock *kb) {
 int generate_biconfreply(char *receivebuf) {
   struct ERRC_ERRDET_6 *in_head; /* holds received message header */
   struct ERRC_ERRDET_7 *h7;      /* holds response message header */
-  struct keyblock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to thread info */
   int bitlen;                    /* number of bits requested */
 
   /* get pointers for header...*/
@@ -490,11 +490,11 @@ int generate_biconfreply(char *receivebuf) {
    unpermuted short sample with nuch less bits.
  * On success, a binarysearch packet gets emitted with 2 list entries.
  * 
- * @param kb keyblock ptr
+ * @param kb processblock ptr
  * @param biconflength length of biconf
  * @return error code, 0 if success. 
  */
-int initiate_biconf_binarysearch(struct keyblock *kb, int biconflength) {
+int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   unsigned int msg5size;          /* size of message */
   struct ERRC_ERRDET_5 *h5;       /* pointer to first message */
   unsigned int *h5_data, *h5_idx; /* data pointers */
@@ -559,7 +559,7 @@ int initiate_biconf_binarysearch(struct keyblock *kb, int biconflength) {
  */
 int start_binarysearch(char *receivebuf) {
   struct ERRC_ERRDET_4 *in_head; /* holds received message header */
-  struct keyblock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to thread info */
   int l0, l1;                    /* helpers;  number of words for bitarrays */
 
   /* get pointers for header...*/
@@ -626,7 +626,7 @@ int start_binarysearch(char *receivebuf) {
  */
 int process_binarysearch(char *receivebuf) {
   struct ERRC_ERRDET_5 *in_head; /* holds received message header */
-  struct keyblock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to thread info */
 
   /* get pointers for header...*/
   in_head = (struct ERRC_ERRDET_5 *)receivebuf;
@@ -656,11 +656,11 @@ int process_binarysearch(char *receivebuf) {
 
    Note: uses globalvar biconf_rounds
 
- * @param kb keyblock ptr
+ * @param kb processblock ptr
  * @param in_head header of incoming type-5 ec packet
  * @return error code, 0 if success 
  */
-int process_binsearch_bob(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head) {
+int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   struct ERRC_ERRDET_5 *out_head; /* for reply message */
@@ -861,7 +861,7 @@ int process_binsearch_bob(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head) {
   */
 int receive_biconfreply(char *receivebuf) {
   struct ERRC_ERRDET_7 *in_head; /* holds received message header */
-  struct keyblock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to thread info */
   int localparity;
 
   /* get pointers for header...*/

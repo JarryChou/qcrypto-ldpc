@@ -40,13 +40,13 @@ int insert_sendpacket(char *message, int length) {
  * Modified to tell the other side about the Bell value for privacy amp in
  * the device indep mode
  * 
- * @param kb Pointer to the keyblock
+ * @param kb Pointer to the processblock
  * @param bitsneeded 
  * @param errormode 0 for normal error est, err*2^16 forskip
  * @param BellValue 
  * @return struct ERRC_ERRDET_0* pointer tht emessage, NULL on error
  */
-struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
+struct ERRC_ERRDET_0 *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
                                         int errormode, float BellValue) {
   int msgsize;                 /* keeps size of message */
   struct ERRC_ERRDET_0 *msg1;  /* for header to be sent */
@@ -73,7 +73,7 @@ struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
   msg1->BellValue = BellValue;
 
   /* determine random number order needed for given bitlength */
-  /* can this go into the keyblock preparation ??? */
+  /* can this go into the processblock preparation ??? */
   rn_order = get_order_2(kb->initialbits);
   /* mark selected bits in this stream and fill this structure with bits */
   localdata = 0;                     /* storage for bits */
@@ -112,7 +112,7 @@ struct ERRC_ERRDET_0 *fillsamplemessage(struct keyblock *kb, int bitsneeded,
  * @param kb 
  * @return struct ERRC_ERRDET_5* 
  */
-struct ERRC_ERRDET_5 *make_messagehead_5(struct keyblock *kb) {
+struct ERRC_ERRDET_5 *make_messagehead_5(ProcessBlock *kb) {
   int msglen; /* length of outgoing structure (data+header) */
   struct ERRC_ERRDET_5 *out_head;                 /* return value */
   msglen = ((kb->diffnumber + 31) / 32) * 4 * 2 + /* two bitfields */
@@ -139,13 +139,13 @@ struct ERRC_ERRDET_5 *make_messagehead_5(struct keyblock *kb) {
    reside in the proper arrays. This function will be called several times for
    different passes; it expexts local parities to be evaluated already.
  * 
- * @param kb keyblock ptr
+ * @param kb processblock ptr
  * @param pass pass number
  * @return int 0 on success, error code otherwise
  */
-int prepare_first_binsearch_msg(struct keyblock *kb, int pass) {
+int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
   int i, j;                             /* index variables */
-  int k;                                /* length of keyblocks */
+  int k;                                /* length of processblocks */
   unsigned int *pd;                     /* parity difference bitfield pointer */
   unsigned int msg5size;                /* size of message */
   struct ERRC_ERRDET_5 *h5;             /* pointer to first message */
@@ -209,7 +209,7 @@ int prepare_first_binsearch_msg(struct keyblock *kb, int pass) {
   /* prepare parity results */
   resbuf = 0;
   tmp_par = 0;
-  for (i = 0; i < kb->diffnumber; i++) {          /* go through all keyblocks */
+  for (i = 0; i < kb->diffnumber; i++) {          /* go through all processblocks */
     kdiff = kb->diffidxe[i] - kb->diffidx[i] + 1; /* left length */
     fbi = kb->diffidx[i];
     lbi = fbi + kdiff / 2 - 1; /* first and last bitidx */

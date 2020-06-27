@@ -24,7 +24,7 @@ COMPONENTS OF ECD2
 
 DEFINITION FILES
 * packets.h
-* keyblock.h
+* processblock.h
 * proc_state.h
 * globalvars.h
 

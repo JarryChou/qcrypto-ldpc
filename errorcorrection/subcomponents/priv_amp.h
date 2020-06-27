@@ -47,7 +47,7 @@
 // Definition header files
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
-#include "../definitions/keyblock.h"
+#include "../definitions/processblock.h"
 #include "../definitions/packets.h"
 #include "../../packetheaders/pkt_header_7.h"
 
@@ -65,9 +65,9 @@ float binentrop(float q);
 
 /// @name PRIVACY AMPLIFICATION MAIN FUNCTIONS
 /// @{
-int initiate_privacyamplification(struct keyblock *kb);
+int initiate_privacyamplification(ProcessBlock *kb);
 int receive_privamp_msg(char *receivebuf);
-int do_privacy_amplification(struct keyblock *kb, unsigned int seed, int lostbits);
+int do_privacy_amplification(ProcessBlock *kb, unsigned int seed, int lostbits);
 /// @}
 
 #endif /* ECD2_PRIV_AMP */

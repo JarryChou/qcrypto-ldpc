@@ -1,5 +1,5 @@
-/** @file keyblock.h: 
- * @brief Header file containing the definitions of the keyblock & block related data
+/** @file processblock.h: 
+ * @brief Header file containing the definitions of the processblock & block related data
    for the error correction procedure.
    
  Part of the quantum key distribution software. This 
@@ -25,12 +25,12 @@
  Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-#ifndef EC_KEYBLOCK_H
-#define EC_KEYBLOCK_H
+#ifndef EC_PROCESSBLOCK_H
+#define EC_PROCESSBLOCK_H
 
-/** @struct keyblock
+/** @struct processblock
  * @brief Definition of a structure containing all informations about a block */
-typedef struct keyblock {
+typedef struct processblock {
   unsigned int startepoch;          /**< initial epoch of block */
   unsigned int numberofepochs;      /**< number of consecutive epochs being processed */
   unsigned int *rawmem;             /**< buffer root for freeing block afterwards */
@@ -66,7 +66,7 @@ typedef struct keyblock {
   int correctederrors;              /**< number of corrected bits */
   int finalkeybits;                 /**< how much is left */
   float BellValue;                  /**< for Ekert-type protocols */
-} kblock;
+} ProcessBlock;
 
 /** @struct blockpointer
  * @brief Structure to hold list of blocks. 
@@ -75,9 +75,9 @@ typedef struct keyblock {
  */
 typedef struct blockpointer {
   unsigned int epoch;
-  struct keyblock *content;      /**< the gory details */
+  ProcessBlock *content;      /**< the gory details */
   struct blockpointer *next;     /**< next in chain; if NULL then end */
   struct blockpointer *previous; /**< previous block */
-} erc_bp__;
+} ProcessBlockDequeNode;
 
 #endif

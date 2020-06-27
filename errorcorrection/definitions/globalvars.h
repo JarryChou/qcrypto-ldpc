@@ -94,7 +94,7 @@ extern Arguments arguments; /**< contains arguments read in when initializing pr
 
 /// @name Global variables used by thread_mgmt 
 /// @{
-extern struct blockpointer *blocklist;
+extern ProcessBlockDequeNode *blocklist;
 /// @}
 
 /// @name Global variables used by comms

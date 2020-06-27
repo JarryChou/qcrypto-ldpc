@@ -48,7 +48,7 @@
 // Definitions
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
-#include "../definitions/keyblock.h"
+#include "../definitions/processblock.h"
 #include "../definitions/packets.h"
 #include "../definitions/proc_state.h"
 
@@ -62,16 +62,16 @@
 
 /// @name PERMUTATION HELPER FUNCTIONS
 /// @{
-void fix_permutedbits(struct keyblock *kb); 
+void fix_permutedbits(ProcessBlock *kb); 
 /// @}
 
 
 /// @name CASCADE BICONF HELPER FUNCTIONS
 /// @{
-void generate_selectbitstring(struct keyblock *kb, unsigned int seed);
-void generate_BICONF_bitstring(struct keyblock *kb);
-int do_paritylist_and_diffs(struct keyblock *kb, int pass);
-void fix_parity_intervals(struct keyblock *kb, unsigned int *inh_idx);
+void generate_selectbitstring(ProcessBlock *kb, unsigned int seed);
+void generate_BICONF_bitstring(ProcessBlock *kb);
+int do_paritylist_and_diffs(ProcessBlock *kb, int pass);
+void fix_parity_intervals(ProcessBlock *kb, unsigned int *inh_idx);
 void correct_bit(unsigned int *d, int bitindex);
 int single_line_parity(unsigned int *d, int start, int end);
 int single_line_parity_masked(unsigned int *d, unsigned int *m, int start, int end);
@@ -79,13 +79,13 @@ int single_line_parity_masked(unsigned int *d, unsigned int *m, int start, int e
 
 /// @name CASCADE BICONF MAIN FUNCTIONS
 /// @{
-int process_binsearch_alice(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head);
-int initiate_biconf(struct keyblock *kb);
+int process_binsearch_alice(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head);
+int initiate_biconf(ProcessBlock *kb);
 int generate_biconfreply(char *receivebuf);
-int initiate_biconf_binarysearch(struct keyblock *kb, int biconflength);
+int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength);
 int start_binarysearch(char *receivebuf);
 int process_binarysearch(char *receivebuf);
-int process_binsearch_bob(struct keyblock *kb, struct ERRC_ERRDET_5 *in_head);
+int process_binsearch_bob(ProcessBlock *kb, struct ERRC_ERRDET_5 *in_head);
 int receive_biconfreply(char *receivebuf);
 /// @}
 

@@ -8,11 +8,11 @@
  * No return value,
    as no errors are tested here.
  * 
- * @param kb pointer to keyblock
+ * @param kb pointer to processblock
  * @param d0 pointer to target parity buffer 0
  * @param d1 pointer to paritybuffer 1
  */
-void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1) {
+void prepare_paritylist1(ProcessBlock *kb, unsigned int *d0, unsigned int *d1) {
   prepare_paritylist_basic(kb->mainbuf, d0, kb->k0, kb->workbits);
   prepare_paritylist_basic(kb->permutebuf, d1, kb->k1, kb->workbits);
   return;
@@ -48,7 +48,7 @@ int testbits_needed(float e) {
  * @return int 0 on success, error code otherwise
  */
 int errorest_1(unsigned int epoch) {
-  struct keyblock *kb;        /* points to current keyblock */
+  ProcessBlock *kb;        /* points to current processblock */
   float f_inierr, f_di;       /* for error estimation */
   int bits_needed;            /* number of bits needed to send */
   struct ERRC_ERRDET_0 *msg1; /* for header to be sent */
@@ -98,7 +98,7 @@ int errorest_1(unsigned int epoch) {
  */
 int process_esti_message_0(char *receivebuf) {
   struct ERRC_ERRDET_0 *in_head; /* holds header */
-  struct keyblock *kb;           /* points to thread info */
+  ProcessBlock *kb;           /* points to thread info */
   unsigned int *in_data;         /* holds input data bits */
   /* int retval; */
   int i, seen_errors, rn_order, bipo;
@@ -271,7 +271,7 @@ int process_esti_message_0(char *receivebuf) {
  */
 int send_more_esti_bits(char *receivebuf) {
   struct ERRC_ERRDET_2 *in_head; /* holds header */
-  struct keyblock *kb;           /* poits to thread info */
+  ProcessBlock *kb;           /* poits to thread info */
   int bitsneeded;                /* number of bits needed to send */
   struct ERRC_ERRDET_0 *msg1;    /* for header to be sent */
 
@@ -312,7 +312,7 @@ int send_more_esti_bits(char *receivebuf) {
  */
 int prepare_dualpass(char *receivebuf) {
   struct ERRC_ERRDET_3 *in_head; /* holds header */
-  struct keyblock *kb;           /* poits to thread info */
+  ProcessBlock *kb;           /* poits to thread info */
   float localerror, ldi;
   int errormark, newbitsneeded;
   unsigned int newseed; /* seed for permutation */

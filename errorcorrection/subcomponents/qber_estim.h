@@ -45,7 +45,7 @@
 
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
-#include "../definitions/keyblock.h"
+#include "../definitions/processblock.h"
 #include "../definitions/packets.h"
 #include "../definitions/proc_state.h"
 
@@ -66,7 +66,7 @@ enum ReplyMode {
 
 /// @name ERROR ESTIMATION HELPER FUNCTIONS
 /// @{
-void prepare_paritylist1(struct keyblock *kb, unsigned int *d0, unsigned int *d1);
+void prepare_paritylist1(ProcessBlock *kb, unsigned int *d0, unsigned int *d1);
 /// @}
 
 /// @name ERROR ESTIMATION MAIN FUNCTIONS

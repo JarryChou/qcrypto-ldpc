@@ -39,10 +39,10 @@ int mdmpidx = 0; /**< Debug value for printing */
 /**
  * @brief Helper to dump message into a file
  * 
- * @param kb keyblock pointer
+ * @param kb processblock pointer
  * @param msg message to dump to file
  */
-void dumpmsg(struct keyblock *kb, char *msg) {
+void dumpmsg(ProcessBlock *kb, char *msg) {
   char dumpname[200];
   int dha; /* handle */
   int tosend = ((unsigned int *)msg)[1];
@@ -73,12 +73,12 @@ int dumpindex = 0; /**< Debug value for printing */
 /**
  * @brief Helper function to dump the state of the system to a disk file . 
  * 
- * Dumps the keyblock structure, if present the buffer files, the parity files and the
+ * Dumps the processblock structure, if present the buffer files, the parity files and the
    diffidx buffers as plain binaries
  * 
- * @param kb keyblock pointer
+ * @param kb processblock pointer
  */
-void dumpstate(struct keyblock *kb) {
+void dumpstate(ProcessBlock *kb) {
   char dumpname[200];
   int dha; /* handle */
 
@@ -89,7 +89,7 @@ void dumpstate(struct keyblock *kb) {
   sprintf(dumpname, "kbdump_%1d_%03d", kb->role, dumpindex);
   dumpindex++;
   dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
-  if (write(dha, kb, sizeof(struct keyblock)) == -1) {
+  if (write(dha, kb, sizeof(ProcessBlock)) == -1) {
     fprintf(stderr, "dump fail (1)\n");
   }
   if (kb->mainbuf)
@@ -115,9 +115,9 @@ void dumpstate(struct keyblock *kb) {
 /**
  * @brief for debug: output permutation
  * 
- * @param kb keyblock pointer
+ * @param kb processblock pointer
  */
-void output_permutation(struct keyblock *kb) {
+void output_permutation(ProcessBlock *kb) {
   char name[200] = "permutlist_";
   FILE *fp;
   int i;

@@ -70,7 +70,7 @@ void atohex(char *target, unsigned int v) {
  * 
  * @param kb 
  */
-void cleanup_revealed_bits(struct keyblock *kb) {
+void cleanup_revealed_bits(ProcessBlock *kb) {
   int lastbit = kb->initialbits - 1;
   unsigned int *d = kb->mainbuf;    /* data buffer */
   unsigned int *m = kb->testmarker; /* index for spent bits */
@@ -114,9 +114,9 @@ void cleanup_revealed_bits(struct keyblock *kb) {
  * oes also re-ordering (in future), and truncates the discussed key to a
    length of multiples of k1so there are noleftover bits in the two passes.
  * 
- * @param kb pointer to keyblock
+ * @param kb pointer to processblock
  */
-void prepare_permutation(struct keyblock *kb) {
+void prepare_permutation(ProcessBlock *kb) {
   int workbits;
   unsigned int *tmpbuf;
 
@@ -149,9 +149,9 @@ void prepare_permutation(struct keyblock *kb) {
 /**
  * @brief permutation core function; is used both for biconf and initial permutation
  * 
- * @param kb ptr to keyblock
+ * @param kb ptr to processblock
  */
-void prepare_permut_core(struct keyblock *kb) {
+void prepare_permut_core(ProcessBlock *kb) {
   int workbits;
   unsigned int rn_order;
   int i, j, k;
