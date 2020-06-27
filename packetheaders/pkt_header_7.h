@@ -7,7 +7,7 @@
 typedef struct header_7 { /* header for type-7 stream packet */
   int tag;
   unsigned int epoc;
-  unsigned int numberofepochs;
+  unsigned int numberOfEpochs;
   int numberofbits;
 } h7;
 
