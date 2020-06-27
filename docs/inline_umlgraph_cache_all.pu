@@ -1,0 +1,4 @@
+@startuml inline_umlgraph_1.png
+    Test->Test2  : Command()
+    Test<--Test2 : Ack()
+@enduml

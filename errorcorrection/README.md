@@ -29,4 +29,7 @@ DEFINITION FILES
 * globalvars.h
 
 Internals Procedure
-* 
+@startuml
+    Test->Test2  : Command()
+    Test<--Test2 : Ack()
+@enduml
