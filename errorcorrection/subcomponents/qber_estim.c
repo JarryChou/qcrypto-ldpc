@@ -197,7 +197,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
   processBlock->estimatedSampleSize += in_head->numberofbits;
 
   /* do the error estimation */
-  rn_order = get_order_2(processBlock->initialBits);
+  rn_order = log2Ceil(processBlock->initialBits);
   for (i = 0; i < (in_head->numberofbits); i++) {
     while (True) { /* generate a bit position */
       bipo = PRNG_value2(rn_order, &processBlock->rngState);

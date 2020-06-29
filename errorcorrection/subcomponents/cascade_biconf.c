@@ -103,7 +103,7 @@ int do_paritylist_and_diffs(ProcessBlock *kb, int pass) {
   /* evaluate parity mismatch  */
   for (i = 0; i < ((partitions + 31) / 32); i++) {
     pd[i] = lp[i] ^ rp[i];
-    numberofbits += count_set_bits(pd[i]);
+    numberofbits += countSetBits(pd[i]);
   }
   return numberofbits;
 }
@@ -862,7 +862,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
 
   /* a blocklength k decides on a max number of rounds */
   if ((kb->binarySearchDepth & RUNLEVEL_ROUNDMASK) <
-      get_order_2((kb->processingState == PRS_DOING_BICONF)
+      log2Ceil((kb->processingState == PRS_DOING_BICONF)
                       ? (kb->biconflength)
                       : (thispass ? kb->k1 : kb->k0))) {
     /* need to continue with this search; make packet 5 ready to send */

@@ -66,7 +66,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
 
   /* determine random number order needed for given bitlength */
   /* can this go into the processblock preparation ??? */
-  rn_order = get_order_2(processBlock->initialBits);
+  rn_order = log2Ceil(processBlock->initialBits);
   /* mark selected bits in this stream and fill this structure with bits */
   localdata = 0;                     /* storage for bits */
   for (i = 0; i < bitsneeded; i++) { /* count through all needed bits */

@@ -2,48 +2,6 @@
 
 // GENERAL HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
-
-/**
- * @brief helper to obtain the smallest power of two to carry a number a
- * 
- * @param a 
- * @return int 
- */
-int get_order(int a) {
-  unsigned int order = 0xffffffff;
-  while ((order & a) == a) order >>= 1;
-  return (order << 1) + 1;
-}
-
-/**
- * @brief get the number of bits necessary to carry a number x
- * 
- * result is e.g. 3 for parameter 8, 5 for parameter 17 etc. 
- * 
- * @param x 
- * @return int 
- */
-int get_order_2(int x) {
-  int x2;
-  int retval = 0;
-  for (x2 = x - 1; x2; x2 >>= 1) retval++;
-  return retval;
-}
-
-/**
- * @brief count the number of set bits in a longint
- * 
- * @param a 
- * @return int 
- */
-int count_set_bits(unsigned int a) {
-  int c = 0;
-  unsigned int i;
-  for (i = 1; i; i <<= 1)
-    if (i & a) c++;
-  return c;
-}
-
 char hexdigits[] = "0123456789abcdef";
 /**
  * @brief helper for name. adds a slash, hex file name and a terminal 0
@@ -156,7 +114,7 @@ void prepare_permut_core(ProcessBlock *kb) {
   unsigned int rn_order;
   int i, j, k;
   workbits = kb->workbits;
-  rn_order = get_order_2(workbits);
+  rn_order = log2Ceil(workbits);
 
   #ifdef SYSTPERMUTATION
 
@@ -228,10 +186,12 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
     } /* tmp_par holds now a combination of bits to be tested */
     resbuf =
         (resbuf << 1) + parity(tmp_par); /* shift parity result in buffer */
-    if ((blkidx & 31) == 31) t[blkidx / 32] = resbuf; /* save in target */
+    if ((blkidx & 31) == 31) 
+      t[blkidx / 32] = resbuf; /* save in target */
     blkidx++;
   }
   /* cleanup residual parity buffer */
-  if (blkidx & 31) t[blkidx / 32] = resbuf << (32 - (blkidx & 31));
+  if (blkidx & 31) 
+    t[blkidx / 32] = resbuf << (32 - (blkidx & 31));
   return;
 }

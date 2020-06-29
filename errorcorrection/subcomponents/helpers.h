@@ -42,6 +42,7 @@
 /// \cond for doxygen annotation
 #include <math.h>
 #include <string.h>
+#include <stdint.h>
 /// \endcond
 
 #include "../definitions/processblock.h"
@@ -97,9 +98,8 @@ __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
 
 /// @name GENERAL HELPER FUNCTIONS
 /// @{
-int get_order(int a);
-int get_order_2(int x); 
-int count_set_bits(unsigned int a);
+#define log2Ceil(X) ((X) ? (32 - __builtin_clz(X)) : 0) ///< See https://stackoverflow.com/questions/671815/what-is-the-fastest-most-efficient-way-to-find-the-highest-set-bit-msb-in-an-i
+#define countSetBits __builtin_popcount ///< See https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
 void atohex(char *target, unsigned int v);
 /// @}
 
