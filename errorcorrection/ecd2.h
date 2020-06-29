@@ -123,7 +123,7 @@
  *                         4: same as 2, but with explicit number of leaked bits
  *                            in the error correction procedure
  *                         5: same as 4, but with plain text comments
- *   -I                    skip_qber_estimation. If this option is on, the initial
+ *   -I                    skipQberEstimation. If this option is on, the initial
  *                         error measurement for block optimization is skipped,
  *                         and the default value or supplied value is chosen. This
  *                         option should increase the efficiency of the key
@@ -218,7 +218,7 @@ Arguments arguments = {
     DEFAULT_INITIAL_ERR,        // initialerr
     DEFAULT_INTRINSIC,          // intrinsicerr
     DEFAULT_KILLMODE,           // remove_raw_keys_after_use
-    DEFAULT_ERR_SKIPMODE,       // skip_qber_estimation
+    DEFAULT_ERR_SKIPMODE,       // skipQberEstimation
     False,                      // bellmode
     False                       // disable_privacyamplification
                                 // fname

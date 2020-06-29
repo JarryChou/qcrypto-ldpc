@@ -62,7 +62,7 @@ int parse_options(int argc, char *argv[]) {
         if ((arguments.runtimeerrormode < 0) || (arguments.runtimeerrormode > MAXRUNTIMEERROR))
           return -emsg(16);
         break;
-      case 'I': arguments.skip_qber_estimation = 1; /* skip initial error measurement */
+      case 'I': arguments.skipQberEstimation = 1; /* skip initial error measurement */
         break;
       case 'i': arguments.bellmode = 1; /* expect a bell value for sneakage estimation */
         break;

@@ -77,7 +77,7 @@ struct arguments {
     /// @name booleans
     /// @{
     Boolean remove_raw_keys_after_use;
-    Boolean skip_qber_estimation; /**< used by qber_estim */
+    Boolean skipQberEstimation; /**< used by qber_estim */
     Boolean bellmode;   /**< Expect to receive a value for the Bell violation  param, used by priv_amp */
     Boolean disable_privacyamplification; /**< used by priv_amp  */
     //// @}

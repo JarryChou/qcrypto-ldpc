@@ -12,7 +12,7 @@
  * @param d0 pointer to target parity buffer 0
  * @param d1 pointer to paritybuffer 1
  */
-void prepare_paritylist1(ProcessBlock *processBlock, unsigned int *d0, unsigned int *d1) {
+void prepareParityList1(ProcessBlock *processBlock, unsigned int *d0, unsigned int *d1) {
   prepare_paritylist_basic(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
   prepare_paritylist_basic(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
   return;
@@ -60,7 +60,7 @@ float calculateLocalError(ProcessBlock *processBlock, enum REPLY_MODE* replyMode
     if (ldi <= 0.) { /* ignore key bits : send error number to terminate */
       *replyModeResult = REPLYMODE_TERMINATE;
     } else {
-      *newBitsNeededResult = testbits_needed(localError);
+      *newBitsNeededResult = testBitsNeeded(localError);
       if (*newBitsNeededResult > processBlock->initialBits) { /* will never work */
         *replyModeResult = REPLYMODE_TERMINATE;
       } else {
@@ -75,8 +75,6 @@ float calculateLocalError(ProcessBlock *processBlock, enum REPLY_MODE* replyMode
   return localError;
 }
 
-// ERROR ESTIMATION MAIN FUNCTIONS
-/* ------------------------------------------------------------------------ */
 /**
  * @brief function to provide the number of bits needed in the initial error estimation.
  * 
@@ -87,7 +85,7 @@ float calculateLocalError(ProcessBlock *processBlock, enum REPLY_MODE* replyMode
  * @param e local error (estimated or guessed)
  * @return int returns a number of bits
  */
-int testbits_needed(float e) {
+int testBitsNeeded(float e) {
   float ldi;
   int bn;
   ldi = USELESS_ERRORBOUND - e; /* difference to useless bound */
@@ -96,17 +94,19 @@ int testbits_needed(float e) {
   return bn;
 }
 
+// ERROR ESTIMATION MAIN FUNCTIONS
+/* ------------------------------------------------------------------------ */
 /**
  * @brief function to initiate the error estimation procedure.
  * 
- * Note: uses globalvar skip_qber_estimation
+ * Note: uses globalvar skipQberEstimation
  * 
  * @param epoch start epoch
  * @return int 0 on success, error code otherwise
  */
 int qber_beginErrorEstimation(unsigned int epoch) {
-  ProcessBlock *processBlock;        /* points to current processblock */
-  float f_inierr, f_di;       /* for error estimation */
+  ProcessBlock *processBlock; /* points to current processblock */
+  float f_inierr;       /* for error estimation */
   int bits_needed;            /* number of bits needed to send */
   EcPktHdr_QberEstBits *msg1; /* for header to be sent */
 
@@ -114,34 +114,29 @@ int qber_beginErrorEstimation(unsigned int epoch) {
 
   /* set role in block to alice (initiating the seed) in keybloc struct */
   processBlock->processorRole = ALICE;
-  /* seed the rng, (the state has to be kept with the processblock, use a lock
-     system for the rng in case several ) */
+  processBlock->skipQberEstim = arguments.skipQberEstimation;
+  /* seed the rng, (the state has to be kept with the processblock, use a lock system for the rng in case several ) */
   // processBlock->RNG_usage = 0; /* use simple RNG */
   if (!(processBlock->rngState = get_r_seed())) return 39;
 
-  /*  evaluate how many bits are needed in this round */
-  f_inierr = processBlock->initialError / 65536.; /* float version */
-
-  if (arguments.skip_qber_estimation) { /* don't do error estimation */
-    processBlock->skipQberEstim = 1;
-    msg1 = fillsamplemessage(processBlock, 1, processBlock->initialError, processBlock->bellValue);
+  if (processBlock->skipQberEstim) {
+    msg1 = comms_createQberEstBitsMsg(processBlock, 1, processBlock->initialError, processBlock->bellValue);
   } else {
-    processBlock->skipQberEstim = 0;
-    f_di = USELESS_ERRORBOUND - f_inierr;
-    if (f_di <= 0) return 41; /* no error extractable */
-    bits_needed = testbits_needed(f_inierr);
-
+    /* do a very rough estimation on how many bits are needed in this round */
+    f_inierr = processBlock->initialError / 65536.; /* float version */
+    if (USELESS_ERRORBOUND - f_inierr <= 0) return 41; /* no error extractable */
+    bits_needed = testBitsNeeded(f_inierr);
     if (bits_needed >= processBlock->initialBits) return 42; /* not possible */
     /* fill message with sample bits */
-    msg1 = fillsamplemessage(processBlock, bits_needed, 0, processBlock->bellValue);
+    msg1 = comms_createQberEstBitsMsg(processBlock, bits_needed, 0, processBlock->bellValue);
   }
+
   if (!msg1) return 43; /* a malloc error occured */
 
   /* send this structure to the other side */
   comms_insertSendPacket((char *)msg1, msg1->base.totalLengthInBytes);
 
-  /* go dormant again.  */
-  return 0;
+  return 0; /* go dormant again.  */
 }
 
 /**
@@ -285,7 +280,7 @@ int qber_processMoreEstBitsReq(ProcessBlock *processBlock, char *receivebuf) {
   bitsneeded = in_head->requestedbits;
 
   /* prepare a response message block / fill the response with sample bits */
-  msg1 = fillsamplemessage(processBlock, bitsneeded, 0, processBlock->bellValue);
+  msg1 = comms_createQberEstBitsMsg(processBlock, bitsneeded, 0, processBlock->bellValue);
   if (!msg1) return 43; /* a malloc error occured */
   /* adjust message reply to hide the seed/indicate a second reply */
   msg1->seed = 0;
@@ -370,7 +365,7 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   h4->totalbits = processBlock->workbits;
 
   /* evaluate parity in blocks */
-  prepare_paritylist1(processBlock, h4_d0, h4_d1);
+  prepareParityList1(processBlock, h4_d0, h4_d1);
 
   /* update status */
   processBlock->processingState = PRS_PERFORMEDPARITY1;

@@ -46,9 +46,7 @@ int comms_insertSendPacket(char *message, int length) {
  * @param bellValue 
  * @return EcPktHdr_QberEstBits* pointer tht emessage, NULL on error
  */
-EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
-                                        int errormode, float bellValue) {
-  int msgsize;                 /* keeps size of message */
+EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int bitsneeded, int errormode, float bellValue) {
   EcPktHdr_QberEstBits *msg1;  /* for header to be sent */
   unsigned int *msg1_data;     /* pointer to data array */
   int i, bipo, rn_order;       /* counting index, bit position */
@@ -56,36 +54,30 @@ EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
 
   /* prepare a structure to be sent out to the other side */
   /* first: get buffer.... */
-  msgsize = sizeof(EcPktHdr_QberEstBits) + 4 * ((bitsneeded + 31) / 32);
-  msg1 = (EcPktHdr_QberEstBits *)malloc2(msgsize);
-  if (!msg1) return NULL; /* cannot malloc */
-  /* ...extract pointer to data structure... */
-  msg1_data = (unsigned int *)&msg1[1];
+  i = comms_createHeader((char **)&msg1, SUBTYPE_QBER_EST_BITS, 4 * ((bitsneeded + 31) / 32), processBlock);
+  if (i) return NULL; /* cannot malloc */
   /* ..fill header.... */
-  msg1->base.tag = EC_PACKET_TAG;
-  msg1->base.totalLengthInBytes = msgsize;
-  msg1->base.subtype = SUBTYPE_QBER_EST_BITS;
-  msg1->base.epoch = kb->startEpoch;
-  msg1->base.numberOfEpochs = kb->numberOfEpochs;
-  msg1->seed = kb->rngState; /* this is the seed */
+  msg1->seed = processBlock->rngState; /* this is the seed */
   msg1->numberofbits = bitsneeded;
   msg1->fixedErrorRate = errormode;
   msg1->bellValue = bellValue;
+  /* ...extract pointer to data structure... */
+  msg1_data = (unsigned int *)&msg1[1];
 
   /* determine random number order needed for given bitlength */
   /* can this go into the processblock preparation ??? */
-  rn_order = get_order_2(kb->initialBits);
+  rn_order = get_order_2(processBlock->initialBits);
   /* mark selected bits in this stream and fill this structure with bits */
   localdata = 0;                     /* storage for bits */
   for (i = 0; i < bitsneeded; i++) { /* count through all needed bits */
     do {                             /* generate a bit position */
-      bipo = PRNG_value2(rn_order, &kb->rngState);
-      if (bipo > kb->initialBits) continue;          /* out of range */
+      bipo = PRNG_value2(rn_order, &processBlock->rngState);
+      if (bipo > processBlock->initialBits) continue;          /* out of range */
       bpm = bt_mask(bipo);                           /* bit mask */
-      if (kb->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
+      if (processBlock->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
       /* got finally a bit */
-      kb->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
-      if (kb->mainBufPtr[bipo / 32] & bpm) localdata |= bt_mask(i);
+      processBlock->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
+      if (processBlock->mainBufPtr[bipo / 32] & bpm) localdata |= bt_mask(i);
       if ((i & 31) == 31) {
         msg1_data[i / 32] = localdata;
         localdata = 0; /* reset buffer */
@@ -100,8 +92,8 @@ EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
   } /* there was something left */
 
   /* update processblock structure with used bits */
-  kb->leakageBits += bitsneeded;
-  kb->processingState = PRS_WAITRESPONSE1;
+  processBlock->leakageBits += bitsneeded;
+  processBlock->processingState = PRS_WAITRESPONSE1;
 
   return msg1; /* pointer to message */
 }
@@ -112,22 +104,16 @@ EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded,
  * @param kb 
  * @return EcPktHdr_CascadeBinSearchMsg* 
  */
-EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *kb) {
-  int msglen; /* length of outgoing structure (data+header) */
-  EcPktHdr_CascadeBinSearchMsg *out_head;                 /* return value */
-  msglen = ((kb->diffBlockCount + 31) / 32) * 4 * 2 + /* two bitfields */
-           sizeof(EcPktHdr_CascadeBinSearchMsg);          /* ..plus one header */
-  out_head = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msglen);
-  if (!out_head) return NULL;
-  out_head->base.tag = EC_PACKET_TAG;
-  out_head->base.totalLengthInBytes = msglen;
-  out_head->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
-  out_head->base.epoch = kb->startEpoch;
-  out_head->base.numberOfEpochs = kb->numberOfEpochs;
-  out_head->number_entries = kb->diffBlockCount;
-  out_head->index_present = 0;              /* this is an ordidary reply */
-  out_head->runlevel = kb->binarySearchDepth; /* next round */
-
+EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *processBlock) {
+  int errorCode; /* length of outgoing structure (data+header) */
+  EcPktHdr_CascadeBinSearchMsg *out_head;
+  errorCode = comms_createHeader((char **)&out_head, SUBTYPE_CASCADE_BIN_SEARCH_MSG, 
+      ((processBlock->diffBlockCount + 31) / 32) * 4 * 2, /* two bitfields */
+      processBlock);
+  if (errorCode) return NULL;
+  out_head->number_entries = processBlock->diffBlockCount;
+  out_head->runlevel = processBlock->binarySearchDepth; /* next round */
+  out_head->index_present = 0;              /* this is an ordinary reply */
   return out_head;
 }
 
@@ -139,15 +125,15 @@ EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *kb) {
    reside in the proper arrays. This function will be called several times for
    different passes; it expexts local parities to be evaluated already.
  * 
- * @param kb processblock ptr
+ * @param processBlock processblock ptr
  * @param pass pass number
  * @return int 0 on success, error code otherwise
  */
-int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
+int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   int i, j;                             /* index variables */
   int k;                                /* length of processblocks */
   unsigned int *pd;                     /* parity difference bitfield pointer */
-  unsigned int msg5size;                /* size of message */
+  unsigned int msg5SizeExcludeHeader;   /* size of message excluding header */
   EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
   unsigned int *h5_data, *h5_idx;       /* data pointers */
   unsigned int *d;                      /* temporary pointer on parity data */
@@ -157,16 +143,16 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
 
   switch (pass) { /* sort out specifics */
     case 0:       /* unpermutated pass */
-      pd = kb->pd0;
-      k = kb->k0;
-      partitions = kb->partitions0;
-      d = kb->mainBufPtr; /* unpermuted key */
+      pd = processBlock->pd0;
+      k = processBlock->k0;
+      partitions = processBlock->partitions0;
+      d = processBlock->mainBufPtr; /* unpermuted key */
       break;
     case 1: /* permutated pass */
-      pd = kb->pd1;
-      k = kb->k1;
-      partitions = kb->partitions1;
-      d = kb->permuteBufPtr; /* permuted key */
+      pd = processBlock->pd1;
+      k = processBlock->k1;
+      partitions = processBlock->partitions1;
+      d = processBlock->permuteBufPtr; /* permuted key */
       break;
     default:     /* illegal */
       return 59; /* illegal pass arg */
@@ -176,42 +162,38 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
   j = 0; /* index for mismatching blocks */
   for (i = 0; i < partitions; i++) {
     if (bt_mask(i) & pd[i / 32]) {       /* this block is mismatched */
-      kb->diffidx[j] = i * k;            /* store bit index, not block index */
-      kb->diffidxe[j] = i * k + (k - 1); /* last block */
+      processBlock->diffidx[j] = i * k;            /* store bit index, not block index */
+      processBlock->diffidxe[j] = i * k + (k - 1); /* last block */
       j++;
     }
   }
-  /* mark pass/round correctly in kb */
-  kb->binarySearchDepth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) |
+  /* mark pass/round correctly in processBlock */
+  processBlock->binarySearchDepth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) |
                         0; /* first round */
 
+  // Note: duplicate-ish code here with make_messagehead_5
   /* prepare message buffer for first binsearch message  */
-  msg5size = sizeof(EcPktHdr_CascadeBinSearchMsg) /* header need */
-             + ((kb->diffBlockCount + 31) / 32) *
-                   sizeof(unsigned int)               /* parity data need */
-             + kb->diffBlockCount * sizeof(unsigned int); /* indexing need */
-  h5 = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msg5size);
-  if (!h5) return 55;
-  h5_data = (unsigned int *)&h5[1]; /* start of data */
-  h5->base.tag = EC_PACKET_TAG;
-  h5->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
-  h5->base.totalLengthInBytes = msg5size;
-  h5->base.epoch = kb->startEpoch;
-  h5->base.numberOfEpochs = kb->numberOfEpochs;
-  h5->number_entries = kb->diffBlockCount;
+  msg5SizeExcludeHeader = ((processBlock->diffBlockCount + 31) / 32) *
+            sizeof(unsigned int)               /* parity data need */
+            + processBlock->diffBlockCount * sizeof(unsigned int); /* indexing need */
+  i = comms_createHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5SizeExcludeHeader, processBlock);
+  if (i) return 55;
+  h5->number_entries = processBlock->diffBlockCount;
+  h5->runlevel = processBlock->binarySearchDepth; /* keep local status */
   h5->index_present = 1;              /* this round we have an index table */
-  h5->runlevel = kb->binarySearchDepth; /* keep local status */
+
+  h5_data = (unsigned int *)&h5[1]; /* start of data */
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[((kb->diffBlockCount + 31) / 32)];
-  for (i = 0; i < kb->diffBlockCount; i++) h5_idx[i] = kb->diffidx[i];
+  h5_idx = &h5_data[((processBlock->diffBlockCount + 31) / 32)];
+  for (i = 0; i < processBlock->diffBlockCount; i++) h5_idx[i] = processBlock->diffidx[i];
 
   /* prepare parity results */
   resbuf = 0;
   tmp_par = 0;
-  for (i = 0; i < kb->diffBlockCount; i++) {          /* go through all processblocks */
-    kdiff = kb->diffidxe[i] - kb->diffidx[i] + 1; /* left length */
-    fbi = kb->diffidx[i];
+  for (i = 0; i < processBlock->diffBlockCount; i++) {          /* go through all processblocks */
+    kdiff = processBlock->diffidxe[i] - processBlock->diffidx[i] + 1; /* left length */
+    fbi = processBlock->diffidx[i];
     lbi = fbi + kdiff / 2 - 1; /* first and last bitidx */
     fi = fbi / 32;
     fm = firstmask(fbi & 31); /* beginning */
@@ -232,10 +214,10 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
     h5_data[i / 32] = resbuf << (32 - (i & 31)); /* last parity bits */
 
   /* increment lost bits */
-  kb->leakageBits += kb->diffBlockCount;
+  processBlock->leakageBits += processBlock->diffBlockCount;
 
   /* send out message */
-  comms_insertSendPacket((char *)h5, msg5size);
+  comms_insertSendPacket((char *)h5, msg5SizeExcludeHeader + sizeof(EcPktHdr_CascadeBinSearchMsg));
 
   return 0;
 }
@@ -255,15 +237,11 @@ int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsig
   EcPktHdr_Base* tmpBaseHdr; // Temporary pointer to point to the base
   unsigned int size = additionalByteLength; // Not good practice to reuse params, but this can be removed for micro-optimization
   switch (subtype) {
-    case SUBTYPE_QBER_EST_BITS_ACK:
-      size += sizeof(EcPktHdr_QberEstBitsAck);
-      break;
-    case SUBTYPE_QBER_EST_REQ_MORE_BITS:
-      size += sizeof(EcPktHdr_QberEstReqMoreBits);
-      break;
-    case SUBTYPE_CASCADE_PARITY_LIST:
-      size += sizeof(EcPktHdr_CascadeParityList);
-      break;
+    case SUBTYPE_QBER_EST_BITS:           size += sizeof(EcPktHdr_QberEstBits);         break;
+    case SUBTYPE_QBER_EST_BITS_ACK:       size += sizeof(EcPktHdr_QberEstBitsAck);      break;
+    case SUBTYPE_QBER_EST_REQ_MORE_BITS:  size += sizeof(EcPktHdr_QberEstReqMoreBits);  break;
+    case SUBTYPE_CASCADE_PARITY_LIST:     size += sizeof(EcPktHdr_CascadeParityList);   break;
+    case SUBTYPE_CASCADE_BIN_SEARCH_MSG:  size += sizeof(EcPktHdr_CascadeBinSearchMsg); break;
     default:
       #ifdef DEBUG
       printf("comms_createHeader processing unsupported type %d", subtype);
