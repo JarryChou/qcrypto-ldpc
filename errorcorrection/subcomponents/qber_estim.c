@@ -198,7 +198,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
   /* prepare reply message */
   if (replymode == replyMode_continue || replyMode_terminate) {
     // Prepare & send message
-    i = comms_createHeader(&h3, SUBTYPE_QBER_EST_BITS_ACK, kb->startEpoch, kb->numberOfEpochs);
+    i = comms_createHeader((char**)&h3, SUBTYPE_QBER_EST_BITS_ACK, kb->startEpoch, kb->numberOfEpochs);
     if (i) return i;
     h3->tested_bits = kb->leakageBits;
     h3->number_of_errors = kb->estimatedError;
@@ -221,7 +221,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     }
   } else if (replymode == replyMode_moreBits) {
       // Prepare & send message
-      i = comms_createHeader(&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, kb->startEpoch, kb->numberOfEpochs);
+      i = comms_createHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, kb->startEpoch, kb->numberOfEpochs);
       if (i) return i;
       h2->requestedbits = newbitsneeded - kb->estimatedSampleSize;
       comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);

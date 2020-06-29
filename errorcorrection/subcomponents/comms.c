@@ -252,20 +252,27 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
  * @param numberOfEpochs 
  * @return int 0 if succcess otherwise error code
  */
-int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsigned int epoch, unsigned int numberOfEpochs) {
+int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, 
+    unsigned int epoch, unsigned int numberOfEpochs) {
   EcPktHdr_Base* tmpBaseHdr; // Temporary pointer to point to the base
   unsigned int size;
   // Initialize a buffer 
   switch (subtype) {
     case SUBTYPE_QBER_EST_BITS_ACK:
       size = sizeof(EcPktHdr_QberEstBitsAck);
-      *resultingBufferPtr = (EcPktHdr_QberEstBitsAck *)malloc2(size);
       break;
     case SUBTYPE_QBER_EST_REQ_MORE_BITS:
       size = sizeof(EcPktHdr_QberEstReqMoreBits);
-      *resultingBufferPtr = (EcPktHdr_QberEstReqMoreBits *)malloc2(size);
       break;
+    default:
+      #ifdef DEBUG
+      printf("comms_createHeader processing unsupported type %d", subtype);
+      fflush(stdout);
+      #endif
+      return 81;
   }
+  // Initialize buffer
+  *resultingBufferPtr = malloc2(size);
   // If buffer not initialized
   if (!(*resultingBufferPtr)) return 43;
   // Initialize the base of the header
