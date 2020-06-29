@@ -47,7 +47,7 @@ int testbits_needed(float e) {
  * @param epoch start epoch
  * @return int 0 on success, error code otherwise
  */
-int errorest_1(unsigned int epoch) {
+int qber_beginErrorEstimation(unsigned int epoch) {
   ProcessBlock *kb;        /* points to current processblock */
   float f_inierr, f_di;       /* for error estimation */
   int bits_needed;            /* number of bits needed to send */
@@ -96,7 +96,7 @@ int errorest_1(unsigned int epoch) {
  * @param receivebuf pointer to the receivebuffer with both the header and the data section.
  * @return int 0 on success, otherwise error code
  */
-int processReceivedQberEstBits(char *receivebuf) {
+int qber_processReceivedQberEstBits(char *receivebuf) {
   EcPktHdr_QberEstBits *in_head; /* holds header */
   ProcessBlock *kb;           /* points to processblock info */
   unsigned int *in_data;         /* holds input data bits */
@@ -189,7 +189,7 @@ int processReceivedQberEstBits(char *receivebuf) {
   }
 
   #ifdef DEBUG
-  printf("processReceivedQberEstBits: estErr: %d errMode: %d \
+  printf("qber_processReceivedQberEstBits: estErr: %d errMode: %d \
  lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d\n",
     kb->estimatedError, kb->skipQberEstim, 
     localerror, kb->estimatedSampleSize, newbitsneeded, kb->initialBits);
@@ -244,28 +244,20 @@ int processReceivedQberEstBits(char *receivebuf) {
  * @param receivebuf pointer to the receive buffer containing the message.
  * @return int 0 on success, error code otherwise
  */
-int send_more_esti_bits(char *receivebuf) {
+int qber_processMoreEstBitsReq(ProcessBlock *processBlock, char *receivebuf) {
   EcPktHdr_QberEstReqMoreBits *in_head; /* holds header */
-  ProcessBlock *kb;           /* poits to processblock info */
   int bitsneeded;                /* number of bits needed to send */
   EcPktHdr_QberEstBits *msg1;    /* for header to be sent */
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_QberEstReqMoreBits *)receivebuf;
 
-  /* ...and find processblock: */
-  kb = getProcessBlock(in_head->base.epoch);
-  if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
-    return 49;
-  }
   /* extract relevant information from processblock */
   bitsneeded = in_head->requestedbits;
 
   /* prepare a response message block / fill the response with sample bits */
-  msg1 = fillsamplemessage(kb, bitsneeded, 0, kb->bellValue);
+  msg1 = fillsamplemessage(processBlock, bitsneeded, 0, processBlock->bellValue);
   if (!msg1) return 43; /* a malloc error occured */
-
   /* adjust message reply to hide the seed/indicate a second reply */
   msg1->seed = 0;
   /* send this structure to outgoing mailbox */

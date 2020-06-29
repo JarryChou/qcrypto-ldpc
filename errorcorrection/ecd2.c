@@ -292,7 +292,7 @@ int process_command(char *cmd_input) {
       }
 
       /* Initiate first step of error estimation */
-      if ((errorCode = errorest_1(newepoch))) {
+      if ((errorCode = qber_beginErrorEstimation(newepoch))) {
         if (arguments.runtimeerrormode != END_ON_ERR) break;
         return errorCode; /* error initiating err est */
       }
@@ -397,7 +397,7 @@ int main(int argc, char *argv[]) {
   processBlockDeque = NULL;      /* no active key blocks in memory */
   receivedPacketLinkedList = NULL; /* no receive packet s in queue */
   EcPktHdr_Base *tmpBaseHeader = NULL;
-  // char *;           /* pointer to the currently processed packet */
+  ProcessBlock *tmpProcessBlock = NULL;
   // Variables for command input
   char cmd_input[CMD_INBUFLEN];  /* For temporary storage of cmd input */
   cmd_input[0] = '\0';    /* buffer for commands */
@@ -487,43 +487,50 @@ int main(int argc, char *argv[]) {
         printf("received message, subtype: %d, len: %d\n", tmpBaseHeader->subtype, tmpBaseHeader->totalLengthInBytes);
         fflush(stdout);
         #endif
-        // Process packet based on the subtype
-        switch (tmpBaseHeader->subtype) {
-          case SUBTYPE_QBER_EST_BITS: /* received an error estimation packet */
-            errorCode = processReceivedQberEstBits(tempReceivedPacketNode->packet);
-            break;
 
-          case SUBTYPE_QBER_EST_REQ_MORE_BITS: /* received request for more bits */
-            errorCode = send_more_esti_bits(tempReceivedPacketNode->packet);
-            break;
+        // Separate the functions that do not require a non-null process block
+        if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
+          errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet);
+        } else {    
+          // Get the process block to process it on
+          tmpProcessBlock = getProcessBlock(tmpBaseHeader->epoch);
+          if (!tmpProcessBlock) {
+            errorCode = 48;
+          } else {
+            // Process packet based on the subtype
+            switch (tmpBaseHeader->subtype) {
+              case SUBTYPE_QBER_EST_REQ_MORE_BITS:
+                errorCode = qber_processMoreEstBitsReq(tmpProcessBlock, tempReceivedPacketNode->packet);
+                break;
+              case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
+                errorCode = prepare_dualpass(tempReceivedPacketNode->packet);
+                break;
 
-          case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
-            errorCode = prepare_dualpass(tempReceivedPacketNode->packet);
-            break;
+              case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
+                errorCode = start_binarysearch(tempReceivedPacketNode->packet);
+                break;
 
-          case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
-            errorCode = start_binarysearch(tempReceivedPacketNode->packet);
-            break;
+              case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
+                errorCode = process_binarysearch(tempReceivedPacketNode->packet);
+                break;
 
-          case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
-            errorCode = process_binarysearch(tempReceivedPacketNode->packet);
-            break;
+              case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
+                errorCode = generate_biconfreply(tempReceivedPacketNode->packet);
+                break;
 
-          case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-            errorCode = generate_biconfreply(tempReceivedPacketNode->packet);
-            break;
+              case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
+                errorCode = receive_biconfreply(tempReceivedPacketNode->packet);
+                break;
 
-          case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
-            errorCode = receive_biconfreply(tempReceivedPacketNode->packet);
-            break;
+              case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
+                errorCode = receive_privamp_msg(tempReceivedPacketNode->packet);
+                break;
 
-          case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
-            errorCode = receive_privamp_msg(tempReceivedPacketNode->packet);
-            break;
-
-          default: /* packet subtype not known */
-            fprintf(stderr, "received subtype %d; ", tmpBaseHeader->subtype);
-            errorCode = 45;
+              default: /* packet subtype not known */
+                fprintf(stderr, "received subtype %d; ", tmpBaseHeader->subtype);
+                errorCode = 45;
+            }
+          }
         }
       }
 
