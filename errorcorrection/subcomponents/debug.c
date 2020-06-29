@@ -53,7 +53,7 @@ void dumpmsg(ProcessBlock *kb, char *msg) {
   return; /* if debug is off */
   #endif
 
-  sprintf(dumpname, "msgdump_%1d_%03d", kb->role, mdmpidx);
+  sprintf(dumpname, "msgdump_%1d_%03d", kb->processorRole, mdmpidx);
   mdmpidx++;
   dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
   do {
@@ -86,7 +86,7 @@ void dumpstate(ProcessBlock *kb) {
   return; /* if debugging is off */
   #endif
 
-  sprintf(dumpname, "kbdump_%1d_%03d", kb->role, dumpindex);
+  sprintf(dumpname, "kbdump_%1d_%03d", kb->processorRole, dumpindex);
   dumpindex++;
   dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
   if (write(dha, kb, sizeof(ProcessBlock)) == -1) {
@@ -121,7 +121,7 @@ void output_permutation(ProcessBlock *kb) {
   char name[200] = "permutlist_";
   FILE *fp;
   int i;
-  sprintf(name, "permutelist_%d", kb->role);
+  sprintf(name, "permutelist_%d", kb->processorRole);
   fp = fopen(name, "w");
   for (i = 0; i < kb->workbits; i++)
     fprintf(fp, "%d %d\n", kb->permuteIndex[i], kb->reverseIndex[i]);

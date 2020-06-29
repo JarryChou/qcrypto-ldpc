@@ -198,7 +198,7 @@ int single_line_parity_masked(unsigned int *d, unsigned int *m, int start,
  * 
  * - work in progress, need do fix bitloss in last round
  * 
- * Note that this marks a packet to be sent by insert_sendpacket.
+ * Note that this marks a packet to be sent by comms_insertSendPacket.
  * 
  * @param kb processblock ptr
  * @param in_head header for incoming request
@@ -370,7 +370,7 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
   kb->leakageBits += lost_bits;
 
   /* mark message for sending */
-  insert_sendpacket((char *)out_head, out_head->base.totalLengthInBytes);
+  comms_insertSendPacket((char *)out_head, out_head->base.totalLengthInBytes);
 
   return 0;
 }
@@ -412,7 +412,7 @@ int initiate_biconf(ProcessBlock *kb) {
   kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
 
   /* submit message */
-  insert_sendpacket((char *)h6, h6->base.totalLengthInBytes);
+  comms_insertSendPacket((char *)h6, h6->base.totalLengthInBytes);
   return 0;
 }
 
@@ -477,7 +477,7 @@ int generate_biconfreply(char *receivebuf) {
   kb->leakageBits++; /* one is lost */
 
   /* send out response header */
-  insert_sendpacket((char *)h7, h7->base.totalLengthInBytes);
+  comms_insertSendPacket((char *)h7, h7->base.totalLengthInBytes);
 
   return 0; /* return nicely */
 }
@@ -543,7 +543,7 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   kb->leakageBits += 1;
 
   /* send out message */
-  insert_sendpacket((char *)h5, msg5size);
+  comms_insertSendPacket((char *)h5, msg5size);
 
   return 0;
 }
@@ -637,15 +637,13 @@ int process_binarysearch(char *receivebuf) {
     fprintf(stderr, "binsearch 5 epoch %08x: ", in_head->base.epoch);
     return 49;
   }
-  switch (kb->role) {
-    case 0: /* alice, passive part in binsearch */
-      return process_binsearch_alice(kb, in_head);
-    case 1: /* bob role; active part in binsearch */
-      return process_binsearch_bob(kb, in_head);
-    default:
-      return 56; /* illegal role */
+  if (kb->processorRole == ALICE) {
+    return process_binsearch_alice(kb, in_head);
+  } else if (kb->processorRole == BOB) {
+    return process_binsearch_bob(kb, in_head);
+  } else {
+    return 56; // Illegal role
   }
-  return 0; /* keep compiler happy */
 }
 
 /** @brief Bob's function to process a binarysearch request. 
@@ -793,7 +791,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
                       : (thispass ? kb->k1 : kb->k0))) {
     /* need to continue with this search; make packet 5 ready to send */
     kb->leakageBits += lost_bits;
-    insert_sendpacket((char *)out_head, out_head->base.totalLengthInBytes);
+    comms_insertSendPacket((char *)out_head, out_head->base.totalLengthInBytes);
     return 0;
   }
 

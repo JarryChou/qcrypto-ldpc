@@ -56,10 +56,11 @@
 
 /// @name COMMUNICATIONNS HELPER FUNCTIONS
 /// @{
-int insert_sendpacket(char *message, int length);
+int comms_insertSendPacket(char *message, int length);
 EcPktHdr_QberEstBits *fillsamplemessage(ProcessBlock *kb, int bitsneeded, int errormode, float bellValue);
 EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *kb);
 int prepare_first_binsearch_msg(ProcessBlock *kb, int pass);
+int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsigned int epoch, unsigned int numberOfEpochs) {
 /// @}
 
 #endif /* ECD2_COMMS */

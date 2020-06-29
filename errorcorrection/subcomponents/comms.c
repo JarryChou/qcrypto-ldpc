@@ -13,7 +13,7 @@
  * @param length length of strructure
  * @return int 0 if success, otherwise error code if malloc failure
  */
-int insert_sendpacket(char *message, int length) {
+int comms_insertSendPacket(char *message, int length) {
   struct packet_to_send *newpacket, *lp;
   // pidx++; // Unused global int variable
   newpacket = (struct packet_to_send *)malloc2(sizeof(struct packet_to_send));
@@ -235,7 +235,46 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
   kb->leakageBits += kb->diffBlockCount;
 
   /* send out message */
-  insert_sendpacket((char *)h5, msg5size);
+  comms_insertSendPacket((char *)h5, msg5size);
 
+  return 0;
+}
+
+/**
+ * @brief Helper function to create a message header.
+ * 
+ * It creates the buffer for you based on subtype & populates the packet with information that all packets include.
+ * 
+ * @param resultingBufferPtr this function will create a buffer based on the subtype. This is the address of the pointer you want to use to refer to the buffer.
+ * @param subtype 
+ * @param totalLengthInBytes 
+ * @param epoch 
+ * @param numberOfEpochs 
+ * @return int 0 if succcess otherwise error code
+ */
+int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsigned int epoch, unsigned int numberOfEpochs) {
+  EcPktHdr_Base* tmpBaseHdr; // Temporary pointer to point to the base
+  unsigned int size;
+  // Initialize a buffer 
+  switch (subtype) {
+    case SUBTYPE_QBER_EST_BITS_ACK:
+      size = sizeof(EcPktHdr_QberEstBitsAck);
+      *resultingBufferPtr = (EcPktHdr_QberEstBitsAck *)malloc2(size);
+      break;
+    case SUBTYPE_QBER_EST_REQ_MORE_BITS:
+      size = sizeof(EcPktHdr_QberEstReqMoreBits);
+      *resultingBufferPtr = (EcPktHdr_QberEstReqMoreBits *)malloc2(size);
+      break;
+  }
+  // If buffer not initialized
+  if (!(*resultingBufferPtr)) return 43;
+  // Initialize the base of the header
+  tmpBaseHdr = (EcPktHdr_Base*)(*resultingBufferPtr);
+  tmpBaseHdr->tag = EC_PACKET_TAG;
+  tmpBaseHdr->subtype = subtype;
+  tmpBaseHdr->totalLengthInBytes = size;
+  tmpBaseHdr->epoch = epoch;
+  tmpBaseHdr->numberOfEpochs = numberOfEpochs;
+  // Return success
   return 0;
 }

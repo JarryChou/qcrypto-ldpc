@@ -55,7 +55,7 @@ int initiate_privacyamplification(ProcessBlock *kb) {
   h8->correctedbits = kb->correctedErrors;
 
   /* insert message in msg pool */
-  insert_sendpacket((char *)h8, h8->base.totalLengthInBytes);
+  comms_insertSendPacket((char *)h8, h8->base.totalLengthInBytes);
 
   /* do actual privacy amplification */
   return do_privacy_amplification(kb, seed, kb->leakageBits);

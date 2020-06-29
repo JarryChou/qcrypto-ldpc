@@ -28,6 +28,14 @@
 #ifndef EC_PROCESSBLOCK_H
 #define EC_PROCESSBLOCK_H
 
+#include "defaultdefinitions.h"
+
+enum EC_PROCESSOR_ROLE {
+  ALICE = 0,
+  BOB = 1
+};
+typedef enum EC_PROCESSOR_ROLE PROCESSOR_ROLE;
+
 /** @struct processblock
  * @brief Definition of a structure containing all informations about a block */
 typedef struct processblock {
@@ -39,16 +47,16 @@ typedef struct processblock {
   unsigned int *testedBitsMarker;         /**< marks tested bits */
   unsigned short int *permuteIndex; /**< keeps permutation */
   unsigned short int *reverseIndex; /**< reverse permutation */
-  int role;                         /**< defines which role to take on a block: 0: Alice, 1: Bob */
+  PROCESSOR_ROLE processorRole;      /**< defines which role to take on a block: 0: Alice, 1: Bob */
   int initialBits;                  /**< bits to start with */
   int leakageBits;                  /**< information which has gone public */
   int processingState;              /**< determines processing status  current block. See defines below for interpretation */
   int initialError;                 /**< in multiples of 2^-16 */
-  int errormode;                    /**< determines if error estimation has to be done */
+  Boolean skipQberEstim;                    /**< determines if error estimation has to be done */
   int estimatedError;               /**< number of estimated error bits */
   int estimatedSampleSize;          /**< sample size for error  estimation  */
-  int finalerrors;                  /**< number of discovered errors */
-  int RNG_usage;                    /**< defines mode of randomness. 0: PRNG, 1: good stuff (which has not been implemented) */
+  // int finalerrors;                  /**< number of discovered errors */
+  // int RNG_usage;                    /**< defines mode of randomness. 0: PRNG, 1: good stuff (which has not been implemented) */
   unsigned int rngState;           /**< keeps the state of the PRNG for this processblock */
   int k0, k1;                       /**< binary block search lengths */
   int workbits;                     /**< bits to work with for BICONF/parity check */

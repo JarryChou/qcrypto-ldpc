@@ -321,6 +321,7 @@ static char *errormessage[] = {
     "biconf round number exceeds bounds of 1...100",
     "cannot parse final BER argument",
     "BER argument out of range",
+    "Reply mode out of bounds" // 80
 };
 /// @}
 
