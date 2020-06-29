@@ -40,6 +40,7 @@ int __RNG_calls = 0; /**< for test purposes */
  * @param a 
  * @return int 
  */
+/*
 int parity(unsigned int a) {
   int b;
   int c, d0;
@@ -58,6 +59,7 @@ int parity(unsigned int a) {
       : "d"(a));
   return b;
 }
+*/
 
 /**
  * @brief PRNG state

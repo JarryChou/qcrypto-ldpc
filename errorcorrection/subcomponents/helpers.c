@@ -132,8 +132,7 @@ void prepare_permut_core(ProcessBlock *kb) {
   for (i = 0; i < workbits; i++) { /* do permutation  */
     do {                           /* find a permutation index */
       j = PRNG_value2(rn_order, &kb->rngState);
-    } while ((j >= workbits) ||
-             (kb->permuteIndex[j] != 0xffff)); /* out of range */
+    } while ((j >= workbits) || (kb->permuteIndex[j] != 0xffff)); /* out of range */
     k = j;
     kb->permuteIndex[k] = i;
     kb->reverseIndex[i] = k;
