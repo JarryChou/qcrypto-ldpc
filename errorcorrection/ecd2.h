@@ -338,15 +338,15 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
 // for writing data into sendpipe
 int write_into_sendpipe();
 // for reading command from cmdpipe into cmd_input
-int read_from_cmdpipe(char* cmd_input);
+int readFromCmdPipe(char* cmd_input);
 // for processing command in cmd_input to create processblock & start qber estimation
-int create_processblock_and_start_qber_using_cmd(char* dpnt, char* cmd_input);
+int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmd_input);
 /* process a command (e.g. epoch epochNum), terminated with \0 */
 int process_command(char *in);      
 // Read header from receive pipe
-int read_header_from_receivepipe();
+int readHeaderFromReceivePipe();
 // Read body from  receive  pipe
-int read_body_from_receivepipe();
+int readBodyFromReceivePipe();
 
 // MAIN FUNCTION DECLARATION
 /* ------------------------------------------------------------------------- */

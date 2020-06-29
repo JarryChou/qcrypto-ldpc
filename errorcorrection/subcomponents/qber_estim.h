@@ -58,15 +58,16 @@
  * @brief 
  * 
  */
-enum ReplyMode {
-  replyMode_terminate = 0,
-  replyMode_moreBits = 1,
-  replyMode_continue = 2
+enum REPLY_MODE {
+  REPLYMODE_TERMINATE = 0,
+  REPLYMODE_MORE_BITS = 1,
+  REPLYMODE_CONTINUE = 2
 };
 
 /// @name ERROR ESTIMATION HELPER FUNCTIONS
 /// @{
 void prepare_paritylist1(ProcessBlock *kb, unsigned int *d0, unsigned int *d1);
+void calculatek0andk1(ProcessBlock *processblock);
 /// @}
 
 /// @name ERROR ESTIMATION MAIN FUNCTIONS
@@ -75,7 +76,7 @@ int testbits_needed(float e);
 int qber_beginErrorEstimation(unsigned int epoch);
 int qber_processReceivedQberEstBits(char *receivebuf);
 int qber_processMoreEstBitsReq(ProcessBlock *processBlock, char *receivebuf);
-int prepare_dualpass(char *receivebuf);
+int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf);
 /// @}
 
 #endif /* ECD2_QBER_ESTIM */

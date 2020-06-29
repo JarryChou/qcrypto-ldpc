@@ -12,10 +12,67 @@
  * @param d0 pointer to target parity buffer 0
  * @param d1 pointer to paritybuffer 1
  */
-void prepare_paritylist1(ProcessBlock *kb, unsigned int *d0, unsigned int *d1) {
-  prepare_paritylist_basic(kb->mainBufPtr, d0, kb->k0, kb->workbits);
-  prepare_paritylist_basic(kb->permuteBufPtr, d1, kb->k1, kb->workbits);
+void prepare_paritylist1(ProcessBlock *processBlock, unsigned int *d0, unsigned int *d1) {
+  prepare_paritylist_basic(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
+  prepare_paritylist_basic(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
   return;
+}
+
+/**
+ * @brief Helper function to calculate k0 and k1
+ * 
+ * @param processBlock 
+ * @param localerror
+ */
+void setStateKnowMyErrorAndCalculatek0andk1(ProcessBlock *processBlock, float localerror) {
+  /* determine process variables */
+  processBlock->processingState = PRS_KNOWMYERROR;
+  processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
+  /****** more to do here *************/
+  /* calculate k0 and k1 for further uses */
+  if (localerror < 0.01444) { /* min bitnumber */
+    processBlock->k0 = 64; 
+  } else { 
+    processBlock->k0 = (int)(0.92419642 / localerror); 
+  }
+  processBlock->k1 = 3 * processBlock->k0; /* block length second array */
+}
+
+/**
+ * @brief Calculate local error and also return reply mode & new bits needed via pointers
+ * 
+ * @param processBlock 
+ * @param replyModeResult pointer to replymode variable to return result to
+ * @param newBitsNeededResult pointer to newbitsneeded variable to return result to
+ * @return float local error
+ */
+float calculateLocalError(ProcessBlock *processBlock, enum REPLY_MODE* replyModeResult, int *newBitsNeededResult) {
+  float localError, ldi;
+  if (processBlock->skipQberEstim) { /* skip the error estimation */
+    localError = (float)processBlock->initialError / 65536.0;
+    *replyModeResult = REPLYMODE_CONTINUE; /* skip error est part */
+  } else {
+    processBlock->skipQberEstim = False;
+    /* make decision if to ask for more bits */
+    localError = (float)(processBlock->estimatedError) / (float)(processBlock->estimatedSampleSize);
+
+    ldi = USELESS_ERRORBOUND - localError;
+    if (ldi <= 0.) { /* ignore key bits : send error number to terminate */
+      *replyModeResult = REPLYMODE_TERMINATE;
+    } else {
+      *newBitsNeededResult = testbits_needed(localError);
+      if (*newBitsNeededResult > processBlock->initialBits) { /* will never work */
+        *replyModeResult = REPLYMODE_TERMINATE;
+      } else {
+        if (*newBitsNeededResult > processBlock->estimatedSampleSize) { /*  more bits */
+          *replyModeResult = REPLYMODE_MORE_BITS;
+        } else { /* send confirmation message */
+          *replyModeResult = REPLYMODE_CONTINUE;
+        }
+      }
+    }
+  }
+  return localError;
 }
 
 // ERROR ESTIMATION MAIN FUNCTIONS
@@ -48,35 +105,35 @@ int testbits_needed(float e) {
  * @return int 0 on success, error code otherwise
  */
 int qber_beginErrorEstimation(unsigned int epoch) {
-  ProcessBlock *kb;        /* points to current processblock */
+  ProcessBlock *processBlock;        /* points to current processblock */
   float f_inierr, f_di;       /* for error estimation */
   int bits_needed;            /* number of bits needed to send */
   EcPktHdr_QberEstBits *msg1; /* for header to be sent */
 
-  if (!(kb = getProcessBlock(epoch))) return 73; /* cannot find key block */
+  if (!(processBlock = getProcessBlock(epoch))) return 73; /* cannot find key block */
 
   /* set role in block to alice (initiating the seed) in keybloc struct */
-  kb->processorRole = ALICE;
+  processBlock->processorRole = ALICE;
   /* seed the rng, (the state has to be kept with the processblock, use a lock
      system for the rng in case several ) */
-  // kb->RNG_usage = 0; /* use simple RNG */
-  if (!(kb->rngState = get_r_seed())) return 39;
+  // processBlock->RNG_usage = 0; /* use simple RNG */
+  if (!(processBlock->rngState = get_r_seed())) return 39;
 
   /*  evaluate how many bits are needed in this round */
-  f_inierr = kb->initialError / 65536.; /* float version */
+  f_inierr = processBlock->initialError / 65536.; /* float version */
 
   if (arguments.skip_qber_estimation) { /* don't do error estimation */
-    kb->skipQberEstim = 1;
-    msg1 = fillsamplemessage(kb, 1, kb->initialError, kb->bellValue);
+    processBlock->skipQberEstim = 1;
+    msg1 = fillsamplemessage(processBlock, 1, processBlock->initialError, processBlock->bellValue);
   } else {
-    kb->skipQberEstim = 0;
+    processBlock->skipQberEstim = 0;
     f_di = USELESS_ERRORBOUND - f_inierr;
     if (f_di <= 0) return 41; /* no error extractable */
     bits_needed = testbits_needed(f_inierr);
 
-    if (bits_needed >= kb->initialBits) return 42; /* not possible */
+    if (bits_needed >= processBlock->initialBits) return 42; /* not possible */
     /* fill message with sample bits */
-    msg1 = fillsamplemessage(kb, bits_needed, 0, kb->bellValue);
+    msg1 = fillsamplemessage(processBlock, bits_needed, 0, processBlock->bellValue);
   }
   if (!msg1) return 43; /* a malloc error occured */
 
@@ -98,15 +155,15 @@ int qber_beginErrorEstimation(unsigned int epoch) {
  */
 int qber_processReceivedQberEstBits(char *receivebuf) {
   EcPktHdr_QberEstBits *in_head; /* holds header */
-  ProcessBlock *kb;           /* points to processblock info */
+  ProcessBlock *processBlock;           /* points to processblock info */
   unsigned int *in_data;         /* holds input data bits */
   /* int retval; */
   int i, rn_order, bipo;
   unsigned int bpm;
   EcPktHdr_QberEstReqMoreBits *h2; /* for more requests */
   EcPktHdr_QberEstBitsAck *h3; /* reply message */
-  int replymode;            /* 0: terminate, 1: more bits, 2: continue */
-  float localerror, ldi;
+  enum REPLY_MODE replymode;            /* 0: terminate, 1: more bits, 2: continue */
+  float localerror = 0;
   int newbitsneeded = 0; /* to keep compiler happy */
   int overlapreply;
 
@@ -118,7 +175,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
   overlapreply = check_epochoverlap(in_head->base.epoch, in_head->base.numberOfEpochs);
   if (overlapreply) {
     if (in_head->seed) return 46; // conflict
-    if (!(kb = getProcessBlock(in_head->base.epoch))) return 48; // process block missing
+    if (!(processBlock = getProcessBlock(in_head->base.epoch))) return 48; // process block missing
   } else {
     if (!(in_head->seed)) return 51;
 
@@ -128,106 +185,77 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
       return i; /* no success */
     }
 
-    kb = getProcessBlock(in_head->base.epoch);
-    if (!kb) return 48; /* should not happen */
+    processBlock = getProcessBlock(in_head->base.epoch);
+    if (!processBlock) return 48; /* should not happen */
 
     /* initialize the processblock with the type status, and with the info from the other side */
-    kb->rngState = in_head->seed;
-    kb->leakageBits = 0;
-    kb->estimatedSampleSize = 0;
-    kb->estimatedError = 0;
-    kb->processorRole = BOB;
-    kb->bellValue = in_head->bellValue;
+    processBlock->rngState = in_head->seed;
+    processBlock->leakageBits = 0;
+    processBlock->estimatedSampleSize = 0;
+    processBlock->estimatedError = 0;
+    processBlock->processorRole = BOB;
+    processBlock->bellValue = in_head->bellValue;
   }
 
   // Update processblock with info from the packet
-  kb->leakageBits += in_head->numberofbits;
-  kb->estimatedSampleSize += in_head->numberofbits;
+  processBlock->leakageBits += in_head->numberofbits;
+  processBlock->estimatedSampleSize += in_head->numberofbits;
 
   /* do the error estimation */
-  rn_order = get_order_2(kb->initialBits);
+  rn_order = get_order_2(processBlock->initialBits);
   for (i = 0; i < (in_head->numberofbits); i++) {
     while (True) { /* generate a bit position */
-      bipo = PRNG_value2(rn_order, &kb->rngState);
-      if (bipo > kb->initialBits) continue;          /* out of range */
+      bipo = PRNG_value2(rn_order, &processBlock->rngState);
+      if (bipo > processBlock->initialBits) continue;          /* out of range */
       bpm = bt_mask(bipo);                           /* bit mask */
-      if (kb->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
+      if (processBlock->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
       /* got finally a bit */
-      kb->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
-      if (((kb->mainBufPtr[bipo / 32] & bpm) ? 1 : 0) ^
+      processBlock->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
+      if (((processBlock->mainBufPtr[bipo / 32] & bpm) ? 1 : 0) ^
           ((in_data[i / 32] & bt_mask(i)) ? 1 : 0)) { /* error */
-         kb->estimatedError += 1;
+         processBlock->estimatedError += 1;
       }
       break;
     }
   }
-
-  if (in_head->fixedErrorRate) { /* skip the error estimation */
-    kb->skipQberEstim = True;
-    localerror = (float)in_head->fixedErrorRate / 65536.0;
-    replymode = replyMode_continue; /* skip error est part */
-  } else {
-    kb->skipQberEstim = False;
-    /* make decision if to ask for more bits */
-    localerror = (float)(kb->estimatedError) / (float)(kb->estimatedSampleSize);
-
-    ldi = USELESS_ERRORBOUND - localerror;
-    if (ldi <= 0.) { /* ignore key bits : send error number to terminate */
-      replymode = replyMode_terminate;
-    } else {
-      newbitsneeded = testbits_needed(localerror);
-      if (newbitsneeded > kb->initialBits) { /* will never work */
-        replymode = replyMode_terminate;
-      } else {
-        if (newbitsneeded > kb->estimatedSampleSize) { /*  more bits */
-          replymode = replyMode_moreBits;
-        } else { /* send confirmation message */
-          replymode = replyMode_continue;
-        }
-      }
-    }
-  }
+  processBlock->skipQberEstim = (in_head->fixedErrorRate) ? True : False;
+  processBlock->initialError = in_head->fixedErrorRate;
+  localerror = calculateLocalError(processBlock, &replymode, &newbitsneeded);
 
   #ifdef DEBUG
   printf("qber_processReceivedQberEstBits: estErr: %d errMode: %d \
  lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d\n",
-    kb->estimatedError, kb->skipQberEstim, 
-    localerror, kb->estimatedSampleSize, newbitsneeded, kb->initialBits);
+    processBlock->estimatedError, processBlock->skipQberEstim, 
+    localerror, processBlock->estimatedSampleSize, newbitsneeded, processBlock->initialBits);
   #endif
 
   /* prepare reply message */
-  if (replymode == replyMode_continue || replyMode_terminate) {
+  if (replymode == REPLYMODE_CONTINUE || REPLYMODE_TERMINATE) {
     // Prepare & send message
-    i = comms_createHeader((char**)&h3, SUBTYPE_QBER_EST_BITS_ACK, kb->startEpoch, kb->numberOfEpochs);
+    i = comms_createHeader((char**)&h3, SUBTYPE_QBER_EST_BITS_ACK, 0, processBlock);
     if (i) return i;
-    h3->tested_bits = kb->leakageBits;
-    h3->number_of_errors = kb->estimatedError;
+    h3->tested_bits = processBlock->leakageBits;
+    h3->number_of_errors = processBlock->estimatedError;
     comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
 
-    if (replymode == replyMode_terminate) {
+    if (replymode == REPLYMODE_TERMINATE) {
       #ifdef DEBUG
       printf("Kill the processblock due to excessive errors\n");
       fflush(stdout);
       #endif
-      remove_processblock(kb->startEpoch);
-    } else { // replymode == replyMode_continue
-      kb->processingState = PRS_KNOWMYERROR;
-      kb->estimatedSampleSize = kb->leakageBits; /* is this needed? */
-      /****** more to do here *************/
-      /* calculate k0 and k1 for further uses */
-      if (localerror < 0.01444) { kb->k0 = 64; } /* min bitnumber */
-      else { kb->k0 = (int)(0.92419642 / localerror); }
-      kb->k1 = 3 * kb->k0; /* block length second array */
+      remove_processblock(processBlock->startEpoch);
+    } else { // replymode == REPLYMODE_CONTINUE
+      setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
     }
-  } else if (replymode == replyMode_moreBits) {
+  } else if (replymode == REPLYMODE_MORE_BITS) {
       // Prepare & send message
-      i = comms_createHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, kb->startEpoch, kb->numberOfEpochs);
+      i = comms_createHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
       if (i) return i;
-      h2->requestedbits = newbitsneeded - kb->estimatedSampleSize;
+      h2->requestedbits = newbitsneeded - processBlock->estimatedSampleSize;
       comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);
       // Set processblock params
-      kb->skipQberEstim = 1;
-      kb->processingState = PRS_GETMOREEST;
+      processBlock->skipQberEstim = 1;
+      processBlock->processingState = PRS_GETMOREEST;
   } else { // logic error in code
     return 80;
   }
@@ -241,6 +269,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
  * 
  * Just sends over a bunch of more estimaton bits.
  * 
+ * @param processBlock pointer to non null processblock
  * @param receivebuf pointer to the receive buffer containing the message.
  * @return int 0 on success, error code otherwise
  */
@@ -274,14 +303,15 @@ int qber_processMoreEstBitsReq(ProcessBlock *processBlock, char *receivebuf) {
    block deserves to be considered further, and if so, prepares the permutation
    array of the key, and determines the parity functions of the first key.
  * 
+ * @param processBlock pointer to non null processblock
  * @param receivebuf pointer to the receive buffer containing the message.
  * @return int 0 on success, error code otherwise
  */
-int prepare_dualpass(char *receivebuf) {
+int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   EcPktHdr_QberEstBitsAck *in_head; /* holds header */
-  ProcessBlock *kb;           /* poits to processblock info */
-  float localerror, ldi;
-  int errormark, newbitsneeded;
+  float localerror;
+  enum REPLY_MODE replymode;
+  int newbitsneeded, errorCode;
   unsigned int newseed; /* seed for permutation */
   int msg4datalen;
   EcPktHdr_CascadeParityList *h4;    /* header pointer */
@@ -291,97 +321,60 @@ int prepare_dualpass(char *receivebuf) {
   /* get pointers for header...*/
   in_head = (EcPktHdr_QberEstBitsAck *)receivebuf;
 
-  /* ...and find processblock: */
-  kb = getProcessBlock(in_head->base.epoch);
-  if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
-    return 49;
-  }
   /* extract error information out of message */
-  if (in_head->tested_bits != kb->leakageBits) return 52;
-  kb->estimatedSampleSize = in_head->tested_bits;
-  kb->estimatedError = in_head->number_of_errors;
+  if (in_head->tested_bits != processBlock->leakageBits) return 52;
+  processBlock->estimatedSampleSize = in_head->tested_bits;
+  processBlock->estimatedError = in_head->number_of_errors;
 
-  /* decide if to proceed */
-  if (kb->skipQberEstim) {
-    localerror = (float)kb->initialError / 65536.;
-  } else {
-    localerror = (float)kb->estimatedError / (float)kb->estimatedSampleSize;
-    ldi = USELESS_ERRORBOUND - localerror;
-    errormark = 0;
-    if (ldi <= 0.) {
-      errormark = 1; /* will not work */
-    } else {
-      newbitsneeded = testbits_needed(localerror);
-      if (newbitsneeded > kb->initialBits) { /* will never work */
-        errormark = 1;
-      }
-    }
-    #ifdef DEBUG
-    printf("prepare_dualpass kb. estSampleSize: %d estErr: %d errMode: %d lclErr: %.4f \
- ldi: %.4f newBitsNeeded: %d initBits: %d errMark: %d\n",
-      kb->estimatedSampleSize, kb->estimatedError, kb->skipQberEstim, 
-      localerror, ldi, newbitsneeded, kb->initialBits, errormark);
-    fflush(stdout);
-    #endif
-    if (errormark) { /* not worth going */
-      remove_processblock(kb->startEpoch);
-      return 0;
-    }
+  localerror = calculateLocalError(processBlock, &replymode, &newbitsneeded);
+
+  #ifdef DEBUG
+  printf("qber_prepareDualPass kb. estSampleSize: %d estErr: %d errMode: %d lclErr: %.4f \
+      newBitsNeeded: %d initBits: %d replymode: %d\n",
+      processBlock->estimatedSampleSize, processBlock->estimatedError, processBlock->skipQberEstim, 
+      localerror, newbitsneeded, processBlock->initialBits, replymode);
+  fflush(stdout);
+  #endif
+
+  if (replymode == REPLYMODE_TERMINATE) { /* not worth going */
+    remove_processblock(processBlock->startEpoch);
+    return 0;
   }
 
-  /* determine process variables */
-  kb->processingState = PRS_KNOWMYERROR;
-
-  kb->estimatedSampleSize = kb->leakageBits; /* is this needed? */
-
-  /****** more to do here *************/
-  /* calculate k0 and k1 for further uses */
-  if (localerror < 0.01444) {
-    kb->k0 = 64; /* min bitnumber */
-  } else {
-    kb->k0 = (int)(0.92419642 / localerror);
-  }
-  kb->k1 = 3 * kb->k0; /* block length second array */
+  setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
 
   /* install new seed */
-  // kb->RNG_usage = 0; /* use simple RNG */
+  // processBlock->RNG_usage = 0; /* use simple RNG */
   if (!(newseed = get_r_seed())) return 39;
-  kb->rngState = newseed; /* get new seed for RNG */
+  processBlock->rngState = newseed; /* get new seed for RNG */
 
   /* prepare permutation array */
-  prepare_permutation(kb);
+  prepare_permutation(processBlock);
 
   /* prepare message 5 frame - this should go into prepare_permutation? */
-  kb->partitions0 = (kb->workbits + kb->k0 - 1) / kb->k0;
-  kb->partitions1 = (kb->workbits + kb->k1 - 1) / kb->k1;
+  processBlock->partitions0 = (processBlock->workbits + processBlock->k0 - 1) / processBlock->k0;
+  processBlock->partitions1 = (processBlock->workbits + processBlock->k1 - 1) / processBlock->k1;
 
   /* get raw buffer */
-  msg4datalen = ((kb->partitions0 + 31) / 32 + (kb->partitions1 + 31) / 32) * 4;
-  h4 = (EcPktHdr_CascadeParityList *)malloc2(sizeof(EcPktHdr_CascadeParityList) +
-                                       msg4datalen);
-  if (!h4) return 43; /* cannot malloc */
+  msg4datalen = ((processBlock->partitions0 + 31) / 32 + (processBlock->partitions1 + 31) / 32) * 4;
+  errorCode = comms_createHeader((char **)&h4, SUBTYPE_CASCADE_PARITY_LIST, msg4datalen, processBlock);
+  if (errorCode) return errorCode;
   /* both data arrays */
   h4_d0 = (unsigned int *)&h4[1];
-  h4_d1 = &h4_d0[(kb->partitions0 + 31) / 32];
-  h4->base.tag = EC_PACKET_TAG;
-  h4->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeParityList) + msg4datalen;
-  h4->base.subtype = SUBTYPE_CASCADE_PARITY_LIST;
-  h4->base.epoch = kb->startEpoch;
-  h4->base.numberOfEpochs = kb->numberOfEpochs; /* length of the block */
+  h4_d1 = &h4_d0[(processBlock->partitions0 + 31) / 32];
   h4->seed = newseed;                        /* permutator seed */
-
+  
   /* these are optional; should we drop them? */
-  h4->k0 = kb->k0;
-  h4->k1 = kb->k1;
-  h4->totalbits = kb->workbits;
+  h4->k0 = processBlock->k0;
+  h4->k1 = processBlock->k1;
+  h4->totalbits = processBlock->workbits;
 
   /* evaluate parity in blocks */
-  prepare_paritylist1(kb, h4_d0, h4_d1);
+  prepare_paritylist1(processBlock, h4_d0, h4_d1);
 
   /* update status */
-  kb->processingState = PRS_PERFORMEDPARITY1;
-  kb->leakageBits += kb->partitions0 + kb->partitions1;
+  processBlock->processingState = PRS_PERFORMEDPARITY1;
+  processBlock->leakageBits += processBlock->partitions0 + processBlock->partitions1;
 
   /* transmit message */
   retval = comms_insertSendPacket((char *)h4, h4->base.totalLengthInBytes);

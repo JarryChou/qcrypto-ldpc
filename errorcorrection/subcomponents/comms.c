@@ -247,22 +247,22 @@ int prepare_first_binsearch_msg(ProcessBlock *kb, int pass) {
  * 
  * @param resultingBufferPtr this function will create a buffer based on the subtype. This is the address of the pointer you want to use to refer to the buffer.
  * @param subtype 
- * @param totalLengthInBytes 
- * @param epoch 
- * @param numberOfEpochs 
+ * @param additionalByteLength The header size will automatically be factored in. This includes any extra byte length beyond the header.
+ * @param processBlock processBlock to obtain epoch metadata from
  * @return int 0 if succcess otherwise error code
  */
-int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, 
-    unsigned int epoch, unsigned int numberOfEpochs) {
+int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsigned int additionalByteLength, ProcessBlock *processBlock) {
   EcPktHdr_Base* tmpBaseHdr; // Temporary pointer to point to the base
-  unsigned int size;
-  // Initialize a buffer 
+  unsigned int size = additionalByteLength; // Not good practice to reuse params, but this can be removed for micro-optimization
   switch (subtype) {
     case SUBTYPE_QBER_EST_BITS_ACK:
-      size = sizeof(EcPktHdr_QberEstBitsAck);
+      size += sizeof(EcPktHdr_QberEstBitsAck);
       break;
     case SUBTYPE_QBER_EST_REQ_MORE_BITS:
-      size = sizeof(EcPktHdr_QberEstReqMoreBits);
+      size += sizeof(EcPktHdr_QberEstReqMoreBits);
+      break;
+    case SUBTYPE_CASCADE_PARITY_LIST:
+      size += sizeof(EcPktHdr_CascadeParityList);
       break;
     default:
       #ifdef DEBUG
@@ -275,13 +275,13 @@ int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype,
   *resultingBufferPtr = malloc2(size);
   // If buffer not initialized
   if (!(*resultingBufferPtr)) return 43;
-  // Initialize the base of the header
+  // Initialize the base of the header. Base is expected to be the first variable.
   tmpBaseHdr = (EcPktHdr_Base*)(*resultingBufferPtr);
   tmpBaseHdr->tag = EC_PACKET_TAG;
   tmpBaseHdr->subtype = subtype;
   tmpBaseHdr->totalLengthInBytes = size;
-  tmpBaseHdr->epoch = epoch;
-  tmpBaseHdr->numberOfEpochs = numberOfEpochs;
+  tmpBaseHdr->epoch = processBlock->startEpoch;
+  tmpBaseHdr->numberOfEpochs = processBlock->numberOfEpochs;
   // Return success
   return 0;
 }

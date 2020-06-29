@@ -200,17 +200,17 @@ int write_into_sendpipe() {
  * @param cmd_input 
  * @return -1 if clean exit requested (empty cmd sent), 0 if success, otherwise error code
  */
-int read_from_cmdpipe(char* cmd_input) {
+int readFromCmdPipe(char* cmd_input) {
   int retval = read(arguments.handle[handleId_commandPipe], &cmd_input[input_last_index], 
       CMD_INBUFLEN - 1 - input_last_index);
   if (retval < 0) return -1;
-  #ifdef DEBUG
-  printf("Read something from cmd pipe\n");
-  fflush(stdout);
-  #endif
   input_last_index += retval;
   cmd_input[input_last_index] = '\0';
-  if (input_last_index >= CMD_INBUFLEN) return -emsg(75); /* overflow, parse later... */
+  #ifdef DEBUG
+  printf("Rd from cmd pipe. cmd_input: %s\n", cmd_input);
+  fflush(stdout);
+  #endif
+  if (input_last_index >= CMD_INBUFLEN) return 75; /* overflow, parse later... */
 
   return 0;
 }
@@ -224,7 +224,7 @@ int read_from_cmdpipe(char* cmd_input) {
  * @param cmd_input 
  * @return 0 if success otherwise error code 
  */
-int create_processblock_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
+int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmd_input) {
   int i, errorCode, sl;
   /* parse command string */
   dpnt = index(cmd_input, '\n');
@@ -233,7 +233,7 @@ int create_processblock_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
     sl = strlen(cmd_input);
     errorCode = process_command(cmd_input);
     if (errorCode && (arguments.runtimeerrormode == END_ON_ERR)) {
-      return -emsg(errorCode); /* complain */
+      return errorCode; /* complain */
     }
     /* move back rest */
     for (i = 0; i < input_last_index - sl - 1; i++) cmd_input[i] = dpnt[i + 1];
@@ -268,7 +268,7 @@ int process_command(char *cmd_input) {
   switch (fieldsAssigned) {
     case 0:                                     /* no conversion */
       if (arguments.runtimeerrormode != END_ON_ERR) break;/* nocomplain */
-      return -emsg(30);                         /* not enough arguments */
+      return 30;                         /* not enough arguments */
     case 1: newepochnumber = 1;                 /* use default epoch number */
     case 2: newesterror = arguments.initialerr; // use default initial error rate, or error rate passed in
     case 3: bellValue = PERFECT_BELL;           /* assume perfect Bell */
@@ -276,13 +276,13 @@ int process_command(char *cmd_input) {
       // Parameter validation
       if (newesterror < 0 || newesterror > MAX_INI_ERR) { // error rate out of bounds
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return -emsg(31);
+        return 31;
       } else if (newepochnumber < 1) { // epoch num out of bounds
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return -emsg(32);
+        return 32;
       } else if (check_epochoverlap(newepoch, newepochnumber)) { // ensure start epoch & epoch num has not been used
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return -emsg(33);
+        return 33;
       }
 
       /* create new processblock */
@@ -312,19 +312,19 @@ int process_command(char *cmd_input) {
  * 
  * @return 0 if success, otherwise error message 
  */
-int read_header_from_receivepipe() {
+int readHeaderFromReceivePipe() {
   #ifdef DEBUG
   printf("Read header from rcv pipe\n");
   fflush(stdout);
   #endif
   int retval = read(arguments.handle[handleId_receivePipe], &((char *)&msgprotobuf)[receiveIndex],
       sizeof(msgprotobuf) - receiveIndex);
-  if (retval == -1) return -emsg(36); /* can that be better? */
+  if (retval == -1) return 36; /* can that be better? */
   receiveIndex += retval;
   if (receiveIndex == sizeof(msgprotobuf)) {
     /* prepare for new buffer */
     readbuf = (char *)malloc2(msgprotobuf.totalLengthInBytes);
-    if (!readbuf) return -emsg(37);
+    if (!readbuf) return 37;
     /* transfer header */
     memcpy(readbuf, &msgprotobuf, sizeof(msgprotobuf));
   }
@@ -339,19 +339,19 @@ int read_header_from_receivepipe() {
  * 
  * @return 0  if success,  otherwise error message
  */
-int read_body_from_receivepipe() {
+int readBodyFromReceivePipe() {
   #ifdef DEBUG
   printf("Read body from rcv pipe\n");
   fflush(stdout);
   #endif
   int retval = read(arguments.handle[handleId_receivePipe], &readbuf[receiveIndex],
       msgprotobuf.totalLengthInBytes - receiveIndex);
-  if (retval == -1) return -emsg(36); /* can that be better? */
+  if (retval == -1) return 36; /* can that be better? */
   receiveIndex += retval;
   if (receiveIndex == msgprotobuf.totalLengthInBytes) { /* got all */
     ReceivedPacketNode *msgp = (ReceivedPacketNode *)malloc2(
         sizeof(ReceivedPacketNode));
-    if (!msgp) return -emsg(38);
+    if (!msgp) return 38;
     /* insert message in message chain */
     msgp->next = NULL;
     msgp->length = receiveIndex;
@@ -446,26 +446,33 @@ int main(int argc, char *argv[]) {
       // If there is something to read from cmd pipeline
       if (FD_ISSET(arguments.handle[handleId_commandPipe], &readqueue)) {
         // Read from cmd pipeline into cmd_input
-        errorCode = read_from_cmdpipe((char *) &cmd_input);
+        errorCode = readFromCmdPipe((char *) &cmd_input);
         if (errorCode) {
-          if (errorCode == -1) break; // Clean exit program
-          else return errorCode;      // Otherwise an error really occurred
+          if (errorCode == -1) {
+            break; // Clean exit program
+          }
+          else { // Otherwise an error really occurred
+            emsg(errorCode);  // Always print error
+            if (arguments.runtimeerrormode == END_ON_ERR) {
+              return -errorCode;
+            }
+          }
         }
         // Process cmd_input
-        errorCode = create_processblock_and_start_qber_using_cmd(dpnt, (char *) &cmd_input);
-        if (errorCode) return errorCode;
+        errorCode = createProcessBlockAndStartQberWithCmd(dpnt, (char *) &cmd_input);
+        if (errorCode) return -emsg(errorCode);
       }
 
       // If there is something to read from receive pipeline
       if (FD_ISSET(arguments.handle[handleId_receivePipe], &readqueue)) {
         if (receiveIndex < sizeof(EcPktHdr_Base)) {
           // Read header (tag & length)
-          errorCode = read_header_from_receivepipe();
+          errorCode = readHeaderFromReceivePipe();
         } else {
           // Read body (subtype & data)
-          errorCode = read_body_from_receivepipe();
+          errorCode = readBodyFromReceivePipe();
         }
-        if (errorCode) return errorCode;
+        if (errorCode) return -emsg(errorCode);
       }
 
       // If there is something to read from query pipeline (commented out query pipe)
@@ -503,7 +510,7 @@ int main(int argc, char *argv[]) {
                 errorCode = qber_processMoreEstBitsReq(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
               case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
-                errorCode = prepare_dualpass(tempReceivedPacketNode->packet);
+                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
