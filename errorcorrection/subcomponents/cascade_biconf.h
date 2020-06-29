@@ -73,15 +73,15 @@ void generate_BICONF_bitstring(ProcessBlock *kb);
 int do_paritylist_and_diffs(ProcessBlock *kb, int pass);
 void fix_parity_intervals(ProcessBlock *kb, unsigned int *inh_idx);
 void correct_bit(unsigned int *d, int bitindex);
-int single_line_parity(unsigned int *d, int start, int end);
-int single_line_parity_masked(unsigned int *d, unsigned int *m, int start, int end);
+int singleLineParity(unsigned int *d, int start, int end);
+int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end);
 /// @}
 
 /// @name CASCADE BICONF MAIN FUNCTIONS
 /// @{
 int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int initiate_biconf(ProcessBlock *kb);
-int generate_biconfreply(char *receivebuf);
+int generateBiconfReply(ProcessBlock *kb, char *receivebuf);
 int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength);
 int prepare_first_binsearch_msg(ProcessBlock *kb, int pass);
 int start_binarysearch(char *receivebuf);

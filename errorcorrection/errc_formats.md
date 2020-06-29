@@ -290,7 +290,7 @@ used to transmit the same bit again (no information is lost this way).
        unsigned int epoch;
        unsigned int numberOfEpochs;
        unsigned int number_entries;
-       unsigned int index_present;
+       unsigned int indexPresent;
        unsigned int runlevel;
        }
 ```
@@ -303,7 +303,7 @@ used to transmit the same bit again (no information is lost this way).
 * **epoch**:              defines epoch of first packet
 * **numberOfEpochs**:    defines implicitly the length of the block
 * **number_entries**:	defines the number of blocks with parity mismatch
-* **index_present**:	decides if and in which format the index data is
+* **indexPresent**:	decides if and in which format the index data is
                     contained in the packet
 * **runlevel**:           a combined quantity which identifies the pass and 
                     bisectioning depth of each block. The pass (0/1) is
@@ -318,35 +318,35 @@ The data section contains (a) a parity array, bit-packed similarly to the
 original parity communication packet. It is an array of unsigned ints,
 capable to contain all the number_entries bits. 
 
-If the index_present word is 0, an array containing one bit per subblock
+If the indexPresent word is 0, an array containing one bit per subblock
 if the upper or lower in the same encoding as the parity bit follows,
 which contains information if the error from the previous cycle is
 contained in the first (0) or second (1) half of the interval.
 
 If the newly tested interval length is 0, the parity bit will be zero.
 
-If the index_present word is >0, one of the following encoding schemes for
+If the indexPresent word is >0, one of the following encoding schemes for
 the indices are used:
 
-index_present = 1: plain uint encoding 
+indexPresent = 1: plain uint encoding 
     The data following the parity data is an array of unsigned ints
     containing the block addresses directly.
 
   NEW VERSION: No, keep old version
-index_present = 2:  a single longint fields with an explicit start and end
+indexPresent = 2:  a single longint fields with an explicit start and end
 address for the subblock of the BICONF_binsearch cycle.
     
   OLD VERSION:
-index_present = 2: plain shortint encoding
+indexPresent = 2: plain shortint encoding
     same as index 1, but with short integers as numbers. Array is padded
     with 0 at the end to have a length of multiple of 4 bytes.
 
-index_present = 3: a packed bitfield for each original block is sent,
+indexPresent = 3: a packed bitfield for each original block is sent,
     containing information if there is a mismatch (1) or match (0).The data
     is padded with 0 at the end to form a inter multiple of 32words.
 
 OLD VERSION;  OBSOLETE? no, keep using it, but only with one entry.
-index_present = 4: a two-entry longint fields with two explicit start
+indexPresent = 4: a two-entry longint fields with two explicit start
     addresses for the two start addresses of the biconf blocks is
 transmitted.  (first one is zero, second one is biconflen )
 

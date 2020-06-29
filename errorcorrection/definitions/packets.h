@@ -128,7 +128,7 @@ typedef struct ERRC_ERRDET_4 {
 typedef struct ERRC_ERRDET_5 {
     EcPktHdr_Base base;
     unsigned int number_entries;    /**< number of blocks with parity mismatch */
-    unsigned int index_present;     /**< format /presence of index data  */
+    unsigned int indexPresent;     /**< format /presence of index data  */
     unsigned int runlevel;          /**<  pass and bisectioning depth */
 } EcPktHdr_CascadeBinSearchMsg;	
 

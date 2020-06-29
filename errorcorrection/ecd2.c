@@ -522,7 +522,7 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-                errorCode = generate_biconfreply(tempReceivedPacketNode->packet);
+                errorCode = generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
