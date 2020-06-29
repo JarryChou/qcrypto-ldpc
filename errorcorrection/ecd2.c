@@ -27,7 +27,7 @@ int parse_options(int argc, char *argv[]) {
     i = 0; /* for pairing filename-containing options */
     switch (opt) {
       case 'V': /* verbosity parameter */
-        if (1 != sscanf(optarg, "%d", &arguments.verbosity_level)) return -emsg(1);
+        if (1 != sscanf(optarg, "%d", (int *)&arguments.verbosity_level)) return -emsg(1);
         break;
       case 'q': i++; /* respondpipe, idx=7 */
       case 'Q': i++; /* querypipe, idx=6 */
@@ -58,7 +58,7 @@ int parse_options(int argc, char *argv[]) {
           return -emsg(15);
         break;
       case 'T': /* runtime error behaviour */
-        if (1 != sscanf(optarg, "%d", &arguments.runtimeerrormode)) return -emsg(16);
+        if (1 != sscanf(optarg, "%d", (int *)&arguments.runtimeerrormode)) return -emsg(16);
         if ((arguments.runtimeerrormode < 0) || (arguments.runtimeerrormode > MAXRUNTIMEERROR))
           return -emsg(16);
         break;
