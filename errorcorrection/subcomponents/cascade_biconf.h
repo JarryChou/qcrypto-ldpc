@@ -83,6 +83,7 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
 int initiate_biconf(ProcessBlock *kb);
 int generate_biconfreply(char *receivebuf);
 int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength);
+int prepare_first_binsearch_msg(ProcessBlock *kb, int pass);
 int start_binarysearch(char *receivebuf);
 int process_binarysearch(char *receivebuf);
 int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head);

@@ -118,111 +118,6 @@ EcPktHdr_CascadeBinSearchMsg *make_messagehead_5(ProcessBlock *processBlock) {
 }
 
 /**
- * @brief Function to prepare the first message head (header_5) for a binary search.
- * 
- *  This assumes
-   that all the parity buffers have been malloced and the remote parities
-   reside in the proper arrays. This function will be called several times for
-   different passes; it expexts local parities to be evaluated already.
- * 
- * @param processBlock processblock ptr
- * @param pass pass number
- * @return int 0 on success, error code otherwise
- */
-int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
-  int i, j;                             /* index variables */
-  int k;                                /* length of processblocks */
-  unsigned int *pd;                     /* parity difference bitfield pointer */
-  unsigned int msg5SizeExcludeHeader;   /* size of message excluding header */
-  EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
-  unsigned int *h5_data, *h5_idx;       /* data pointers */
-  unsigned int *d;                      /* temporary pointer on parity data */
-  unsigned int resbuf, tmp_par, lm, fm; /* parity determination variables */
-  int kdiff, fbi, lbi, fi, li, ri;      /* working variables for parity eval */
-  int partitions; /* local partitions o go through for diff idx */
-
-  switch (pass) { /* sort out specifics */
-    case 0:       /* unpermutated pass */
-      pd = processBlock->pd0;
-      k = processBlock->k0;
-      partitions = processBlock->partitions0;
-      d = processBlock->mainBufPtr; /* unpermuted key */
-      break;
-    case 1: /* permutated pass */
-      pd = processBlock->pd1;
-      k = processBlock->k1;
-      partitions = processBlock->partitions1;
-      d = processBlock->permuteBufPtr; /* permuted key */
-      break;
-    default:     /* illegal */
-      return 59; /* illegal pass arg */
-  }
-
-  /* fill difference index memory */
-  j = 0; /* index for mismatching blocks */
-  for (i = 0; i < partitions; i++) {
-    if (bt_mask(i) & pd[i / 32]) {       /* this block is mismatched */
-      processBlock->diffidx[j] = i * k;            /* store bit index, not block index */
-      processBlock->diffidxe[j] = i * k + (k - 1); /* last block */
-      j++;
-    }
-  }
-  /* mark pass/round correctly in processBlock */
-  processBlock->binarySearchDepth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) |
-                        0; /* first round */
-
-  // Note: duplicate-ish code here with make_messagehead_5
-  /* prepare message buffer for first binsearch message  */
-  msg5SizeExcludeHeader = ((processBlock->diffBlockCount + 31) / 32) *
-            sizeof(unsigned int)               /* parity data need */
-            + processBlock->diffBlockCount * sizeof(unsigned int); /* indexing need */
-  i = comms_createHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5SizeExcludeHeader, processBlock);
-  if (i) return 55;
-  h5->number_entries = processBlock->diffBlockCount;
-  h5->runlevel = processBlock->binarySearchDepth; /* keep local status */
-  h5->index_present = 1;              /* this round we have an index table */
-
-  h5_data = (unsigned int *)&h5[1]; /* start of data */
-
-  /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[((processBlock->diffBlockCount + 31) / 32)];
-  for (i = 0; i < processBlock->diffBlockCount; i++) h5_idx[i] = processBlock->diffidx[i];
-
-  /* prepare parity results */
-  resbuf = 0;
-  tmp_par = 0;
-  for (i = 0; i < processBlock->diffBlockCount; i++) {          /* go through all processblocks */
-    kdiff = processBlock->diffidxe[i] - processBlock->diffidx[i] + 1; /* left length */
-    fbi = processBlock->diffidx[i];
-    lbi = fbi + kdiff / 2 - 1; /* first and last bitidx */
-    fi = fbi / 32;
-    fm = firstmask(fbi & 31); /* beginning */
-    li = lbi / 32;
-    lm = lastmask(lbi & 31); /* end */
-    if (li == fi) {          /* in same word */
-      tmp_par = d[fi] & lm & fm;
-    } else {
-      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-    } /* tmp_par holds now a combination of bits to be tested */
-    resbuf = (resbuf << 1) + parity(tmp_par);
-    if ((i & 31) == 31) {
-      h5_data[i / 32] = resbuf;
-    }
-  }
-  if (i & 31)
-    h5_data[i / 32] = resbuf << (32 - (i & 31)); /* last parity bits */
-
-  /* increment lost bits */
-  processBlock->leakageBits += processBlock->diffBlockCount;
-
-  /* send out message */
-  comms_insertSendPacket((char *)h5, msg5SizeExcludeHeader + sizeof(EcPktHdr_CascadeBinSearchMsg));
-
-  return 0;
-}
-
-/**
  * @brief Helper function to create a message header.
  * 
  * It creates the buffer for you based on subtype & populates the packet with information that all packets include.
@@ -237,11 +132,13 @@ int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsig
   EcPktHdr_Base* tmpBaseHdr; // Temporary pointer to point to the base
   unsigned int size = additionalByteLength; // Not good practice to reuse params, but this can be removed for micro-optimization
   switch (subtype) {
-    case SUBTYPE_QBER_EST_BITS:           size += sizeof(EcPktHdr_QberEstBits);         break;
-    case SUBTYPE_QBER_EST_BITS_ACK:       size += sizeof(EcPktHdr_QberEstBitsAck);      break;
-    case SUBTYPE_QBER_EST_REQ_MORE_BITS:  size += sizeof(EcPktHdr_QberEstReqMoreBits);  break;
-    case SUBTYPE_CASCADE_PARITY_LIST:     size += sizeof(EcPktHdr_CascadeParityList);   break;
-    case SUBTYPE_CASCADE_BIN_SEARCH_MSG:  size += sizeof(EcPktHdr_CascadeBinSearchMsg); break;
+    case SUBTYPE_QBER_EST_BITS:               size += sizeof(EcPktHdr_QberEstBits);             break;
+    case SUBTYPE_QBER_EST_BITS_ACK:           size += sizeof(EcPktHdr_QberEstBitsAck);          break;
+    case SUBTYPE_QBER_EST_REQ_MORE_BITS:      size += sizeof(EcPktHdr_QberEstReqMoreBits);      break;
+    case SUBTYPE_CASCADE_PARITY_LIST:         size += sizeof(EcPktHdr_CascadeParityList);       break;
+    case SUBTYPE_CASCADE_BIN_SEARCH_MSG:      size += sizeof(EcPktHdr_CascadeBinSearchMsg);     break;
+    case SUBTYPE_CASCADE_BICONF_INIT_REQ:     size += sizeof(EcPktHdr_CascadeBiconfInitReq);    break;
+    case SUBTYPE_CASCADE_BICONF_PARITY_RESP:  size += sizeof(EcPktHdr_CascadeBiconfParityResp); break;
     default:
       #ifdef DEBUG
       printf("comms_createHeader processing unsupported type %d", subtype);
