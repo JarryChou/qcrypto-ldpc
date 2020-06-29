@@ -425,19 +425,9 @@ int initiate_biconf(ProcessBlock *kb) {
  * @return error code, 0 if success
  */
 int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
-  EcPktHdr_CascadeBiconfInitReq *in_head; /* holds received message header */
+  EcPktHdr_CascadeBiconfInitReq *in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf; /* holds received message header */
   EcPktHdr_CascadeBiconfParityResp *h7;      /* holds response message header */
   int bitlen;                    /* number of bits requested */
-
-  /* get pointers for header...*/
-  in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf;
-
-  /* ...and find processblock: */
-  kb = getProcessBlock(in_head->base.epoch);
-  if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
-    return 49;
-  }
 
   /* update processblock status */
   switch (kb->processingState) {
@@ -661,20 +651,12 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
  * @param receivebuf
  * @return error code, 0 if success 
  */
-int start_binarysearch(char *receivebuf) {
+int start_binarysearch(ProcessBlock *kb, char *receivebuf) {
   EcPktHdr_CascadeParityList *in_head; /* holds received message header */
-  ProcessBlock *kb;           /* points to processblock info */
   int l0, l1;                    /* helpers;  number of words for bitarrays */
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_CascadeParityList *)receivebuf;
-
-  /* ...and find processblock: */
-  kb = getProcessBlock(in_head->base.epoch);
-  if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
-    return 49;
-  }
 
   /* prepare local parity info */
   kb->rngState = in_head->seed; /* new rng seed */
@@ -728,19 +710,9 @@ int start_binarysearch(char *receivebuf) {
  * @param receivebuf 
  * @return error code, 0 if success 
  */
-int process_binarysearch(char *receivebuf) {
-  EcPktHdr_CascadeBinSearchMsg *in_head; /* holds received message header */
-  ProcessBlock *kb;           /* points to processblock info */
+int process_binarysearch(ProcessBlock *kb, char *receivebuf) {
+  EcPktHdr_CascadeBinSearchMsg *in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf; /* holds received message header */
 
-  /* get pointers for header...*/
-  in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf;
-
-  /* ...and find processblock: */
-  kb = getProcessBlock(in_head->base.epoch);
-  if (!kb) {
-    fprintf(stderr, "binsearch 5 epoch %08x: ", in_head->base.epoch);
-    return 49;
-  }
   if (kb->processorRole == ALICE) {
     return process_binsearch_alice(kb, in_head);
   } else if (kb->processorRole == BOB) {
@@ -961,20 +933,9 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
   * @param receivebuf parity reply from Alice
   * @return error message, 0 if success
   */
-int receive_biconfreply(char *receivebuf) {
-  EcPktHdr_CascadeBiconfParityResp *in_head; /* holds received message header */
-  ProcessBlock *kb;           /* points to processblock info */
+int receive_biconfreply(ProcessBlock *kb, char *receivebuf) {
+  EcPktHdr_CascadeBiconfParityResp *in_head  = (EcPktHdr_CascadeBiconfParityResp *)receivebuf; /* holds received message header */
   int localparity;
-
-  /* get pointers for header...*/
-  in_head = (EcPktHdr_CascadeBiconfParityResp *)receivebuf;
-
-  /* ...and find processblock: */
-  kb = getProcessBlock(in_head->base.epoch);
-  if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
-    return 49;
-  }
 
   kb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* use permuted buf */
 

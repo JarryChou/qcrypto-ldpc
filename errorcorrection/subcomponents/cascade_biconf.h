@@ -84,10 +84,10 @@ int initiate_biconf(ProcessBlock *kb);
 int generateBiconfReply(ProcessBlock *kb, char *receivebuf);
 int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength);
 int prepare_first_binsearch_msg(ProcessBlock *kb, int pass);
-int start_binarysearch(char *receivebuf);
-int process_binarysearch(char *receivebuf);
+int start_binarysearch(ProcessBlock *kb, char *receivebuf);
+int process_binarysearch(ProcessBlock *kb, char *receivebuf);
 int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head);
-int receive_biconfreply(char *receivebuf);
+int receive_biconfreply(ProcessBlock *kb, char *receivebuf);
 /// @}
 
 #endif /* ECD2_CASCADE_BICONF */

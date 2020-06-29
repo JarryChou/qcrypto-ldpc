@@ -70,19 +70,8 @@ int initiate_privacyamplification(ProcessBlock *kb) {
  * @param receivebuf incoming message
  * @return int 0 if success, otherwise error code
  */
-int receive_privamp_msg(char *receivebuf) {
-  EcPktHdr_StartPrivAmp *in_head; /* holds header */
-  ProcessBlock *kb;           /* poits to processblock info */
-
-  /* get pointers for header...*/
-  in_head = (EcPktHdr_StartPrivAmp *)receivebuf;
-
-  /* ...and find processblock: */
-  kb = getProcessBlock(in_head->base.epoch);
-  if (!kb) {
-    fprintf(stderr, "epoch %08x: ", in_head->base.epoch);
-    return 49;
-  }
+int receive_privamp_msg(ProcessBlock *kb, char *receivebuf) {
+  EcPktHdr_StartPrivAmp *in_head = (EcPktHdr_StartPrivAmp *)receivebuf; /* holds header */
 
   /* retreive number of corrected bits */
   kb->correctedErrors = in_head->correctedbits;
@@ -105,8 +94,7 @@ int receive_privamp_msg(char *receivebuf) {
  * @param lostbits 
  * @return int 0 if success, otherwise error code
  */
-int do_privacy_amplification(ProcessBlock *kb, unsigned int seed,
-                             int lostbits) {
+int do_privacy_amplification(ProcessBlock *kb, unsigned int seed, int lostbits) {
   int sneakloss;
   float trueerror, safe_error;
   // float cheeky_error;

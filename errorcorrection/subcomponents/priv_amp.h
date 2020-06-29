@@ -66,7 +66,7 @@ float binentrop(float q);
 /// @name PRIVACY AMPLIFICATION MAIN FUNCTIONS
 /// @{
 int initiate_privacyamplification(ProcessBlock *kb);
-int receive_privamp_msg(char *receivebuf);
+int receive_privamp_msg(ProcessBlock *kb, char *receivebuf);
 int do_privacy_amplification(ProcessBlock *kb, unsigned int seed, int lostbits);
 /// @}
 
