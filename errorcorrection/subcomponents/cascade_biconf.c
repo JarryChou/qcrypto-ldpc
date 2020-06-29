@@ -713,9 +713,9 @@ int start_binarysearch(ProcessBlock *kb, char *receivebuf) {
 int process_binarysearch(ProcessBlock *kb, char *receivebuf) {
   EcPktHdr_CascadeBinSearchMsg *in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf; /* holds received message header */
 
-  if (kb->processorRole == ALICE) {
+  if (kb->processorRole == INITIATOR) {
     return process_binsearch_alice(kb, in_head);
-  } else if (kb->processorRole == BOB) {
+  } else if (kb->processorRole == FOLLOWER) {
     return process_binsearch_bob(kb, in_head);
   } else {
     return 56; // Illegal role

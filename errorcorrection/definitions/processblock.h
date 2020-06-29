@@ -30,9 +30,14 @@
 
 #include "defaultdefinitions.h"
 
+/**
+ * @brief Processor roles to define what the current ecd2 does w.r.t how it processes the processblock.
+ * 
+ * These terms are used for clarity without the need of domain knowledge e.g. client/server.
+ */
 enum EC_PROCESSOR_ROLE {
-  ALICE = 0,
-  BOB = 1
+  INITIATOR = 0,  ///< Also known as Alice
+  FOLLOWER = 1    ///< Also known as Bob
 };
 typedef enum EC_PROCESSOR_ROLE PROCESSOR_ROLE;
 

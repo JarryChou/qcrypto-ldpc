@@ -113,7 +113,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   if (!(processBlock = getProcessBlock(epoch))) return 73; /* cannot find key block */
 
   /* set role in block to alice (initiating the seed) in keybloc struct */
-  processBlock->processorRole = ALICE;
+  processBlock->processorRole = INITIATOR;
   processBlock->skipQberEstim = arguments.skipQberEstimation;
   /* seed the rng, (the state has to be kept with the processblock, use a lock system for the rng in case several ) */
   // processBlock->RNG_usage = 0; /* use simple RNG */
@@ -188,7 +188,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     processBlock->leakageBits = 0;
     processBlock->estimatedSampleSize = 0;
     processBlock->estimatedError = 0;
-    processBlock->processorRole = BOB;
+    processBlock->processorRole = FOLLOWER;
     processBlock->bellValue = in_head->bellValue;
   }
 
@@ -219,7 +219,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
 
   #ifdef DEBUG
   printf("qber_processReceivedQberEstBits: estErr: %d errMode: %d \
- lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d\n",
+    lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d\n",
     processBlock->estimatedError, processBlock->skipQberEstim, 
     localerror, processBlock->estimatedSampleSize, newbitsneeded, processBlock->initialBits);
   #endif
