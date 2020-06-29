@@ -73,7 +73,7 @@ void prepare_paritylist1(ProcessBlock *kb, unsigned int *d0, unsigned int *d1);
 /// @{
 int testbits_needed(float e);
 int errorest_1(unsigned int epoch);
-int process_esti_message_0(char *receivebuf);
+int processReceivedQberEstBits(char *receivebuf);
 int send_more_esti_bits(char *receivebuf);
 int prepare_dualpass(char *receivebuf);
 /// @}

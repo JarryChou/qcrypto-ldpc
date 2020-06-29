@@ -96,7 +96,7 @@ int errorest_1(unsigned int epoch) {
  * @param receivebuf pointer to the receivebuffer with both the header and the data section.
  * @return int 0 on success, otherwise error code
  */
-int process_esti_message_0(char *receivebuf) {
+int processReceivedQberEstBits(char *receivebuf) {
   EcPktHdr_QberEstBits *in_head; /* holds header */
   ProcessBlock *kb;           /* points to processblock info */
   unsigned int *in_data;         /* holds input data bits */
@@ -197,7 +197,7 @@ int process_esti_message_0(char *receivebuf) {
   }
 
   #ifdef DEBUG
-  printf("process_esti_message_0: estErr: %d errMode: %d \
+  printf("processReceivedQberEstBits: estErr: %d errMode: %d \
  lclErr: %.4f estSampleSize: %d newBitsNeeded: %d initialBits: %d\n",
     kb->estimatedError, kb->errormode, 
     localerror, kb->estimatedSampleSize, newbitsneeded, kb->initialBits);

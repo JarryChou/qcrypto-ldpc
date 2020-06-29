@@ -121,10 +121,12 @@ int open_pipelines() {
   arguments.handle[handleId_notifyPipe] = fileno(arguments.fhandle[handleId_notifyPipe]);
 
   /* query pipeline */
+  /*
   if (stat(arguments.fname[handleId_queryPipe], &cmdstat)) return -emsg(25);
   if (!S_ISFIFO(cmdstat.st_mode)) return -emsg(26);
   if (!(arguments.fhandle[handleId_queryPipe] = fopen(arguments.fname[handleId_queryPipe], "r+"))) return -emsg(25);
   arguments.handle[handleId_queryPipe] = fileno(arguments.fhandle[handleId_queryPipe]);
+  */
 
   /* query response pipe */
   if (!(arguments.fhandle[handleId_queryRespPipe] = fopen(arguments.fname[handleId_queryRespPipe], "w+")))
@@ -151,7 +153,7 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
   /* prepare select call */
   FD_ZERO(readqueue_ptr);
   FD_ZERO(writequeue_ptr);
-  FD_SET(arguments.handle[handleId_queryPipe],readqueue_ptr); /* query pipe */
+  // FD_SET(arguments.handle[handleId_queryPipe],readqueue_ptr); /* query pipe */
   FD_SET(arguments.handle[handleId_receivePipe],readqueue_ptr); /* receive pipe */
   FD_SET(arguments.handle[handleId_commandPipe],readqueue_ptr); /* command pipe */
   if (hasContentToSend) {
@@ -223,15 +225,15 @@ int read_from_cmdpipe(char* cmd_input) {
  * @return 0 if success otherwise error code 
  */
 int create_processblock_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
-  int i, errcode, sl;
+  int i, errorCode, sl;
   /* parse command string */
   dpnt = index(cmd_input, '\n');
   if (dpnt) { /* we got a newline */
     dpnt[0] = 0;
     sl = strlen(cmd_input);
-    errcode = process_command(cmd_input);
-    if (errcode && (arguments.runtimeerrormode == END_ON_ERR)) {
-      return -emsg(errcode); /* complain */
+    errorCode = process_command(cmd_input);
+    if (errorCode && (arguments.runtimeerrormode == END_ON_ERR)) {
+      return -emsg(errorCode); /* complain */
     }
     /* move back rest */
     for (i = 0; i < input_last_index - sl - 1; i++) cmd_input[i] = dpnt[i + 1];
@@ -251,7 +253,7 @@ int create_processblock_and_start_qber_using_cmd(char* dpnt, char* cmd_input) {
  * @return 0 if success, otherwise return error code 
  */
 int process_command(char *cmd_input) {
-  int fieldsAssigned, errcode;
+  int fieldsAssigned, errorCode;
   unsigned int newepoch; /* command parser */
   int newepochnumber;
   float newesterror = 0; /* for initial parsing of a block */
@@ -284,15 +286,15 @@ int process_command(char *cmd_input) {
       }
 
       /* create new processblock */
-      if ((errcode = create_processblock(newepoch, newepochnumber, newesterror, bellValue))) {
+      if ((errorCode = create_processblock(newepoch, newepochnumber, newesterror, bellValue))) {
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return errcode; /* error reading files */
+        return errorCode; /* error reading files */
       }
 
       /* Initiate first step of error estimation */
-      if ((errcode = errorest_1(newepoch))) {
+      if ((errorCode = errorest_1(newepoch))) {
         if (arguments.runtimeerrormode != END_ON_ERR) break;
-        return errcode; /* error initiating err est */
+        return errorCode; /* error initiating err est */
       }
 
       printf("got a processblock and will send msg1\n");
@@ -379,7 +381,7 @@ int read_body_from_receivepipe() {
  */
 int main(int argc, char *argv[]) {
   // Variables
-  int retval, errcode;          // for checking if error occured in function, or return values in general
+  int retval, errorCode;          // for checking if error occured in function, or return values in general
   int i;                        // Helper iterator value
   // For select syscall system 
   fd_set readqueue, writequeue;  /* for main event loop */
@@ -403,12 +405,12 @@ int main(int argc, char *argv[]) {
 
 
   // Parameter passing
-  errcode = parse_options(argc, argv);
-  if (errcode) { return errcode; }
+  errorCode = parse_options(argc, argv);
+  if (errorCode) { return errorCode; }
 
   // Opening pipe and file handles
-  errcode = open_pipelines();
-  if (errcode) { return errcode; }
+  errorCode = open_pipelines();
+  if (errorCode) { return errorCode; }
 
   // Find largest handle for select call
   selectmax = 0;
@@ -437,36 +439,36 @@ int main(int argc, char *argv[]) {
     if (retval != 0) {
       // If there is something to write into send pipe
       if (FD_ISSET(arguments.handle[handleId_sendPipe], &writequeue)) {
-        errcode = write_into_sendpipe(&sendIndex);
-        if (errcode) return errcode;
+        errorCode = write_into_sendpipe(&sendIndex);
+        if (errorCode) return errorCode;
       } 
 
       // If there is something to read from cmd pipeline
       if (FD_ISSET(arguments.handle[handleId_commandPipe], &readqueue)) {
         // Read from cmd pipeline into cmd_input
-        errcode = read_from_cmdpipe((char *) &cmd_input);
-        if (errcode) {
-          if (errcode == -1) break; // Clean exit program
-          else return errcode;      // Otherwise an error really occurred
+        errorCode = read_from_cmdpipe((char *) &cmd_input);
+        if (errorCode) {
+          if (errorCode == -1) break; // Clean exit program
+          else return errorCode;      // Otherwise an error really occurred
         }
         // Process cmd_input
-        errcode = create_processblock_and_start_qber_using_cmd(dpnt, (char *) &cmd_input);
-        if (errcode) return errcode;
+        errorCode = create_processblock_and_start_qber_using_cmd(dpnt, (char *) &cmd_input);
+        if (errorCode) return errorCode;
       }
 
       // If there is something to read from receive pipeline
       if (FD_ISSET(arguments.handle[handleId_receivePipe], &readqueue)) {
         if (receiveIndex < sizeof(EcPktHdr_Base)) {
           // Read header (tag & length)
-          errcode = read_header_from_receivepipe();
+          errorCode = read_header_from_receivepipe();
         } else {
           // Read body (subtype & data)
-          errcode = read_body_from_receivepipe();
+          errorCode = read_body_from_receivepipe();
         }
-        if (errcode) return errcode;
+        if (errorCode) return errorCode;
       }
 
-      // If there is something to read from query pipeline (commented out because the body was empty)
+      // If there is something to read from query pipeline (commented out query pipe)
       // if (FD_ISSET(arguments.handle[handleId_queryPipe], &readqueue)) { }
     }
 
@@ -476,7 +478,7 @@ int main(int argc, char *argv[]) {
     if ((tempReceivedPacketNode = receivedPacketLinkedList)) {
       // If packet is not an error correction packet based on tag, then throw error
       if (((unsigned int *)tempReceivedPacketNode->packet)[0] != EC_PACKET_TAG) { 
-        errcode = 44; 
+        errorCode = 44; 
       } else {
         // Set helper header
         tmpBaseHeader = (EcPktHdr_Base *) tempReceivedPacketNode->packet;
@@ -488,49 +490,49 @@ int main(int argc, char *argv[]) {
         // Process packet based on the subtype
         switch (tmpBaseHeader->subtype) {
           case SUBTYPE_QBER_EST_BITS: /* received an error estimation packet */
-            errcode = process_esti_message_0(tempReceivedPacketNode->packet);
+            errorCode = processReceivedQberEstBits(tempReceivedPacketNode->packet);
             break;
 
           case SUBTYPE_QBER_EST_REQ_MORE_BITS: /* received request for more bits */
-            errcode = send_more_esti_bits(tempReceivedPacketNode->packet);
+            errorCode = send_more_esti_bits(tempReceivedPacketNode->packet);
             break;
 
           case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
-            errcode = prepare_dualpass(tempReceivedPacketNode->packet);
+            errorCode = prepare_dualpass(tempReceivedPacketNode->packet);
             break;
 
           case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
-            errcode = start_binarysearch(tempReceivedPacketNode->packet);
+            errorCode = start_binarysearch(tempReceivedPacketNode->packet);
             break;
 
           case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
-            errcode = process_binarysearch(tempReceivedPacketNode->packet);
+            errorCode = process_binarysearch(tempReceivedPacketNode->packet);
             break;
 
           case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-            errcode = generate_biconfreply(tempReceivedPacketNode->packet);
+            errorCode = generate_biconfreply(tempReceivedPacketNode->packet);
             break;
 
           case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
-            errcode = receive_biconfreply(tempReceivedPacketNode->packet);
+            errorCode = receive_biconfreply(tempReceivedPacketNode->packet);
             break;
 
           case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
-            errcode = receive_privamp_msg(tempReceivedPacketNode->packet);
+            errorCode = receive_privamp_msg(tempReceivedPacketNode->packet);
             break;
 
           default: /* packet subtype not known */
             fprintf(stderr, "received subtype %d; ", tmpBaseHeader->subtype);
-            errcode = 45;
+            errorCode = 45;
         }
       }
 
-      if (errcode) { /* an error occured */
-        emsg(errcode); // Always print errors
+      if (errorCode) { /* an error occured */
+        emsg(errorCode); // Always print errors
         if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) {
-          errcode = 0; // reset
+          errorCode = 0; // reset
         } else {
-          return -errcode;
+          return -errorCode;
         }
       }
       
@@ -546,7 +548,7 @@ int main(int argc, char *argv[]) {
   close(arguments.handle[handleId_sendPipe]);
   close(arguments.handle[handleId_receivePipe]);
   fclose(arguments.fhandle[handleId_notifyPipe]);
-  fclose(arguments.fhandle[handleId_queryPipe]);
-  fclose(arguments.fhandle[handleId_queryRespPipe]);
+  // fclose(arguments.fhandle[handleId_queryPipe]);
+  // fclose(arguments.fhandle[handleId_queryRespPipe]);
   return 0;
 }
