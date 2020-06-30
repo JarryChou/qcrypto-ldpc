@@ -443,8 +443,9 @@ int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
  * @return error code, 0 if success. 
  */
 int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
-  unsigned int msg5size;          /* size of message */
+  unsigned int msg5BodySize;          /* size of message */
   EcPktHdr_CascadeBinSearchMsg *h5;       /* pointer to first message */
+  int errorCode = 0;
   unsigned int *h5_data, *h5_idx; /* data pointers */
 
   kb->diffBlockCount = 1;
@@ -457,18 +458,10 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   kb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* only pass 1 */
 
   /* prepare message buffer for first binsearch message  */
-  msg5size =
-      sizeof(EcPktHdr_CascadeBinSearchMsg) /* header need */
-      + sizeof(unsigned int)       /* parity data need */
-      + 2 * sizeof(unsigned int);  /* indexing need for selection and compl */
-  h5 = (EcPktHdr_CascadeBinSearchMsg *)malloc2(msg5size);
-  if (!h5) return 55;
+  msg5BodySize = 3 * sizeof(unsigned int); /* parity data need, and indexing need for selection and compl */
+  errorCode = comms_createHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, kb);
+  if (errorCode) return errorCode;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
-  h5->base.tag = EC_PACKET_TAG;
-  h5->base.subtype = SUBTYPE_CASCADE_BIN_SEARCH_MSG;
-  h5->base.totalLengthInBytes = msg5size;
-  h5->base.epoch = kb->startEpoch;
-  h5->base.numberOfEpochs = kb->numberOfEpochs;
   h5->number_entries = kb->diffBlockCount;
   h5->indexPresent = 4; /* NEW this round we have a start/stop table */
 
@@ -511,7 +504,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   int i, j;                             /* index variables */
   int k;                                /* length of processblocks */
   unsigned int *pd;                     /* parity difference bitfield pointer */
-  unsigned int msg5SizeExcludeHeader;   /* size of message excluding header */
+  unsigned int msg5BodySize;            /* size of message excluding header */
   EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
   unsigned int *h5_data, *h5_idx;       /* data pointers */
   unsigned int *d;                      /* temporary pointer on parity data */
@@ -546,14 +539,14 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
     }
   }
   /* mark pass/round correctly in processBlock */
-  processBlock->binarySearchDepth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) | 0; /* first round */
+  processBlock->binarySearchDepth = (pass == 0) ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS; /* first round */
 
   // Note: duplicate-ish code here with makeMessageHead5
   /* prepare message buffer for first binsearch message  */
-  msg5SizeExcludeHeader = ((processBlock->diffBlockCount + 31) / 32) *
-            sizeof(unsigned int)               /* parity data need */
-            + processBlock->diffBlockCount * sizeof(unsigned int); /* indexing need */
-  i = comms_createHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5SizeExcludeHeader, processBlock);
+  // Parity need + indexing need
+  msg5BodySize = 
+      (((processBlock->diffBlockCount + 31) / 32) + processBlock->diffBlockCount) * sizeof(unsigned int); /* parity data need */
+  i = comms_createHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, processBlock);
   if (i) return 55;
   h5->number_entries = processBlock->diffBlockCount;
   h5->runlevel = processBlock->binarySearchDepth; /* keep local status */
@@ -585,7 +578,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   processBlock->leakageBits += processBlock->diffBlockCount;
 
   /* send out message */
-  comms_insertSendPacket((char *)h5, msg5SizeExcludeHeader + sizeof(EcPktHdr_CascadeBinSearchMsg));
+  comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
 
   return 0;
 }

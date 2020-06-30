@@ -73,7 +73,6 @@ void generate_BICONF_bitstring(ProcessBlock *kb);
 int do_paritylist_and_diffs(ProcessBlock *kb, int pass);
 void fix_parity_intervals(ProcessBlock *kb, unsigned int *inh_idx);
 void correct_bit(unsigned int *d, int bitindex);
-int singleLineParity(unsigned int *d, int start, int end);
 int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end);
 /// @}
 
