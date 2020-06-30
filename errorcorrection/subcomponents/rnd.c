@@ -82,9 +82,8 @@ void set_PRNG_seed(unsigned int seed) { __PrngState = seed; }
  * @return unsigned int 
  */
 unsigned int PRNG_value(int k) {
-  int k0;
   int b;
-  for (k0 = k; k0; k0--) {
+  for (int k0 = k; k0; k0--) {
     b = parity(__PrngState & PRNG_FEEDBACK);
     __PrngState <<= 1;
     __PrngState += b;
@@ -100,9 +99,8 @@ unsigned int PRNG_value(int k) {
  * @return unsigned int 
  */
 unsigned int PRNG_value2(int k, unsigned int *state) {
-  int k0;
   int b;
-  for (k0 = k; k0; k0--) {
+  for (int k0 = k; k0; k0--) {
     b = parity(*state & PRNG_FEEDBACK);
     *state <<= 1;
     *state += b;
@@ -118,9 +116,8 @@ unsigned int PRNG_value2(int k, unsigned int *state) {
  * @return unsigned int 
  */
 unsigned int PRNG_value2_32(unsigned int *state) {
-  int k0;
   int b;
-  for (k0 = 32; k0; k0--) {
+  for (int k0 = 32; k0; k0--) {
     b = parity(*state & PRNG_FEEDBACK);
     *state <<= 1;
     *state += b;
@@ -150,7 +147,7 @@ unsigned int generateRngSeed(void) {
     fprintf(stderr, "errno: %d", errno);
     return 39;
   }
-  if (WORD_SIZE != read(rndhandle, &reply, WORD_SIZE)) {
+  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
     return 0; /* not enough */
   }
   close(rndhandle);
