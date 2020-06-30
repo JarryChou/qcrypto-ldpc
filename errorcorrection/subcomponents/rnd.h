@@ -34,7 +34,7 @@
 #ifndef RND_H
 #define RND_H
 
-// Libraries required for generateRngSeed(void) helper
+// Libraries required for rnd_generateRngSeed(void) helper
 /// \cond for doxygen annotation
 #include <errno.h>
 #include <fcntl.h>
@@ -52,7 +52,7 @@ unsigned int PRNG_value(int);
 unsigned int PRNG_value2(int, unsigned int *);
 unsigned int PRNG_value2_32(unsigned int *);
 int get_RNG_calls(void);
-unsigned int generateRngSeed(void); /**< helper function to get a seed from the random device; returns seed or 0 on error */
+unsigned int rnd_generateRngSeed(void); /**< helper function to get a seed from the random device; returns seed or 0 on error */
 
 /**
  * @brief typical file names

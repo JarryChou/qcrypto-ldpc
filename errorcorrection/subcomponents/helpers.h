@@ -66,32 +66,6 @@ enum HandleId {
   handleId_numberOfHandles = 8
 };
 
-
-/// @name FUNCTIONS RECOMMENDED TO THE COMPILER FOR INLINE
-/// @{
-// (What is inline? See https://stackoverflow.com/questions/2082551/what-does-inline-mean)
-/**
- * @brief Helper for mask for a given index i on the longint array
- * 
- * If they were intended to be inlined might as well just set it as a macro
- * 
- * @param i 
- * @return bt_mask 
- */
-#define bt_mask(I) (1 << (31 - ((I) & 31)))    // __inline__ unsigned int bt_mask(int i) { return 1 << (31 - (modulo32(i))); }
-
-/**
- * @brief Helper function for parity isolation
- * 
- * If they were intended to be inlined might as well just set it as a macro
- * 
- * @param i 
- * @return firstmask 
- */
-#define firstmask(I) (0xffffffff >> (I))       // __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
-#define lastmask(I) (0xffffffff << (31 - (I))) // __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
-/// @}
-
 // DEFINED FUNCTIONS
 /* ------------------------------------------------------------------------- */
 /// @name FUNCTIONS RECOMMENDED TO THE COMPILER FOR INLINE
@@ -107,6 +81,9 @@ enum HandleId {
 #define wordIndex(BIT_INDEX) ((BIT_INDEX) / 32)         ///< Macro to get index of 32-bit word given the index of the bit
 #define wordCount(LAST_BIT_INDEX) (((LAST_BIT_INDEX) + 31) / 32) ///< Macro to get number of 32-bit words that used by buffer
 #define modulo32(X) ((X) & 31)                          ///< Can also be defined as "get least significant 5 bits", but this definition is more meaningful
+#define uint32AllZeroExceptAtN(N_FROM_RIGHT) (1 << (31 - (modulo32(N_FROM_RIGHT)))) ///< previously uint32AllZeroExceptAtN
+#define uint32AllOnesExceptFirstN(N_BITS) (0xffffffff >> (N_BITS))       ///< previously firstmask __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
+#define uint32AllOnesExceptLastN(N_BITS) (0xffffffff << (31 - (N_BITS))) ///< previously lastmask __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
 void atohex(char *target, unsigned int v);
 /// @}
 
@@ -117,7 +94,10 @@ void cleanup_revealed_bits(ProcessBlock *pb);
 void prepare_permut_core(ProcessBlock *pb);
 void prepare_permutation(ProcessBlock *pb);
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
-int singleLineParity(unsigned int *d, int start, int end);
+int singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex);
+// int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end); ///< Unused
+// void flipBit(unsigned int *d, int bitindex);
+#define flipBit(BITBUF_PTR, BIT_INDEX) ((BITBUF_PTR)[wordIndex(BIT_INDEX)] ^= uint32AllZeroExceptAtN(BIT_INDEX)) ///< Helper to flip bit
 /// @}
 
 

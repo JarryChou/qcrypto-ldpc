@@ -42,7 +42,7 @@ int initiate_privacyamplification(ProcessBlock *pb) {
   /* prepare messagehead */
   errorCode = comms_createEcHeader((char **)&h8, SUBTYPE_START_PRIV_AMP, 0, pb);
   if (errorCode) return 62; // hardcoded in original impl.
-  h8->seed = generateRngSeed();   /* generate local RNG seed */
+  h8->seed = rnd_generateRngSeed();   /* generate local RNG seed */
   h8->lostbits = pb->leakageBits; /* this is what we use for PA */
   h8->correctedbits = pb->correctedErrors;
 
@@ -214,7 +214,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
       m = 0;                                 /* initial word */
       for (j = 0; j < numwords; j++)
         m ^= (pb->mainBufPtr[j] & PRNG_value2_32(&pb->rngState));
-      if (parity(m)) finalkey[wordIndex(i)] |= bt_mask(i);
+      if (parity(m)) finalkey[wordIndex(i)] |= uint32AllZeroExceptAtN(i);
     }
   }
 

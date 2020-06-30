@@ -117,7 +117,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   processBlock->skipQberEstim = arguments.skipQberEstimation;
   /* seed the rng, (the state has to be kept with the processblock, use a lock system for the rng in case several ) */
   // processBlock->RNG_usage = 0; /* use simple RNG */
-  if (!(processBlock->rngState = generateRngSeed())) return 39;
+  if (!(processBlock->rngState = rnd_generateRngSeed())) return 39;
 
   if (processBlock->skipQberEstim) {
     msg1 = comms_createQberEstBitsMsg(processBlock, 1, processBlock->initialErrRate, processBlock->bellValue);
@@ -202,12 +202,12 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     while (True) { /* generate a bit position */
       bipo = PRNG_value2(rn_order, &processBlock->rngState);
       if (bipo > processBlock->initialBits) continue;          /* out of range */
-      bpm = bt_mask(bipo);                           /* bit mask */
+      bpm = uint32AllZeroExceptAtN(bipo);                           /* bit mask */
       if (processBlock->testedBitsMarker[wordIndex(bipo)] & bpm) continue; /* already used */
       /* got finally a bit */
       processBlock->testedBitsMarker[wordIndex(bipo)] |= bpm; /* mark as used */
       if (((processBlock->mainBufPtr[wordIndex(bipo)] & bpm) ? 1 : 0) ^
-          ((in_data[wordIndex(i)] & bt_mask(i)) ? 1 : 0)) { /* error */
+          ((in_data[wordIndex(i)] & uint32AllZeroExceptAtN(i)) ? 1 : 0)) { /* error */
          processBlock->estimatedError += 1;
       }
       break;
@@ -340,7 +340,7 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
 
   /* install new seed */
   // processBlock->RNG_usage = 0; /* use simple RNG */
-  if (!(newseed = generateRngSeed())) return 39;
+  if (!(newseed = rnd_generateRngSeed())) return 39;
   processBlock->rngState = newseed; /* get new seed for RNG */
 
   /* prepare permutation array */

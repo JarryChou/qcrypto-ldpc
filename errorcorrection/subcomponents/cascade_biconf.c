@@ -23,7 +23,7 @@ void fix_permutedbits(ProcessBlock *pb) {
   bzero(dst, wordCount(pb->workbits) * WORD_SIZE); /* clear dest */
   for (i = 0; i < pb->workbits; i++) {
     k = idx[i]; /* permuted bit index */
-    if (bt_mask(i) & src[wordIndex(i)]) dst[wordIndex(k)] |= bt_mask(k);
+    if (uint32AllZeroExceptAtN(i) & src[wordIndex(i)]) dst[wordIndex(k)] |= uint32AllZeroExceptAtN(k);
   }
   return;
 }
@@ -42,7 +42,7 @@ void generate_selectbitstring(ProcessBlock *pb, unsigned int seed) {
   for (i = 0; i < wordIndex(pb->workbits); i++) /* take care of the full bits */
     pb->testedBitsMarker[i] = PRNG_value2_32(&pb->rngState);
   pb->testedBitsMarker[wordIndex(pb->workbits)] = /* prepare last few bits */
-      PRNG_value2_32(&pb->rngState) & lastmask(modulo32(pb->workbits - 1));
+      PRNG_value2_32(&pb->rngState) & uint32AllOnesExceptLastN(modulo32(pb->workbits - 1));
   return;
 }
 
@@ -53,7 +53,7 @@ void generate_selectbitstring(ProcessBlock *pb, unsigned int seed) {
 
    @param pb processblock pointer (kb contains other params for final parity test)
  */
-void generate_BICONF_bitstring(ProcessBlock *pb) {
+void cascade_generateBiconfString(ProcessBlock *pb) {
   int i; /* number of bits to be set */
   /* take care of the full bits */
   for (i = 0; i < wordIndex(pb->workbits); i++) { 
@@ -65,7 +65,7 @@ void generate_BICONF_bitstring(ProcessBlock *pb) {
   /* prepare last few bits */
   pb->testedBitsMarker[wordIndex(pb->workbits)] = 
       PRNG_value2_32(&pb->rngState) & 
-      lastmask(modulo32(pb->workbits - 1)) &
+      uint32AllOnesExceptLastN(modulo32(pb->workbits - 1)) &
       pb->permuteBufPtr[wordIndex(pb->workbits)];
   return;
 }
@@ -130,43 +130,12 @@ void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx) {
       /* was already old */
       continue;
     }
-    if (inh_idx[wordIndex(i)] & bt_mask(i)) { /* error is in upper (par match) */
+    if (inh_idx[wordIndex(i)] & uint32AllZeroExceptAtN(i)) { /* error is in upper (par match) */
       pb->diffidx[i] = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2; /* take upper half */
     } else {
       pb->diffidxe[i] = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* take lower half */
     }
   }
-}
-
-/** @brief Helper for correcting one bit in pass 0 or 1 in their field */
-void correct_bit(unsigned int *d, int bitindex) {
-  d[wordIndex(bitindex)] ^= bt_mask(bitindex); /* flip bit */
-  return;
-}
-
-/** @brief Helper funtion to get a simple one-line parity from a large string, but
-   this time with a mask buffer to be AND-ed on the string.
-
- * @param d pointer to the start of the string buffer
- * @param m pointer to the start of the mask buffer
- * @param start start index
- * @param end end index
- * @return parity (0 or 1)
- */
-int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end) {
-  unsigned int tmp_par, lm, fm;
-  int li, fi, ri;
-  fi = wordIndex(start);
-  li = wordIndex(end);
-  lm = lastmask(modulo32(end));
-  fm = firstmask(modulo32(start));
-  if (li == fi) {
-    tmp_par = d[fi] & lm & fm & m[fi];
-  } else {
-    tmp_par = (d[fi] & fm & m[fi]) ^ (d[li] & lm & m[li]);
-    for (ri = fi + 1; ri < li; ri++) tmp_par ^= (d[ri] & m[ri]);
-  } /* tmp_par holds now a combination of bits to be tested */
-  return parity(tmp_par);
 }
 
 // CASCADE BICONF MAIN FUNCTIONS
@@ -185,7 +154,7 @@ int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end)
  * @param in_head header for incoming request
  * @return error code, 0 if success
  */
-int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_processBinSearchAsInitiator(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
@@ -293,7 +262,7 @@ int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_h
       // Update bits
       midBitIndex = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* new lower mid bitidx */
       tmpSingleLineParity = singleLineParity(d, firstBitIndex, midBitIndex);
-      if (((inh_data[wordIndex(i)] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
+      if (((inh_data[wordIndex(i)] & uint32AllZeroExceptAtN(i)) ? 1 : 0) == tmpSingleLineParity) {
         /* same parity, take upper half */
         firstBitIndex = midBitIndex + 1;
         pb->diffidx[i] = firstBitIndex; /* update first bit idx */
@@ -342,15 +311,15 @@ int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_h
 /**
  * @brief Function to initiate a BICONF procedure on Bob side. 
  * 
- * generate_BICONF_bitstring into pb, then
+ * cascade_generateBiconfString into pb, then
  * sends out a package calling for a BICONF reply.
  * 
  * @param pb processblock pointer
  * @return error code, 0 if success
  */
-int initiate_biconf(ProcessBlock *pb) {
-  EcPktHdr_CascadeBiconfInitReq *h6; /* header for that message */
-  unsigned int seed = generateRngSeed();  /* seed for permutation */
+int cascade_initiateBiconf(ProcessBlock *pb) {
+  EcPktHdr_CascadeBiconfInitReq *h6;           /* header for that message */
+  unsigned int seed = rnd_generateRngSeed();  /* seed for permutation */
   int errorCode = 0;
 
   /* update state variables */
@@ -358,7 +327,7 @@ int initiate_biconf(ProcessBlock *pb) {
   pb->rngState = seed;
 
   /* generate local bit string for test mask */
-  generate_BICONF_bitstring(pb);
+  cascade_generateBiconfString(pb);
 
   /* fill message */
   errorCode = comms_createEcHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, pb);
@@ -403,7 +372,7 @@ int generateBiconfReply(ProcessBlock *pb, char *receivebuf) {
   /* old: prepare_permut_core(pb); */
 
   /* generate local (alice) version of test bit section */
-  generate_BICONF_bitstring(pb);
+  cascade_generateBiconfString(pb);
 
   /* fill the response header */
   errorCode = comms_createEcHeader((char **)&h7, SUBTYPE_CASCADE_BICONF_PARITY_RESP, 0, pb);
@@ -435,7 +404,7 @@ int generateBiconfReply(ProcessBlock *pb, char *receivebuf) {
  * @param biconfLength length of biconf
  * @return error code, 0 if success. 
  */
-int initiate_biconf_binarysearch(ProcessBlock *pb, int biconfLength) {
+int cascade_initiateBiconf_binarysearch(ProcessBlock *pb, int biconfLength) {
   unsigned int msg5BodySize;          /* size of message */
   EcPktHdr_CascadeBinSearchMsg *h5;       /* pointer to first message */
   int errorCode = 0;
@@ -520,7 +489,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   /* fill difference index memory */
   j = 0; /* index for mismatching blocks */
   for (i = 0; i < partitions; i++) {
-    if (bt_mask(i) & pd[wordIndex(i)]) {       /* this block is mismatched */
+    if (uint32AllZeroExceptAtN(i) & pd[wordIndex(i)]) {       /* this block is mismatched */
       processBlock->diffidx[j] = i * k;                               /* store bit index, not block index */
       processBlock->diffidxe[j] = processBlock->diffidx[j] + (k - 1); /* last block */
       j++;
@@ -644,7 +613,7 @@ int process_binarysearch(ProcessBlock *pb, char *receivebuf) {
   EcPktHdr_CascadeBinSearchMsg *in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf; /* holds received message header */
 
   if (pb->processorRole == INITIATOR) {
-    return process_binsearch_alice(pb, in_head);
+    return cascade_processBinSearchAsInitiator(pb, in_head);
   } else if (pb->processorRole == FOLLOWER) {
     return process_binsearch_bob(pb, in_head);
   } else {
@@ -731,8 +700,8 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
     }
     /* If we have found the bit error */
     if (firstBitIndex == lastBitIndex) {
-      if (biconfmark) correct_bit(d2, firstBitIndex);
-      correct_bit(d, firstBitIndex);
+      if (biconfmark) flipBit(d2, firstBitIndex);
+      flipBit(d, firstBitIndex);
       pb->correctedErrors++;
       lostBitsCount -= 2;           /* No initial parity, no outgoing */
       pb->diffidx[i] = firstBitIndex + 1; /* mark as emty */
@@ -741,7 +710,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
 
     midBitIndex = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* new lower mid bitidx */
     tmpSingleLineParity = singleLineParity(d, firstBitIndex, midBitIndex);
-    if (((inh_data[wordIndex(i)] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
+    if (((inh_data[wordIndex(i)] & uint32AllZeroExceptAtN(i)) ? 1 : 0) == tmpSingleLineParity) {
       /* same parity, take upper half */
       firstBitIndex = midBitIndex + 1;
       pb->diffidx[i] = firstBitIndex; /* update first bit idx */
@@ -752,8 +721,8 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
     }
     /* If this is end of interval, correct for error */
     if (firstBitIndex == lastBitIndex) {
-      if (biconfmark) correct_bit(d2, firstBitIndex);
-      correct_bit(d, firstBitIndex);
+      if (biconfmark) flipBit(d2, firstBitIndex);
+      flipBit(d, firstBitIndex);
       pb->correctedErrors++;
       lostBitsCount--; /* we don't reveal anything on this one anymore */
       goto skipparity;
@@ -829,7 +798,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
 
     /* generate new biconf request */
     if (pb->biconfRound < arguments.biconfRounds) {
-      return initiate_biconf(pb); /* request another one */
+      return cascade_initiateBiconf(pb); /* request another one */
     }
     /* initiate the privacy amplificaton */
     return initiate_privacyamplification(pb);
@@ -841,7 +810,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
   /* initiate the BICONF state */
   pb->processingState = PRS_DOING_BICONF;
   pb->biconfRound = 0; /* first BICONF round */
-  return initiate_biconf(pb);
+  return cascade_initiateBiconf(pb);
 }
 
 /** @brief Start the parity generation process on bob's side. 
@@ -866,7 +835,7 @@ int receive_biconfreply(ProcessBlock *pb, char *receivebuf) {
 
   /* eventually start binary search */
   if (localparity != in_head->parity) {
-    return initiate_biconf_binarysearch(pb, pb->biconfLength);
+    return cascade_initiateBiconf_binarysearch(pb, pb->biconfLength);
   }
   /* this location gets ONLY visited if there is no error in BICONF search */
 
@@ -875,7 +844,7 @@ int receive_biconfreply(ProcessBlock *pb, char *receivebuf) {
 
   /* eventully generate new biconf request */
   if (pb->biconfRound < arguments.biconfRounds) {
-    return initiate_biconf(pb); /* request another one */
+    return cascade_initiateBiconf(pb); /* request another one */
   }
   /* initiate the privacy amplificaton */
   return initiate_privacyamplification(pb);

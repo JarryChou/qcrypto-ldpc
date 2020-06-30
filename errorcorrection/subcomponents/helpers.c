@@ -36,19 +36,19 @@ void cleanup_revealed_bits(ProcessBlock *pb) {
   int i;
 
   /* find first nonused lastbit */
-  while ((lastbit > 0) && (m[wordIndex(lastbit)] & bt_mask(lastbit))) 
+  while ((lastbit > 0) && (m[wordIndex(lastbit)] & uint32AllZeroExceptAtN(lastbit))) 
     lastbit--;
 
   /* replace spent bits in beginning by untouched bits at end */
   for (i = 0; i <= lastbit; i++) {
-    bm = bt_mask(i);
+    bm = uint32AllZeroExceptAtN(i);
     if (m[wordIndex(i)] & bm) { /* this bit is revealed */
       d[wordIndex(i)] =
           (d[wordIndex(i)] & ~bm) |
-          ((d[wordIndex(lastbit)] & bt_mask(lastbit)) ? bm : 0); /* transfer bit */
+          ((d[wordIndex(lastbit)] & uint32AllZeroExceptAtN(lastbit)) ? bm : 0); /* transfer bit */
       /* get new lastbit */
       lastbit--;
-      while ((lastbit > 0) && (m[wordIndex(lastbit)] & bt_mask(lastbit))) 
+      while ((lastbit > 0) && (m[wordIndex(lastbit)] & uint32AllZeroExceptAtN(lastbit))) 
         lastbit--;
     }
   }
@@ -141,7 +141,7 @@ void prepare_permut_core(ProcessBlock *pb) {
   bzero(pb->permuteBufPtr, wordCount(workbits) * WORD_SIZE); /* clear permuted buffer */
   for (i = 0; i < workbits; i++) {                   /*  do bit permutation  */
     k = pb->permuteIndex[i];
-    if (bt_mask(i) & pb->mainBufPtr[wordIndex(i)]) pb->permuteBufPtr[wordIndex(k)] |= bt_mask(k);
+    if (uint32AllZeroExceptAtN(i) & pb->mainBufPtr[wordIndex(i)]) pb->permuteBufPtr[wordIndex(k)] |= uint32AllZeroExceptAtN(k);
   }
 
   /* for debug: output that stuff */
@@ -157,41 +157,88 @@ void prepare_permut_core(ProcessBlock *pb) {
  * @param k integer arg for the blocksize to use
  * @param w number of workbits
  */
-void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
+void prepare_paritylist_basic(unsigned int *srcBuffer, unsigned int *targetBuffer, int k, int workBitCount) {
   /* the bitindex points to the first and the last bit tested. */
-  unsigned int resbuf = 0; /* result buffer */
-  int blkidx = 0;          /* contains blockindex */  
-  for (int bitidx = 0; bitidx < w; bitidx += k) {
+  unsigned int resultBuffer = 0;  /* result buffer */
+  int blkIndex = 0;               /* contains blockindex */  
+  for (int bitIndex = 0; bitIndex < workBitCount; bitIndex += k) {
     /* shift parity result in buffer */
-    resbuf = (resbuf << 1) + singleLineParity(d, bitidx, bitidx + k - 1);
-    if (modulo32(blkidx) == 31) 
-      t[wordIndex(blkidx)] = resbuf; /* save in target */
-    blkidx++;
+    resultBuffer <<= 1;
+    // Add a new parity result
+    resultBuffer += singleLineParity(srcBuffer, bitIndex, bitIndex + k - 1);
+    if (modulo32(blkIndex) == 31) 
+      targetBuffer[wordIndex(blkIndex)] = resultBuffer; /* save in target */
+    blkIndex++;
   }
-  /* cleanup residual parity buffer */
-  if (modulo32(blkidx) != 0) 
-    t[wordIndex(blkidx)] = resbuf << (32 - modulo32(blkidx));
+  /* cleanup residual parity buffer by right padding with zeroes */
+  if (modulo32(blkIndex) != 0) 
+    targetBuffer[wordIndex(blkIndex)] = resultBuffer << (32 - modulo32(blkIndex));
   return;
 }
 
 /** @brief Helper funtion to get a simple one-line parity from a large string.
  * 
+ * @param bitBuffer pointer to the start of the string buffer
+ * @param startBitIndex start index
+ * @param endBitIndex end index
+ * @return parity (0 or 1)
+ */
+int singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex) {
+  int firstWordIndex = wordIndex(startBitIndex);
+  int lastWordIndex = wordIndex(endBitIndex);
+  // First / last words may not be fully padded. 
+  // Masks ensure we only XOR the bits that should be checked.
+  unsigned int firstWordMask = uint32AllOnesExceptFirstN(modulo32(startBitIndex));
+  unsigned int lastWordMask = uint32AllOnesExceptLastN(modulo32(endBitIndex));
+  // Use XOR to combine the entire buffer of bits into an unsigned int to be checked for parity 
+  unsigned int tmpXorValues;
+  if (lastWordIndex == firstWordIndex) {
+    tmpXorValues = bitBuffer[firstWordIndex] & lastWordMask & firstWordMask;
+  } else {
+    tmpXorValues = (bitBuffer[firstWordIndex] & firstWordMask) ^ (bitBuffer[lastWordIndex] & lastWordMask);
+    for (int wordIndex = firstWordIndex + 1; wordIndex < lastWordIndex; wordIndex++) 
+      tmpXorValues ^= bitBuffer[wordIndex];
+  } /* tmpXorValues holds now a combination of bits to be tested */
+  return parity(tmpXorValues);
+}
+
+/** @brief Helper funtion to get a simple one-line parity from a large string, but
+   this time with a mask buffer to be AND-ed on the string.
+
+   This is currently unused, if it is needed, extend singleLineParity to support this
+
  * @param d pointer to the start of the string buffer
+ * @param m pointer to the start of the mask buffer
  * @param start start index
  * @param end end index
  * @return parity (0 or 1)
  */
-int singleLineParity(unsigned int *d, int start, int end) {
-  int fi = wordIndex(start);
-  int li = wordIndex(end);
-  unsigned int fm = firstmask(modulo32(start));
-  unsigned int lm = lastmask(modulo32(end));
-  unsigned int tmp_par;
+/*
+int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end) {
+  unsigned int tmpParity, lm, fm;
+  int li, fi, ri;
+  fi = wordIndex(start);
+  li = wordIndex(end);
+  lm = uint32AllOnesExceptLastN(modulo32(end));
+  fm = uint32AllOnesExceptFirstN(modulo32(start));
   if (li == fi) {
-    tmp_par = d[fi] & lm & fm;
+    tmpParity = d[fi] & lm & fm & m[fi];
   } else {
-    tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-    for (int ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-  } /* tmp_par holds now a combination of bits to be tested */
-  return parity(tmp_par);
+    tmpParity = (d[fi] & fm & m[fi]) ^ (d[li] & lm & m[li]);
+    for (ri = fi + 1; ri < li; ri++) tmpParity ^= (d[ri] & m[ri]);
+  } // tmpParity holds now a combination of bits to be tested 
+  return parity(tmpParity);
 }
+*/
+
+/** 
+ * @brief Helper for correcting one bit in pass 0 or 1 in their field 
+ * 
+ * This can be turned into a 
+*/
+/*
+void flipBit(unsigned int *d, int bitindex) {
+  d[wordIndex(bitindex)] ^= uint32AllZeroExceptAtN(bitindex); // flip bit
+  return;
+}
+*/

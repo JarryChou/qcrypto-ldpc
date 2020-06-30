@@ -69,19 +69,17 @@ void fix_permutedbits(ProcessBlock *pb);
 /// @name CASCADE BICONF HELPER FUNCTIONS
 /// @{
 void generate_selectbitstring(ProcessBlock *pb, unsigned int seed);
-void generate_BICONF_bitstring(ProcessBlock *pb);
+void cascade_generateBiconfString(ProcessBlock *pb);
 int do_paritylist_and_diffs(ProcessBlock *pb, int pass);
 void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx);
-void correct_bit(unsigned int *d, int bitindex);
-int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end);
 /// @}
 
 /// @name CASCADE BICONF MAIN FUNCTIONS
 /// @{
-int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
-int initiate_biconf(ProcessBlock *pb);
+int cascade_processBinSearchAsInitiator(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
+int cascade_initiateBiconf(ProcessBlock *pb);
 int generateBiconfReply(ProcessBlock *pb, char *receivebuf);
-int initiate_biconf_binarysearch(ProcessBlock *pb, int biconfLength);
+int cascade_initiateBiconf_binarysearch(ProcessBlock *pb, int biconfLength);
 int prepare_first_binsearch_msg(ProcessBlock *pb, int pass);
 int start_binarysearch(ProcessBlock *pb, char *receivebuf);
 int process_binarysearch(ProcessBlock *pb, char *receivebuf);

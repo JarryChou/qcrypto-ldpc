@@ -76,11 +76,11 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
     while (True) {                             /* generate a bit position */
       bipo = PRNG_value2(rn_order, &processBlock->rngState);
       if (bipo > processBlock->initialBits) continue;          /* out of range */
-      bpm = bt_mask(bipo);                                    /* bit mask */
+      bpm = uint32AllZeroExceptAtN(bipo);                                    /* bit mask */
       if (processBlock->testedBitsMarker[wordIndex(bipo)] & bpm) continue; /* already used */
       /* got finally a bit */
       processBlock->testedBitsMarker[wordIndex(bipo)] |= bpm; /* mark as used */
-      if (processBlock->mainBufPtr[wordIndex(bipo)] & bpm) localdata |= bt_mask(i);
+      if (processBlock->mainBufPtr[wordIndex(bipo)] & bpm) localdata |= uint32AllZeroExceptAtN(i);
       if ((modulo32(i)) == 31) {
         msg1_data[wordIndex(i)] = localdata;
         localdata = 0; /* reset buffer */
