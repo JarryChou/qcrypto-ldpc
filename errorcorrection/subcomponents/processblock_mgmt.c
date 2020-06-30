@@ -38,7 +38,7 @@ int check_epochoverlap(unsigned int epoch, int num) {
  * @return int 0 on success, otherwise error code
  */
 int create_processblock(unsigned int epoch, int num, float inierr, float bellValue) {
-  static unsigned int temparray[TEMPARRAYSIZE];
+  static unsigned int temparray[TEMP_ARRAY_SIZE];
   static struct header_3 h3;           /* header for raw key file */
   unsigned int residue, residue2, tmp; /* leftover bits at end */
   int resbitnumber;                    /* number of bits in the residue */
@@ -46,7 +46,7 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
   unsigned int epi;                    /* epoch index */
   unsigned int enu;
   int retval, i, bitcount;
-  char ffnam[FNAMELENGTH + 10]; /* to store filename */
+  char ffnam[FNAME_LENGTH + 10]; /* to store filename */
   ProcessBlockDequeNode *bp;      /* to hold new processblock */
   int getbytes;                 /* how much memory to ask for */
   unsigned int *rawMemPtr;         /* to store raw key */
@@ -58,9 +58,9 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
   bitcount = 0;
   for (enu = 0; enu < num; enu++) {
     epi = epoch + enu; /* current epoch index */
-    strncpy(ffnam, arguments.fname[handleId_rawKeyDir], FNAMELENGTH);
+    strncpy(ffnam, arguments.fname[handleId_rawKeyDir], FNAME_LENGTH);
     atohex(&ffnam[strlen(ffnam)], epi);
-    arguments.handle[handleId_rawKeyDir] = open(ffnam, FILEINMODE); /* in blocking mode */
+    arguments.handle[handleId_rawKeyDir] = open(ffnam, FILE_INMODE); /* in blocking mode */
     if (-1 == arguments.handle[handleId_rawKeyDir]) {
       fprintf(stderr, "cannot open file >%s< errno: %d\n", ffnam, errno);
       return 67; /* error opening file */
@@ -76,7 +76,7 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
     }
 
     if (h3.bitsperentry != 1) return 70; /* not a BB84 raw key */
-    if (bitcount + h3.length >= MAXBITSPERprocessblock)
+    if (bitcount + h3.length >= MAX_BITS_PER_PROCESSBLOCK)
       return 71; /* not enough space */
 
     i = wordIndex(h3.length) +
@@ -86,7 +86,7 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
 
     /* close and possibly remove file */
     close(arguments.handle[handleId_rawKeyDir]);
-    if (arguments.remove_raw_keys_after_use) {
+    if (arguments.removeRawKeysAfterUse) {
       retval = unlink(ffnam);
       if (retval) return 66;
     }
@@ -148,7 +148,7 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
   bp->content->initialBits = bitcount; /* number of bits in stream */
   bp->content->leakageBits = 0;        /* start with no initially lost bits */
   bp->content->processingState = PRS_JUSTLOADED; /* just read in */
-  bp->content->initialError = (int)(inierr * (1 << 16));
+  bp->content->initialErrRate = (int)(inierr * (1 << 16));
   bp->content->bellValue = bellValue;
   /* insert processblock in processblock list */
   bp->epoch = epoch;

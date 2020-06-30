@@ -67,22 +67,22 @@ struct arguments {
     } runtimeerrormode; /**< Determines the way how to react on errors which should not stop the demon. */
 
     int biconfRounds;  /**< number of biconf rounds, used by cascade_biconf */
-    float errormargin;  /**< number of standard deviations of the detected errors should be added to eve's information leakage estimation, used by priv_amp*/ 
-    float initialerr;   /**< What error to assume initially */
-    float intrinsicerr; /**< error rate generated outside eavesdropper, used by priv_amp */
+    float errorMargin;  /**< number of standard deviations of the detected errors should be added to eve's information leakage estimation, used by priv_amp*/ 
+    float initialErrRate;   /**< What error to assume initially */
+    float intrinsicErrRate; /**< error rate generated outside eavesdropper, used by priv_amp */
     
     // Helper parameter to help calculate # of biconfRounds
     // float biconf_BER;   /**< BER argument to determine biconf rounds */
 
     /// @name booleans
     /// @{
-    Boolean remove_raw_keys_after_use;
+    Boolean removeRawKeysAfterUse;
     Boolean skipQberEstimation; /**< used by qber_estim */
     Boolean bellmode;   /**< Expect to receive a value for the Bell violation  param, used by priv_amp */
-    Boolean disable_privacyamplification; /**< used by priv_amp  */
+    Boolean disablePrivAmp; /**< used by priv_amp  */
     //// @}
 
-    char fname[handleId_numberOfHandles][FNAMELENGTH];
+    char fname[handleId_numberOfHandles][FNAME_LENGTH];
     int handle[handleId_numberOfHandles];
     FILE *fhandle[8];
 };
@@ -99,8 +99,8 @@ extern ProcessBlockDequeNode *processBlockDeque;
 
 /// @name Global variables used by comms
 /// @{
-extern struct packet_to_send *nextPacketToSend;
-extern struct packet_to_send *lastPacketToSend;
+extern PacketToSendNode*nextPacketToSend;
+extern PacketToSendNode*lastPacketToSend;
 /// @}
 
 

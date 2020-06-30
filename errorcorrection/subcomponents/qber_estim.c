@@ -49,7 +49,7 @@ void setStateKnowMyErrorAndCalculatek0andk1(ProcessBlock *processBlock, float lo
 float calculateLocalError(ProcessBlock *processBlock, enum REPLY_MODE* replyModeResult, int *newBitsNeededResult) {
   float localError, ldi;
   if (processBlock->skipQberEstim) { /* skip the error estimation */
-    localError = (float)processBlock->initialError / 65536.0;
+    localError = (float)processBlock->initialErrRate / 65536.0;
     *replyModeResult = REPLYMODE_CONTINUE; /* skip error est part */
   } else {
     processBlock->skipQberEstim = False;
@@ -120,10 +120,10 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   if (!(processBlock->rngState = generateRngSeed())) return 39;
 
   if (processBlock->skipQberEstim) {
-    msg1 = comms_createQberEstBitsMsg(processBlock, 1, processBlock->initialError, processBlock->bellValue);
+    msg1 = comms_createQberEstBitsMsg(processBlock, 1, processBlock->initialErrRate, processBlock->bellValue);
   } else {
     /* do a very rough estimation on how many bits are needed in this round */
-    f_inierr = processBlock->initialError / 65536.; /* float version */
+    f_inierr = processBlock->initialErrRate / 65536.; /* float version */
     if (USELESS_ERRORBOUND - f_inierr <= 0) return 41; /* no error extractable */
     bits_needed = testBitsNeeded(f_inierr);
     if (bits_needed >= processBlock->initialBits) return 42; /* not possible */
@@ -214,7 +214,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     }
   }
   processBlock->skipQberEstim = (in_head->fixedErrorRate) ? True : False;
-  processBlock->initialError = in_head->fixedErrorRate;
+  processBlock->initialErrRate = in_head->fixedErrorRate;
   localerror = calculateLocalError(processBlock, &replymode, &newbitsneeded);
 
   #ifdef DEBUG

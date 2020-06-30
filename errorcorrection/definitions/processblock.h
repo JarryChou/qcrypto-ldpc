@@ -56,7 +56,7 @@ typedef struct processblock {
   int initialBits;                  /**< bits to start with */
   int leakageBits;                  /**< information which has gone public */
   int processingState;              /**< determines processing status  current block. See defines below for interpretation */
-  int initialError;                 /**< in multiples of 2^-16 */
+  int initialErrRate;                 /**< in multiples of 2^-16 */
   Boolean skipQberEstim;                    /**< determines if error estimation has to be done */
   int estimatedError;               /**< number of estimated error bits */
   int estimatedSampleSize;          /**< sample size for error  estimation  */

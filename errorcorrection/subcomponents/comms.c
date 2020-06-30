@@ -14,19 +14,22 @@
  * @return int 0 if success, otherwise error code if malloc failure
  */
 int comms_insertSendPacket(char *message, int length) {
-  struct packet_to_send *newpacket, *lp;
+  PacketToSendNode *newpacket;
   // pidx++; // Unused global int variable
-  newpacket = (struct packet_to_send *)malloc2(sizeof(struct packet_to_send));
+  newpacket = (PacketToSendNode*)malloc2(sizeof(PacketToSendNode));
   if (!newpacket) return 43;
 
   newpacket->length = length;
   newpacket->packet = message; /* content */
   newpacket->next = NULL;
 
-  lp = lastPacketToSend;
-  if (lp) lp->next = newpacket; /* insetr in chain */
+  if (lastPacketToSend) 
+    lastPacketToSend->next = newpacket; /* insert into chain */
+
   lastPacketToSend = newpacket;
-  if (!nextPacketToSend) nextPacketToSend = newpacket;
+
+  if (!nextPacketToSend) 
+    nextPacketToSend = newpacket;
 
   /* for debug: send message, take identity from first available slot */
   /*dumpmsg(processBlockDeque->content, message); */
@@ -70,10 +73,10 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
   /* mark selected bits in this stream and fill this structure with bits */
   localdata = 0;                     /* storage for bits */
   for (i = 0; i < bitsneeded; i++) { /* count through all needed bits */
-    do {                             /* generate a bit position */
+    while (True) {                             /* generate a bit position */
       bipo = PRNG_value2(rn_order, &processBlock->rngState);
       if (bipo > processBlock->initialBits) continue;          /* out of range */
-      bpm = bt_mask(bipo);                           /* bit mask */
+      bpm = bt_mask(bipo);                                    /* bit mask */
       if (processBlock->testedBitsMarker[wordIndex(bipo)] & bpm) continue; /* already used */
       /* got finally a bit */
       processBlock->testedBitsMarker[wordIndex(bipo)] |= bpm; /* mark as used */
@@ -83,7 +86,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
         localdata = 0; /* reset buffer */
       }
       break; /* end rng search cycle */
-    } while (1);
+    }
   }
 
   /* fill in last localdata */

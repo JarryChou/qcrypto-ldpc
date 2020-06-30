@@ -56,7 +56,7 @@
  *         -d rawkeydirectory -f finalkeydirectory
  *         -l notificationpipe
  *         -q responsepipe -Q querypipe
- *         [ -e errormargin ]
+ *         [ -e errorMargin ]
  *         [ -E expectederror ]
  *         [ -k ]
  *         [ -J basicerror ]
@@ -93,20 +93,20 @@
  * 
  *  CONTROL OPTIONS:
  * 
- *   -e errormargin:       A float parameter for how many standard deviations
+ *   -e errorMargin:       A float parameter for how many standard deviations
  *                         of the detected errors should be added to the
  *                         information leakage estimation to eve, assuming a
  *                         poissonian statistics on the found errors (i.e.,
  *                         if 100 error bits are found, one standard deviation
  *                         in the error rate QBER is QBER /Sqrt(10). )
  *                         Default is set to 0.
- *   -E initialerr:         an initial error rate can be given for choosing the
+ *   -E initialErrRate:         an initial error rate can be given for choosing the
  *                         length of the first test. Default is 0.05. This may
  *                         be overridden by a servoed quantity or by an explicit
  *                         statement in a command.
- *   -k                    remove_raw_keys_after_use option. If set, the raw key files will be
+ *   -k                    removeRawKeysAfterUse option. If set, the raw key files will be
  *                         deleted after writing the final key into a file.
- *   -J intrinsicerr:      Error rate which is assumed to be generated outside the
+ *   -J intrinsicErrRate:      Error rate which is assumed to be generated outside the
  *                         influence of an eavesdropper.
  *   -T runtimeerrormode:  Determines the way how to react on errors which should
  *                         not stop the demon. Default is 0. detailed behavior:
@@ -132,7 +132,7 @@
  *                         the deamon expects to receive a value for the Bell
  *                         violation parameter to estimate the knowledge of an
  *                         eavesdropper.
- *   -p                    disable_privacyamplification option. avoid privacy amplification. For debugging purposes, to
+ *   -p                    disablePrivAmp option. avoid privacy amplification. For debugging purposes, to
  *                         find the residual error rate
  *   -B biconf_BER:        choose the number of BICONF rounds to meet a final
  *                         bit error probability of BER. This assumes a residual
@@ -206,21 +206,21 @@
 /// @{
 /* structs */
 ProcessBlockDequeNode *processBlockDeque = NULL;
-struct packet_to_send *nextPacketToSend = NULL;
-struct packet_to_send *lastPacketToSend = NULL;
+PacketToSendNode*nextPacketToSend = NULL;
+PacketToSendNode*lastPacketToSend = NULL;
 
 /* global parameters and variables */
 Arguments arguments = {
     DEFAULT_VERBOSITY,          // verbosity_level
-    DEFAULT_RUNTIMEERRORMODE,   // runtimeerrormode
+    DEFAULT_RUNTIME_ERROR_MODE,   // runtimeerrormode
     DEFAULT_BICONF_ROUNDS,      // biconfRounds
-    DEFAULT_ERR_MARGIN,         // errormargin
-    DEFAULT_INITIAL_ERR,        // initialerr
-    DEFAULT_INTRINSIC,          // intrinsicerr
-    DEFAULT_KILLMODE,           // remove_raw_keys_after_use
+    DEFAULT_ERR_MARGIN,         // errorMargin
+    DEFAULT_INITIAL_ERR,        // initialErrRate
+    DEFAULT_INTRINSIC,          // intrinsicErrRate
+    DEFAULT_KILLMODE,           // removeRawKeysAfterUse
     DEFAULT_ERR_SKIPMODE,       // skipQberEstimation
     False,                      // bellmode
-    False                       // disable_privacyamplification
+    False                       // disablePrivAmp
                                 // fname
                                 // handle
                                 // fhandle

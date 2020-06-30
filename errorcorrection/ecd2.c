@@ -37,36 +37,36 @@ int parse_options(int argc, char *argv[]) {
       case 'r': i++; /* commreceivepipe, idx=2 */
       case 's': i++; /* commsendpipe, idx=1 */
       case 'c':      /* commandpipe, idx=0 */
-        if (1 != sscanf(optarg, FNAMFORMAT, arguments.fname[i])) return -emsg(2 + i);
-        arguments.fname[i][FNAMELENGTH - 1] = 0; /* security termination */
+        if (1 != sscanf(optarg, FNAM_FORMAT, arguments.fname[i])) return -emsg(2 + i);
+        arguments.fname[i][FNAME_LENGTH - 1] = 0; /* security termination */
         break;
       case 'e': /* read in error threshold */
-        if (1 != sscanf(optarg, "%f", &arguments.errormargin)) return -emsg(10);
-        if ((arguments.errormargin < MIN_ERR_MARGIN) || (arguments.errormargin > MAX_ERR_MARGIN))
+        if (1 != sscanf(optarg, "%f", &arguments.errorMargin)) return -emsg(10);
+        if ((arguments.errorMargin < MIN_ERR_MARGIN) || (arguments.errorMargin > MAX_ERR_MARGIN))
           return -emsg(11);
         break;
       case 'E': /* expected error rate */
-        if (1 != sscanf(optarg, "%f", &arguments.initialerr)) return -emsg(12);
-        if ((arguments.initialerr < MIN_INI_ERR) || (arguments.initialerr > MAX_INI_ERR))
+        if (1 != sscanf(optarg, "%f", &arguments.initialErrRate)) return -emsg(12);
+        if ((arguments.initialErrRate < MIN_INI_ERR) || (arguments.initialErrRate > MAX_INI_ERR))
           return -emsg(13);
         break;
-      case 'k': arguments.remove_raw_keys_after_use = 1; /* kill mode for raw files */
+      case 'k': arguments.removeRawKeysAfterUse = 1; /* kill mode for raw files */
         break;
       case 'J': /* error rate generated outside eavesdropper */
-        if (1 != sscanf(optarg, "%f", &arguments.intrinsicerr)) return -emsg(14);
-        if ((arguments.intrinsicerr < 0) || (arguments.intrinsicerr > MAX_INTRINSIC))
+        if (1 != sscanf(optarg, "%f", &arguments.intrinsicErrRate)) return -emsg(14);
+        if ((arguments.intrinsicErrRate < 0) || (arguments.intrinsicErrRate > MAX_INTRINSIC))
           return -emsg(15);
         break;
       case 'T': /* runtime error behaviour */
         if (1 != sscanf(optarg, "%d", (int *)&arguments.runtimeerrormode)) return -emsg(16);
-        if ((arguments.runtimeerrormode < 0) || (arguments.runtimeerrormode > MAXRUNTIMEERROR))
+        if ((arguments.runtimeerrormode < 0) || (arguments.runtimeerrormode > MAX_RUNTIME_ERROR_CONFIG))
           return -emsg(16);
         break;
       case 'I': arguments.skipQberEstimation = 1; /* skip initial error measurement */
         break;
       case 'i': arguments.bellmode = 1; /* expect a bell value for sneakage estimation */
         break;
-      case 'p': arguments.disable_privacyamplification = 1; /* disable privacy amplification */
+      case 'p': arguments.disablePrivAmp = 1; /* disable privacy amplification */
         break;
       case 'b': /* set BICONF rounds */
         if (1 != sscanf(optarg, "%d", &arguments.biconfRounds)) return -emsg(76);
@@ -108,12 +108,12 @@ int open_pipelines() {
   /* send pipeline */
   if (stat(arguments.fname[handleId_sendPipe], &cmdstat)) return -emsg(20);
   if (!S_ISFIFO(cmdstat.st_mode)) return -emsg(21);
-  if ((arguments.handle[handleId_sendPipe] = open(arguments.fname[handleId_sendPipe], FIFOOUTMODE)) == -1) return -emsg(20);
+  if ((arguments.handle[handleId_sendPipe] = open(arguments.fname[handleId_sendPipe], FIFO_OUTMODE)) == -1) return -emsg(20);
 
   /* receive pipeline */
   if (stat(arguments.fname[handleId_receivePipe], &cmdstat)) return -emsg(22);
   if (!S_ISFIFO(cmdstat.st_mode)) return -emsg(23);
-  if ((arguments.handle[handleId_receivePipe] = open(arguments.fname[handleId_receivePipe], FIFOINMODE)) == -1) return -emsg(22);
+  if ((arguments.handle[handleId_receivePipe] = open(arguments.fname[handleId_receivePipe], FIFO_INMODE)) == -1) return -emsg(22);
 
   /* notify pipeline */
   if (!(arguments.fhandle[handleId_notifyPipe] = fopen(arguments.fname[handleId_notifyPipe], "w+")))
@@ -179,7 +179,7 @@ int write_into_sendpipe() {
   if (retval == -1) return -emsg(29);
   if (retval == i) { /* packet is sent */
     free2(nextPacketToSend->packet);
-    struct packet_to_send *tmp_packetpointer = nextPacketToSend;
+    PacketToSendNode*tmp_packetpointer = nextPacketToSend;
     nextPacketToSend = nextPacketToSend->next;
     if (lastPacketToSend == tmp_packetpointer)
       lastPacketToSend = NULL;
@@ -202,7 +202,7 @@ int write_into_sendpipe() {
  */
 int readFromCmdPipe(char* cmd_input) {
   int retval = read(arguments.handle[handleId_commandPipe], &cmd_input[input_last_index], 
-      CMD_INBUFLEN - 1 - input_last_index);
+      CMD_INBUF_LEN - 1 - input_last_index);
   if (retval < 0) return -1;
   input_last_index += retval;
   cmd_input[input_last_index] = '\0';
@@ -210,7 +210,7 @@ int readFromCmdPipe(char* cmd_input) {
   printf("Rd from cmd pipe. cmd_input: %s\n", cmd_input);
   fflush(stdout);
   #endif
-  if (input_last_index >= CMD_INBUFLEN) return 75; /* overflow, parse later... */
+  if (input_last_index >= CMD_INBUF_LEN) return 75; /* overflow, parse later... */
 
   return 0;
 }
@@ -270,7 +270,7 @@ int process_command(char *cmd_input) {
       if (arguments.runtimeerrormode != END_ON_ERR) break;/* nocomplain */
       return 30;                         /* not enough arguments */
     case 1: newepochnumber = 1;                 /* use default epoch number */
-    case 2: newesterror = arguments.initialerr; // use default initial error rate, or error rate passed in
+    case 2: newesterror = arguments.initialErrRate; // use default initial error rate, or error rate passed in
     case 3: bellValue = PERFECT_BELL;           /* assume perfect Bell */
     case 4:                                     /* everything is there */
       // Parameter validation
@@ -399,7 +399,7 @@ int main(int argc, char *argv[]) {
   EcPktHdr_Base *tmpBaseHeader = NULL;
   ProcessBlock *tmpProcessBlock = NULL;
   // Variables for command input
-  char cmd_input[CMD_INBUFLEN];  /* For temporary storage of cmd input */
+  char cmd_input[CMD_INBUF_LEN];  /* For temporary storage of cmd input */
   cmd_input[0] = '\0';    /* buffer for commands */
   input_last_index = 0;   /* input parsing */
 

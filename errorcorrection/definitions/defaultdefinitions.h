@@ -32,8 +32,8 @@
 
 /// @name DEFAULT DEFINITIONS
 /// @{
-#define FNAMELENGTH 200    /**< length of file name buffers */
-#define FNAMFORMAT "%200s" /**< for sscanf of filenames */
+#define FNAME_LENGTH 200    /**< length of file name buffers */
+#define FNAM_FORMAT "%200s" /**< for sscanf of filenames */
 #define DEFAULT_ERR_MARGIN 0. /**< eavesdropper is assumed to have full knowledge on raw key */
 #define MIN_ERR_MARGIN 0.          /**< for checking error margin entries */
 #define MAX_ERR_MARGIN 100.        /**< for checking error margin entries */
@@ -46,22 +46,22 @@
 #define DEFAULT_KILLMODE 0         /**< no raw key files are removed by default */
 #define DEFAULT_INTRINSIC 0        /**< all errors are due to eve */
 #define MAX_INTRINSIC 0.05         /**< just a safe margin */
-#define DEFAULT_RUNTIMEERRORMODE 0 /**< all error s stop daemon */
-#define MAXRUNTIMEERROR 2
-#define FIFOINMODE O_RDWR | O_NONBLOCK
-#define FIFOOUTMODE O_RDWR
-#define FILEINMODE O_RDONLY
-#define FILEOUTMODE O_WRONLY | O_CREAT | O_TRUNC
-#define OUTPERMISSIONS 0600
-#define TEMPARRAYSIZE (1 << 11) /**< to capture 64 kbit of raw key */
-#define MAXBITSPERprocessblock (1 << 16)
+#define DEFAULT_RUNTIME_ERROR_MODE 0 /**< all error s stop daemon */
+#define MAX_RUNTIME_ERROR_CONFIG 2  ///< max value for runtime error parameter
+#define FIFO_INMODE O_RDWR | O_NONBLOCK
+#define FIFO_OUTMODE O_RDWR
+#define FILE_INMODE O_RDONLY
+#define FILE_OUTMODE O_WRONLY | O_CREAT | O_TRUNC
+#define OUT_PERMISSIONS 0600
+#define TEMP_ARRAY_SIZE (1 << 11) /**< to capture 64 kbit of raw key */
+#define MAX_BITS_PER_PROCESSBLOCK (1 << 16)
 #define DEFAULT_VERBOSITY 0
 #define DEFAULT_BICONF_LENGTH 256 /**< length of a final check */
 #define DEFAULT_BICONF_ROUNDS 10  /**< number of BICONF rounds */
 #define MAX_BICONF_ROUNDS 100     /**< enough for BER < 10^-27 */
 #define AVG_BINSEARCH_ERR 0.0032  /**< what I have seen at some point for 10k. This goes with the inverse of the length for block lengths between 5k-40k */
 #define DEFAULT_ERR_SKIPMODE 0 /**< initial error estimation is done */
-#define CMD_INBUFLEN 200
+#define CMD_INBUF_LEN 200
 #define PERFECT_BELL 2. * sqrt(2.)
 /// @}
 

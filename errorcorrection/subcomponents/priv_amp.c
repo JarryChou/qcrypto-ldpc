@@ -96,7 +96,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   int numwords, mlen;      /* number of words in final key / message length */
   struct header_7 *outmsg; /* keeps output message */
   int i, j;                /* counting indices */
-  char ffnam[FNAMELENGTH + 10]; /* to store filename */
+  char ffnam[FNAME_LENGTH + 10]; /* to store filename */
   int written, rv;              /* counts writeout bits, return value */
   int redundantloss; /* keeps track of redundancy in error correction */
   float BellHelper;
@@ -128,9 +128,9 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
      is UNCORRELATED to errors caused by potential eavesdropping, and
      assume they add quadratically. Let's at least check that the true
      error is not smaller than the "basic" error..... */
-  if (arguments.intrinsicerr < trueerror) {
+  if (arguments.intrinsicErrRate < trueerror) {
     // Unused code
-    // cheeky_error = sqrt(trueerror * trueerror - arguments.intrinsicerr * arguments.intrinsicerr);
+    // cheeky_error = sqrt(trueerror * trueerror - arguments.intrinsicErrRate * arguments.intrinsicErrRate);
 
     /* Dodgy intrinsic error subtraction would happen here. */
 
@@ -141,7 +141,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
 
       safe_error = trueerror;
       if (pb->correctedErrors > 0) {
-        safe_error *= (1. + arguments.errormargin / sqrt(pb->correctedErrors));
+        safe_error *= (1. + arguments.errorMargin / sqrt(pb->correctedErrors));
       }
       sneakloss = (int)(binentrop(safe_error) * pb->workbits);
 
@@ -168,9 +168,9 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
 
   /* dirtwork for testing. I need to leave this in because it is the basis
    for may of the plots we have. */
-  printf("PA disable: %d\n", arguments.disable_privacyamplification);
+  printf("PA disable: %d\n", arguments.disablePrivAmp);
 
-  if (arguments.disable_privacyamplification) {
+  if (arguments.disablePrivAmp) {
     pb->finalKeyBits = pb->workbits;
   }
 
@@ -206,7 +206,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   bzero(finalkey, wordCount(pb->finalKeyBits) * WORD_SIZE);
 
   /* prepare final key */
-  if (arguments.disable_privacyamplification) { /* no PA fo debugging */
+  if (arguments.disablePrivAmp) { /* no PA fo debugging */
     for (j = 0; j < numwords; j++) finalkey[j] = pb->mainBufPtr[j];
   } else { /* do privacy amplification */
     /* create compression matrix on the fly while preparing key */
@@ -219,9 +219,9 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   }
 
   /* send final key to file */
-  strncpy(ffnam, arguments.fname[handleId_finalKeyDir], FNAMELENGTH);                /* fnal key directory */
+  strncpy(ffnam, arguments.fname[handleId_finalKeyDir], FNAME_LENGTH);                /* fnal key directory */
   atohex(&ffnam[strlen(ffnam)], pb->startEpoch);        /* add file name */
-  arguments.handle[handleId_finalKeyDir] = open(ffnam, FILEOUTMODE, OUTPERMISSIONS); /* open target */
+  arguments.handle[handleId_finalKeyDir] = open(ffnam, FILE_OUTMODE, OUT_PERMISSIONS); /* open target */
   if (-1 == arguments.handle[handleId_finalKeyDir]) return 64;
   written = 0;
   while (1) {
