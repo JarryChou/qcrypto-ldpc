@@ -188,8 +188,8 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
 
   /* set last bits to zero in workbits.... */
   numwords = wordCount(pb->workbits);
-  if (pb->workbits & 31)
-    pb->mainBufPtr[numwords - 1] &= (0xffffffff << (32 - (pb->workbits & 31)));
+  if (modulo32(pb->workbits) != 0)
+    pb->mainBufPtr[numwords - 1] &= (0xffffffff << (32 - modulo32(pb->workbits)));
 
   /* prepare structure for final key */
   mlen = sizeof(struct header_7) + wordCount(pb->finalKeyBits) * WORD_SIZE;
@@ -234,7 +234,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   close(arguments.handle[handleId_finalKeyDir]);
 
   /* send notification */
-  switch (arguments.verbosity_level) {
+  switch (arguments.verbosityLevel) {
     case VERBOSITY_EPOCH: /* output raw block name */
       fprintf(arguments.fhandle[handleId_notifyPipe], "%08x\n", pb->startEpoch);
       break;

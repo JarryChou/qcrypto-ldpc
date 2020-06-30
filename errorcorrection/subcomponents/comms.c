@@ -81,7 +81,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
       /* got finally a bit */
       processBlock->testedBitsMarker[wordIndex(bipo)] |= bpm; /* mark as used */
       if (processBlock->mainBufPtr[wordIndex(bipo)] & bpm) localdata |= bt_mask(i);
-      if ((i & 31) == 31) {
+      if ((modulo32(i)) == 31) {
         msg1_data[wordIndex(i)] = localdata;
         localdata = 0; /* reset buffer */
       }
@@ -90,7 +90,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
   }
 
   /* fill in last localdata */
-  if (i & 31) {
+  if (modulo32(i) != 0) {
     msg1_data[wordIndex(i)] = localdata;
   } /* there was something left */
 
@@ -110,7 +110,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
 EcPktHdr_CascadeBinSearchMsg *makeBinSrchMsgHead(ProcessBlock *processBlock, unsigned int indexPresent) {
   unsigned int sizeOfMsgBody;
   int errorCode;
-  EcPktHdr_CascadeBinSearchMsg *out_head;
+  EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead;
   switch (indexPresent) {
     case 0: 
       sizeOfMsgBody = wordCount(processBlock->diffBlockCount) * WORD_SIZE * 2; /* two bitfields */
@@ -126,13 +126,13 @@ EcPktHdr_CascadeBinSearchMsg *makeBinSrchMsgHead(ProcessBlock *processBlock, uns
       fprintf(stderr, "Used unsupported indexPresent index %d", indexPresent);
       return NULL;
   }
-  errorCode = comms_createEcHeader((char **)&out_head, SUBTYPE_CASCADE_BIN_SEARCH_MSG, sizeOfMsgBody, processBlock);
+  errorCode = comms_createEcHeader((char **)&outgoingMsgHead, SUBTYPE_CASCADE_BIN_SEARCH_MSG, sizeOfMsgBody, processBlock);
   if (errorCode) 
     return NULL;
-  out_head->number_entries = processBlock->diffBlockCount;
-  out_head->runlevel = processBlock->binarySearchDepth; /* next round */
-  out_head->indexPresent = indexPresent; // 0: ordinary reply, 1: first msg, 4: this round we have a start/stop table
-  return out_head;
+  outgoingMsgHead->number_entries = processBlock->diffBlockCount;
+  outgoingMsgHead->runlevel = processBlock->binarySearchDepth; /* next round */
+  outgoingMsgHead->indexPresent = indexPresent; // 0: ordinary reply, 1: first msg, 4: this round we have a start/stop table
+  return outgoingMsgHead;
 }
 
 /**

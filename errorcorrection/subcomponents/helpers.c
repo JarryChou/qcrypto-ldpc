@@ -56,7 +56,7 @@ void cleanup_revealed_bits(ProcessBlock *pb) {
   pb->workbits = i;
 
   /* fill rest of buffer with zeros for not loosing any bits */
-  d[wordIndex(i)] &= ((i & 31) ? (0xffffffff << (32 - (i & 31))) : 0);
+  d[wordIndex(i)] &= ((modulo32(i)) ? (0xffffffff << (32 - modulo32(i))) : 0);
   for (i = wordIndex(pb->workbits) + 1; i < wordCount(pb->initialBits); i++) {
     d[i] = 0;
     /* printf("   i= %d\n",i); */
@@ -164,13 +164,13 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
   for (int bitidx = 0; bitidx < w; bitidx += k) {
     /* shift parity result in buffer */
     resbuf = (resbuf << 1) + singleLineParity(d, bitidx, bitidx + k - 1);
-    if ((blkidx & 31) == 31) 
+    if (modulo32(blkidx) == 31) 
       t[wordIndex(blkidx)] = resbuf; /* save in target */
     blkidx++;
   }
   /* cleanup residual parity buffer */
-  if (blkidx & 31) 
-    t[wordIndex(blkidx)] = resbuf << (32 - (blkidx & 31));
+  if (modulo32(blkidx) != 0) 
+    t[wordIndex(blkidx)] = resbuf << (32 - modulo32(blkidx));
   return;
 }
 
@@ -184,8 +184,8 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
 int singleLineParity(unsigned int *d, int start, int end) {
   int fi = wordIndex(start);
   int li = wordIndex(end);
-  unsigned int fm = firstmask(start & 31);
-  unsigned int lm = lastmask(end & 31);
+  unsigned int fm = firstmask(modulo32(start));
+  unsigned int lm = lastmask(modulo32(end));
   unsigned int tmp_par;
   if (li == fi) {
     tmp_par = d[fi] & lm & fm;

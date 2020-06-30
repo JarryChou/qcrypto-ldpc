@@ -55,7 +55,7 @@ enum EcSubtypes {
 /**
  * @brief this one is just a mockup for reading a message to determine its length.
  * 
-   It represents only the common entry at the begnning of all message files
+   It represents the common entries at the beginning of all message files.
  * 
  */
 typedef struct ERRC_PROTO {
@@ -128,7 +128,7 @@ typedef struct ERRC_ERRDET_4 {
 typedef struct ERRC_ERRDET_5 {
     EcPktHdr_Base base;
     unsigned int number_entries;    /**< number of blocks with parity mismatch */
-    unsigned int indexPresent;     /**< format /presence of index data  */
+    unsigned int indexPresent;      /**< format /presence of index data  */
     unsigned int runlevel;          /**<  pass and bisectioning depth */
 } EcPktHdr_CascadeBinSearchMsg;	
 

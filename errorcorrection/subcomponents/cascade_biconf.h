@@ -81,7 +81,7 @@ int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end)
 int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int initiate_biconf(ProcessBlock *pb);
 int generateBiconfReply(ProcessBlock *pb, char *receivebuf);
-int initiate_biconf_binarysearch(ProcessBlock *pb, int biconflength);
+int initiate_biconf_binarysearch(ProcessBlock *pb, int biconfLength);
 int prepare_first_binsearch_msg(ProcessBlock *pb, int pass);
 int start_binarysearch(ProcessBlock *pb, char *receivebuf);
 int process_binarysearch(ProcessBlock *pb, char *receivebuf);

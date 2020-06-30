@@ -79,8 +79,8 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
     if (bitcount + h3.length >= MAX_BITS_PER_PROCESSBLOCK)
       return 71; /* not enough space */
 
-    i = wordIndex(h3.length) +
-        ((h3.length & 0x1f) ? 1 : 0); /* number of words to read */
+    i = wordIndex(h3.length) + 
+        (modulo32(h3.length) ? 1 : 0); /* number of words to read */
     retval = read(arguments.handle[handleId_rawKeyDir], &temparray[newindex], i * WORD_SIZE);
     if (retval != i * WORD_SIZE) return 72; /* not enough read */
 
@@ -92,11 +92,11 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
     }
 
     /* residue update */
-    tmp = temparray[newindex + i - 1] & ((~1) << (31 - (h3.length & 0x1f)));
+    tmp = temparray[newindex + i - 1] & ((~1) << (31 - modulo32(h3.length)));
     residue |= (tmp >> resbitnumber);
     residue2 = tmp << (32 - resbitnumber);
-    resbitnumber += (h3.length & 0x1f);
-    if (h3.length & 0x1f) { /* we have some residual bits */
+    resbitnumber += modulo32(h3.length);
+    if (modulo32(h3.length) != 0) { /* we have some residual bits */
       newindex += (i - 1);
     } else { /* no fresh residue, old one stays as is */
       newindex += i;

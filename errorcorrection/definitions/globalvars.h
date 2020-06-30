@@ -59,12 +59,12 @@ struct arguments {
         VERBOSITY_EPOCH_INI_FIN_ERR_PLAIN = 3, 
         VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT = 4, 
         VERBOSITY_EPOCH_INI_FIN_ERR_EXPLICIT_WITH_COMMENTS = 5 
-    } verbosity_level;  /**< verbosity level of output, used by priv_amp */
+    } verbosityLevel;  /**< verbosity level of output, used by priv_amp */
    
     enum { END_ON_ERR = 0, 
         IGNORE_INVALID_PACKETS = 1, 
         IGNORE_ERRS_ON_OTHER_END = 2 
-    } runtimeerrormode; /**< Determines the way how to react on errors which should not stop the demon. */
+    } runtimeErrorMode; /**< Determines the way how to react on errors which should not stop the demon. */
 
     int biconfRounds;  /**< number of biconf rounds, used by cascade_biconf */
     float errorMargin;  /**< number of standard deviations of the detected errors should be added to eve's information leakage estimation, used by priv_amp*/ 

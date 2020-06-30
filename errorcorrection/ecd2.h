@@ -108,12 +108,12 @@
  *                         deleted after writing the final key into a file.
  *   -J intrinsicErrRate:      Error rate which is assumed to be generated outside the
  *                         influence of an eavesdropper.
- *   -T runtimeerrormode:  Determines the way how to react on errors which should
+ *   -T runtimeErrorMode:  Determines the way how to react on errors which should
  *                         not stop the demon. Default is 0. detailed behavior:
  *                         0: terminate program on everything
  *                         1: ignore errors on wrong packets???
  *                         2: ignore errors inherited from other side
- *   -V verbosity_level:   Defines verbosity mode on the logging output after a
+ *   -V verbosityLevel:   Defines verbosity mode on the logging output after a
  *                         block has been processed. options:
  *                         0: just output the raw block name (epoch number in hex)
  *                         1: output the block name, number of final bits
@@ -211,8 +211,8 @@ PacketToSendNode*lastPacketToSend = NULL;
 
 /* global parameters and variables */
 Arguments arguments = {
-    DEFAULT_VERBOSITY,          // verbosity_level
-    DEFAULT_RUNTIME_ERROR_MODE,   // runtimeerrormode
+    DEFAULT_VERBOSITY,          // verbosityLevel
+    DEFAULT_RUNTIME_ERROR_MODE,   // runtimeErrorMode
     DEFAULT_BICONF_ROUNDS,      // biconfRounds
     DEFAULT_ERR_MARGIN,         // errorMargin
     DEFAULT_INITIAL_ERR,        // initialErrRate

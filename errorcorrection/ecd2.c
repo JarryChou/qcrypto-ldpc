@@ -27,7 +27,7 @@ int parse_options(int argc, char *argv[]) {
     i = 0; /* for pairing filename-containing options */
     switch (opt) {
       case 'V': /* verbosity parameter */
-        if (1 != sscanf(optarg, "%d", (int *)&arguments.verbosity_level)) return -emsg(1);
+        if (1 != sscanf(optarg, "%d", (int *)&arguments.verbosityLevel)) return -emsg(1);
         break;
       case 'q': i++; /* respondpipe, idx=7 */
       case 'Q': i++; /* querypipe, idx=6 */
@@ -58,8 +58,8 @@ int parse_options(int argc, char *argv[]) {
           return -emsg(15);
         break;
       case 'T': /* runtime error behaviour */
-        if (1 != sscanf(optarg, "%d", (int *)&arguments.runtimeerrormode)) return -emsg(16);
-        if ((arguments.runtimeerrormode < 0) || (arguments.runtimeerrormode > MAX_RUNTIME_ERROR_CONFIG))
+        if (1 != sscanf(optarg, "%d", (int *)&arguments.runtimeErrorMode)) return -emsg(16);
+        if ((arguments.runtimeErrorMode < 0) || (arguments.runtimeErrorMode > MAX_RUNTIME_ERROR_CONFIG))
           return -emsg(16);
         break;
       case 'I': arguments.skipQberEstimation = 1; /* skip initial error measurement */
@@ -232,7 +232,7 @@ int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmd_input) {
     dpnt[0] = 0;
     sl = strlen(cmd_input);
     errorCode = process_command(cmd_input);
-    if (errorCode && (arguments.runtimeerrormode == END_ON_ERR)) {
+    if (errorCode && (arguments.runtimeErrorMode == END_ON_ERR)) {
       return errorCode; /* complain */
     }
     /* move back rest */
@@ -267,7 +267,7 @@ int process_command(char *cmd_input) {
   // Assign default values based on how many fields assigned
   switch (fieldsAssigned) {
     case 0:                                     /* no conversion */
-      if (arguments.runtimeerrormode != END_ON_ERR) break;/* nocomplain */
+      if (arguments.runtimeErrorMode != END_ON_ERR) break;/* nocomplain */
       return 30;                         /* not enough arguments */
     case 1: newepochnumber = 1;                 /* use default epoch number */
     case 2: newesterror = arguments.initialErrRate; // use default initial error rate, or error rate passed in
@@ -275,25 +275,25 @@ int process_command(char *cmd_input) {
     case 4:                                     /* everything is there */
       // Parameter validation
       if (newesterror < 0 || newesterror > MAX_INI_ERR) { // error rate out of bounds
-        if (arguments.runtimeerrormode != END_ON_ERR) break;
+        if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return 31;
       } else if (newepochnumber < 1) { // epoch num out of bounds
-        if (arguments.runtimeerrormode != END_ON_ERR) break;
+        if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return 32;
       } else if (check_epochoverlap(newepoch, newepochnumber)) { // ensure start epoch & epoch num has not been used
-        if (arguments.runtimeerrormode != END_ON_ERR) break;
+        if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return 33;
       }
 
       /* create new processblock */
       if ((errorCode = create_processblock(newepoch, newepochnumber, newesterror, bellValue))) {
-        if (arguments.runtimeerrormode != END_ON_ERR) break;
+        if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return errorCode; /* error reading files */
       }
 
       /* Initiate first step of error estimation */
       if ((errorCode = qber_beginErrorEstimation(newepoch))) {
-        if (arguments.runtimeerrormode != END_ON_ERR) break;
+        if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return errorCode; /* error initiating err est */
       }
 
@@ -453,7 +453,7 @@ int main(int argc, char *argv[]) {
           }
           else { // Otherwise an error really occurred
             emsg(errorCode);  // Always print error
-            if (arguments.runtimeerrormode == END_ON_ERR) {
+            if (arguments.runtimeErrorMode == END_ON_ERR) {
               return -errorCode;
             }
           }
@@ -543,7 +543,7 @@ int main(int argc, char *argv[]) {
 
       if (errorCode) { /* an error occured */
         emsg(errorCode); // Always print errors
-        if (arguments.runtimeerrormode == IGNORE_ERRS_ON_OTHER_END) {
+        if (arguments.runtimeErrorMode == IGNORE_ERRS_ON_OTHER_END) {
           errorCode = 0; // reset
         } else {
           return -errorCode;

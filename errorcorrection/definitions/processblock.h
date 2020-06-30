@@ -75,7 +75,7 @@ typedef struct processblock {
   unsigned int *diffidxe;           /**< end of interval */
   int binarySearchDepth;              /**< encodes state of the scan. Starts with 0, and contains the pass (0/1) in the MSB */
   int biconfRound;                 /**< contains the biconf round number, starting with 0 */
-  int biconflength;                 /**< current length of a biconf check range */
+  int biconfLength;                 /**< current length of a biconf check range */
   int correctedErrors;              /**< number of corrected bits */
   int finalKeyBits;                 /**< how much is left */
   float bellValue;                  /**< for Ekert-type protocols */
