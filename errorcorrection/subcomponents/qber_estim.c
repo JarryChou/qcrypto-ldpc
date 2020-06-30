@@ -13,8 +13,8 @@
  * @param d1 pointer to paritybuffer 1
  */
 void prepareParityList1(ProcessBlock *processBlock, unsigned int *d0, unsigned int *d1) {
-  prepare_paritylist_basic(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
-  prepare_paritylist_basic(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
+  helpers_prepParityList(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
+  helpers_prepParityList(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
   return;
 }
 

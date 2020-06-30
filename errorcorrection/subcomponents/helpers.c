@@ -152,20 +152,20 @@ void prepare_permut_core(ProcessBlock *pb) {
 /**
  * @brief helper function to preare a parity list of a given pass in a block.
  * 
- * @param d pointer to source buffer
- * @param t pointer to target bffer
- * @param k integer arg for the blocksize to use
- * @param w number of workbits
+ * @param srcBuffer pointer to source buffer
+ * @param targetBuffer pointer to target bffer
+ * @param blkSize integer arg for the blocksize to use
+ * @param workBitCount number of workbits
  */
-void prepare_paritylist_basic(unsigned int *srcBuffer, unsigned int *targetBuffer, int k, int workBitCount) {
+void helpers_prepParityList(unsigned int *srcBuffer, unsigned int *targetBuffer, int blkSize, int workBitCount) {
   /* the bitindex points to the first and the last bit tested. */
   unsigned int resultBuffer = 0;  /* result buffer */
   int blkIndex = 0;               /* contains blockindex */  
-  for (int bitIndex = 0; bitIndex < workBitCount; bitIndex += k) {
+  for (int bitIndex = 0; bitIndex < workBitCount; bitIndex += blkSize) {
     /* shift parity result in buffer */
     resultBuffer <<= 1;
     // Add a new parity result
-    resultBuffer += singleLineParity(srcBuffer, bitIndex, bitIndex + k - 1);
+    resultBuffer += singleLineParity(srcBuffer, bitIndex, bitIndex + blkSize - 1);
     if (modulo32(blkIndex) == 31) 
       targetBuffer[wordIndex(blkIndex)] = resultBuffer; /* save in target */
     blkIndex++;

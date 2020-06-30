@@ -514,19 +514,19 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
-                errorCode = start_binarysearch(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = cascade_startBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
-                errorCode = process_binarysearch(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = cascade_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-                errorCode = generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = cascade_generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
-                errorCode = receive_biconfreply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = cascade_receiveBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */

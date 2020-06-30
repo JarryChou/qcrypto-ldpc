@@ -93,7 +93,7 @@ void atohex(char *target, unsigned int v);
 void cleanup_revealed_bits(ProcessBlock *pb);
 void prepare_permut_core(ProcessBlock *pb);
 void prepare_permutation(ProcessBlock *pb);
-void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
+void helpers_prepParityList(unsigned int *d, unsigned int *t, int k, int w);
 int singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex);
 // int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end); ///< Unused
 // void flipBit(unsigned int *d, int bitindex);

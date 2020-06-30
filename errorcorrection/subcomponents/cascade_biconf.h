@@ -68,23 +68,23 @@ void fix_permutedbits(ProcessBlock *pb);
 
 /// @name CASCADE BICONF HELPER FUNCTIONS
 /// @{
-void generate_selectbitstring(ProcessBlock *pb, unsigned int seed);
+// void generate_selectbitstring(ProcessBlock *pb, unsigned int seed); // Unused
 void cascade_generateBiconfString(ProcessBlock *pb);
-int do_paritylist_and_diffs(ProcessBlock *pb, int pass);
-void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx);
+int cascade_prepParityListAndDiffs(ProcessBlock *pb, int pass);
+void cascade_fixParityIntervals(ProcessBlock *pb, unsigned int *inh_idx);
 /// @}
 
 /// @name CASCADE BICONF MAIN FUNCTIONS
 /// @{
-int cascade_processBinSearchAsInitiator(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int cascade_initiateBiconf(ProcessBlock *pb);
-int generateBiconfReply(ProcessBlock *pb, char *receivebuf);
-int cascade_initiateBiconf_binarysearch(ProcessBlock *pb, int biconfLength);
-int prepare_first_binsearch_msg(ProcessBlock *pb, int pass);
-int start_binarysearch(ProcessBlock *pb, char *receivebuf);
-int process_binarysearch(ProcessBlock *pb, char *receivebuf);
-int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
-int receive_biconfreply(ProcessBlock *pb, char *receivebuf);
+int cascade_generateBiconfReply(ProcessBlock *pb, char *receivebuf);
+int cascade_makeBiconfBinSearchReq(ProcessBlock *pb, int biconfLength);
+int cascade_prepFirstBinSearchMsg(ProcessBlock *pb, int pass);
+int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf);
+int cascade_processBinSearch(ProcessBlock *pb, char *receivebuf);
+int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
+int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
+int cascade_receiveBiconfReply(ProcessBlock *pb, char *receivebuf);
 /// @}
 
 #endif /* ECD2_CASCADE_BICONF */

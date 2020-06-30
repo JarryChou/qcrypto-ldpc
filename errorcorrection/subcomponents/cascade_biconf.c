@@ -32,19 +32,23 @@ void fix_permutedbits(ProcessBlock *pb) {
 /* ------------------------------------------------------------------------- */
 /** @brief Helper function to generate a pseudorandom bit pattern into the test bit
    buffer. 
+
+   Unused
    
   @param pb processblock pointer (kb contains other params for final parity test)
   @param seed seed for the RNG
  */
+/*
 void generate_selectbitstring(ProcessBlock *pb, unsigned int seed) {
-  int i;                                    /* number of bits to be set */
-  pb->rngState = seed;                     /* set new seed */
-  for (i = 0; i < wordIndex(pb->workbits); i++) /* take care of the full bits */
+  int i;                                    // number of bits to be set 
+  pb->rngState = seed;                     // set new seed 
+  for (i = 0; i < wordIndex(pb->workbits); i++) // take care of the full bits 
     pb->testedBitsMarker[i] = PRNG_value2_32(&pb->rngState);
-  pb->testedBitsMarker[wordIndex(pb->workbits)] = /* prepare last few bits */
+  pb->testedBitsMarker[wordIndex(pb->workbits)] = // prepare last few bits 
       PRNG_value2_32(&pb->rngState) & uint32AllOnesExceptLastN(modulo32(pb->workbits - 1));
   return;
 }
+*/
 
 /** @brief Helper function to generate a pseudorandom bit pattern into the test bit
    buffer AND transfer the permuted key buffer into it.
@@ -77,7 +81,7 @@ void cascade_generateBiconfString(ProcessBlock *pb) {
   @param pass pass 
   @return Number of differing bits  
  */
-int do_paritylist_and_diffs(ProcessBlock *pb, int pass) {
+int cascade_prepParityListAndDiffs(ProcessBlock *pb, int pass) {
   int numberofbits = 0;
   int i, partitions;          /* counting index, num of blocks */
   unsigned int *lp, *rp, *pd; /* local/received & diff parity pointer */
@@ -103,7 +107,7 @@ int do_paritylist_and_diffs(ProcessBlock *pb, int pass) {
     default: /* wrong index */
       return -1;
   }
-  prepare_paritylist_basic(d, lp, k, pb->workbits); /* prepare bitlist */
+  helpers_prepParityList(d, lp, k, pb->workbits); /* prepare bitlist */
 
   /* evaluate parity mismatch  */
   for (i = 0; i < wordCount(partitions); i++) {
@@ -115,13 +119,13 @@ int do_paritylist_and_diffs(ProcessBlock *pb, int pass) {
 
 /** @brief Helper program to half parity difference intervals. 
  * 
- * no weired stuff should happen.
+ * no weird stuff should happen.
  * 
  * @param pb processblock pointer
  * @param inh_idx inh_index 
   * @return Number of initially dead intervals 
   */
-void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx) {
+void cascade_fixParityIntervals(ProcessBlock *pb, unsigned int *inh_idx) {
   int i, firstBitIndex, lastBitIndex;                       /* running index */
   for (i = 0; i < pb->diffBlockCount; i++) { /* go through all different blocks */
     firstBitIndex = pb->diffidx[i];
@@ -135,6 +139,319 @@ void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx) {
     } else {
       pb->diffidxe[i] = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* take lower half */
     }
+  }
+}
+
+/**
+ * @brief Function to initiate a BICONF procedure on Bob side. 
+ * 
+ * cascade_generateBiconfString into pb, then
+ * sends out a package calling for a BICONF reply.
+ * 
+ * @param pb processblock pointer
+ * @return error code, 0 if success
+ */
+int cascade_initiateBiconf(ProcessBlock *pb) {
+  EcPktHdr_CascadeBiconfInitReq *h6;           /* header for that message */
+  unsigned int seed = rnd_generateRngSeed();  /* seed for permutation */
+  int errorCode = 0;
+
+  /* update state variables */
+  pb->biconfLength = pb->workbits; /* old was /2 - do we still need this? */
+  pb->rngState = seed;
+
+  /* generate local bit string for test mask */
+  cascade_generateBiconfString(pb);
+
+  /* fill message */
+  errorCode = comms_createEcHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, pb);
+  if (errorCode) return 60; // Hardcoded in original impl.
+  h6->seed = seed;
+  h6->number_of_bits = pb->biconfLength;
+  pb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
+
+  /* submit message */
+  comms_insertSendPacket((char *)h6, h6->base.totalLengthInBytes);
+  return 0;
+}
+
+/**
+ * @brief Start the parity generation process on Alice side.
+ * 
+ * Should create a BICONF response message
+ * 
+ * @param receivebuf input message
+ * @return error code, 0 if success
+ */
+int cascade_generateBiconfReply(ProcessBlock *pb, char *receivebuf) {
+  EcPktHdr_CascadeBiconfInitReq *in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf; /* holds received message header */
+  EcPktHdr_CascadeBiconfParityResp *h7;      /* holds response message header */
+  int errorCode = 0;
+
+  /* update processblock status */
+  switch (pb->processingState) {
+    case PRS_PERFORMEDPARITY1:                /* just finished BICONF */
+      pb->processingState = PRS_DOING_BICONF; /* update state */
+      pb->biconfRound = 0;                   /* first round */
+      break;
+    case PRS_DOING_BICONF: /* already did a biconf */
+      pb->biconfRound++;  /* increment processing round; more checks? */
+      break;
+  }
+  /* extract number of bits and seed */
+  pb->biconfLength = in_head->number_of_bits; /* do more checks? */
+  pb->rngState = in_head->seed;    /* check for 0?*/
+
+  /* prepare permutation list */
+  /* old: prepare_permut_core(pb); */
+
+  /* generate local (alice) version of test bit section */
+  cascade_generateBiconfString(pb);
+
+  /* fill the response header */
+  errorCode = comms_createEcHeader((char **)&h7, SUBTYPE_CASCADE_BICONF_PARITY_RESP, 0, pb);
+  if (errorCode) {
+    return 61; // This was hardcoded in the original implementation
+  }
+
+  /* evaluate the parity (updated to use testbit buffer */
+  h7->parity = singleLineParity(pb->testedBitsMarker, 0, in_head->number_of_bits - 1);
+
+  /* update bitloss */
+  pb->leakageBits++; /* one is lost */
+
+  /* send out response header */
+  comms_insertSendPacket((char *)h7, h7->base.totalLengthInBytes);
+
+  return 0; /* return nicely */
+}
+
+/**
+ * @brief Function to generate a single binary search request for a biconf cycle.
+ * 
+ * Takes currently the subset of the biconf subset and its complement, which
+   is not very efficient: The second error could have been found using the
+   unpermuted short sample with nuch less bits.
+ * On success, a binarysearch packet gets emitted with 2 list entries.
+ * 
+ * @param pb processblock ptr
+ * @param biconfLength length of biconf
+ * @return error code, 0 if success. 
+ */
+int cascade_makeBiconfBinSearchReq(ProcessBlock *pb, int biconfLength) {
+  unsigned int msg5BodySize;          /* size of message */
+  EcPktHdr_CascadeBinSearchMsg *h5;       /* pointer to first message */
+  int errorCode = 0;
+  unsigned int *h5_data, *h5_idx; /* data pointers */
+
+  pb->diffBlockCount = 1;
+  pb->diffidx[0] = 0;
+  pb->diffidxe[0] = biconfLength - 1;
+  /* obsolete: pb->diffidx[1]=biconfLength;pb->diffidxe[1]=pb->workbits-1; */
+
+  pb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* only pass 1 */
+
+  /* prepare message buffer for first binsearch message  */
+  msg5BodySize = 3 * WORD_SIZE; /* parity data need, and indexing need for selection and compl */
+  errorCode = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, pb);
+  if (errorCode) return errorCode;
+  h5_data = (unsigned int *)&h5[1]; /* start of data */
+  h5->number_entries = pb->diffBlockCount;
+  h5->indexPresent = 4; /* NEW this round we have a start/stop table */
+
+  /* keep local status and indicate the BICONF round to Alice */
+  h5->runlevel = pb->binarySearchDepth | RUNLEVEL_BICONF;
+
+  /* prepare block index list of simple type 1, uncompressed uint32 */
+  h5_idx = &h5_data[1];
+
+  /* for index mode 4: */
+  h5_idx[0] = 0; /* selected first bits */
+
+  /* this information is IMPLICIT in the round 4 information and needs no transmission */
+  /* h5_idx[2]=biconfLength; h5_idx[3] = pb->workbits-biconfLength-1;  */
+
+  /* set parity */
+  h5_data[0] = (singleLineParity(pb->testedBitsMarker, 0, biconfLength / 2 - 1) << 31);
+
+  /* increment lost bits */
+  pb->leakageBits += 1;
+
+  /* send out message */
+  comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
+
+  return 0;
+}
+
+/**
+ * @brief Function to prepare the first message head (header_5) for a binary search.
+ * 
+ *  This assumes
+   that all the parity buffers have been malloced and the remote parities
+   reside in the proper arrays. This function will be called several times for
+   different passes; it expexts local parities to be evaluated already.
+ * 
+ * @param processBlock processblock ptr
+ * @param pass pass number
+ * @return int 0 on success, error code otherwise
+ */
+int cascade_prepFirstBinSearchMsg(ProcessBlock *processBlock, int pass) {
+  int i, j;                             /* index variables */
+  int k;                                /* length of processblocks */
+  unsigned int *pd;                     /* parity difference bitfield pointer */
+  unsigned int msg5BodySize;            /* size of message excluding header */
+  EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
+  unsigned int *h5_data, *h5_idx;       /* data pointers */
+  unsigned int *d;                      /* temporary pointer on parity data */
+  unsigned int resbuf;                  /* parity determination variables */
+  int kdiff, firstBitIndex, lastBitIndex;                 /* working variables for parity eval */
+  int partitions; /* local partitions o go through for diff idx */
+
+  switch (pass) { /* sort out specifics */
+    case 0:       /* unpermutated pass */
+      pd = processBlock->pd0;                 k = processBlock->k0;
+      partitions = processBlock->partitions0; d = processBlock->mainBufPtr; /* unpermuted key */
+      break;
+    case 1: /* permutated pass */
+      pd = processBlock->pd1;                 k = processBlock->k1;
+      partitions = processBlock->partitions1; d = processBlock->permuteBufPtr; /* permuted key */
+      break;
+    default: 
+      return 59; /* illegal pass arg */
+  }
+
+  /* fill difference index memory */
+  j = 0; /* index for mismatching blocks */
+  for (i = 0; i < partitions; i++) {
+    if (uint32AllZeroExceptAtN(i) & pd[wordIndex(i)]) {       /* this block is mismatched */
+      processBlock->diffidx[j] = i * k;                               /* store bit index, not block index */
+      processBlock->diffidxe[j] = processBlock->diffidx[j] + (k - 1); /* last block */
+      j++;
+    }
+  }
+  /* mark pass/round correctly in processBlock */
+  processBlock->binarySearchDepth = (pass == 0) ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS; /* first round */
+
+  // Note: duplicate-ish code here with makeBinSrchMsgHead
+  /* prepare message buffer for first binsearch message  */
+  // Parity need + indexing need
+  msg5BodySize = 
+      (wordCount(processBlock->diffBlockCount) + processBlock->diffBlockCount) * WORD_SIZE; /* parity data need */
+  i = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, processBlock);
+  if (i) return 55;
+  h5->number_entries = processBlock->diffBlockCount;
+  h5->runlevel = processBlock->binarySearchDepth; /* keep local status */
+  h5->indexPresent = 1;              /* this round we have an index table */
+
+  h5_data = (unsigned int *)&h5[1]; /* start of data */
+
+  /* prepare block index list of simple type 1, uncompressed uint32 */
+  h5_idx = &h5_data[wordCount(processBlock->diffBlockCount)];
+  for (i = 0; i < processBlock->diffBlockCount; i++) 
+    h5_idx[i] = processBlock->diffidx[i];
+
+  /* prepare parity results */
+  // this is very similar to helpers_prepParityList, but difference is kdiff is variable in this case
+  resbuf = 0;
+  for (i = 0; i < processBlock->diffBlockCount; i++) { /* go through all processblocks */
+    kdiff = processBlock->diffidxe[i] - processBlock->diffidx[i] + 1; /* left length */
+    firstBitIndex = processBlock->diffidx[i];
+    lastBitIndex = firstBitIndex + kdiff / 2 - 1; /* first and last bitidx */
+    resbuf = (resbuf << 1) + singleLineParity(d, firstBitIndex, lastBitIndex);
+    if ((modulo32(i)) == 31) {
+      h5_data[wordIndex(i)] = resbuf;
+    }
+  }
+  if (modulo32(i))
+    h5_data[wordIndex(i)] = resbuf << (32 - modulo32(i)); /* last parity bits */
+
+  /* increment lost bits */
+  processBlock->leakageBits += processBlock->diffBlockCount;
+
+  /* send out message */
+  comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
+
+  return 0;
+}
+
+/**
+ * @brief Function to proceed with the parity evaluation message.
+ * 
+ * This function should start the Binary search machinery.
+ * Should spit out the first binary search message
+ * 
+ * @param receivebuf
+ * @return error code, 0 if success 
+ */
+int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
+  EcPktHdr_CascadeParityList *in_head; /* holds received message header */
+  int l0, l1;                    /* helpers;  number of words for bitarrays */
+
+  /* get pointers for header...*/
+  in_head = (EcPktHdr_CascadeParityList *)receivebuf;
+
+  /* prepare local parity info */
+  pb->rngState = in_head->seed; /* new rng seed */
+  prepare_permutation(pb);       /* also updates workbits */
+
+  /* update partition numbers and leakageBits */
+  pb->partitions0 = (pb->workbits + pb->k0 - 1) / pb->k0;
+  pb->partitions1 = (pb->workbits + pb->k1 - 1) / pb->k1;
+
+  /* freshen up internal info on bit numbers etc */
+  pb->leakageBits += pb->partitions0 + pb->partitions1;
+
+  /* prepare parity list and difference buffers  */
+  l0 = wordCount(pb->partitions0);
+  l1 = wordCount(pb->partitions1); /* size in words */
+  pb->lp0 = (unsigned int *)malloc2((l0 + l1) * WORD_SIZE * 3);
+  if (!pb->lp0) return 53; /* can't malloc */
+  pb->lp1 = &pb->lp0[l0];  /* ptr to permuted parities */
+  pb->rp0 = &pb->lp1[l1];  /* prt to rmt parities 0 */
+  pb->rp1 = &pb->rp0[l0];  /* prt to rmt parities 1 */
+  pb->pd0 = &pb->rp1[l1];  /* prt to rmt parities 0 */
+  pb->pd1 = &pb->pd0[l0];  /* prt to rmt parities 1 */
+
+  /* store received parity lists as a direct copy into the rp structure */
+  memcpy(pb->rp0, &in_head[1], /* this is the start of the data section */
+         (l0 + l1) * WORD_SIZE);
+
+  /* fill local parity list, get the number of differences */
+  pb->diffBlockCount = cascade_prepParityListAndDiffs(pb, 0);
+  if (pb->diffBlockCount == -1) 
+    return 74;
+  pb->diffBlockCountMax = pb->diffBlockCount;
+
+  /* reserve difference index memory for pass 0 */
+  pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * WORD_SIZE * 2);
+  if (!pb->diffidx) /* can't malloc */
+    return 54;
+  pb->diffidxe = &pb->diffidx[pb->diffBlockCount]; /* end of interval */
+
+  /* now hand over to the procedure preoaring the first binsearch msg
+     for the first pass 0 */
+
+  return cascade_prepFirstBinSearchMsg(pb, 0);
+}
+
+/** @brief Alice's wrapper function to process a binarysearch request.
+ * 
+ * Distinguishes between the two
+   symmetries in the evaluation. This is onyl a wrapper.
+   on alice side, it does a passive check; on bob side, it possibly corrects
+   for errors. 
+ * @param receivebuf 
+ * @return error code, 0 if success 
+ */
+int cascade_processBinSearch(ProcessBlock *pb, char *receivebuf) {
+  EcPktHdr_CascadeBinSearchMsg *in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf; /* holds received message header */
+
+  if (pb->processorRole == INITIATOR) {
+    return cascade_initiatorAlice_processBinSearch(pb, in_head);
+  } else if (pb->processorRole == FOLLOWER) {
+    return cascade_followerBob_processBinSearch(pb, in_head);
+  } else {
+    return 56; // Illegal role
   }
 }
 
@@ -154,7 +471,7 @@ void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx) {
  * @param in_head header for incoming request
  * @return error code, 0 if success
  */
-int cascade_processBinSearchAsInitiator(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
@@ -212,7 +529,7 @@ int cascade_processBinSearchAsInitiator(ProcessBlock *pb, EcPktHdr_CascadeBinSea
   /* fix index list according to parity info or initial run */
   switch (in_head->indexPresent) { /* different encodings */
     case 0: /* repair index according to previous basis match */
-      fix_parity_intervals(pb, inh_idx);
+      cascade_fixParityIntervals(pb, inh_idx);
       break;
     case 1: /* simple unsigned int encoding */
       for (i = 0; i < pb->diffBlockCount; i++) {
@@ -308,319 +625,6 @@ int cascade_processBinSearchAsInitiator(ProcessBlock *pb, EcPktHdr_CascadeBinSea
   return 0;
 }
 
-/**
- * @brief Function to initiate a BICONF procedure on Bob side. 
- * 
- * cascade_generateBiconfString into pb, then
- * sends out a package calling for a BICONF reply.
- * 
- * @param pb processblock pointer
- * @return error code, 0 if success
- */
-int cascade_initiateBiconf(ProcessBlock *pb) {
-  EcPktHdr_CascadeBiconfInitReq *h6;           /* header for that message */
-  unsigned int seed = rnd_generateRngSeed();  /* seed for permutation */
-  int errorCode = 0;
-
-  /* update state variables */
-  pb->biconfLength = pb->workbits; /* old was /2 - do we still need this? */
-  pb->rngState = seed;
-
-  /* generate local bit string for test mask */
-  cascade_generateBiconfString(pb);
-
-  /* fill message */
-  errorCode = comms_createEcHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, pb);
-  if (errorCode) return 60; // Hardcoded in original impl.
-  h6->seed = seed;
-  h6->number_of_bits = pb->biconfLength;
-  pb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
-
-  /* submit message */
-  comms_insertSendPacket((char *)h6, h6->base.totalLengthInBytes);
-  return 0;
-}
-
-/**
- * @brief Start the parity generation process on Alice side.
- * 
- * Should create a BICONF response message
- * 
- * @param receivebuf input message
- * @return error code, 0 if success
- */
-int generateBiconfReply(ProcessBlock *pb, char *receivebuf) {
-  EcPktHdr_CascadeBiconfInitReq *in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf; /* holds received message header */
-  EcPktHdr_CascadeBiconfParityResp *h7;      /* holds response message header */
-  int errorCode = 0;
-
-  /* update processblock status */
-  switch (pb->processingState) {
-    case PRS_PERFORMEDPARITY1:                /* just finished BICONF */
-      pb->processingState = PRS_DOING_BICONF; /* update state */
-      pb->biconfRound = 0;                   /* first round */
-      break;
-    case PRS_DOING_BICONF: /* already did a biconf */
-      pb->biconfRound++;  /* increment processing round; more checks? */
-      break;
-  }
-  /* extract number of bits and seed */
-  pb->biconfLength = in_head->number_of_bits; /* do more checks? */
-  pb->rngState = in_head->seed;    /* check for 0?*/
-
-  /* prepare permutation list */
-  /* old: prepare_permut_core(pb); */
-
-  /* generate local (alice) version of test bit section */
-  cascade_generateBiconfString(pb);
-
-  /* fill the response header */
-  errorCode = comms_createEcHeader((char **)&h7, SUBTYPE_CASCADE_BICONF_PARITY_RESP, 0, pb);
-  if (errorCode) {
-    return 61; // This was hardcoded in the original implementation
-  }
-
-  /* evaluate the parity (updated to use testbit buffer */
-  h7->parity = singleLineParity(pb->testedBitsMarker, 0, in_head->number_of_bits - 1);
-
-  /* update bitloss */
-  pb->leakageBits++; /* one is lost */
-
-  /* send out response header */
-  comms_insertSendPacket((char *)h7, h7->base.totalLengthInBytes);
-
-  return 0; /* return nicely */
-}
-
-/**
- * @brief Function to generate a single binary search request for a biconf cycle.
- * 
- * Takes currently the subset of the biconf subset and its complement, which
-   is not very efficient: The second error could have been found using the
-   unpermuted short sample with nuch less bits.
- * On success, a binarysearch packet gets emitted with 2 list entries.
- * 
- * @param pb processblock ptr
- * @param biconfLength length of biconf
- * @return error code, 0 if success. 
- */
-int cascade_initiateBiconf_binarysearch(ProcessBlock *pb, int biconfLength) {
-  unsigned int msg5BodySize;          /* size of message */
-  EcPktHdr_CascadeBinSearchMsg *h5;       /* pointer to first message */
-  int errorCode = 0;
-  unsigned int *h5_data, *h5_idx; /* data pointers */
-
-  pb->diffBlockCount = 1;
-  pb->diffidx[0] = 0;
-  pb->diffidxe[0] = biconfLength - 1;
-  /* obsolete: pb->diffidx[1]=biconfLength;pb->diffidxe[1]=pb->workbits-1; */
-
-  pb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* only pass 1 */
-
-  /* prepare message buffer for first binsearch message  */
-  msg5BodySize = 3 * WORD_SIZE; /* parity data need, and indexing need for selection and compl */
-  errorCode = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, pb);
-  if (errorCode) return errorCode;
-  h5_data = (unsigned int *)&h5[1]; /* start of data */
-  h5->number_entries = pb->diffBlockCount;
-  h5->indexPresent = 4; /* NEW this round we have a start/stop table */
-
-  /* keep local status and indicate the BICONF round to Alice */
-  h5->runlevel = pb->binarySearchDepth | RUNLEVEL_BICONF;
-
-  /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[1];
-
-  /* for index mode 4: */
-  h5_idx[0] = 0; /* selected first bits */
-
-  /* this information is IMPLICIT in the round 4 information and needs no transmission */
-  /* h5_idx[2]=biconfLength; h5_idx[3] = pb->workbits-biconfLength-1;  */
-
-  /* set parity */
-  h5_data[0] = (singleLineParity(pb->testedBitsMarker, 0, biconfLength / 2 - 1) << 31);
-
-  /* increment lost bits */
-  pb->leakageBits += 1;
-
-  /* send out message */
-  comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
-
-  return 0;
-}
-
-/**
- * @brief Function to prepare the first message head (header_5) for a binary search.
- * 
- *  This assumes
-   that all the parity buffers have been malloced and the remote parities
-   reside in the proper arrays. This function will be called several times for
-   different passes; it expexts local parities to be evaluated already.
- * 
- * @param processBlock processblock ptr
- * @param pass pass number
- * @return int 0 on success, error code otherwise
- */
-int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
-  int i, j;                             /* index variables */
-  int k;                                /* length of processblocks */
-  unsigned int *pd;                     /* parity difference bitfield pointer */
-  unsigned int msg5BodySize;            /* size of message excluding header */
-  EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
-  unsigned int *h5_data, *h5_idx;       /* data pointers */
-  unsigned int *d;                      /* temporary pointer on parity data */
-  unsigned int resbuf;                  /* parity determination variables */
-  int kdiff, firstBitIndex, lastBitIndex;                 /* working variables for parity eval */
-  int partitions; /* local partitions o go through for diff idx */
-
-  switch (pass) { /* sort out specifics */
-    case 0:       /* unpermutated pass */
-      pd = processBlock->pd0;                 k = processBlock->k0;
-      partitions = processBlock->partitions0; d = processBlock->mainBufPtr; /* unpermuted key */
-      break;
-    case 1: /* permutated pass */
-      pd = processBlock->pd1;                 k = processBlock->k1;
-      partitions = processBlock->partitions1; d = processBlock->permuteBufPtr; /* permuted key */
-      break;
-    default: 
-      return 59; /* illegal pass arg */
-  }
-
-  /* fill difference index memory */
-  j = 0; /* index for mismatching blocks */
-  for (i = 0; i < partitions; i++) {
-    if (uint32AllZeroExceptAtN(i) & pd[wordIndex(i)]) {       /* this block is mismatched */
-      processBlock->diffidx[j] = i * k;                               /* store bit index, not block index */
-      processBlock->diffidxe[j] = processBlock->diffidx[j] + (k - 1); /* last block */
-      j++;
-    }
-  }
-  /* mark pass/round correctly in processBlock */
-  processBlock->binarySearchDepth = (pass == 0) ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS; /* first round */
-
-  // Note: duplicate-ish code here with makeBinSrchMsgHead
-  /* prepare message buffer for first binsearch message  */
-  // Parity need + indexing need
-  msg5BodySize = 
-      (wordCount(processBlock->diffBlockCount) + processBlock->diffBlockCount) * WORD_SIZE; /* parity data need */
-  i = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, processBlock);
-  if (i) return 55;
-  h5->number_entries = processBlock->diffBlockCount;
-  h5->runlevel = processBlock->binarySearchDepth; /* keep local status */
-  h5->indexPresent = 1;              /* this round we have an index table */
-
-  h5_data = (unsigned int *)&h5[1]; /* start of data */
-
-  /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[wordCount(processBlock->diffBlockCount)];
-  for (i = 0; i < processBlock->diffBlockCount; i++) 
-    h5_idx[i] = processBlock->diffidx[i];
-
-  /* prepare parity results */
-  // this is very similar to prepare_paritylist_basic, but difference is kdiff is variable in this case
-  resbuf = 0;
-  for (i = 0; i < processBlock->diffBlockCount; i++) { /* go through all processblocks */
-    kdiff = processBlock->diffidxe[i] - processBlock->diffidx[i] + 1; /* left length */
-    firstBitIndex = processBlock->diffidx[i];
-    lastBitIndex = firstBitIndex + kdiff / 2 - 1; /* first and last bitidx */
-    resbuf = (resbuf << 1) + singleLineParity(d, firstBitIndex, lastBitIndex);
-    if ((modulo32(i)) == 31) {
-      h5_data[wordIndex(i)] = resbuf;
-    }
-  }
-  if (modulo32(i))
-    h5_data[wordIndex(i)] = resbuf << (32 - modulo32(i)); /* last parity bits */
-
-  /* increment lost bits */
-  processBlock->leakageBits += processBlock->diffBlockCount;
-
-  /* send out message */
-  comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
-
-  return 0;
-}
-
-/**
- * @brief Function to proceed with the parity evaluation message.
- * 
- * This function should start the Binary search machinery.
- * Should spit out the first binary search message
- * 
- * @param receivebuf
- * @return error code, 0 if success 
- */
-int start_binarysearch(ProcessBlock *pb, char *receivebuf) {
-  EcPktHdr_CascadeParityList *in_head; /* holds received message header */
-  int l0, l1;                    /* helpers;  number of words for bitarrays */
-
-  /* get pointers for header...*/
-  in_head = (EcPktHdr_CascadeParityList *)receivebuf;
-
-  /* prepare local parity info */
-  pb->rngState = in_head->seed; /* new rng seed */
-  prepare_permutation(pb);       /* also updates workbits */
-
-  /* update partition numbers and leakageBits */
-  pb->partitions0 = (pb->workbits + pb->k0 - 1) / pb->k0;
-  pb->partitions1 = (pb->workbits + pb->k1 - 1) / pb->k1;
-
-  /* freshen up internal info on bit numbers etc */
-  pb->leakageBits += pb->partitions0 + pb->partitions1;
-
-  /* prepare parity list and difference buffers  */
-  l0 = wordCount(pb->partitions0);
-  l1 = wordCount(pb->partitions1); /* size in words */
-  pb->lp0 = (unsigned int *)malloc2((l0 + l1) * WORD_SIZE * 3);
-  if (!pb->lp0) return 53; /* can't malloc */
-  pb->lp1 = &pb->lp0[l0];  /* ptr to permuted parities */
-  pb->rp0 = &pb->lp1[l1];  /* prt to rmt parities 0 */
-  pb->rp1 = &pb->rp0[l0];  /* prt to rmt parities 1 */
-  pb->pd0 = &pb->rp1[l1];  /* prt to rmt parities 0 */
-  pb->pd1 = &pb->pd0[l0];  /* prt to rmt parities 1 */
-
-  /* store received parity lists as a direct copy into the rp structure */
-  memcpy(pb->rp0, &in_head[1], /* this is the start of the data section */
-         (l0 + l1) * WORD_SIZE);
-
-  /* fill local parity list, get the number of differences */
-  pb->diffBlockCount = do_paritylist_and_diffs(pb, 0);
-  if (pb->diffBlockCount == -1) 
-    return 74;
-  pb->diffBlockCountMax = pb->diffBlockCount;
-
-  /* reserve difference index memory for pass 0 */
-  pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * WORD_SIZE * 2);
-  if (!pb->diffidx) /* can't malloc */
-    return 54;
-  pb->diffidxe = &pb->diffidx[pb->diffBlockCount]; /* end of interval */
-
-  /* now hand over to the procedure preoaring the first binsearch msg
-     for the first pass 0 */
-
-  return prepare_first_binsearch_msg(pb, 0);
-}
-
-/** @brief Alice's wrapper function to process a binarysearch request.
- * 
- * Distinguishes between the two
-   symmetries in the evaluation. This is onyl a wrapper.
-   on alice side, it does a passive check; on bob side, it possibly corrects
-   for errors. 
- * @param receivebuf 
- * @return error code, 0 if success 
- */
-int process_binarysearch(ProcessBlock *pb, char *receivebuf) {
-  EcPktHdr_CascadeBinSearchMsg *in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf; /* holds received message header */
-
-  if (pb->processorRole == INITIATOR) {
-    return cascade_processBinSearchAsInitiator(pb, in_head);
-  } else if (pb->processorRole == FOLLOWER) {
-    return process_binsearch_bob(pb, in_head);
-  } else {
-    return 56; // Illegal role
-  }
-}
-
 /** @brief Bob's function to process a binarysearch request. 
  * 
  * Checks parity
@@ -633,7 +637,7 @@ int process_binarysearch(ProcessBlock *pb, char *receivebuf) {
  * @param in_head header of incoming type-5 ec packet
  * @return error code, 0 if success 
  */
-int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
@@ -652,7 +656,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
   inh_idx = &inh_data[wordCount(pb->diffBlockCount)]; /* index or matching part */
 
   /* repair index according to previous basis match */
-  fix_parity_intervals(pb, inh_idx);
+  cascade_fixParityIntervals(pb, inh_idx);
 
   /* other stuff in local keyblk to update */
   pb->leakageBits += pb->diffBlockCount;           /* for incoming parity bits */
@@ -762,7 +766,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
   /* prepare for alternate round; start with re-evaluation of parity. */
   while (True) { /* just a break construction.... */
     pb->binarySearchDepth = thispass ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS;
-    pb->diffBlockCount = do_paritylist_and_diffs(pb, 1 - thispass); /* new differences */
+    pb->diffBlockCount = cascade_prepParityListAndDiffs(pb, 1 - thispass); /* new differences */
     /* error if wrong pass */
     if (pb->diffBlockCount == -1) 
       return 74;
@@ -784,8 +788,8 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
       pb->diffidxe = &pb->diffidx[pb->diffBlockCount];
     }
 
-    /* do basically a start_binarysearch for next round */
-    return prepare_first_binsearch_msg(pb, 1 - thispass);
+    /* do basically a cascade_startBinSearch for next round */
+    return cascade_prepFirstBinSearchMsg(pb, 1 - thispass);
   }
 
   /* now we have finished a consecutive the second round; there are no more errors in both passes.  */
@@ -821,7 +825,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
   * @param receivebuf parity reply from Alice
   * @return error message, 0 if success
   */
-int receive_biconfreply(ProcessBlock *pb, char *receivebuf) {
+int cascade_receiveBiconfReply(ProcessBlock *pb, char *receivebuf) {
   EcPktHdr_CascadeBiconfParityResp *in_head  = (EcPktHdr_CascadeBiconfParityResp *)receivebuf; /* holds received message header */
   int localparity;
 
@@ -835,7 +839,7 @@ int receive_biconfreply(ProcessBlock *pb, char *receivebuf) {
 
   /* eventually start binary search */
   if (localparity != in_head->parity) {
-    return cascade_initiateBiconf_binarysearch(pb, pb->biconfLength);
+    return cascade_makeBiconfBinSearchReq(pb, pb->biconfLength);
   }
   /* this location gets ONLY visited if there is no error in BICONF search */
 
