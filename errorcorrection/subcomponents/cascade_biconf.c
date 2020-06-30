@@ -139,29 +139,6 @@ void correct_bit(unsigned int *d, int bitindex) {
   return;
 }
 
-/** @brief Helper funtion to get a simple one-line parity from a large string.
- * 
- * @param d pointer to the start of the string buffer
- * @param start start index
- * @param end end index
- * @return parity (0 or 1)
- */
-int singleLineParity(unsigned int *d, int start, int end) {
-  unsigned int tmp_par, lm, fm;
-  int li, fi, ri;
-  fi = start / 32;
-  li = end / 32;
-  lm = lastmask(end & 31);
-  fm = firstmask(start & 31);
-  if (li == fi) {
-    tmp_par = d[fi] & lm & fm;
-  } else {
-    tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-    for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-  } /* tmp_par holds now a combination of bits to be tested */
-  return parity(tmp_par);
-}
-
 /** @brief Helper funtion to get a simple one-line parity from a large string, but
    this time with a mask buffer to be AND-ed on the string.
 
@@ -507,8 +484,7 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   /* h5_idx[2]=biconflength; h5_idx[3] = kb->workbits-biconflength-1;  */
 
   /* set parity */
-  h5_data[0] =
-      (singleLineParity(kb->testedBitsMarker, 0, biconflength / 2 - 1) << 31);
+  h5_data[0] = (singleLineParity(kb->testedBitsMarker, 0, biconflength / 2 - 1) << 31);
 
   /* increment lost bits */
   kb->leakageBits += 1;
@@ -539,8 +515,8 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
   unsigned int *h5_data, *h5_idx;       /* data pointers */
   unsigned int *d;                      /* temporary pointer on parity data */
-  unsigned int resbuf, tmp_par, lm, fm; /* parity determination variables */
-  int kdiff, fbi, lbi, fi, li, ri;      /* working variables for parity eval */
+  unsigned int resbuf;                  /* parity determination variables */
+  int kdiff, fbi, lbi;                 /* working variables for parity eval */
   int partitions; /* local partitions o go through for diff idx */
 
   switch (pass) { /* sort out specifics */
@@ -588,26 +564,17 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
   h5_idx = &h5_data[((processBlock->diffBlockCount + 31) / 32)];
-  for (i = 0; i < processBlock->diffBlockCount; i++) h5_idx[i] = processBlock->diffidx[i];
+  for (i = 0; i < processBlock->diffBlockCount; i++) 
+    h5_idx[i] = processBlock->diffidx[i];
 
   /* prepare parity results */
+  // this is very similar to prepare_paritylist_basic, but difference is kdiff is variable in this case
   resbuf = 0;
-  tmp_par = 0;
-  for (i = 0; i < processBlock->diffBlockCount; i++) {          /* go through all processblocks */
+  for (i = 0; i < processBlock->diffBlockCount; i++) { /* go through all processblocks */
     kdiff = processBlock->diffidxe[i] - processBlock->diffidx[i] + 1; /* left length */
     fbi = processBlock->diffidx[i];
     lbi = fbi + kdiff / 2 - 1; /* first and last bitidx */
-    fi = fbi / 32;
-    fm = firstmask(fbi & 31); /* beginning */
-    li = lbi / 32;
-    lm = lastmask(lbi & 31); /* end */
-    if (li == fi) {          /* in same word */
-      tmp_par = d[fi] & lm & fm;
-    } else {
-      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-    } /* tmp_par holds now a combination of bits to be tested */
-    resbuf = (resbuf << 1) + parity(tmp_par);
+    resbuf = (resbuf << 1) + singleLineParity(d, fbi, lbi);
     if ((i & 31) == 31) {
       h5_data[i / 32] = resbuf;
     }
@@ -668,13 +635,14 @@ int start_binarysearch(ProcessBlock *kb, char *receivebuf) {
 
   /* fill local parity list, get the number of differences */
   kb->diffBlockCount = do_paritylist_and_diffs(kb, 0);
-  if (kb->diffBlockCount == -1) return 74;
+  if (kb->diffBlockCount == -1) 
+    return 74;
   kb->diffBlockCountMax = kb->diffBlockCount;
 
   /* reserve difference index memory for pass 0 */
-  kb->diffidx =
-      (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
-  if (!kb->diffidx) return 54;                 /* can't malloc */
+  kb->diffidx = (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
+  if (!kb->diffidx) /* can't malloc */
+    return 54;
   kb->diffidxe = &kb->diffidx[kb->diffBlockCount]; /* end of interval */
 
   /* now hand over to the procedure preoaring the first binsearch msg
@@ -812,8 +780,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
     }
     /* Else, prepare new parity bit */
     mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-    tmpSingleLineParity = singleLineParity(d, fbi, mbi);
-    parityresult |= tmpSingleLineParity; /* save parity */
+    parityresult |= singleLineParity(d, fbi, mbi); /* save parity */
 
   skipparity:
     if ((i & 31) == 31) {
@@ -829,10 +796,8 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
   }
 
   /* a blocklength k decides on a max number of rounds */
-  if ((kb->binarySearchDepth & RUNLEVEL_ROUNDMASK) <
-      log2Ceil((kb->processingState == PRS_DOING_BICONF)
-                      ? (kb->biconflength)
-                      : (thispass ? kb->k1 : kb->k0))) {
+  if ((kb->binarySearchDepth & RUNLEVEL_ROUNDMASK) < log2Ceil((kb->processingState == PRS_DOING_BICONF)
+      ? (kb->biconflength) : (thispass ? kb->k1 : kb->k0))) {
     /* need to continue with this search; make packet 5 ready to send */
     kb->leakageBits += lost_bits;
     comms_insertSendPacket((char *)out_head, out_head->base.totalLengthInBytes);

@@ -114,6 +114,7 @@ void cleanup_revealed_bits(ProcessBlock *kb);
 void prepare_permut_core(ProcessBlock *kb);
 void prepare_permutation(ProcessBlock *kb);
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
+int singleLineParity(unsigned int *d, int start, int end);
 /// @}
 
 

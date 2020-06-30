@@ -163,28 +163,14 @@ void prepare_permut_core(ProcessBlock *kb) {
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
   int blkidx;           /* contains blockindex */
   int bitidx;           /* startbit index */
-  unsigned int tmp_par; /* for combining parities */
   unsigned int resbuf;  /* result buffer */
-  int fi, li, ri;       /* first and last and running bufferindex */
-  unsigned int fm, lm;  /* first mask, last mask */
 
   /* the bitindex points to the first and the last bit tested. */
   resbuf = 0;
-  tmp_par = 0;
   blkidx = 0;
   for (bitidx = 0; bitidx < w; bitidx += k) {
-    fi = bitidx / 32;
-    fm = firstmask(bitidx & 31); /* beginning */
-    li = (bitidx + k - 1) / 32;
-    lm = lastmask((bitidx + k - 1) & 31); /* end */
-    if (li == fi) {                       /* in same word */
-      tmp_par = d[fi] & lm & fm;
-    } else {
-      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-    } /* tmp_par holds now a combination of bits to be tested */
-    resbuf =
-        (resbuf << 1) + parity(tmp_par); /* shift parity result in buffer */
+    /* shift parity result in buffer */
+    resbuf = (resbuf << 1) + singleLineParity(d, bitidx, bitidx + k - 1);
     if ((blkidx & 31) == 31) 
       t[blkidx / 32] = resbuf; /* save in target */
     blkidx++;
@@ -193,4 +179,27 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
   if (blkidx & 31) 
     t[blkidx / 32] = resbuf << (32 - (blkidx & 31));
   return;
+}
+
+/** @brief Helper funtion to get a simple one-line parity from a large string.
+ * 
+ * @param d pointer to the start of the string buffer
+ * @param start start index
+ * @param end end index
+ * @return parity (0 or 1)
+ */
+int singleLineParity(unsigned int *d, int start, int end) {
+  unsigned int tmp_par, lm, fm;
+  int li, fi, ri;
+  fi = start / 32;
+  li = end / 32;
+  fm = firstmask(start & 31);
+  lm = lastmask(end & 31);
+  if (li == fi) {
+    tmp_par = d[fi] & lm & fm;
+  } else {
+    tmp_par = (d[fi] & fm) ^ (d[li] & lm);
+    for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
+  } /* tmp_par holds now a combination of bits to be tested */
+  return parity(tmp_par);
 }
