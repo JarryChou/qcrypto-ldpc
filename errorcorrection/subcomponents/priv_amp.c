@@ -187,12 +187,12 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   pb->rngState = seed;
 
   /* set last bits to zero in workbits.... */
-  numwords = wordIndex(pb->workbits + 31);
+  numwords = wordCount(pb->workbits);
   if (pb->workbits & 31)
     pb->mainBufPtr[numwords - 1] &= (0xffffffff << (32 - (pb->workbits & 31)));
 
   /* prepare structure for final key */
-  mlen = sizeof(struct header_7) + wordIndex(pb->finalKeyBits + 31) * 4;
+  mlen = sizeof(struct header_7) + wordCount(pb->finalKeyBits) * WORD_SIZE;
   outmsg = (struct header_7 *)malloc2(mlen);
   if (!outmsg) return 63;
   outmsg->tag = TYPE_7_TAG; /* final key file */
@@ -203,7 +203,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   finalkey = (unsigned int *)&outmsg[1]; /* here starts data area */
 
   /* clear target buffer */
-  bzero(finalkey, wordIndex(pb->finalKeyBits + 31) * 4);
+  bzero(finalkey, wordCount(pb->finalKeyBits) * WORD_SIZE);
 
   /* prepare final key */
   if (arguments.disable_privacyamplification) { /* no PA fo debugging */

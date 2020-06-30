@@ -54,7 +54,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
 
   /* prepare a structure to be sent out to the other side */
   /* first: get buffer.... */
-  i = comms_createEcHeader((char **)&msg1, SUBTYPE_QBER_EST_BITS, 4 * ((bitsneeded + 31) / 32), processBlock);
+  i = comms_createEcHeader((char **)&msg1, SUBTYPE_QBER_EST_BITS, WORD_SIZE * wordCount(bitsneeded), processBlock);
   if (i) return NULL; /* cannot malloc */
   /* ..fill header.... */
   msg1->seed = processBlock->rngState; /* this is the seed */
@@ -110,10 +110,10 @@ EcPktHdr_CascadeBinSearchMsg *makeMessageHead5(ProcessBlock *processBlock, unsig
   EcPktHdr_CascadeBinSearchMsg *out_head;
   switch (indexPresent) {
     case 0: 
-      extraSize = ((processBlock->diffBlockCount + 31) / 32) * WORD_SIZE * 2; /* two bitfields */
+      extraSize = wordCount(processBlock->diffBlockCount) * WORD_SIZE * 2; /* two bitfields */
       break;
     case 1:
-      extraSize = ((processBlock->diffBlockCount + 31) / 32) * WORD_SIZE // parity data need
+      extraSize = wordCount(processBlock->diffBlockCount) * WORD_SIZE // parity data need
           + processBlock->diffBlockCount * WORD_SIZE;                    // indexing need
       break;
     case 4:

@@ -20,10 +20,10 @@ void fix_permutedbits(ProcessBlock *pb) {
     dst = pb->permuteBufPtr;
     idx = pb->permuteIndex;
   }
-  bzero(dst, ((pb->workbits + 31) / 32) * 4); /* clear dest */
+  bzero(dst, wordCount(pb->workbits) * WORD_SIZE); /* clear dest */
   for (i = 0; i < pb->workbits; i++) {
     k = idx[i]; /* permuted bit index */
-    if (bt_mask(i) & src[i / 32]) dst[k / 32] |= bt_mask(k);
+    if (bt_mask(i) & src[wordIndex(i)]) dst[wordIndex(k)] |= bt_mask(k);
   }
   return;
 }
@@ -106,7 +106,7 @@ int do_paritylist_and_diffs(ProcessBlock *pb, int pass) {
   prepare_paritylist_basic(d, lp, k, pb->workbits); /* prepare bitlist */
 
   /* evaluate parity mismatch  */
-  for (i = 0; i < ((partitions + 31) / 32); i++) {
+  for (i = 0; i < wordCount(partitions); i++) {
     pd[i] = lp[i] ^ rp[i];
     numberofbits += countSetBits(pd[i]);
   }
@@ -222,7 +222,7 @@ int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_h
     break;
   }
 
-  inh_idx = &inh_data[(pb->diffBlockCount + 31) / 32]; /* index or matching part */
+  inh_idx = &inh_data[wordCount(pb->diffBlockCount)]; /* index or matching part */
 
   /* sort out pass-dependent variables */
   if (in_head->runlevel & RUNLEVEL_LEVELMASK) { /* this is pass 1 */
@@ -272,7 +272,7 @@ int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_h
   out_head = makeMessageHead5(pb, 0);
   if (!out_head) return 58;
   out_parity = (unsigned int *)&out_head[1];
-  out_match = &out_parity[(pb->diffBlockCount + 31) / 32];
+  out_match = &out_parity[wordCount(pb->diffBlockCount)];
 
   lost_bits = pb->diffBlockCount; /* to keep track of lost bits */
 
@@ -534,7 +534,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   /* prepare message buffer for first binsearch message  */
   // Parity need + indexing need
   msg5BodySize = 
-      (((processBlock->diffBlockCount + 31) / 32) + processBlock->diffBlockCount) * WORD_SIZE; /* parity data need */
+      (wordCount(processBlock->diffBlockCount) + processBlock->diffBlockCount) * WORD_SIZE; /* parity data need */
   i = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, processBlock);
   if (i) return 55;
   h5->number_entries = processBlock->diffBlockCount;
@@ -544,7 +544,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   h5_data = (unsigned int *)&h5[1]; /* start of data */
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[((processBlock->diffBlockCount + 31) / 32)];
+  h5_idx = &h5_data[wordCount(processBlock->diffBlockCount)];
   for (i = 0; i < processBlock->diffBlockCount; i++) 
     h5_idx[i] = processBlock->diffidx[i];
 
@@ -600,9 +600,9 @@ int start_binarysearch(ProcessBlock *pb, char *receivebuf) {
   pb->leakageBits += pb->partitions0 + pb->partitions1;
 
   /* prepare parity list and difference buffers  */
-  l0 = (pb->partitions0 + 31) / 32;
-  l1 = (pb->partitions1 + 31) / 32; /* size in words */
-  pb->lp0 = (unsigned int *)malloc2((l0 + l1) * 4 * 3);
+  l0 = wordCount(pb->partitions0);
+  l1 = wordCount(pb->partitions1); /* size in words */
+  pb->lp0 = (unsigned int *)malloc2((l0 + l1) * WORD_SIZE * 3);
   if (!pb->lp0) return 53; /* can't malloc */
   pb->lp1 = &pb->lp0[l0];  /* ptr to permuted parities */
   pb->rp0 = &pb->lp1[l1];  /* prt to rmt parities 0 */
@@ -612,7 +612,7 @@ int start_binarysearch(ProcessBlock *pb, char *receivebuf) {
 
   /* store received parity lists as a direct copy into the rp structure */
   memcpy(pb->rp0, &in_head[1], /* this is the start of the data section */
-         (l0 + l1) * 4);
+         (l0 + l1) * WORD_SIZE);
 
   /* fill local parity list, get the number of differences */
   pb->diffBlockCount = do_paritylist_and_diffs(pb, 0);
@@ -681,7 +681,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
   int tmpSingleLineParity = 0;
 
   inh_data = (unsigned int *)&in_head[1];          /* parity pattern */
-  inh_idx = &inh_data[(pb->diffBlockCount + 31) / 32]; /* index or matching part */
+  inh_idx = &inh_data[wordCount(pb->diffBlockCount)]; /* index or matching part */
 
   /* repair index according to previous basis match */
   fix_parity_intervals(pb, inh_idx);
@@ -694,7 +694,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
   out_head = makeMessageHead5(pb, 0);
   if (!out_head) return 58;
   out_parity = (unsigned int *)&out_head[1];
-  out_match = &out_parity[((pb->diffBlockCount + 31) / 32)];
+  out_match = &out_parity[(wordCount(pb->diffBlockCount))];
 
   /* initially we will loose those for outgoing parity bits */
   lost_bits = pb->diffBlockCount;

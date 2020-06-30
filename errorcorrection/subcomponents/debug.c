@@ -94,12 +94,12 @@ void dumpstate(ProcessBlock *pb) {
   }
   if (pb->mainBufPtr)
     if (-1 == write(dha, pb->mainBufPtr, WORD_SIZE *
-        (2 * pb->initialBits + 3 * ((pb->initialBits + 31) / 32)))) {
+        (2 * pb->initialBits + 3 * wordCount(pb->initialBits)))) {
       fprintf(stderr, "dump fail (2)\n");
     }
 
   if (pb->lp0)
-    if (-1 == write(dha, pb->lp0, WORD_SIZE * 6 * ((pb->workbits + 31) / 32))) {
+    if (-1 == write(dha, pb->lp0, WORD_SIZE * 6 * wordCount(pb->workbits))) {
       fprintf(stderr, "dump fail (4)\n");
     }
 

@@ -50,6 +50,9 @@
 // Definitions
 #include "../definitions/processblock.h"
 
+// Other inclusions
+#include "helpers.h"
+
 // Definitions to enable certain debugging parts of the code
 #define DEBUG 1
 /* #define SYSTPERMUTATION */ /* for systematic rather than rand permut */

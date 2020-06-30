@@ -12,7 +12,7 @@ char hexdigits[] = "0123456789abcdef";
 void atohex(char *target, unsigned int v) {
   int i;
   target[0] = '/';
-  for (i = 1; i < 9; i++) target[i] = hexdigits[(v >> (32 - i * 4)) & 15];
+  for (i = 1; i < 9; i++) target[i] = hexdigits[(v >> (32 - i * WORD_SIZE)) & 15];
   target[9] = 0;
 }
 
@@ -57,7 +57,7 @@ void cleanup_revealed_bits(ProcessBlock *pb) {
 
   /* fill rest of buffer with zeros for not loosing any bits */
   d[i / 32] &= ((i & 31) ? (0xffffffff << (32 - (i & 31))) : 0);
-  for (i = ((pb->workbits / 32) + 1); i < (pb->initialBits + 31) / 32; i++) {
+  for (i = ((pb->workbits / 32) + 1); i < wordCount(pb->initialBits); i++) {
     d[i] = 0;
     /* printf("   i= %d\n",i); */
   }
@@ -138,7 +138,7 @@ void prepare_permut_core(ProcessBlock *pb) {
 
   #endif
 
-  bzero(pb->permuteBufPtr, ((workbits + 31) / 32) * 4); /* clear permuted buffer */
+  bzero(pb->permuteBufPtr, wordCount(workbits) * WORD_SIZE); /* clear permuted buffer */
   for (i = 0; i < workbits; i++) {                   /*  do bit permutation  */
     k = pb->permuteIndex[i];
     if (bt_mask(i) & pb->mainBufPtr[i / 32]) pb->permuteBufPtr[k / 32] |= bt_mask(k);

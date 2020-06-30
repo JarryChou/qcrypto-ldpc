@@ -105,7 +105,7 @@ enum HandleId {
 #define log2Ceil(X) ((X) ? (32 - __builtin_clz(X)) : 0) ///< See https://stackoverflow.com/questions/671815/what-is-the-fastest-most-efficient-way-to-find-the-highest-set-bit-msb-in-an-i
 #define countSetBits __builtin_popcount                 ///< See https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
 #define wordIndex(BIT_INDEX) ((BIT_INDEX) / 32)         ///< Helper to get index of 32-bit word given the index of the bit
-#define sizeInWords(LAST_BIT_INDEX) (((LAST_BIT_INDEX) + 31) / 32) ///< Helper to get number of 32-bit words that used by buffer
+#define wordCount(LAST_BIT_INDEX) (((LAST_BIT_INDEX) + 31) / 32) ///< Helper to get number of 32-bit words that used by buffer
 void atohex(char *target, unsigned int v);
 /// @}
 

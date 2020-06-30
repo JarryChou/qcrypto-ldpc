@@ -351,12 +351,12 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   processBlock->partitions1 = (processBlock->workbits + processBlock->k1 - 1) / processBlock->k1;
 
   /* get raw buffer */
-  msg4datalen = (wordIndex(processBlock->partitions0 + 31) + wordIndex(processBlock->partitions1 + 31)) * 4;
+  msg4datalen = (wordCount(processBlock->partitions0) + wordCount(processBlock->partitions1)) * WORD_SIZE;
   errorCode = comms_createEcHeader((char **)&h4, SUBTYPE_CASCADE_PARITY_LIST, msg4datalen, processBlock);
   if (errorCode) return errorCode;
   /* both data arrays */
   h4_d0 = (unsigned int *)&h4[1];
-  h4_d1 = &h4_d0[wordIndex(processBlock->partitions0 + 31)];
+  h4_d1 = &h4_d0[wordCount(processBlock->partitions0)];
   h4->seed = newseed;                        /* permutator seed */
   
   /* these are optional; should we drop them? */
