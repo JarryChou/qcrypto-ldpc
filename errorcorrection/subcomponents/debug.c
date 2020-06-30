@@ -93,18 +93,18 @@ void dumpstate(ProcessBlock *pb) {
     fprintf(stderr, "dump fail (1)\n");
   }
   if (pb->mainBufPtr)
-    if (-1 == write(dha, pb->mainBufPtr, sizeof(unsigned int) *
+    if (-1 == write(dha, pb->mainBufPtr, WORD_SIZE *
         (2 * pb->initialBits + 3 * ((pb->initialBits + 31) / 32)))) {
       fprintf(stderr, "dump fail (2)\n");
     }
 
   if (pb->lp0)
-    if (-1 == write(dha, pb->lp0, sizeof(unsigned int) * 6 * ((pb->workbits + 31) / 32))) {
+    if (-1 == write(dha, pb->lp0, WORD_SIZE * 6 * ((pb->workbits + 31) / 32))) {
       fprintf(stderr, "dump fail (4)\n");
     }
 
   if (pb->diffidx)
-    if (-1 == write(dha, pb->diffidx, sizeof(unsigned int) * 2 * pb->diffBlockCountMax)) {
+    if (-1 == write(dha, pb->diffidx, WORD_SIZE * 2 * pb->diffBlockCountMax)) {
       fprintf(stderr, "dump fail (5)\n");
     }
 

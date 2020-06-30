@@ -76,7 +76,7 @@ enum HandleId {
  * If they were intended to be inlined might as well just set it as a macro
  * 
  * @param i 
- * @return __inline__ bt_mask 
+ * @return bt_mask 
  */
 #define bt_mask(I) (1 << (31 - ((I) & 31)))    // __inline__ unsigned int bt_mask(int i) { return 1 << (31 - (i & 31)); }
 
@@ -86,7 +86,7 @@ enum HandleId {
  * If they were intended to be inlined might as well just set it as a macro
  * 
  * @param i 
- * @return __inline__ firstmask 
+ * @return firstmask 
  */
 #define firstmask(I) (0xffffffff >> (I))       // __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
 #define lastmask(I) (0xffffffff << (31 - (I))) // __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
@@ -103,7 +103,9 @@ enum HandleId {
 /// @name GENERAL HELPER FUNCTIONS
 /// @{
 #define log2Ceil(X) ((X) ? (32 - __builtin_clz(X)) : 0) ///< See https://stackoverflow.com/questions/671815/what-is-the-fastest-most-efficient-way-to-find-the-highest-set-bit-msb-in-an-i
-#define countSetBits __builtin_popcount ///< See https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
+#define countSetBits __builtin_popcount                 ///< See https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
+#define wordIndex(BIT_INDEX) ((BIT_INDEX) / 32)         ///< Helper to get index of 32-bit word given the index of the bit
+#define sizeInWords(LAST_BIT_INDEX) (((LAST_BIT_INDEX) + 31) / 32) ///< Helper to get number of 32-bit words that used by buffer
 void atohex(char *target, unsigned int v);
 /// @}
 

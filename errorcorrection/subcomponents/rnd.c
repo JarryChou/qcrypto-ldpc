@@ -150,7 +150,7 @@ unsigned int generateRngSeed(void) {
     fprintf(stderr, "errno: %d", errno);
     return 39;
   }
-  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
+  if (WORD_SIZE != read(rndhandle, &reply, WORD_SIZE)) {
     return 0; /* not enough */
   }
   close(rndhandle);

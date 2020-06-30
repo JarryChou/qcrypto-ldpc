@@ -187,12 +187,12 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   pb->rngState = seed;
 
   /* set last bits to zero in workbits.... */
-  numwords = (pb->workbits + 31) / 32;
+  numwords = wordIndex(pb->workbits + 31);
   if (pb->workbits & 31)
     pb->mainBufPtr[numwords - 1] &= (0xffffffff << (32 - (pb->workbits & 31)));
 
   /* prepare structure for final key */
-  mlen = sizeof(struct header_7) + ((pb->finalKeyBits + 31) / 32) * 4;
+  mlen = sizeof(struct header_7) + wordIndex(pb->finalKeyBits + 31) * 4;
   outmsg = (struct header_7 *)malloc2(mlen);
   if (!outmsg) return 63;
   outmsg->tag = TYPE_7_TAG; /* final key file */
@@ -203,7 +203,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   finalkey = (unsigned int *)&outmsg[1]; /* here starts data area */
 
   /* clear target buffer */
-  bzero(finalkey, (pb->finalKeyBits + 31) / 32 * 4);
+  bzero(finalkey, wordIndex(pb->finalKeyBits + 31) * 4);
 
   /* prepare final key */
   if (arguments.disable_privacyamplification) { /* no PA fo debugging */
@@ -214,7 +214,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
       m = 0;                                 /* initial word */
       for (j = 0; j < numwords; j++)
         m ^= (pb->mainBufPtr[j] & PRNG_value2_32(&pb->rngState));
-      if (parity(m)) finalkey[i / 32] |= bt_mask(i);
+      if (parity(m)) finalkey[wordIndex(i)] |= bt_mask(i);
     }
   }
 

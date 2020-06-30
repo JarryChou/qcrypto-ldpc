@@ -110,14 +110,14 @@ EcPktHdr_CascadeBinSearchMsg *makeMessageHead5(ProcessBlock *processBlock, unsig
   EcPktHdr_CascadeBinSearchMsg *out_head;
   switch (indexPresent) {
     case 0: 
-      extraSize = ((processBlock->diffBlockCount + 31) / 32) * 4 * 2; /* two bitfields */
+      extraSize = ((processBlock->diffBlockCount + 31) / 32) * WORD_SIZE * 2; /* two bitfields */
       break;
     case 1:
-      extraSize = ((processBlock->diffBlockCount + 31) / 32) * sizeof(unsigned int) // parity data need
-          + processBlock->diffBlockCount * sizeof(unsigned int);                    // indexing need
+      extraSize = ((processBlock->diffBlockCount + 31) / 32) * WORD_SIZE // parity data need
+          + processBlock->diffBlockCount * WORD_SIZE;                    // indexing need
       break;
     case 4:
-      extraSize = 3 * sizeof(unsigned int);       /* parity data need and indexing need for selection and compl */
+      extraSize = 3 * WORD_SIZE;       /* parity data need and indexing need for selection and compl */
       break;
     default:
       fprintf(stderr, "Used unsupported indexPresent index %d", indexPresent);

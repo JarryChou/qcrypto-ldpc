@@ -79,10 +79,10 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
     if (bitcount + h3.length >= MAXBITSPERprocessblock)
       return 71; /* not enough space */
 
-    i = (h3.length / 32) +
+    i = wordIndex(h3.length) +
         ((h3.length & 0x1f) ? 1 : 0); /* number of words to read */
-    retval = read(arguments.handle[handleId_rawKeyDir], &temparray[newindex], i * sizeof(unsigned int));
-    if (retval != i * sizeof(unsigned int)) return 72; /* not enough read */
+    retval = read(arguments.handle[handleId_rawKeyDir], &temparray[newindex], i * WORD_SIZE);
+    if (retval != i * WORD_SIZE) return 72; /* not enough read */
 
     /* close and possibly remove file */
     close(arguments.handle[handleId_rawKeyDir]);
@@ -125,7 +125,7 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
   bzero(bp->content, sizeof(ProcessBlock));
   /* how much memory is needed ?
      raw key, permuted key, test selection, two permutation indices */
-  getbytes = newindex * 3 * sizeof(unsigned int) +
+  getbytes = newindex * 3 * WORD_SIZE +
              bitcount * 2 * sizeof(unsigned short int);
   rawMemPtr = (unsigned int *)malloc2(getbytes);
   if (!rawMemPtr) return 34;       /* malloc failed */

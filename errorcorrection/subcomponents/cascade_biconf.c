@@ -216,7 +216,7 @@ int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_h
     /* allocate difference idx memory */
     pb->diffBlockCount = in_head->number_entries; /* from far cons check? */
     pb->diffBlockCountMax = pb->diffBlockCount;
-    pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * sizeof(unsigned int) * 2);
+    pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * WORD_SIZE * 2);
     if (!pb->diffidx) return 54;                 /* can't malloc */
     pb->diffidxe = &pb->diffidx[pb->diffBlockCount]; /* end of interval */
     break;
@@ -450,7 +450,7 @@ int initiate_biconf_binarysearch(ProcessBlock *pb, int biconflength) {
   pb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* only pass 1 */
 
   /* prepare message buffer for first binsearch message  */
-  msg5BodySize = 3 * sizeof(unsigned int); /* parity data need, and indexing need for selection and compl */
+  msg5BodySize = 3 * WORD_SIZE; /* parity data need, and indexing need for selection and compl */
   errorCode = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, pb);
   if (errorCode) return errorCode;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
@@ -534,7 +534,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   /* prepare message buffer for first binsearch message  */
   // Parity need + indexing need
   msg5BodySize = 
-      (((processBlock->diffBlockCount + 31) / 32) + processBlock->diffBlockCount) * sizeof(unsigned int); /* parity data need */
+      (((processBlock->diffBlockCount + 31) / 32) + processBlock->diffBlockCount) * WORD_SIZE; /* parity data need */
   i = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, processBlock);
   if (i) return 55;
   h5->number_entries = processBlock->diffBlockCount;
@@ -621,7 +621,7 @@ int start_binarysearch(ProcessBlock *pb, char *receivebuf) {
   pb->diffBlockCountMax = pb->diffBlockCount;
 
   /* reserve difference index memory for pass 0 */
-  pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * sizeof(unsigned int) * 2);
+  pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * WORD_SIZE * 2);
   if (!pb->diffidx) /* can't malloc */
     return 54;
   pb->diffidxe = &pb->diffidx[pb->diffBlockCount]; /* end of interval */
@@ -801,7 +801,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
     if (pb->diffBlockCount > pb->diffBlockCountMax) {           /* need more space */
       free2(pb->diffidx); /* re-assign diff buf */
       pb->diffBlockCountMax = pb->diffBlockCount;
-      pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * sizeof(unsigned int) * 2);
+      pb->diffidx = (unsigned int *)malloc2(pb->diffBlockCount * WORD_SIZE * 2);
       if (!pb->diffidx) return 54;                 /* can't malloc */
       pb->diffidxe = &pb->diffidx[pb->diffBlockCount]; /* end of interval */
     }

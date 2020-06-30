@@ -203,11 +203,11 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
       bipo = PRNG_value2(rn_order, &processBlock->rngState);
       if (bipo > processBlock->initialBits) continue;          /* out of range */
       bpm = bt_mask(bipo);                           /* bit mask */
-      if (processBlock->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
+      if (processBlock->testedBitsMarker[wordIndex(bipo)] & bpm) continue; /* already used */
       /* got finally a bit */
-      processBlock->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
-      if (((processBlock->mainBufPtr[bipo / 32] & bpm) ? 1 : 0) ^
-          ((in_data[i / 32] & bt_mask(i)) ? 1 : 0)) { /* error */
+      processBlock->testedBitsMarker[wordIndex(bipo)] |= bpm; /* mark as used */
+      if (((processBlock->mainBufPtr[wordIndex(bipo)] & bpm) ? 1 : 0) ^
+          ((in_data[wordIndex(i)] & bt_mask(i)) ? 1 : 0)) { /* error */
          processBlock->estimatedError += 1;
       }
       break;
@@ -351,12 +351,12 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   processBlock->partitions1 = (processBlock->workbits + processBlock->k1 - 1) / processBlock->k1;
 
   /* get raw buffer */
-  msg4datalen = ((processBlock->partitions0 + 31) / 32 + (processBlock->partitions1 + 31) / 32) * 4;
+  msg4datalen = (wordIndex(processBlock->partitions0 + 31) + wordIndex(processBlock->partitions1 + 31)) * 4;
   errorCode = comms_createEcHeader((char **)&h4, SUBTYPE_CASCADE_PARITY_LIST, msg4datalen, processBlock);
   if (errorCode) return errorCode;
   /* both data arrays */
   h4_d0 = (unsigned int *)&h4[1];
-  h4_d1 = &h4_d0[(processBlock->partitions0 + 31) / 32];
+  h4_d1 = &h4_d0[wordIndex(processBlock->partitions0 + 31)];
   h4->seed = newseed;                        /* permutator seed */
   
   /* these are optional; should we drop them? */

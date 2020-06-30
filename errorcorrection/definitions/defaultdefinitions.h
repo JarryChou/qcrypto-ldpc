@@ -65,7 +65,11 @@
 #define PERFECT_BELL 2. * sqrt(2.)
 /// @}
 
-enum Boolean { False = 0, True = 1 };
+/// @name DEFAULT DEFINITIONS
+/// @{
+enum Boolean { False = 0, True = 1 }; ///< Easier for people don't don't C
 typedef int Boolean;
+#define WORD_SIZE sizeof(unsigned int) ///< More readable than sizeof(unsigned int) everywhere
+/// @}
 
 #endif
