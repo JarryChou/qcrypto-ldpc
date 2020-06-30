@@ -36,19 +36,19 @@ void cleanup_revealed_bits(ProcessBlock *pb) {
   int i;
 
   /* find first nonused lastbit */
-  while ((lastbit > 0) && (m[lastbit / 32] & bt_mask(lastbit))) 
+  while ((lastbit > 0) && (m[wordIndex(lastbit)] & bt_mask(lastbit))) 
     lastbit--;
 
   /* replace spent bits in beginning by untouched bits at end */
   for (i = 0; i <= lastbit; i++) {
     bm = bt_mask(i);
-    if (m[i / 32] & bm) { /* this bit is revealed */
-      d[i / 32] =
-          (d[i / 32] & ~bm) |
-          ((d[lastbit / 32] & bt_mask(lastbit)) ? bm : 0); /* transfer bit */
+    if (m[wordIndex(i)] & bm) { /* this bit is revealed */
+      d[wordIndex(i)] =
+          (d[wordIndex(i)] & ~bm) |
+          ((d[wordIndex(lastbit)] & bt_mask(lastbit)) ? bm : 0); /* transfer bit */
       /* get new lastbit */
       lastbit--;
-      while ((lastbit > 0) && (m[lastbit / 32] & bt_mask(lastbit))) 
+      while ((lastbit > 0) && (m[wordIndex(lastbit)] & bt_mask(lastbit))) 
         lastbit--;
     }
   }
@@ -56,8 +56,8 @@ void cleanup_revealed_bits(ProcessBlock *pb) {
   pb->workbits = i;
 
   /* fill rest of buffer with zeros for not loosing any bits */
-  d[i / 32] &= ((i & 31) ? (0xffffffff << (32 - (i & 31))) : 0);
-  for (i = ((pb->workbits / 32) + 1); i < wordCount(pb->initialBits); i++) {
+  d[wordIndex(i)] &= ((i & 31) ? (0xffffffff << (32 - (i & 31))) : 0);
+  for (i = wordIndex(pb->workbits) + 1; i < wordCount(pb->initialBits); i++) {
     d[i] = 0;
     /* printf("   i= %d\n",i); */
   }
@@ -141,7 +141,7 @@ void prepare_permut_core(ProcessBlock *pb) {
   bzero(pb->permuteBufPtr, wordCount(workbits) * WORD_SIZE); /* clear permuted buffer */
   for (i = 0; i < workbits; i++) {                   /*  do bit permutation  */
     k = pb->permuteIndex[i];
-    if (bt_mask(i) & pb->mainBufPtr[i / 32]) pb->permuteBufPtr[k / 32] |= bt_mask(k);
+    if (bt_mask(i) & pb->mainBufPtr[wordIndex(i)]) pb->permuteBufPtr[wordIndex(k)] |= bt_mask(k);
   }
 
   /* for debug: output that stuff */
@@ -165,12 +165,12 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
     /* shift parity result in buffer */
     resbuf = (resbuf << 1) + singleLineParity(d, bitidx, bitidx + k - 1);
     if ((blkidx & 31) == 31) 
-      t[blkidx / 32] = resbuf; /* save in target */
+      t[wordIndex(blkidx)] = resbuf; /* save in target */
     blkidx++;
   }
   /* cleanup residual parity buffer */
   if (blkidx & 31) 
-    t[blkidx / 32] = resbuf << (32 - (blkidx & 31));
+    t[wordIndex(blkidx)] = resbuf << (32 - (blkidx & 31));
   return;
 }
 
@@ -182,8 +182,8 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
  * @return parity (0 or 1)
  */
 int singleLineParity(unsigned int *d, int start, int end) {
-  int fi = start / 32;
-  int li = end / 32;
+  int fi = wordIndex(start);
+  int li = wordIndex(end);
   unsigned int fm = firstmask(start & 31);
   unsigned int lm = lastmask(end & 31);
   unsigned int tmp_par;

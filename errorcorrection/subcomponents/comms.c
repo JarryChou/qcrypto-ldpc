@@ -74,12 +74,12 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
       bipo = PRNG_value2(rn_order, &processBlock->rngState);
       if (bipo > processBlock->initialBits) continue;          /* out of range */
       bpm = bt_mask(bipo);                           /* bit mask */
-      if (processBlock->testedBitsMarker[bipo / 32] & bpm) continue; /* already used */
+      if (processBlock->testedBitsMarker[wordIndex(bipo)] & bpm) continue; /* already used */
       /* got finally a bit */
-      processBlock->testedBitsMarker[bipo / 32] |= bpm; /* mark as used */
-      if (processBlock->mainBufPtr[bipo / 32] & bpm) localdata |= bt_mask(i);
+      processBlock->testedBitsMarker[wordIndex(bipo)] |= bpm; /* mark as used */
+      if (processBlock->mainBufPtr[wordIndex(bipo)] & bpm) localdata |= bt_mask(i);
       if ((i & 31) == 31) {
-        msg1_data[i / 32] = localdata;
+        msg1_data[wordIndex(i)] = localdata;
         localdata = 0; /* reset buffer */
       }
       break; /* end rng search cycle */
@@ -88,7 +88,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
 
   /* fill in last localdata */
   if (i & 31) {
-    msg1_data[i / 32] = localdata;
+    msg1_data[wordIndex(i)] = localdata;
   } /* there was something left */
 
   /* update processblock structure with used bits */

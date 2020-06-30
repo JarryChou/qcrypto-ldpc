@@ -39,9 +39,9 @@ void fix_permutedbits(ProcessBlock *pb) {
 void generate_selectbitstring(ProcessBlock *pb, unsigned int seed) {
   int i;                                    /* number of bits to be set */
   pb->rngState = seed;                     /* set new seed */
-  for (i = 0; i < (pb->workbits) / 32; i++) /* take care of the full bits */
+  for (i = 0; i < wordIndex(pb->workbits); i++) /* take care of the full bits */
     pb->testedBitsMarker[i] = PRNG_value2_32(&pb->rngState);
-  pb->testedBitsMarker[pb->workbits / 32] = /* prepare last few bits */
+  pb->testedBitsMarker[wordIndex(pb->workbits)] = /* prepare last few bits */
       PRNG_value2_32(&pb->rngState) & lastmask((pb->workbits - 1) & 31);
   return;
 }
@@ -56,17 +56,17 @@ void generate_selectbitstring(ProcessBlock *pb, unsigned int seed) {
 void generate_BICONF_bitstring(ProcessBlock *pb) {
   int i; /* number of bits to be set */
   /* take care of the full bits */
-  for (i = 0; i < (pb->workbits) / 32; i++) { 
+  for (i = 0; i < wordIndex(pb->workbits); i++) { 
     /* get permuted bit */
     pb->testedBitsMarker[i] = 
         PRNG_value2_32(&pb->rngState) & 
         pb->permuteBufPtr[i]; 
   }
   /* prepare last few bits */
-  pb->testedBitsMarker[pb->workbits / 32] = 
+  pb->testedBitsMarker[wordIndex(pb->workbits)] = 
       PRNG_value2_32(&pb->rngState) & 
       lastmask((pb->workbits - 1) & 31) &
-      pb->permuteBufPtr[pb->workbits / 32];
+      pb->permuteBufPtr[wordIndex(pb->workbits)];
   return;
 }
 
@@ -130,7 +130,7 @@ void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx) {
       /* was already old */
       continue;
     }
-    if (inh_idx[i / 32] & bt_mask(i)) { /* error is in upper (par match) */
+    if (inh_idx[wordIndex(i)] & bt_mask(i)) { /* error is in upper (par match) */
       pb->diffidx[i] = fbi + (lbi - fbi + 1) / 2; /* take upper half */
     } else {
       pb->diffidxe[i] = fbi + (lbi - fbi + 1) / 2 - 1; /* take lower half */
@@ -140,7 +140,7 @@ void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx) {
 
 /** @brief Helper for correcting one bit in pass 0 or 1 in their field */
 void correct_bit(unsigned int *d, int bitindex) {
-  d[bitindex / 32] ^= bt_mask(bitindex); /* flip bit */
+  d[wordIndex(bitindex)] ^= bt_mask(bitindex); /* flip bit */
   return;
 }
 
@@ -157,8 +157,8 @@ int singleLineParityMasked(unsigned int *d, unsigned int *m, int start,
                               int end) {
   unsigned int tmp_par, lm, fm;
   int li, fi, ri;
-  fi = start / 32;
-  li = end / 32;
+  fi = wordIndex(start);
+  li = wordIndex(end);
   lm = lastmask(end & 31);
   fm = firstmask(start & 31);
   if (li == fi) {
@@ -294,7 +294,7 @@ int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_h
       // Update bits
       mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
       tmpSingleLineParity = singleLineParity(d, fbi, mbi);
-      if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
+      if (((inh_data[wordIndex(i)] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
         /* same parity, take upper half */
         fbi = mbi + 1;
         pb->diffidx[i] = fbi; /* update first bit idx */
@@ -321,14 +321,14 @@ int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_h
     }
   // skpar2:
     if ((i & 31) == 31) { /* save stuff in outbuffers */
-      out_match[i / 32] = matchresult;
-      out_parity[i / 32] = parityresult;
+      out_match[wordIndex(i)] = matchresult;
+      out_parity[wordIndex(i)] = parityresult;
     }
   }
   /* cleanup residual bit buffers */
   if (i & 31) {
-    out_match[i / 32] = matchresult << (32 - (i & 31));
-    out_parity[i / 32] = parityresult << (32 - (i & 31));
+    out_match[wordIndex(i)] = matchresult << (32 - (i & 31));
+    out_parity[wordIndex(i)] = parityresult << (32 - (i & 31));
   }
 
   /* update outgoing info leakageBits */
@@ -521,7 +521,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   /* fill difference index memory */
   j = 0; /* index for mismatching blocks */
   for (i = 0; i < partitions; i++) {
-    if (bt_mask(i) & pd[i / 32]) {       /* this block is mismatched */
+    if (bt_mask(i) & pd[wordIndex(i)]) {       /* this block is mismatched */
       processBlock->diffidx[j] = i * k;                               /* store bit index, not block index */
       processBlock->diffidxe[j] = processBlock->diffidx[j] + (k - 1); /* last block */
       j++;
@@ -557,11 +557,11 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
     lbi = fbi + kdiff / 2 - 1; /* first and last bitidx */
     resbuf = (resbuf << 1) + singleLineParity(d, fbi, lbi);
     if ((i & 31) == 31) {
-      h5_data[i / 32] = resbuf;
+      h5_data[wordIndex(i)] = resbuf;
     }
   }
   if (i & 31)
-    h5_data[i / 32] = resbuf << (32 - (i & 31)); /* last parity bits */
+    h5_data[wordIndex(i)] = resbuf << (32 - (i & 31)); /* last parity bits */
 
   /* increment lost bits */
   processBlock->leakageBits += processBlock->diffBlockCount;
@@ -742,7 +742,7 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
 
     mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
     tmpSingleLineParity = singleLineParity(d, fbi, mbi);
-    if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
+    if (((inh_data[wordIndex(i)] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
       /* same parity, take upper half */
       fbi = mbi + 1;
       pb->diffidx[i] = fbi; /* update first bit idx */
@@ -766,14 +766,14 @@ int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_hea
   skipparity:
     if ((i & 31) == 31) {
       /* save stuff in outbuffers */
-      out_match[i / 32] = matchresult;
-      out_parity[i / 32] = parityresult;
+      out_match[wordIndex(i)] = matchresult;
+      out_parity[wordIndex(i)] = parityresult;
     }
   }
   /* Cleanup residual bit buffers */
   if (i & 31) {
-    out_match[i / 32] = matchresult << (32 - (i & 31));
-    out_parity[i / 32] = parityresult << (32 - (i & 31));
+    out_match[wordIndex(i)] = matchresult << (32 - (i & 31));
+    out_parity[wordIndex(i)] = parityresult << (32 - (i & 31));
   }
 
   /* a blocklength k decides on a max number of rounds */
