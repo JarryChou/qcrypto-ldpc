@@ -52,7 +52,7 @@ unsigned int rnd_getPrngValue(int);
 unsigned int rnd_getPrngValue2(int, unsigned int *);
 unsigned int rnd_getPrngValue2_32(unsigned int *);
 int rnd_getRngCalls(void); // Unused
-unsigned int rnd_generateRngSeed(void); /**< helper function to get a seed from the random device; returns seed or 0 on error */
+int rnd_generateRngSeed(unsigned int *); /**< helper function to get a seed from the random device; returns seed or 0 on error */
 
 /**
  * @brief typical file names

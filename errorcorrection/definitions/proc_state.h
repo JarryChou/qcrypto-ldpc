@@ -37,13 +37,13 @@
 
 /// @name Definitions of the processing state
 /// @{
-#define PRS_JUSTLOADED 0       /**< no processing yet (passive role) */
-#define PRS_NEGOTIATEROLE 1    /**< in role negotiation with other side */
-#define PRS_WAITRESPONSE1 2    /**< waiting for error est response from bob */
-#define PRS_GETMOREEST 3       /**< waiting for more error est bits from Alice */
-#define PRS_KNOWMYERROR 4      /**< know my error estimation */
-#define PRS_PERFORMEDPARITY1 5 /**< know my error estimation */
-#define PRS_DOING_BICONF 6     /**< last biconf round */
+#define PSTATE_JUST_LOADED 0                    /**< no processing yet (passive role) */
+#define PSTATE_NEGOTIATING_ROLE 1               /**< in role negotiation with other side (UNUSED) */
+#define PSTATE_AWAIT_ERR_EST_RESP 2             /**< waiting for error est response from bob */
+#define PSTATE_AWAIT_ERR_EST_MORE_BITS 3        /**< waiting for more error est bits from Alice */
+#define PSTATE_ERR_KNOWN 4                      /**< know my error estimation */
+#define PSTATE_PERFORMED_PARITY 5               /**< know my error estimation */
+#define PSTATE_DOING_BICONF 6                   /**< last biconf round */
 /// @}
 
 #endif

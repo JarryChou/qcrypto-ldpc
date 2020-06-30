@@ -323,6 +323,7 @@ static char *errormessage[] = {
     "BER argument out of range",
     "Reply mode out of bounds", // 80
     "Unsupported functionality (See logs for more input)",
+    "PRNG Generator couldn't generate enough bits"
 };
 /// @}
 

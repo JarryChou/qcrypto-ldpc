@@ -153,8 +153,10 @@ void cascade_fixParityIntervals(ProcessBlock *pb, unsigned int *inh_idx) {
  */
 int cascade_initiateBiconf(ProcessBlock *pb) {
   EcPktHdr_CascadeBiconfInitReq *h6;           /* header for that message */
-  unsigned int seed = rnd_generateRngSeed();  /* seed for permutation */
   int errorCode = 0;
+  unsigned int seed;                          /* seed for permutation */
+  errorCode = rnd_generateRngSeed(&seed);
+  if (errorCode) return errorCode;
 
   /* update state variables */
   pb->biconfLength = pb->workbits; /* old was /2 - do we still need this? */
@@ -190,11 +192,11 @@ int cascade_generateBiconfReply(ProcessBlock *pb, char *receivebuf) {
 
   /* update processblock status */
   switch (pb->processingState) {
-    case PRS_PERFORMEDPARITY1:                /* just finished BICONF */
-      pb->processingState = PRS_DOING_BICONF; /* update state */
+    case PSTATE_PERFORMED_PARITY:                /* just finished BICONF */
+      pb->processingState = PSTATE_DOING_BICONF; /* update state */
       pb->biconfRound = 0;                   /* first round */
       break;
-    case PRS_DOING_BICONF: /* already did a biconf */
+    case PSTATE_DOING_BICONF: /* already did a biconf */
       pb->biconfRound++;  /* increment processing round; more checks? */
       break;
   }
@@ -749,7 +751,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
   }
 
   /* a blocklength k decides on a max number of rounds */
-  if ((pb->binarySearchDepth & RUNLEVEL_ROUNDMASK) < log2Ceil((pb->processingState == PRS_DOING_BICONF)
+  if ((pb->binarySearchDepth & RUNLEVEL_ROUNDMASK) < log2Ceil((pb->processingState == PSTATE_DOING_BICONF)
       ? (pb->biconfLength) : (thispass ? pb->k1 : pb->k0))) {
     /* need to continue with this search; make packet 5 ready to send */
     pb->leakageBits += lostBitsCount;
@@ -795,7 +797,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
   /* now we have finished a consecutive the second round; there are no more errors in both passes.  */
 
   /* check for biconf reply */
-  if (pb->processingState == PRS_DOING_BICONF) { 
+  if (pb->processingState == PSTATE_DOING_BICONF) { 
     /* we are finally finished with the  BICONF corrections */
     /* update biconf status */
     pb->biconfRound++;
@@ -812,7 +814,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
      in BICONF mode */
 
   /* initiate the BICONF state */
-  pb->processingState = PRS_DOING_BICONF;
+  pb->processingState = PSTATE_DOING_BICONF;
   pb->biconfRound = 0; /* first BICONF round */
   return cascade_initiateBiconf(pb);
 }

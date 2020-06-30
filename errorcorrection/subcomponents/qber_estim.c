@@ -26,7 +26,7 @@ void prepareParityList1(ProcessBlock *processBlock, unsigned int *d0, unsigned i
  */
 void setStateKnowMyErrorAndCalculatek0andk1(ProcessBlock *processBlock, float localerror) {
   /* determine process variables */
-  processBlock->processingState = PRS_KNOWMYERROR;
+  processBlock->processingState = PSTATE_ERR_KNOWN;
   processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
   /****** more to do here *************/
   /* calculate k0 and k1 for further uses */
@@ -117,7 +117,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   processBlock->skipQberEstim = arguments.skipQberEstimation;
   /* seed the rng, (the state has to be kept with the processblock, use a lock system for the rng in case several ) */
   // processBlock->RNG_usage = 0; /* use simple RNG */
-  if (!(processBlock->rngState = rnd_generateRngSeed())) return 39;
+  if (rnd_generateRngSeed(&(processBlock->rngState))) return 39; // if an error code was produced
 
   if (processBlock->skipQberEstim) {
     msg1 = comms_createQberEstBitsMsg(processBlock, 1, processBlock->initialErrRate, processBlock->bellValue);
@@ -250,7 +250,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
       comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);
       // Set processblock params
       processBlock->skipQberEstim = 1;
-      processBlock->processingState = PRS_GETMOREEST;
+      processBlock->processingState = PSTATE_AWAIT_ERR_EST_MORE_BITS;
   } else { // logic error in code
     return 80;
   }
@@ -340,7 +340,8 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
 
   /* install new seed */
   // processBlock->RNG_usage = 0; /* use simple RNG */
-  if (!(newseed = rnd_generateRngSeed())) return 39;
+  if (rnd_generateRngSeed(&newseed)) 
+    return 39; // if there was an error code produced
   processBlock->rngState = newseed; /* get new seed for RNG */
 
   /* prepare permutation array */
@@ -368,7 +369,7 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   prepareParityList1(processBlock, h4_d0, h4_d1);
 
   /* update status */
-  processBlock->processingState = PRS_PERFORMEDPARITY1;
+  processBlock->processingState = PSTATE_PERFORMED_PARITY;
   processBlock->leakageBits += processBlock->partitions0 + processBlock->partitions1;
 
   /* transmit message */

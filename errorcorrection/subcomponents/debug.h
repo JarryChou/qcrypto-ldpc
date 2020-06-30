@@ -58,6 +58,8 @@
 /* #define SYSTPERMUTATION */ /* for systematic rather than rand permut */
 /* #define mallocdebug */
 
+// #define FIXED_RNG_SEED 0 ///< Use this debug value to define a fixed RNG seed
+
 /// @name DEBUGGER HELPER FUNCTIONS
 /// @{
 char *malloc2(unsigned int s);

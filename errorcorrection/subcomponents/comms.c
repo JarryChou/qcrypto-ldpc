@@ -96,7 +96,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
 
   /* update processblock structure with used bits */
   processBlock->leakageBits += bitsneeded;
-  processBlock->processingState = PRS_WAITRESPONSE1;
+  processBlock->processingState = PSTATE_AWAIT_ERR_EST_RESP;
 
   return msg1; /* pointer to message */
 }

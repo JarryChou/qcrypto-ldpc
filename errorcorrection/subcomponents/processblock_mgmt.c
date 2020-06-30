@@ -147,7 +147,7 @@ int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float
   }
   bp->content->initialBits = bitcount; /* number of bits in stream */
   bp->content->leakageBits = 0;        /* start with no initially lost bits */
-  bp->content->processingState = PRS_JUSTLOADED; /* just read in */
+  bp->content->processingState = PSTATE_JUST_LOADED; /* just read in */
   bp->content->initialErrRate = (int)(inierr * (1 << 16));
   bp->content->bellValue = bellValue;
   /* insert processblock in processblock list */

@@ -42,7 +42,8 @@ int privAmp_sendPrivAmpMsgAndPrivAmp(ProcessBlock *pb) {
   /* prepare messagehead */
   errorCode = comms_createEcHeader((char **)&h8, SUBTYPE_START_PRIV_AMP, 0, pb);
   if (errorCode) return 62; // hardcoded in original impl.
-  h8->seed = rnd_generateRngSeed();   /* generate local RNG seed */
+  errorCode = rnd_generateRngSeed(&(h8->seed));   /* generate local RNG seed */
+  if (errorCode) return errorCode;
   h8->lostbits = pb->leakageBits; /* this is what we use for PA */
   h8->correctedbits = pb->correctedErrors;
 

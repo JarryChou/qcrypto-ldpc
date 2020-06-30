@@ -136,20 +136,32 @@ int rnd_getRngCalls(void) { return __RNG_calls; };
 /**
  * @brief helper function to get a seed from the random device
  * 
- * @return unsigned int, seed or 0 on error
+ * @param rngResult pointer to return rng seed
+ * 
+ * @return 0 if success otherwise error code
  */
-unsigned int rnd_generateRngSeed(void) {
-  int rndhandle; /* keep device handle for random device */
-  unsigned int reply;
+int rnd_generateRngSeed(unsigned int* rngResult) {
 
+  #ifndef FIXED_RNG_SEED
+  // Use prng device
+
+  int rndhandle; /* keep device handle for random device */
   rndhandle = open(RANDOMGENERATOR, O_RDONLY);
   if (-1 == rndhandle) {
     fprintf(stderr, "errno: %d", errno);
     return 39;
   }
-  if (sizeof(unsigned int) != read(rndhandle, &reply, sizeof(unsigned int))) {
-    return 0; /* not enough */
+  if (sizeof(unsigned int) != read(rndhandle, rngResult, sizeof(unsigned int))) {
+    return 82; /* not enough */
   }
   close(rndhandle);
-  return reply;
+  return 0;
+
+  #else
+  // Use fixed value as seed
+
+  *rngResult = FIXED_RNG_SEED;
+  return 0;
+
+  #endif
 }
