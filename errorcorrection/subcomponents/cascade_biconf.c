@@ -748,6 +748,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
   int lost_bits;  /* number of key bits revealed in this round */
   int thispass;   /* indincates the current pass */
   int biconfmark; /* indicates if this is a biconf round */
+  int tmpSingleLineParity = 0;
 
   inh_data = (unsigned int *)&in_head[1];          /* parity pattern */
   inh_idx = &inh_data[(kb->diffBlockCount + 31) / 32]; /* index or matching part */
@@ -765,18 +766,16 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
   out_parity = (unsigned int *)&out_head[1];
   out_match = &out_parity[((kb->diffBlockCount + 31) / 32)];
 
-  lost_bits = kb->diffBlockCount; /* initially we will loose those for outgoing
-                                 parity bits */
+  /* initially we will loose those for outgoing parity bits */
+  lost_bits = kb->diffBlockCount;
 
   /* make pass-dependent settings */
   thispass = (kb->binarySearchDepth & RUNLEVEL_LEVELMASK) ? 1 : 0;
 
-  switch (thispass) {
-    case 0: /* level 0 */
-      d = kb->mainBufPtr;
-      break;
-    case 1: /* level 1 */
-      d = kb->permuteBufPtr;
+  if (thispass == 0) {
+    d = kb->mainBufPtr;     // level 0
+  } else if (thispass == 1) {
+    d = kb->permuteBufPtr;  // level 1
   }
 
   biconfmark = 0; /* default is no biconf */
@@ -809,17 +808,8 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
       goto skipparity;          /* no more parity evaluation, skip rest */
     }
     mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-    fi = fbi / 32;
-    li = mbi / 32;
-    fm = firstmask(fbi & 31);
-    lm = lastmask(mbi & 31);
-    if (fi == li) { /* in same word */
-      tmp_par = d[fi] & fm & lm;
-    } else {
-      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-    } /* still need to parity tmp_par */
-    if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == parity(tmp_par)) {
+    tmpSingleLineParity = singleLineParity(d, fbi, mbi);
+    if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
       /* same parity, take upper half */
       fbi = mbi + 1;
       kb->diffidx[i] = fbi; /* update first bit idx */
@@ -878,7 +868,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
   fix_permutedbits(kb);
 
   /* prepare for alternate round; start with re-evaluation of parity. */
-  while (1) { /* just a break construction.... */
+  while (True) { /* just a break construction.... */
     kb->binarySearchDepth = thispass ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS;
     kb->diffBlockCount =
         do_paritylist_and_diffs(kb, 1 - thispass);       /* new differences */
@@ -887,8 +877,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
     if (kb->diffBlockCount > kb->diffBlockCountMax) {           /* need more space */
       free2(kb->diffidx); /* re-assign diff buf */
       kb->diffBlockCountMax = kb->diffBlockCount;
-      kb->diffidx =
-          (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
+      kb->diffidx = (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
       if (!kb->diffidx) return 54;                 /* can't malloc */
       kb->diffidxe = &kb->diffidx[kb->diffBlockCount]; /* end of interval */
     }
@@ -901,10 +890,8 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
      errors in both passes.  */
 
   /* check for biconf reply  */
-  if (kb->processingState ==
-      PRS_DOING_BICONF) { /* we are finally finished
-                                                                   with the
-                             BICONF corrections */
+  if (kb->processingState == PRS_DOING_BICONF) { 
+    /* we are finally finished with the  BICONF corrections */
     /* update biconf status */
     kb->biconfRound++;
 
