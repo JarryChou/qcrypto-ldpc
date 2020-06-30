@@ -213,9 +213,9 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
   unsigned int *d;                /* points to internal key data */
   int k;                          /* keeps blocklength */
   unsigned int matchresult = 0, parityresult = 0; /* for builduing outmsg */
-  unsigned int fm, lm, tmp_par;                   /* for parity evaluation */
-  int fbi, lbi, mbi, fi, li, ri;                  /* for parity evaluation */
+  int fbi, lbi, mbi;                  /* for parity evaluation */
   int lost_bits; /* number of key bits revealed in this round */
+  int tmpSingleLineParity = 0;
 
   inh_data = (unsigned int *)&in_head[1]; /* parity pattern */
 
@@ -234,8 +234,7 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
     /* allocate difference idx memory */
     kb->diffBlockCount = in_head->number_entries; /* from far cons check? */
     kb->diffBlockCountMax = kb->diffBlockCount;
-    kb->diffidx =
-        (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
+    kb->diffidx = (unsigned int *)malloc2(kb->diffBlockCount * sizeof(unsigned int) * 2);
     if (!kb->diffidx) return 54;                 /* can't malloc */
     kb->diffidxe = &kb->diffidx[kb->diffBlockCount]; /* end of interval */
     break;
@@ -312,17 +311,8 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
       goto skpar2;              /* no parity eval needed */
     }
     mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-    fi = fbi / 32;
-    li = mbi / 32;
-    fm = firstmask(fbi & 31);
-    lm = lastmask(mbi & 31);
-    if (fi == li) { /* in same word */
-      tmp_par = d[fi] & fm & lm;
-    } else {
-      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-    } /* still need to parity tmp_par */
-    if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == parity(tmp_par)) {
+    tmpSingleLineParity = singleLineParity(d, fbi, mbi);
+    if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
       /* same parity, take upper half */
       fbi = mbi + 1;
       kb->diffidx[i] = fbi; /* update first bit idx */
@@ -340,20 +330,12 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
 
     /* now, prepare new parity bit */
     mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-    fi = fbi / 32;
-    li = mbi / 32;
-    fm = firstmask(fbi & 31);
-    lm = lastmask(mbi & 31);
-    if (fi == li) { /* in same word */
-      tmp_par = d[fi] & fm & lm;
-    } else {
-      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-    }                /* still need to parity tmp_par */
-    if (lbi < mbi) { /* end of interval, give zero parity */
-      tmp_par = 0;
+    tmpSingleLineParity = singleLineParity(d, fbi, mbi);
+    /* if not the end of interval, save parity */
+    // this is because if end of interval, parity = 0, and parityresult |= 0 does nothing
+    if (lbi >= mbi) {
+      parityresult |= tmpSingleLineParity; /* save parity */
     }
-    parityresult |= parity(tmp_par); /* save parity */
   skpar2:
     if ((i & 31) == 31) { /* save stuff in outbuffers */
       out_match[i / 32] = matchresult;
@@ -743,8 +725,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
   unsigned int *d = NULL;         /* points to internal key data */
   unsigned int *d2 = NULL; /* points to secondary to-be-corrected buffer */
   unsigned int matchresult = 0, parityresult = 0; /* for builduing outmsg */
-  unsigned int fm, lm, tmp_par;                   /* for parity evaluation */
-  int fbi, lbi, mbi, fi, li, ri;                  /* for parity evaluation */
+  int fbi, lbi, mbi;                  /* for parity evaluation */
   int lost_bits;  /* number of key bits revealed in this round */
   int thispass;   /* indincates the current pass */
   int biconfmark; /* indicates if this is a biconf round */
@@ -795,11 +776,13 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
     fbi = kb->diffidx[i];
     lbi = kb->diffidxe[i]; /* old bitindices */
 
-    if (fbi > lbi) {   /* this is an empty message , don't count or correct */
+    /* If this is an empty message , don't count or correct */
+    if (fbi > lbi) {  
       lost_bits -= 2;  /* No initial parity, no outgoing */
       goto skipparity; /* no more parity evaluation, skip rest */
     }
-    if (fbi == lbi) { /* we have found the bit error */
+    /* If we have found the bit error */
+    if (fbi == lbi) {
       if (biconfmark) correct_bit(d2, fbi);
       correct_bit(d, fbi);
       kb->correctedErrors++;
@@ -807,6 +790,7 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
       kb->diffidx[i] = fbi + 1; /* mark as emty */
       goto skipparity;          /* no more parity evaluation, skip rest */
     }
+
     mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
     tmpSingleLineParity = singleLineParity(d, fbi, mbi);
     if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
@@ -818,33 +802,27 @@ int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_hea
       lbi = mbi;
       kb->diffidxe[i] = lbi; /* update last bit idx */
     }
-    if (fbi == lbi) { /* end of interval, correct for error */
+    /* If this is end of interval, correct for error */
+    if (fbi == lbi) {
       if (biconfmark) correct_bit(d2, fbi);
       correct_bit(d, fbi);
       kb->correctedErrors++;
       lost_bits--; /* we don't reveal anything on this one anymore */
       goto skipparity;
     }
-    /* now, prepare new parity bit */
+    /* Else, prepare new parity bit */
     mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-    fi = fbi / 32;
-    li = mbi / 32;
-    fm = firstmask(fbi & 31);
-    lm = lastmask(mbi & 31);
-    if (fi == li) { /* in same word */
-      tmp_par = d[fi] & fm & lm;
-    } else {
-      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
-    }                                /* still need to parity tmp_par */
-    parityresult |= parity(tmp_par); /* save parity */
+    tmpSingleLineParity = singleLineParity(d, fbi, mbi);
+    parityresult |= tmpSingleLineParity; /* save parity */
+
   skipparity:
-    if ((i & 31) == 31) { /* save stuff in outbuffers */
+    if ((i & 31) == 31) {
+      /* save stuff in outbuffers */
       out_match[i / 32] = matchresult;
       out_parity[i / 32] = parityresult;
     }
   }
-  /* cleanup residual bit buffers */
+  /* Cleanup residual bit buffers */
   if (i & 31) {
     out_match[i / 32] = matchresult << (32 - (i & 31));
     out_parity[i / 32] = parityresult << (32 - (i & 31));
