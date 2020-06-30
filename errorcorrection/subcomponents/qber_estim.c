@@ -117,7 +117,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   processBlock->skipQberEstim = arguments.skipQberEstimation;
   /* seed the rng, (the state has to be kept with the processblock, use a lock system for the rng in case several ) */
   // processBlock->RNG_usage = 0; /* use simple RNG */
-  if (!(processBlock->rngState = get_r_seed())) return 39;
+  if (!(processBlock->rngState = generateRngSeed())) return 39;
 
   if (processBlock->skipQberEstim) {
     msg1 = comms_createQberEstBitsMsg(processBlock, 1, processBlock->initialError, processBlock->bellValue);
@@ -340,7 +340,7 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
 
   /* install new seed */
   // processBlock->RNG_usage = 0; /* use simple RNG */
-  if (!(newseed = get_r_seed())) return 39;
+  if (!(newseed = generateRngSeed())) return 39;
   processBlock->rngState = newseed; /* get new seed for RNG */
 
   /* prepare permutation array */

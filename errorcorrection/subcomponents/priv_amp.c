@@ -40,7 +40,7 @@ int initiate_privacyamplification(ProcessBlock *kb) {
   EcPktHdr_StartPrivAmp *h8; /* head for trigger message */
 
   /* generate local RNG seed */
-  seed = get_r_seed();
+  seed = generateRngSeed();
 
   /* prepare messagehead */
   h8 = (EcPktHdr_StartPrivAmp *)malloc2(sizeof(EcPktHdr_StartPrivAmp));

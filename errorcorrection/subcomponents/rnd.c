@@ -141,7 +141,7 @@ int get_RNG_calls(void) { return __RNG_calls; };
  * 
  * @return unsigned int, seed or 0 on error
  */
-unsigned int get_r_seed(void) {
+unsigned int generateRngSeed(void) {
   int rndhandle; /* keep device handle for random device */
   unsigned int reply;
 

@@ -54,13 +54,18 @@ void generate_selectbitstring(ProcessBlock *kb, unsigned int seed) {
    @param kb processblock pointer (kb contains other params for final parity test)
  */
 void generate_BICONF_bitstring(ProcessBlock *kb) {
-  int i;                                      /* number of bits to be set */
-  for (i = 0; i < (kb->workbits) / 32; i++) { /* take care of the full bits */
-    kb->testedBitsMarker[i] = PRNG_value2_32(&kb->rngState) &
-                        kb->permuteBufPtr[i]; /* get permuted bit */
+  int i; /* number of bits to be set */
+  /* take care of the full bits */
+  for (i = 0; i < (kb->workbits) / 32; i++) { 
+    /* get permuted bit */
+    kb->testedBitsMarker[i] = 
+        PRNG_value2_32(&kb->rngState) & 
+        kb->permuteBufPtr[i]; 
   }
-  kb->testedBitsMarker[kb->workbits / 32] = /* prepare last few bits */
-      PRNG_value2_32(&kb->rngState) & lastmask((kb->workbits - 1) & 31) &
+  /* prepare last few bits */
+  kb->testedBitsMarker[kb->workbits / 32] = 
+      PRNG_value2_32(&kb->rngState) & 
+      lastmask((kb->workbits - 1) & 31) &
       kb->permuteBufPtr[kb->workbits / 32];
   return;
 }
@@ -345,10 +350,8 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
  */
 int initiate_biconf(ProcessBlock *kb) {
   EcPktHdr_CascadeBiconfInitReq *h6; /* header for that message */
-  unsigned int seed;        /* seed for permutation */
-
-  /* prepare seed */
-  seed = get_r_seed();
+  unsigned int seed = generateRngSeed();  /* seed for permutation */
+  int errorCode = 0;
 
   /* update state variables */
   kb->biconflength = kb->workbits; /* old was /2 - do we still need this? */
@@ -358,13 +361,8 @@ int initiate_biconf(ProcessBlock *kb) {
   generate_BICONF_bitstring(kb);
 
   /* fill message */
-  h6 = (EcPktHdr_CascadeBiconfInitReq *)malloc2(sizeof(EcPktHdr_CascadeBiconfInitReq));
-  if (!h6) return 60;
-  h6->base.tag = EC_PACKET_TAG;
-  h6->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfInitReq);
-  h6->base.subtype = SUBTYPE_CASCADE_BICONF_INIT_REQ;
-  h6->base.epoch = kb->startEpoch;
-  h6->base.numberOfEpochs = kb->numberOfEpochs;
+  errorCode = comms_createHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, kb);
+  if (errorCode) return 60; // Hardcoded in original impl.
   h6->seed = seed;
   h6->number_of_bits = kb->biconflength;
   kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
