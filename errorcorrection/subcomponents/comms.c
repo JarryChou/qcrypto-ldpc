@@ -107,27 +107,28 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
  * @param processBlock 
  * @return EcPktHdr_CascadeBinSearchMsg* 
  */
-EcPktHdr_CascadeBinSearchMsg *makeMessageHead5(ProcessBlock *processBlock, unsigned int indexPresent) {
-  unsigned int extraSize;
+EcPktHdr_CascadeBinSearchMsg *makeBinSrchMsgHead(ProcessBlock *processBlock, unsigned int indexPresent) {
+  unsigned int sizeOfMsgBody;
   int errorCode;
   EcPktHdr_CascadeBinSearchMsg *out_head;
   switch (indexPresent) {
     case 0: 
-      extraSize = wordCount(processBlock->diffBlockCount) * WORD_SIZE * 2; /* two bitfields */
+      sizeOfMsgBody = wordCount(processBlock->diffBlockCount) * WORD_SIZE * 2; /* two bitfields */
       break;
     case 1:
-      extraSize = wordCount(processBlock->diffBlockCount) * WORD_SIZE // parity data need
+      sizeOfMsgBody = wordCount(processBlock->diffBlockCount) * WORD_SIZE     // parity data need
           + processBlock->diffBlockCount * WORD_SIZE;                    // indexing need
       break;
     case 4:
-      extraSize = 3 * WORD_SIZE;       /* parity data need and indexing need for selection and compl */
+      sizeOfMsgBody = 3 * WORD_SIZE;       /* parity data need and indexing need for selection and compl */
       break;
     default:
       fprintf(stderr, "Used unsupported indexPresent index %d", indexPresent);
       return NULL;
   }
-  errorCode = comms_createEcHeader((char **)&out_head, SUBTYPE_CASCADE_BIN_SEARCH_MSG, extraSize, processBlock);
-  if (errorCode) return NULL;
+  errorCode = comms_createEcHeader((char **)&out_head, SUBTYPE_CASCADE_BIN_SEARCH_MSG, sizeOfMsgBody, processBlock);
+  if (errorCode) 
+    return NULL;
   out_head->number_entries = processBlock->diffBlockCount;
   out_head->runlevel = processBlock->binarySearchDepth; /* next round */
   out_head->indexPresent = indexPresent; // 0: ordinary reply, 1: first msg, 4: this round we have a start/stop table
