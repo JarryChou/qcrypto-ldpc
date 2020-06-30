@@ -304,7 +304,7 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
     lbi = kb->diffidxe[i]; /* old bitindices */
     if (fbi >= lbi) { /* this is an empty message, or one less lost on receive, 1 not sent */
       lost_bits -= 2;
-      if (fbi == lbi) {
+      if (fbi == lbi) { /* one less lost on receive, 1 not sent */
         kb->diffidx[i] = fbi + 1; /* mark as empty */
       }
     } else {
@@ -381,7 +381,6 @@ int initiate_biconf(ProcessBlock *kb) {
   /* fill message */
   errorCode = comms_createHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, kb);
   if (!errorCode) return 60;
-  h6 = (EcPktHdr_CascadeBiconfInitReq *)malloc2(sizeof(EcPktHdr_CascadeBiconfInitReq));
   h6->seed = seed;
   h6->number_of_bits = kb->biconflength;
   kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
