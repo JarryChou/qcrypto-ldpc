@@ -73,21 +73,23 @@ enum HandleId {
 /**
  * @brief Helper for mask for a given index i on the longint array
  * 
+ * If they were intended to be inlined might as well just set it as a macro
+ * 
  * @param i 
  * @return __inline__ bt_mask 
  */
-#define bt_mask(i) (1 << (31 - (i & 31)))    // __inline__ unsigned int bt_mask(int i) { return 1 << (31 - (i & 31)); }
+#define bt_mask(I) (1 << (31 - ((I) & 31)))    // __inline__ unsigned int bt_mask(int i) { return 1 << (31 - (i & 31)); }
 
 /**
  * @brief Helper function for parity isolation
  * 
- * If they were intended to be inlined might as well just set it as a definition
+ * If they were intended to be inlined might as well just set it as a macro
  * 
  * @param i 
  * @return __inline__ firstmask 
  */
-#define firstmask(i) (0xffffffff >> i)       // __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
-#define lastmask(i) (0xffffffff << (31 - i)) // __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
+#define firstmask(I) (0xffffffff >> (I))       // __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
+#define lastmask(I) (0xffffffff << (31 - (I))) // __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
 /// @}
 
 // DEFINED FUNCTIONS
