@@ -285,38 +285,39 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
     lbi = kb->diffidxe[i]; /* old bitindices */
     if (fbi > lbi) {       /* this is an empty message */
       lost_bits -= 2;
-      goto skpar2;
-    }
-    if (fbi == lbi) {
+      // goto skpar2;
+    } else if (fbi == lbi) {
       lost_bits -= 2;           /* one less lost on receive, 1 not sent */
       kb->diffidx[i] = fbi + 1; /* mark as emty */
-      goto skpar2;              /* no parity eval needed */
-    }
-    mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-    tmpSingleLineParity = singleLineParity(d, fbi, mbi);
-    if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
-      /* same parity, take upper half */
-      fbi = mbi + 1;
-      kb->diffidx[i] = fbi; /* update first bit idx */
-      matchresult |= 1;     /* match with incoming parity (take upper) */
+      // goto skpar2;              /* no parity eval needed */
     } else {
-      lbi = mbi;
-      kb->diffidxe[i] = lbi; /* update last bit idx */
-    }
+      // Update bits
+      mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
+      tmpSingleLineParity = singleLineParity(d, fbi, mbi);
+      if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
+        /* same parity, take upper half */
+        fbi = mbi + 1;
+        kb->diffidx[i] = fbi; /* update first bit idx */
+        matchresult |= 1;     /* match with incoming parity (take upper) */
+      } else {
+        lbi = mbi;
+        kb->diffidxe[i] = lbi; /* update last bit idx */
+      }
 
-    /* test overlap.... */
-    if (fbi == lbi) {
-      lost_bits--; /* one less lost */
-      goto skpar2; /* no parity eval needed */
-    }
-
-    /* now, prepare new parity bit */
-    mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-    tmpSingleLineParity = singleLineParity(d, fbi, mbi);
-    /* if not the end of interval, save parity */
-    // this is because if end of interval, parity = 0, and parityresult |= 0 does nothing
-    if (lbi >= mbi) {
-      parityresult |= tmpSingleLineParity; /* save parity */
+      /* test overlap.... */
+      if (fbi == lbi) {
+        lost_bits--; /* one less lost */
+        // goto skpar2; /* no parity eval needed */
+      } else {
+        /* now, prepare new parity bit */
+        mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
+        tmpSingleLineParity = singleLineParity(d, fbi, mbi);
+        /* if not the end of interval, save parity */
+        // this is because if end of interval, parity = 0, and parityresult |= 0 does nothing
+        if (lbi >= mbi) {
+          parityresult |= tmpSingleLineParity; /* save parity */
+        }
+      }
     }
   skpar2:
     if ((i & 31) == 31) { /* save stuff in outbuffers */
