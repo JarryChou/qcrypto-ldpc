@@ -347,9 +347,6 @@ int initiate_biconf(ProcessBlock *kb) {
   EcPktHdr_CascadeBiconfInitReq *h6; /* header for that message */
   unsigned int seed;        /* seed for permutation */
 
-  h6 = (EcPktHdr_CascadeBiconfInitReq *)malloc2(sizeof(EcPktHdr_CascadeBiconfInitReq));
-  if (!h6) return 60;
-
   /* prepare seed */
   seed = get_r_seed();
 
@@ -361,6 +358,8 @@ int initiate_biconf(ProcessBlock *kb) {
   generate_BICONF_bitstring(kb);
 
   /* fill message */
+  h6 = (EcPktHdr_CascadeBiconfInitReq *)malloc2(sizeof(EcPktHdr_CascadeBiconfInitReq));
+  if (!h6) return 60;
   h6->base.tag = EC_PACKET_TAG;
   h6->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfInitReq);
   h6->base.subtype = SUBTYPE_CASCADE_BICONF_INIT_REQ;
@@ -386,7 +385,7 @@ int initiate_biconf(ProcessBlock *kb) {
 int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
   EcPktHdr_CascadeBiconfInitReq *in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf; /* holds received message header */
   EcPktHdr_CascadeBiconfParityResp *h7;      /* holds response message header */
-  int bitlen;                    /* number of bits requested */
+  int errorCode = 0;
 
   /* update processblock status */
   switch (kb->processingState) {
@@ -399,9 +398,8 @@ int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
       break;
   }
   /* extract number of bits and seed */
-  bitlen = in_head->number_of_bits; /* do more checks? */
+  kb->biconflength = in_head->number_of_bits; /* do more checks? */
   kb->rngState = in_head->seed;    /* check for 0?*/
-  kb->biconflength = bitlen;
 
   /* prepare permutation list */
   /* old: prepare_permut_core(kb); */
@@ -410,16 +408,13 @@ int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
   generate_BICONF_bitstring(kb);
 
   /* fill the response header */
-  h7 = (EcPktHdr_CascadeBiconfParityResp *)malloc2(sizeof(EcPktHdr_CascadeBiconfParityResp));
-  if (!h7) return 61;
-  h7->base.tag = EC_PACKET_TAG;
-  h7->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfParityResp);
-  h7->base.subtype = SUBTYPE_CASCADE_BICONF_PARITY_RESP;
-  h7->base.epoch = kb->startEpoch;
-  h7->base.numberOfEpochs = kb->numberOfEpochs;
+  errorCode = comms_createHeader((char **)&h7, SUBTYPE_CASCADE_BICONF_PARITY_RESP, 0, kb);
+  if (errorCode) {
+    return 61; // This was hardcoded in the original implementation
+  }
 
   /* evaluate the parity (updated to use testbit buffer */
-  h7->parity = singleLineParity(kb->testedBitsMarker, 0, bitlen - 1);
+  h7->parity = singleLineParity(kb->testedBitsMarker, 0, in_head->number_of_bits - 1);
 
   /* update bitloss */
   kb->leakageBits++; /* one is lost */
@@ -451,9 +446,7 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   kb->diffBlockCount = 1;
   kb->diffidx[0] = 0;
   kb->diffidxe[0] = biconflength - 1;
-
-  /* obsolete:
-     kb->diffidx[1]=biconflength;kb->diffidxe[1]=kb->workbits-1; */
+  /* obsolete: kb->diffidx[1]=biconflength;kb->diffidxe[1]=kb->workbits-1; */
 
   kb->binarySearchDepth = RUNLEVEL_SECONDPASS; /* only pass 1 */
 
@@ -470,10 +463,11 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
   h5_idx = &h5_data[1];
+
   /* for index mode 4: */
   h5_idx[0] = 0; /* selected first bits */
-  /* this information is IMPLICIT in the round 4 infromation and needs no
-     transmission */
+
+  /* this information is IMPLICIT in the round 4 information and needs no transmission */
   /* h5_idx[2]=biconflength; h5_idx[3] = kb->workbits-biconflength-1;  */
 
   /* set parity */
@@ -514,18 +508,14 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
 
   switch (pass) { /* sort out specifics */
     case 0:       /* unpermutated pass */
-      pd = processBlock->pd0;
-      k = processBlock->k0;
-      partitions = processBlock->partitions0;
-      d = processBlock->mainBufPtr; /* unpermuted key */
+      pd = processBlock->pd0;                 k = processBlock->k0;
+      partitions = processBlock->partitions0; d = processBlock->mainBufPtr; /* unpermuted key */
       break;
     case 1: /* permutated pass */
-      pd = processBlock->pd1;
-      k = processBlock->k1;
-      partitions = processBlock->partitions1;
-      d = processBlock->permuteBufPtr; /* permuted key */
+      pd = processBlock->pd1;                 k = processBlock->k1;
+      partitions = processBlock->partitions1; d = processBlock->permuteBufPtr; /* permuted key */
       break;
-    default:     /* illegal */
+    default: 
       return 59; /* illegal pass arg */
   }
 
@@ -533,8 +523,8 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   j = 0; /* index for mismatching blocks */
   for (i = 0; i < partitions; i++) {
     if (bt_mask(i) & pd[i / 32]) {       /* this block is mismatched */
-      processBlock->diffidx[j] = i * k;            /* store bit index, not block index */
-      processBlock->diffidxe[j] = i * k + (k - 1); /* last block */
+      processBlock->diffidx[j] = i * k;                               /* store bit index, not block index */
+      processBlock->diffidxe[j] = processBlock->diffidx[j] + (k - 1); /* last block */
       j++;
     }
   }
