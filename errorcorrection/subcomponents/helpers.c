@@ -28,7 +28,7 @@ void atohex(char *target, unsigned int v) {
  * 
  * @param pb 
  */
-void cleanup_revealed_bits(ProcessBlock *pb) {
+void helper_cleanupRevealedBits(ProcessBlock *pb) {
   int lastbit = pb->initialBits - 1;
   unsigned int *d = pb->mainBufPtr;    /* data buffer */
   unsigned int *m = pb->testedBitsMarker; /* index for spent bits */
@@ -76,9 +76,9 @@ void cleanup_revealed_bits(ProcessBlock *pb) {
  * 
  * @param pb pointer to processblock
  */
-void prepare_permutation(ProcessBlock *pb) {
+void helper_prepPermutationWrapper(ProcessBlock *pb) {
   /* do bit compression */
-  cleanup_revealed_bits(pb);
+  helper_cleanupRevealedBits(pb);
   int workbits = pb->workbits;
 
   /* a quick-and-dirty cut for kb1 match, will change to reordering later.
@@ -92,7 +92,7 @@ void prepare_permutation(ProcessBlock *pb) {
   pb->workbits = workbits;
 
   /* do first permutation - this is only the initial permutation */
-  prepare_permut_core(pb);
+  helper_prepPermutationCore(pb);
   /* now the permutated buffer is renamed and the final permutation is performed */
   // Swap the buffer (addresses)
   unsigned int *tmpbuf = pb->mainBufPtr;
@@ -100,7 +100,7 @@ void prepare_permutation(ProcessBlock *pb) {
   pb->permuteBufPtr = tmpbuf;
   
   /* do final permutation */
-  prepare_permut_core(pb);
+  helper_prepPermutationCore(pb);
   return;
 }
 
@@ -109,7 +109,7 @@ void prepare_permutation(ProcessBlock *pb) {
  * 
  * @param pb ptr to processblock
  */
-void prepare_permut_core(ProcessBlock *pb) {
+void helper_prepPermutationCore(ProcessBlock *pb) {
   int i, j, k;
   int workbits = pb->workbits;
   unsigned int rn_order = log2Ceil(workbits);
@@ -123,13 +123,15 @@ void prepare_permut_core(ProcessBlock *pb) {
     pb->permuteIndex[k] = i;
     pb->reverseIndex[i] = k;
   }
+
   #else
+
   /* this is prepares a pseudorandom distribution */
   for (i = 0; i < workbits; i++) pb->permuteIndex[i] = 0xffff; /* mark unused */
   /* this routine causes trouble */
   for (i = 0; i < workbits; i++) { /* do permutation  */
     do {                           /* find a permutation index */
-      j = PRNG_value2(rn_order, &pb->rngState);
+      j = rnd_getPrngValue2(rn_order, &pb->rngState);
     } while ((j >= workbits) || (pb->permuteIndex[j] != 0xffff)); /* out of range */
     k = j;
     pb->permuteIndex[k] = i;
@@ -145,7 +147,7 @@ void prepare_permut_core(ProcessBlock *pb) {
   }
 
   /* for debug: output that stuff */
-  /* output_permutation(pb); */
+  /* outputPermutation(pb); */
   return;
 }
 
@@ -157,7 +159,7 @@ void prepare_permut_core(ProcessBlock *pb) {
  * @param blkSize integer arg for the blocksize to use
  * @param workBitCount number of workbits
  */
-void helpers_prepParityList(unsigned int *srcBuffer, unsigned int *targetBuffer, int blkSize, int workBitCount) {
+void helper_prepParityList(unsigned int *srcBuffer, unsigned int *targetBuffer, int blkSize, int workBitCount) {
   /* the bitindex points to the first and the last bit tested. */
   unsigned int resultBuffer = 0;  /* result buffer */
   int blkIndex = 0;               /* contains blockindex */  
@@ -165,7 +167,7 @@ void helpers_prepParityList(unsigned int *srcBuffer, unsigned int *targetBuffer,
     /* shift parity result in buffer */
     resultBuffer <<= 1;
     // Add a new parity result
-    resultBuffer += singleLineParity(srcBuffer, bitIndex, bitIndex + blkSize - 1);
+    resultBuffer += helper_singleLineParity(srcBuffer, bitIndex, bitIndex + blkSize - 1);
     if (modulo32(blkIndex) == 31) 
       targetBuffer[wordIndex(blkIndex)] = resultBuffer; /* save in target */
     blkIndex++;
@@ -183,7 +185,7 @@ void helpers_prepParityList(unsigned int *srcBuffer, unsigned int *targetBuffer,
  * @param endBitIndex end index
  * @return parity (0 or 1)
  */
-int singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex) {
+int helper_singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex) {
   int firstWordIndex = wordIndex(startBitIndex);
   int lastWordIndex = wordIndex(endBitIndex);
   // First / last words may not be fully padded. 
@@ -205,7 +207,7 @@ int singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex
 /** @brief Helper funtion to get a simple one-line parity from a large string, but
    this time with a mask buffer to be AND-ed on the string.
 
-   This is currently unused, if it is needed, extend singleLineParity to support this
+   This is currently unused, if it is needed, extend helper_singleLineParity to support this
 
  * @param d pointer to the start of the string buffer
  * @param m pointer to the start of the mask buffer
@@ -214,7 +216,7 @@ int singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex
  * @return parity (0 or 1)
  */
 /*
-int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end) {
+int helper_singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end) {
   unsigned int tmpParity, lm, fm;
   int li, fi, ri;
   fi = wordIndex(start);

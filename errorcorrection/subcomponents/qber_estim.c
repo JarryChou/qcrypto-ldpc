@@ -13,8 +13,8 @@
  * @param d1 pointer to paritybuffer 1
  */
 void prepareParityList1(ProcessBlock *processBlock, unsigned int *d0, unsigned int *d1) {
-  helpers_prepParityList(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
-  helpers_prepParityList(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
+  helper_prepParityList(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
+  helper_prepParityList(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
   return;
 }
 
@@ -110,7 +110,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   int bits_needed;            /* number of bits needed to send */
   EcPktHdr_QberEstBits *msg1; /* for header to be sent */
 
-  if (!(processBlock = getProcessBlock(epoch))) return 73; /* cannot find key block */
+  if (!(processBlock = pBlkMgmt_getProcessBlock(epoch))) return 73; /* cannot find key block */
 
   /* set role in block to alice (initiating the seed) in keybloc struct */
   processBlock->processorRole = INITIATOR;
@@ -170,17 +170,17 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
   overlapreply = check_epochoverlap(in_head->base.epoch, in_head->base.numberOfEpochs);
   if (overlapreply) {
     if (in_head->seed) return 46; // conflict
-    if (!(processBlock = getProcessBlock(in_head->base.epoch))) return 48; // process block missing
+    if (!(processBlock = pBlkMgmt_getProcessBlock(in_head->base.epoch))) return 48; // process block missing
   } else {
     if (!(in_head->seed)) return 51;
 
     /* create a processblock with the loaded files, get thead handle */
-    if ((i = create_processblock(in_head->base.epoch, in_head->base.numberOfEpochs, 0.0, 0.0))) {
-      fprintf(stderr, "create_processblock return code: %d epoch: %08x, number:%d\n", i, in_head->base.epoch, in_head->base.numberOfEpochs);
+    if ((i = pBlkMgmt_createProcessBlock(in_head->base.epoch, in_head->base.numberOfEpochs, 0.0, 0.0))) {
+      fprintf(stderr, "pBlkMgmt_createProcessBlock return code: %d epoch: %08x, number:%d\n", i, in_head->base.epoch, in_head->base.numberOfEpochs);
       return i; /* no success */
     }
 
-    processBlock = getProcessBlock(in_head->base.epoch);
+    processBlock = pBlkMgmt_getProcessBlock(in_head->base.epoch);
     if (!processBlock) return 48; /* should not happen */
 
     /* initialize the processblock with the type status, and with the info from the other side */
@@ -200,7 +200,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
   rn_order = log2Ceil(processBlock->initialBits);
   for (i = 0; i < (in_head->numberofbits); i++) {
     while (True) { /* generate a bit position */
-      bipo = PRNG_value2(rn_order, &processBlock->rngState);
+      bipo = rnd_getPrngValue2(rn_order, &processBlock->rngState);
       if (bipo > processBlock->initialBits) continue;          /* out of range */
       bpm = uint32AllZeroExceptAtN(bipo);                           /* bit mask */
       if (processBlock->testedBitsMarker[wordIndex(bipo)] & bpm) continue; /* already used */
@@ -238,7 +238,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
       printf("Kill the processblock due to excessive errors\n");
       fflush(stdout);
       #endif
-      remove_processblock(processBlock->startEpoch);
+      pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
     } else { // replymode == REPLYMODE_CONTINUE
       setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
     }
@@ -332,7 +332,7 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   #endif
 
   if (replymode == REPLYMODE_TERMINATE) { /* not worth going */
-    remove_processblock(processBlock->startEpoch);
+    pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
     return 0;
   }
 
@@ -344,9 +344,9 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   processBlock->rngState = newseed; /* get new seed for RNG */
 
   /* prepare permutation array */
-  prepare_permutation(processBlock);
+  helper_prepPermutationWrapper(processBlock);
 
-  /* prepare message 5 frame - this should go into prepare_permutation? */
+  /* prepare message 5 frame - this should go into helper_prepPermutationWrapper? */
   processBlock->partitions0 = (processBlock->workbits + processBlock->k0 - 1) / processBlock->k0;
   processBlock->partitions1 = (processBlock->workbits + processBlock->k1 - 1) / processBlock->k1;
 

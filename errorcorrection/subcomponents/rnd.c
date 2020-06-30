@@ -74,14 +74,14 @@ unsigned int __PrngState;
  * 
  * @param seed 
  */
-void set_PRNG_seed(unsigned int seed) { __PrngState = seed; }
+void setPrngSeed(unsigned int seed) { __PrngState = seed; }
 /**
  * @brief get k bits from PSRNG
  * 
  * @param k 
  * @return unsigned int 
  */
-unsigned int PRNG_value(int k) {
+unsigned int rnd_getPrngValue(int k) {
   int b;
   for (int k0 = k; k0; k0--) {
     b = parity(__PrngState & PRNG_FEEDBACK);
@@ -98,7 +98,7 @@ unsigned int PRNG_value(int k) {
  * @param state 
  * @return unsigned int 
  */
-unsigned int PRNG_value2(int k, unsigned int *state) {
+unsigned int rnd_getPrngValue2(int k, unsigned int *state) {
   int b;
   for (int k0 = k; k0; k0--) {
     b = parity(*state & PRNG_FEEDBACK);
@@ -115,7 +115,7 @@ unsigned int PRNG_value2(int k, unsigned int *state) {
  * @param state 
  * @return unsigned int 
  */
-unsigned int PRNG_value2_32(unsigned int *state) {
+unsigned int rnd_getPrngValue2_32(unsigned int *state) {
   int b;
   for (int k0 = 32; k0; k0--) {
     b = parity(*state & PRNG_FEEDBACK);
@@ -131,7 +131,7 @@ unsigned int PRNG_value2_32(unsigned int *state) {
  * 
  * @return int 
  */
-int get_RNG_calls(void) { return __RNG_calls; };
+int rnd_getRngCalls(void) { return __RNG_calls; };
 
 /**
  * @brief helper function to get a seed from the random device

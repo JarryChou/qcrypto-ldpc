@@ -117,7 +117,7 @@ void dumpstate(ProcessBlock *pb) {
  * 
  * @param pb processblock pointer
  */
-void output_permutation(ProcessBlock *pb) {
+void outputPermutation(ProcessBlock *pb) {
   char name[200] = "permutlist_";
   FILE *fp;
   int i;

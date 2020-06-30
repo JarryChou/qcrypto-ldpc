@@ -43,9 +43,9 @@ void generate_selectbitstring(ProcessBlock *pb, unsigned int seed) {
   int i;                                    // number of bits to be set 
   pb->rngState = seed;                     // set new seed 
   for (i = 0; i < wordIndex(pb->workbits); i++) // take care of the full bits 
-    pb->testedBitsMarker[i] = PRNG_value2_32(&pb->rngState);
+    pb->testedBitsMarker[i] = rnd_getPrngValue2_32(&pb->rngState);
   pb->testedBitsMarker[wordIndex(pb->workbits)] = // prepare last few bits 
-      PRNG_value2_32(&pb->rngState) & uint32AllOnesExceptLastN(modulo32(pb->workbits - 1));
+      rnd_getPrngValue2_32(&pb->rngState) & uint32AllOnesExceptLastN(modulo32(pb->workbits - 1));
   return;
 }
 */
@@ -63,12 +63,12 @@ void cascade_generateBiconfString(ProcessBlock *pb) {
   for (i = 0; i < wordIndex(pb->workbits); i++) { 
     /* get permuted bit */
     pb->testedBitsMarker[i] = 
-        PRNG_value2_32(&pb->rngState) & 
+        rnd_getPrngValue2_32(&pb->rngState) & 
         pb->permuteBufPtr[i]; 
   }
   /* prepare last few bits */
   pb->testedBitsMarker[wordIndex(pb->workbits)] = 
-      PRNG_value2_32(&pb->rngState) & 
+      rnd_getPrngValue2_32(&pb->rngState) & 
       uint32AllOnesExceptLastN(modulo32(pb->workbits - 1)) &
       pb->permuteBufPtr[wordIndex(pb->workbits)];
   return;
@@ -107,7 +107,7 @@ int cascade_prepParityListAndDiffs(ProcessBlock *pb, int pass) {
     default: /* wrong index */
       return -1;
   }
-  helpers_prepParityList(d, lp, k, pb->workbits); /* prepare bitlist */
+  helper_prepParityList(d, lp, k, pb->workbits); /* prepare bitlist */
 
   /* evaluate parity mismatch  */
   for (i = 0; i < wordCount(partitions); i++) {
@@ -203,7 +203,7 @@ int cascade_generateBiconfReply(ProcessBlock *pb, char *receivebuf) {
   pb->rngState = in_head->seed;    /* check for 0?*/
 
   /* prepare permutation list */
-  /* old: prepare_permut_core(pb); */
+  /* old: helper_prepPermutationCore(pb); */
 
   /* generate local (alice) version of test bit section */
   cascade_generateBiconfString(pb);
@@ -215,7 +215,7 @@ int cascade_generateBiconfReply(ProcessBlock *pb, char *receivebuf) {
   }
 
   /* evaluate the parity (updated to use testbit buffer */
-  h7->parity = singleLineParity(pb->testedBitsMarker, 0, in_head->number_of_bits - 1);
+  h7->parity = helper_singleLineParity(pb->testedBitsMarker, 0, in_head->number_of_bits - 1);
 
   /* update bitloss */
   pb->leakageBits++; /* one is lost */
@@ -242,7 +242,7 @@ int cascade_makeBiconfBinSearchReq(ProcessBlock *pb, int biconfLength) {
   unsigned int msg5BodySize;          /* size of message */
   EcPktHdr_CascadeBinSearchMsg *h5;       /* pointer to first message */
   int errorCode = 0;
-  unsigned int *h5_data, *h5_idx; /* data pointers */
+  unsigned int *h5Data, *h5Index; /* data pointers */
 
   pb->diffBlockCount = 1;
   pb->diffidx[0] = 0;
@@ -255,7 +255,7 @@ int cascade_makeBiconfBinSearchReq(ProcessBlock *pb, int biconfLength) {
   msg5BodySize = 3 * WORD_SIZE; /* parity data need, and indexing need for selection and compl */
   errorCode = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, pb);
   if (errorCode) return errorCode;
-  h5_data = (unsigned int *)&h5[1]; /* start of data */
+  h5Data = (unsigned int *)&h5[1]; /* start of data */
   h5->number_entries = pb->diffBlockCount;
   h5->indexPresent = 4; /* NEW this round we have a start/stop table */
 
@@ -263,16 +263,16 @@ int cascade_makeBiconfBinSearchReq(ProcessBlock *pb, int biconfLength) {
   h5->runlevel = pb->binarySearchDepth | RUNLEVEL_BICONF;
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[1];
+  h5Index = &h5Data[1];
 
   /* for index mode 4: */
-  h5_idx[0] = 0; /* selected first bits */
+  h5Index[0] = 0; /* selected first bits */
 
   /* this information is IMPLICIT in the round 4 information and needs no transmission */
-  /* h5_idx[2]=biconfLength; h5_idx[3] = pb->workbits-biconfLength-1;  */
+  /* h5Index[2]=biconfLength; h5Index[3] = pb->workbits-biconfLength-1;  */
 
-  /* set parity */
-  h5_data[0] = (singleLineParity(pb->testedBitsMarker, 0, biconfLength / 2 - 1) << 31);
+  /* set the very first bit as parity */
+  h5Data[0] = (helper_singleLineParity(pb->testedBitsMarker, 0, biconfLength / 2 - 1) << 31);
 
   /* increment lost bits */
   pb->leakageBits += 1;
@@ -301,7 +301,7 @@ int cascade_prepFirstBinSearchMsg(ProcessBlock *processBlock, int pass) {
   unsigned int *pd;                     /* parity difference bitfield pointer */
   unsigned int msg5BodySize;            /* size of message excluding header */
   EcPktHdr_CascadeBinSearchMsg *h5;             /* pointer to first message */
-  unsigned int *h5_data, *h5_idx;       /* data pointers */
+  unsigned int *h5Data, *h5Index;       /* data pointers */
   unsigned int *d;                      /* temporary pointer on parity data */
   unsigned int resbuf;                  /* parity determination variables */
   int kdiff, firstBitIndex, lastBitIndex;                 /* working variables for parity eval */
@@ -332,7 +332,7 @@ int cascade_prepFirstBinSearchMsg(ProcessBlock *processBlock, int pass) {
   /* mark pass/round correctly in processBlock */
   processBlock->binarySearchDepth = (pass == 0) ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS; /* first round */
 
-  // Note: duplicate-ish code here with makeBinSrchMsgHead
+  // Note: duplicate-ish code here with comms_makeBinSrchMsgHead
   /* prepare message buffer for first binsearch message  */
   // Parity need + indexing need
   msg5BodySize = 
@@ -343,27 +343,27 @@ int cascade_prepFirstBinSearchMsg(ProcessBlock *processBlock, int pass) {
   h5->runlevel = processBlock->binarySearchDepth; /* keep local status */
   h5->indexPresent = 1;              /* this round we have an index table */
 
-  h5_data = (unsigned int *)&h5[1]; /* start of data */
+  h5Data = (unsigned int *)&h5[1]; /* start of data */
 
   /* prepare block index list of simple type 1, uncompressed uint32 */
-  h5_idx = &h5_data[wordCount(processBlock->diffBlockCount)];
+  h5Index = &h5Data[wordCount(processBlock->diffBlockCount)];
   for (i = 0; i < processBlock->diffBlockCount; i++) 
-    h5_idx[i] = processBlock->diffidx[i];
+    h5Index[i] = processBlock->diffidx[i];
 
   /* prepare parity results */
-  // this is very similar to helpers_prepParityList, but difference is kdiff is variable in this case
+  // this is very similar to helper_prepParityList, but difference is kdiff is variable in this case
   resbuf = 0;
   for (i = 0; i < processBlock->diffBlockCount; i++) { /* go through all processblocks */
     kdiff = processBlock->diffidxe[i] - processBlock->diffidx[i] + 1; /* left length */
     firstBitIndex = processBlock->diffidx[i];
     lastBitIndex = firstBitIndex + kdiff / 2 - 1; /* first and last bitidx */
-    resbuf = (resbuf << 1) + singleLineParity(d, firstBitIndex, lastBitIndex);
+    resbuf = (resbuf << 1) + helper_singleLineParity(d, firstBitIndex, lastBitIndex);
     if ((modulo32(i)) == 31) {
-      h5_data[wordIndex(i)] = resbuf;
+      h5Data[wordIndex(i)] = resbuf;
     }
   }
   if (modulo32(i))
-    h5_data[wordIndex(i)] = resbuf << (32 - modulo32(i)); /* last parity bits */
+    h5Data[wordIndex(i)] = resbuf << (32 - modulo32(i)); /* last parity bits */
 
   /* increment lost bits */
   processBlock->leakageBits += processBlock->diffBlockCount;
@@ -392,7 +392,7 @@ int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
 
   /* prepare local parity info */
   pb->rngState = in_head->seed; /* new rng seed */
-  prepare_permutation(pb);       /* also updates workbits */
+  helper_prepPermutationWrapper(pb);       /* also updates workbits */
 
   /* update partition numbers and leakageBits */
   pb->partitions0 = (pb->workbits + pb->k0 - 1) / pb->k0;
@@ -554,7 +554,7 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBi
       (in_head->runlevel & (RUNLEVEL_LEVELMASK | RUNLEVEL_BICONF));
 
   /* prepare outgoing message header */
-  outgoingMsgHead = makeBinSrchMsgHead(pb, 0);
+  outgoingMsgHead = comms_makeBinSrchMsgHead(pb, 0);
   if (!outgoingMsgHead) return 58;
   outParity = (unsigned int *)&outgoingMsgHead[1];
   outMatch = &outParity[wordCount(pb->diffBlockCount)];
@@ -578,7 +578,7 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBi
     } else {
       // Update bits
       midBitIndex = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* new lower mid bitidx */
-      tmpSingleLineParity = singleLineParity(d, firstBitIndex, midBitIndex);
+      tmpSingleLineParity = helper_singleLineParity(d, firstBitIndex, midBitIndex);
       if (((inh_data[wordIndex(i)] & uint32AllZeroExceptAtN(i)) ? 1 : 0) == tmpSingleLineParity) {
         /* same parity, take upper half */
         firstBitIndex = midBitIndex + 1;
@@ -596,7 +596,7 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBi
       } else {
         /* now, prepare new parity bit */
         midBitIndex = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* new lower mid bitidx */
-        tmpSingleLineParity = singleLineParity(d, firstBitIndex, midBitIndex);
+        tmpSingleLineParity = helper_singleLineParity(d, firstBitIndex, midBitIndex);
         /* if not the end of interval, save parity */
         // this is because if end of interval, parity = 0, and parityResult |= 0 does nothing
         if (lastBitIndex >= midBitIndex) {
@@ -663,7 +663,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
   pb->binarySearchDepth = in_head->runlevel + 1; /* better some checks? */
 
   /* prepare outgoing message header */
-  outgoingMsgHead = makeBinSrchMsgHead(pb, 0);
+  outgoingMsgHead = comms_makeBinSrchMsgHead(pb, 0);
   if (!outgoingMsgHead) return 58;
   outParity = (unsigned int *)&outgoingMsgHead[1];
   outMatch = &outParity[(wordCount(pb->diffBlockCount))];
@@ -713,7 +713,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
     }
 
     midBitIndex = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* new lower mid bitidx */
-    tmpSingleLineParity = singleLineParity(d, firstBitIndex, midBitIndex);
+    tmpSingleLineParity = helper_singleLineParity(d, firstBitIndex, midBitIndex);
     if (((inh_data[wordIndex(i)] & uint32AllZeroExceptAtN(i)) ? 1 : 0) == tmpSingleLineParity) {
       /* same parity, take upper half */
       firstBitIndex = midBitIndex + 1;
@@ -733,7 +733,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
     }
     /* Else, prepare new parity bit */
     midBitIndex = firstBitIndex + (lastBitIndex - firstBitIndex + 1) / 2 - 1; /* new lower mid bitidx */
-    parityResult |= singleLineParity(d, firstBitIndex, midBitIndex); /* save parity */
+    parityResult |= helper_singleLineParity(d, firstBitIndex, midBitIndex); /* save parity */
 
   skipparity:
     if ((modulo32(i)) == 31) {
@@ -805,7 +805,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
       return cascade_initiateBiconf(pb); /* request another one */
     }
     /* initiate the privacy amplificaton */
-    return initiate_privacyamplification(pb);
+    return privAmp_sendPrivAmpMsgAndPrivAmp(pb);
   }
 
   /* we have no more errors in both passes, and we were not yet
@@ -835,7 +835,7 @@ int cascade_receiveBiconfReply(ProcessBlock *pb, char *receivebuf) {
   pb->leakageBits++;
 
   /* evaluate local parity */
-  localparity = singleLineParity(pb->testedBitsMarker, 0, pb->biconfLength - 1);
+  localparity = helper_singleLineParity(pb->testedBitsMarker, 0, pb->biconfLength - 1);
 
   /* eventually start binary search */
   if (localparity != in_head->parity) {
@@ -851,5 +851,5 @@ int cascade_receiveBiconfReply(ProcessBlock *pb, char *receivebuf) {
     return cascade_initiateBiconf(pb); /* request another one */
   }
   /* initiate the privacy amplificaton */
-  return initiate_privacyamplification(pb);
+  return privAmp_sendPrivAmpMsgAndPrivAmp(pb);
 }

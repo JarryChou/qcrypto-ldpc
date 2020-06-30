@@ -286,7 +286,7 @@ int process_command(char *cmd_input) {
       }
 
       /* create new processblock */
-      if ((errorCode = create_processblock(newepoch, newepochnumber, newesterror, bellValue))) {
+      if ((errorCode = pBlkMgmt_createProcessBlock(newepoch, newepochnumber, newesterror, bellValue))) {
         if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return errorCode; /* error reading files */
       }
@@ -500,7 +500,7 @@ int main(int argc, char *argv[]) {
           errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet);
         } else {    
           // Get the process block to process it on
-          tmpProcessBlock = getProcessBlock(tmpBaseHeader->epoch);
+          tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
           if (!tmpProcessBlock) {
             errorCode = 48;
           } else {
@@ -530,7 +530,7 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
-                errorCode = receive_privamp_msg(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = privAmp_receivePrivAmpMsg(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               default: /* packet subtype not known */

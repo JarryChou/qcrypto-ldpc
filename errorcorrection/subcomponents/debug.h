@@ -64,7 +64,7 @@ char *malloc2(unsigned int s);
 void free2(void *p);
 void dumpmsg(ProcessBlock *pb, char *msg);
 void dumpstate(ProcessBlock *pb);
-void output_permutation(ProcessBlock *pb);
+void outputPermutation(ProcessBlock *pb);
 /// @}
 
 #endif /* ECD2_DEBUG */

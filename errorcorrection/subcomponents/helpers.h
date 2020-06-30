@@ -90,12 +90,12 @@ void atohex(char *target, unsigned int v);
 
 /// @name HELPER PERMUTATION FUNCTIONS USED FOR QBER ESTIMATION & CASCADE
 /// @{
-void cleanup_revealed_bits(ProcessBlock *pb);
-void prepare_permut_core(ProcessBlock *pb);
-void prepare_permutation(ProcessBlock *pb);
-void helpers_prepParityList(unsigned int *d, unsigned int *t, int k, int w);
-int singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex);
-// int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end); ///< Unused
+void helper_cleanupRevealedBits(ProcessBlock *pb);
+void helper_prepPermutationCore(ProcessBlock *pb);
+void helper_prepPermutationWrapper(ProcessBlock *pb);
+void helper_prepParityList(unsigned int *d, unsigned int *t, int k, int w);
+int helper_singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endBitIndex);
+// int helper_singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end); ///< Unused
 // void flipBit(unsigned int *d, int bitindex);
 #define flipBit(BITBUF_PTR, BIT_INDEX) ((BITBUF_PTR)[wordIndex(BIT_INDEX)] ^= uint32AllZeroExceptAtN(BIT_INDEX)) ///< Helper to flip bit
 /// @}

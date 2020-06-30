@@ -37,7 +37,7 @@ int check_epochoverlap(unsigned int epoch, int num) {
  * @param bellValue 
  * @return int 0 on success, otherwise error code
  */
-int create_processblock(unsigned int epoch, int num, float inierr, float bellValue) {
+int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float bellValue) {
   static unsigned int temparray[TEMP_ARRAY_SIZE];
   static struct header_3 h3;           /* header for raw key file */
   unsigned int residue, residue2, tmp; /* leftover bits at end */
@@ -165,7 +165,7 @@ int create_processblock(unsigned int epoch, int num, float inierr, float bellVal
  * @param epoch epoch 
  * @return ProcessBlock* pointer to a processblock, or NULL if none found
  */
-ProcessBlock *getProcessBlock(unsigned int epoch) {
+ProcessBlock *pBlkMgmt_getProcessBlock(unsigned int epoch) {
   ProcessBlockDequeNode *bp = processBlockDeque;
   while (bp) {
     if (bp->epoch == epoch) return bp->content;
@@ -183,7 +183,7 @@ ProcessBlock *getProcessBlock(unsigned int epoch) {
  * @param epoch epoch index
  * @return int 0 if success, 1 for error
  */
-int remove_processblock(unsigned int epoch) {
+int pBlkMgmt_removeProcessBlock(unsigned int epoch) {
   ProcessBlockDequeNode *bp = processBlockDeque;
   while (bp) {
     if (bp->epoch == epoch) break;

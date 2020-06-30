@@ -35,7 +35,7 @@ float binentrop(float q) {
  * @param pb processblock ptr
  * @return int 0 if success, otherwise error code
  */
-int initiate_privacyamplification(ProcessBlock *pb) {
+int privAmp_sendPrivAmpMsgAndPrivAmp(ProcessBlock *pb) {
   EcPktHdr_StartPrivAmp *h8; /* head for trigger message */
   int errorCode = 0;
 
@@ -50,7 +50,7 @@ int initiate_privacyamplification(ProcessBlock *pb) {
   comms_insertSendPacket((char *)h8, h8->base.totalLengthInBytes);
 
   /* do actual privacy amplification */
-  return do_privacy_amplification(pb, h8->seed, pb->leakageBits);
+  return privAmp_doPrivAmp(pb, h8->seed, pb->leakageBits);
 }
 
 /**
@@ -62,7 +62,7 @@ int initiate_privacyamplification(ProcessBlock *pb) {
  * @param receivebuf incoming message
  * @return int 0 if success, otherwise error code
  */
-int receive_privamp_msg(ProcessBlock *pb, char *receivebuf) {
+int privAmp_receivePrivAmpMsg(ProcessBlock *pb, char *receivebuf) {
   // Get header
   EcPktHdr_StartPrivAmp *in_head = (EcPktHdr_StartPrivAmp *)receivebuf;
 
@@ -72,7 +72,7 @@ int receive_privamp_msg(ProcessBlock *pb, char *receivebuf) {
   /* do some consistency checks???*/
 
   /* pass to the core prog */
-  return do_privacy_amplification(pb, in_head->seed, in_head->lostbits);
+  return privAmp_doPrivAmp(pb, in_head->seed, in_head->lostbits);
 }
 
 /**
@@ -87,7 +87,7 @@ int receive_privamp_msg(ProcessBlock *pb, char *receivebuf) {
  * @param lostbits 
  * @return int 0 if success, otherwise error code
  */
-int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) {
+int privAmp_doPrivAmp(ProcessBlock *pb, unsigned int seed, int lostbits) {
   int sneakloss;
   float trueerror, safe_error;
   // float cheeky_error;
@@ -213,7 +213,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
     for (i = 0; i < pb->finalKeyBits; i++) { /* go through all targetbits */
       m = 0;                                 /* initial word */
       for (j = 0; j < numwords; j++)
-        m ^= (pb->mainBufPtr[j] & PRNG_value2_32(&pb->rngState));
+        m ^= (pb->mainBufPtr[j] & rnd_getPrngValue2_32(&pb->rngState));
       if (parity(m)) finalkey[wordIndex(i)] |= uint32AllZeroExceptAtN(i);
     }
   }
@@ -277,7 +277,7 @@ int do_privacy_amplification(ProcessBlock *pb, unsigned int seed, int lostbits) 
   /* destroy processblock */
   printf("remove processblock\n");
   fflush(stdout);
-  return remove_processblock(pb->startEpoch);
+  return pBlkMgmt_removeProcessBlock(pb->startEpoch);
 
   /* return benignly */
   return 0;

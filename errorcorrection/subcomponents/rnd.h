@@ -47,11 +47,11 @@
 
 // int parity(unsigned int a0);
 #define parity __builtin_parity	///< This should be ridiculously faster
-void set_PRNG_seed(unsigned int );
-unsigned int PRNG_value(int);
-unsigned int PRNG_value2(int, unsigned int *);
-unsigned int PRNG_value2_32(unsigned int *);
-int get_RNG_calls(void);
+void setPrngSeed(unsigned int); // Unused
+unsigned int rnd_getPrngValue(int);
+unsigned int rnd_getPrngValue2(int, unsigned int *);
+unsigned int rnd_getPrngValue2_32(unsigned int *);
+int rnd_getRngCalls(void); // Unused
 unsigned int rnd_generateRngSeed(void); /**< helper function to get a seed from the random device; returns seed or 0 on error */
 
 /**

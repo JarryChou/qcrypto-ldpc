@@ -65,9 +65,9 @@ int check_epochoverlap(unsigned int epoch, int num);
 
 /// @name processblock MANAGEMENT MAIN FUNCTIONS
 /// @{
-int create_processblock(unsigned int epoch, int num, float inierr, float bellValue);
-ProcessBlock *getProcessBlock(unsigned int epoch);
-int remove_processblock(unsigned int epoch);
+int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float bellValue);
+ProcessBlock *pBlkMgmt_getProcessBlock(unsigned int epoch);
+int pBlkMgmt_removeProcessBlock(unsigned int epoch);
 /// @}
 
 #endif /* ECD2_processblock_MGMT */

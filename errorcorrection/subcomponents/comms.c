@@ -74,7 +74,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
   localdata = 0;                     /* storage for bits */
   for (i = 0; i < bitsneeded; i++) { /* count through all needed bits */
     while (True) {                             /* generate a bit position */
-      bipo = PRNG_value2(rn_order, &processBlock->rngState);
+      bipo = rnd_getPrngValue2(rn_order, &processBlock->rngState);
       if (bipo > processBlock->initialBits) continue;          /* out of range */
       bpm = uint32AllZeroExceptAtN(bipo);                                    /* bit mask */
       if (processBlock->testedBitsMarker[wordIndex(bipo)] & bpm) continue; /* already used */
@@ -107,7 +107,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
  * @param processBlock 
  * @return EcPktHdr_CascadeBinSearchMsg* 
  */
-EcPktHdr_CascadeBinSearchMsg *makeBinSrchMsgHead(ProcessBlock *processBlock, unsigned int indexPresent) {
+EcPktHdr_CascadeBinSearchMsg *comms_makeBinSrchMsgHead(ProcessBlock *processBlock, unsigned int indexPresent) {
   unsigned int sizeOfMsgBody;
   int errorCode;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead;
