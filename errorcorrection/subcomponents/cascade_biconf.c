@@ -171,7 +171,8 @@ int singleLineParity(unsigned int *d, int start, int end) {
  * @param end end index
  * @return parity (0 or 1)
  */
-int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end) {
+int singleLineParityMasked(unsigned int *d, unsigned int *m, int start,
+                              int end) {
   unsigned int tmp_par, lm, fm;
   int li, fi, ri;
   fi = start / 32;
@@ -215,7 +216,6 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
   unsigned int fm, lm, tmp_par;                   /* for parity evaluation */
   int fbi, lbi, mbi, fi, li, ri;                  /* for parity evaluation */
   int lost_bits; /* number of key bits revealed in this round */
-  int tmpSingleLineParity;
 
   inh_data = (unsigned int *)&in_head[1]; /* parity pattern */
 
@@ -302,43 +302,64 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
     /* first, determine parity on local inverval */
     fbi = kb->diffidx[i];
     lbi = kb->diffidxe[i]; /* old bitindices */
-    if (fbi >= lbi) { /* this is an empty message, or one less lost on receive, 1 not sent */
+    if (fbi > lbi) {       /* this is an empty message */
       lost_bits -= 2;
-      if (fbi == lbi) { /* one less lost on receive, 1 not sent */
-        kb->diffidx[i] = fbi + 1; /* mark as empty */
-      }
+      goto skpar2;
+    }
+    if (fbi == lbi) {
+      lost_bits -= 2;           /* one less lost on receive, 1 not sent */
+      kb->diffidx[i] = fbi + 1; /* mark as emty */
+      goto skpar2;              /* no parity eval needed */
+    }
+    mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
+    fi = fbi / 32;
+    li = mbi / 32;
+    fm = firstmask(fbi & 31);
+    lm = lastmask(mbi & 31);
+    if (fi == li) { /* in same word */
+      tmp_par = d[fi] & fm & lm;
     } else {
-      mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-      tmpSingleLineParity = singleLineParity(d, fbi, mbi);
-      if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == tmpSingleLineParity) {
-        /* same parity, take upper half */
-        fbi = mbi + 1;
-        kb->diffidx[i] = fbi; /* update first bit idx */
-        matchresult |= 1;     /* match with incoming parity (take upper) */
-      } else {
-        lbi = mbi;
-        kb->diffidxe[i] = lbi; /* update last bit idx */
-      }
-      /* test overlap.... */
-      if (fbi == lbi) {
-        lost_bits--; /* one less lost, no parity eval needed */
-      } else { // parity eval needed
-        /* now, prepare new parity bit */
-        mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
-        tmpSingleLineParity = singleLineParity(d, fbi, mbi);
-        if (lbi < mbi) { /* end of interval, give zero parity */
-          tmpSingleLineParity = 0;
-        }
-        parityresult |= tmpSingleLineParity; /* save parity */
-      }
+      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
+      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
+    } /* still need to parity tmp_par */
+    if (((inh_data[i / 32] & bt_mask(i)) ? 1 : 0) == parity(tmp_par)) {
+      /* same parity, take upper half */
+      fbi = mbi + 1;
+      kb->diffidx[i] = fbi; /* update first bit idx */
+      matchresult |= 1;     /* match with incoming parity (take upper) */
+    } else {
+      lbi = mbi;
+      kb->diffidxe[i] = lbi; /* update last bit idx */
     }
 
+    /* test overlap.... */
+    if (fbi == lbi) {
+      lost_bits--; /* one less lost */
+      goto skpar2; /* no parity eval needed */
+    }
+
+    /* now, prepare new parity bit */
+    mbi = fbi + (lbi - fbi + 1) / 2 - 1; /* new lower mid bitidx */
+    fi = fbi / 32;
+    li = mbi / 32;
+    fm = firstmask(fbi & 31);
+    lm = lastmask(mbi & 31);
+    if (fi == li) { /* in same word */
+      tmp_par = d[fi] & fm & lm;
+    } else {
+      tmp_par = (d[fi] & fm) ^ (d[li] & lm);
+      for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
+    }                /* still need to parity tmp_par */
+    if (lbi < mbi) { /* end of interval, give zero parity */
+      tmp_par = 0;
+    }
+    parityresult |= parity(tmp_par); /* save parity */
+  skpar2:
     if ((i & 31) == 31) { /* save stuff in outbuffers */
       out_match[i / 32] = matchresult;
       out_parity[i / 32] = parityresult;
     }
   }
-  
   /* cleanup residual bit buffers */
   if (i & 31) {
     out_match[i / 32] = matchresult << (32 - (i & 31));
@@ -366,7 +387,9 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
 int initiate_biconf(ProcessBlock *kb) {
   EcPktHdr_CascadeBiconfInitReq *h6; /* header for that message */
   unsigned int seed;        /* seed for permutation */
-  int errorCode = 0;
+
+  h6 = (EcPktHdr_CascadeBiconfInitReq *)malloc2(sizeof(EcPktHdr_CascadeBiconfInitReq));
+  if (!h6) return 60;
 
   /* prepare seed */
   seed = get_r_seed();
@@ -379,8 +402,11 @@ int initiate_biconf(ProcessBlock *kb) {
   generate_BICONF_bitstring(kb);
 
   /* fill message */
-  errorCode = comms_createHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, kb);
-  if (!errorCode) return 60;
+  h6->base.tag = EC_PACKET_TAG;
+  h6->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfInitReq);
+  h6->base.subtype = SUBTYPE_CASCADE_BICONF_INIT_REQ;
+  h6->base.epoch = kb->startEpoch;
+  h6->base.numberOfEpochs = kb->numberOfEpochs;
   h6->seed = seed;
   h6->number_of_bits = kb->biconflength;
   kb->binarySearchDepth = 0; /* keep it to main buffer TODO: is this relevant? */
@@ -401,7 +427,7 @@ int initiate_biconf(ProcessBlock *kb) {
 int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
   EcPktHdr_CascadeBiconfInitReq *in_head = (EcPktHdr_CascadeBiconfInitReq *)receivebuf; /* holds received message header */
   EcPktHdr_CascadeBiconfParityResp *h7;      /* holds response message header */
-  int errorCode = 0;
+  int bitlen;                    /* number of bits requested */
 
   /* update processblock status */
   switch (kb->processingState) {
@@ -412,13 +438,11 @@ int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
     case PRS_DOING_BICONF: /* already did a biconf */
       kb->biconfRound++;  /* increment processing round; more checks? */
       break;
-    default:
-      // Manage logic error
-      return 81;
   }
   /* extract number of bits and seed */
+  bitlen = in_head->number_of_bits; /* do more checks? */
   kb->rngState = in_head->seed;    /* check for 0?*/
-  kb->biconflength = in_head->number_of_bits; /* do more checks? *
+  kb->biconflength = bitlen;
 
   /* prepare permutation list */
   /* old: prepare_permut_core(kb); */
@@ -427,11 +451,16 @@ int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
   generate_BICONF_bitstring(kb);
 
   /* fill the response header */
-  errorCode = comms_createHeader((char **)&h7, SUBTYPE_CASCADE_BICONF_PARITY_RESP, 0, kb);
-  if (errorCode) return 61;
+  h7 = (EcPktHdr_CascadeBiconfParityResp *)malloc2(sizeof(EcPktHdr_CascadeBiconfParityResp));
+  if (!h7) return 61;
+  h7->base.tag = EC_PACKET_TAG;
+  h7->base.totalLengthInBytes = sizeof(EcPktHdr_CascadeBiconfParityResp);
+  h7->base.subtype = SUBTYPE_CASCADE_BICONF_PARITY_RESP;
+  h7->base.epoch = kb->startEpoch;
+  h7->base.numberOfEpochs = kb->numberOfEpochs;
 
   /* evaluate the parity (updated to use testbit buffer */
-  h7->parity = singleLineParity(kb->testedBitsMarker, 0, in_head->number_of_bits - 1);
+  h7->parity = singleLineParity(kb->testedBitsMarker, 0, bitlen - 1);
 
   /* update bitloss */
   kb->leakageBits++; /* one is lost */
