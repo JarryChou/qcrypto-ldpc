@@ -227,7 +227,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
   /* prepare reply message */
   if (replymode == REPLYMODE_CONTINUE || REPLYMODE_TERMINATE) {
     // Prepare & send message
-    i = comms_createHeader((char**)&h3, SUBTYPE_QBER_EST_BITS_ACK, 0, processBlock);
+    i = comms_createEcHeader((char**)&h3, SUBTYPE_QBER_EST_BITS_ACK, 0, processBlock);
     if (i) return i;
     h3->tested_bits = processBlock->leakageBits;
     h3->number_of_errors = processBlock->estimatedError;
@@ -244,7 +244,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     }
   } else if (replymode == REPLYMODE_MORE_BITS) {
       // Prepare & send message
-      i = comms_createHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
+      i = comms_createEcHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
       if (i) return i;
       h2->requestedbits = newbitsneeded - processBlock->estimatedSampleSize;
       comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);
@@ -352,7 +352,7 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
 
   /* get raw buffer */
   msg4datalen = ((processBlock->partitions0 + 31) / 32 + (processBlock->partitions1 + 31) / 32) * 4;
-  errorCode = comms_createHeader((char **)&h4, SUBTYPE_CASCADE_PARITY_LIST, msg4datalen, processBlock);
+  errorCode = comms_createEcHeader((char **)&h4, SUBTYPE_CASCADE_PARITY_LIST, msg4datalen, processBlock);
   if (errorCode) return errorCode;
   /* both data arrays */
   h4_d0 = (unsigned int *)&h4[1];

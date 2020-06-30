@@ -319,7 +319,7 @@ int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_h
         }
       }
     }
-  skpar2:
+  // skpar2:
     if ((i & 31) == 31) { /* save stuff in outbuffers */
       out_match[i / 32] = matchresult;
       out_parity[i / 32] = parityresult;
@@ -362,7 +362,7 @@ int initiate_biconf(ProcessBlock *kb) {
   generate_BICONF_bitstring(kb);
 
   /* fill message */
-  errorCode = comms_createHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, kb);
+  errorCode = comms_createEcHeader((char **)&h6, SUBTYPE_CASCADE_BICONF_INIT_REQ, 0, kb);
   if (errorCode) return 60; // Hardcoded in original impl.
   h6->seed = seed;
   h6->number_of_bits = kb->biconflength;
@@ -407,7 +407,7 @@ int generateBiconfReply(ProcessBlock *kb, char *receivebuf) {
   generate_BICONF_bitstring(kb);
 
   /* fill the response header */
-  errorCode = comms_createHeader((char **)&h7, SUBTYPE_CASCADE_BICONF_PARITY_RESP, 0, kb);
+  errorCode = comms_createEcHeader((char **)&h7, SUBTYPE_CASCADE_BICONF_PARITY_RESP, 0, kb);
   if (errorCode) {
     return 61; // This was hardcoded in the original implementation
   }
@@ -451,7 +451,7 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
 
   /* prepare message buffer for first binsearch message  */
   msg5BodySize = 3 * sizeof(unsigned int); /* parity data need, and indexing need for selection and compl */
-  errorCode = comms_createHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, kb);
+  errorCode = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, kb);
   if (errorCode) return errorCode;
   h5_data = (unsigned int *)&h5[1]; /* start of data */
   h5->number_entries = kb->diffBlockCount;
@@ -535,7 +535,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
   // Parity need + indexing need
   msg5BodySize = 
       (((processBlock->diffBlockCount + 31) / 32) + processBlock->diffBlockCount) * sizeof(unsigned int); /* parity data need */
-  i = comms_createHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, processBlock);
+  i = comms_createEcHeader((char **)&h5, SUBTYPE_CASCADE_BIN_SEARCH_MSG, msg5BodySize, processBlock);
   if (i) return 55;
   h5->number_entries = processBlock->diffBlockCount;
   h5->runlevel = processBlock->binarySearchDepth; /* keep local status */

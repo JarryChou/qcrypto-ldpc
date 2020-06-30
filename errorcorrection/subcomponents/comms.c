@@ -54,7 +54,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
 
   /* prepare a structure to be sent out to the other side */
   /* first: get buffer.... */
-  i = comms_createHeader((char **)&msg1, SUBTYPE_QBER_EST_BITS, 4 * ((bitsneeded + 31) / 32), processBlock);
+  i = comms_createEcHeader((char **)&msg1, SUBTYPE_QBER_EST_BITS, 4 * ((bitsneeded + 31) / 32), processBlock);
   if (i) return NULL; /* cannot malloc */
   /* ..fill header.... */
   msg1->seed = processBlock->rngState; /* this is the seed */
@@ -123,7 +123,7 @@ EcPktHdr_CascadeBinSearchMsg *makeMessageHead5(ProcessBlock *processBlock, unsig
       fprintf(stderr, "Used unsupported indexPresent index %d", indexPresent);
       return NULL;
   }
-  errorCode = comms_createHeader((char **)&out_head, SUBTYPE_CASCADE_BIN_SEARCH_MSG, extraSize, processBlock);
+  errorCode = comms_createEcHeader((char **)&out_head, SUBTYPE_CASCADE_BIN_SEARCH_MSG, extraSize, processBlock);
   if (errorCode) return NULL;
   out_head->number_entries = processBlock->diffBlockCount;
   out_head->runlevel = processBlock->binarySearchDepth; /* next round */
@@ -142,7 +142,7 @@ EcPktHdr_CascadeBinSearchMsg *makeMessageHead5(ProcessBlock *processBlock, unsig
  * @param processBlock processBlock to obtain epoch metadata from
  * @return int 0 if succcess otherwise error code
  */
-int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsigned int additionalByteLength, ProcessBlock *processBlock) {
+int comms_createEcHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsigned int additionalByteLength, ProcessBlock *processBlock) {
   EcPktHdr_Base* tmpBaseHdr; // Temporary pointer to point to the base
   unsigned int size = additionalByteLength; // Not good practice to reuse params, but this can be removed for micro-optimization
   switch (subtype) {
@@ -153,9 +153,10 @@ int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsig
     case SUBTYPE_CASCADE_BIN_SEARCH_MSG:      size += sizeof(EcPktHdr_CascadeBinSearchMsg);     break;
     case SUBTYPE_CASCADE_BICONF_INIT_REQ:     size += sizeof(EcPktHdr_CascadeBiconfInitReq);    break;
     case SUBTYPE_CASCADE_BICONF_PARITY_RESP:  size += sizeof(EcPktHdr_CascadeBiconfParityResp); break;
+    case SUBTYPE_START_PRIV_AMP:              size += sizeof(EcPktHdr_StartPrivAmp);            break;
     default:
       #ifdef DEBUG
-      printf("comms_createHeader processing unsupported type %d", subtype);
+      printf("comms_createEcHeader processed unsupported type %d", subtype);
       fflush(stdout);
       #endif
       return 81;

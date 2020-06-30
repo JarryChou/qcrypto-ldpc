@@ -59,7 +59,7 @@
 int comms_insertSendPacket(char *message, int length);
 EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *kb, int bitsneeded, int errormode, float bellValue);
 EcPktHdr_CascadeBinSearchMsg *makeMessageHead5(ProcessBlock *kb, unsigned int indexPresent);
-int comms_createHeader(char** resultingBufferPtr, enum EcSubtypes subtype, 
+int comms_createEcHeader(char** resultingBufferPtr, enum EcSubtypes subtype, 
         unsigned int additionalByteLength, ProcessBlock *processBlock);
 /// @}
 

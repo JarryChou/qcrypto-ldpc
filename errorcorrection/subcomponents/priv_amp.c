@@ -36,21 +36,13 @@ float binentrop(float q) {
  * @return int 0 if success, otherwise error code
  */
 int initiate_privacyamplification(ProcessBlock *kb) {
-  unsigned int seed;
   EcPktHdr_StartPrivAmp *h8; /* head for trigger message */
-
-  /* generate local RNG seed */
-  seed = generateRngSeed();
+  int errorCode = 0;
 
   /* prepare messagehead */
-  h8 = (EcPktHdr_StartPrivAmp *)malloc2(sizeof(EcPktHdr_StartPrivAmp));
-  if (!h8) return 62; /* can't malloc */
-  h8->base.tag = EC_PACKET_TAG;
-  h8->base.totalLengthInBytes = sizeof(EcPktHdr_StartPrivAmp);
-  h8->base.subtype = SUBTYPE_START_PRIV_AMP;
-  h8->base.epoch = kb->startEpoch;
-  h8->base.numberOfEpochs = kb->numberOfEpochs;
-  h8->seed = seed;                /* significant content */
+  errorCode = comms_createEcHeader((char **)&h8, SUBTYPE_START_PRIV_AMP, 0, kb);
+  if (errorCode) return 62; // hardcoded in original impl.
+  h8->seed = generateRngSeed();   /* generate local RNG seed */
   h8->lostbits = kb->leakageBits; /* this is what we use for PA */
   h8->correctedbits = kb->correctedErrors;
 
@@ -58,7 +50,7 @@ int initiate_privacyamplification(ProcessBlock *kb) {
   comms_insertSendPacket((char *)h8, h8->base.totalLengthInBytes);
 
   /* do actual privacy amplification */
-  return do_privacy_amplification(kb, seed, kb->leakageBits);
+  return do_privacy_amplification(kb, h8->seed, kb->leakageBits);
 }
 
 /**
@@ -71,9 +63,10 @@ int initiate_privacyamplification(ProcessBlock *kb) {
  * @return int 0 if success, otherwise error code
  */
 int receive_privamp_msg(ProcessBlock *kb, char *receivebuf) {
-  EcPktHdr_StartPrivAmp *in_head = (EcPktHdr_StartPrivAmp *)receivebuf; /* holds header */
+  // Get header
+  EcPktHdr_StartPrivAmp *in_head = (EcPktHdr_StartPrivAmp *)receivebuf;
 
-  /* retreive number of corrected bits */
+  /* retrieve number of corrected bits */
   kb->correctedErrors = in_head->correctedbits;
 
   /* do some consistency checks???*/
@@ -146,10 +139,9 @@ int do_privacy_amplification(ProcessBlock *kb, unsigned int seed, int lostbits) 
        correction */
     if (!arguments.bellmode) { /* do single-photon source bound */
 
+      safe_error = trueerror;
       if (kb->correctedErrors > 0) {
-        safe_error = trueerror * (1. + arguments.errormargin / sqrt(kb->correctedErrors));
-      } else {
-        safe_error = trueerror;
+        safe_error *= (1. + arguments.errormargin / sqrt(kb->correctedErrors));
       }
       sneakloss = (int)(binentrop(safe_error) * kb->workbits);
 
@@ -162,8 +154,7 @@ int do_privacy_amplification(ProcessBlock *kb, unsigned int seed, int lostbits) 
       if (BellHelper < 0.) { /* we have no key...*/
         sneakloss = kb->workbits;
       } else { /* there is hope... */
-        sneakloss =
-            (int)(kb->workbits * binentrop((1. + sqrt(BellHelper)) / 2.));
+        sneakloss = (int)(kb->workbits * binentrop((1. + sqrt(BellHelper)) / 2.));
       }
     }
   } else {
