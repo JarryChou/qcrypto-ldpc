@@ -546,8 +546,7 @@ int prepare_first_binsearch_msg(ProcessBlock *processBlock, int pass) {
     }
   }
   /* mark pass/round correctly in processBlock */
-  processBlock->binarySearchDepth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) |
-                        0; /* first round */
+  processBlock->binarySearchDepth = (pass == 0 ? RUNLEVEL_FIRSTPASS : RUNLEVEL_SECONDPASS) | 0; /* first round */
 
   // Note: duplicate-ish code here with makeMessageHead5
   /* prepare message buffer for first binsearch message  */
