@@ -36,7 +36,8 @@ void cleanup_revealed_bits(ProcessBlock *kb) {
   int i;
 
   /* find first nonused lastbit */
-  while ((lastbit > 0) && (m[lastbit / 32] & bt_mask(lastbit))) lastbit--;
+  while ((lastbit > 0) && (m[lastbit / 32] & bt_mask(lastbit))) 
+    lastbit--;
 
   /* replace spent bits in beginning by untouched bits at end */
   for (i = 0; i <= lastbit; i++) {
@@ -47,7 +48,8 @@ void cleanup_revealed_bits(ProcessBlock *kb) {
           ((d[lastbit / 32] & bt_mask(lastbit)) ? bm : 0); /* transfer bit */
       /* get new lastbit */
       lastbit--;
-      while ((lastbit > 0) && (m[lastbit / 32] & bt_mask(lastbit))) lastbit--;
+      while ((lastbit > 0) && (m[lastbit / 32] & bt_mask(lastbit))) 
+        lastbit--;
     }
   }
   /* i should now contain the number of good bits */
@@ -75,12 +77,9 @@ void cleanup_revealed_bits(ProcessBlock *kb) {
  * @param kb pointer to processblock
  */
 void prepare_permutation(ProcessBlock *kb) {
-  int workbits;
-  unsigned int *tmpbuf;
-
   /* do bit compression */
   cleanup_revealed_bits(kb);
-  workbits = kb->workbits;
+  int workbits = kb->workbits;
 
   /* a quick-and-dirty cut for kb1 match, will change to reordering later.
      also: take more care about the leakage_bits here */
@@ -94,12 +93,13 @@ void prepare_permutation(ProcessBlock *kb) {
 
   /* do first permutation - this is only the initial permutation */
   prepare_permut_core(kb);
-  /* now the permutated buffer is renamed and the final permutation is
-     performed */
-  tmpbuf = kb->mainBufPtr;
+  /* now the permutated buffer is renamed and the final permutation is performed */
+  // Swap the buffer (addresses)
+  unsigned int *tmpbuf = kb->mainBufPtr;
   kb->mainBufPtr = kb->permuteBufPtr;
   kb->permuteBufPtr = tmpbuf;
-  /* fo final permutation */
+  
+  /* do final permutation */
   prepare_permut_core(kb);
   return;
 }
@@ -110,11 +110,9 @@ void prepare_permutation(ProcessBlock *kb) {
  * @param kb ptr to processblock
  */
 void prepare_permut_core(ProcessBlock *kb) {
-  int workbits;
-  unsigned int rn_order;
   int i, j, k;
-  workbits = kb->workbits;
-  rn_order = log2Ceil(workbits);
+  int workbits = kb->workbits;
+  unsigned int rn_order = log2Ceil(workbits);
 
   #ifdef SYSTPERMUTATION
 
@@ -148,7 +146,6 @@ void prepare_permut_core(ProcessBlock *kb) {
 
   /* for debug: output that stuff */
   /* output_permutation(kb); */
-
   return;
 }
 
@@ -161,14 +158,10 @@ void prepare_permut_core(ProcessBlock *kb) {
  * @param w number of workbits
  */
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
-  int blkidx;           /* contains blockindex */
-  int bitidx;           /* startbit index */
-  unsigned int resbuf;  /* result buffer */
-
   /* the bitindex points to the first and the last bit tested. */
-  resbuf = 0;
-  blkidx = 0;
-  for (bitidx = 0; bitidx < w; bitidx += k) {
+  unsigned int resbuf = 0; /* result buffer */
+  int blkidx = 0;          /* contains blockindex */  
+  for (int bitidx = 0; bitidx < w; bitidx += k) {
     /* shift parity result in buffer */
     resbuf = (resbuf << 1) + singleLineParity(d, bitidx, bitidx + k - 1);
     if ((blkidx & 31) == 31) 
@@ -189,17 +182,16 @@ void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w) {
  * @return parity (0 or 1)
  */
 int singleLineParity(unsigned int *d, int start, int end) {
-  unsigned int tmp_par, lm, fm;
-  int li, fi, ri;
-  fi = start / 32;
-  li = end / 32;
-  fm = firstmask(start & 31);
-  lm = lastmask(end & 31);
+  int fi = start / 32;
+  int li = end / 32;
+  unsigned int fm = firstmask(start & 31);
+  unsigned int lm = lastmask(end & 31);
+  unsigned int tmp_par;
   if (li == fi) {
     tmp_par = d[fi] & lm & fm;
   } else {
     tmp_par = (d[fi] & fm) ^ (d[li] & lm);
-    for (ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
+    for (int ri = fi + 1; ri < li; ri++) tmp_par ^= d[ri];
   } /* tmp_par holds now a combination of bits to be tested */
   return parity(tmp_par);
 }
