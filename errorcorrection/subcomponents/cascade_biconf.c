@@ -483,7 +483,7 @@ int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength) {
   kb->leakageBits += 1;
 
   /* send out message */
-  comms_insertSendPacket((char *)h5, msg5size);
+  comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
 
   return 0;
 }
