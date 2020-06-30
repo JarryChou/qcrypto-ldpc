@@ -8,7 +8,7 @@
  * No return value,
    as no errors are tested here.
  * 
- * @param kb pointer to processblock
+ * @param pb pointer to processblock
  * @param d0 pointer to target parity buffer 0
  * @param d1 pointer to paritybuffer 1
  */

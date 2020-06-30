@@ -110,9 +110,9 @@ void atohex(char *target, unsigned int v);
 
 /// @name HELPER PERMUTATION FUNCTIONS USED FOR QBER ESTIMATION & CASCADE
 /// @{
-void cleanup_revealed_bits(ProcessBlock *kb);
-void prepare_permut_core(ProcessBlock *kb);
-void prepare_permutation(ProcessBlock *kb);
+void cleanup_revealed_bits(ProcessBlock *pb);
+void prepare_permut_core(ProcessBlock *pb);
+void prepare_permutation(ProcessBlock *pb);
 void prepare_paritylist_basic(unsigned int *d, unsigned int *t, int k, int w);
 int singleLineParity(unsigned int *d, int start, int end);
 /// @}

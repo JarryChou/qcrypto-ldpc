@@ -40,7 +40,7 @@ int comms_insertSendPacket(char *message, int length) {
  * Modified to tell the other side about the Bell value for privacy amp in
  * the device indep mode
  * 
- * @param kb Pointer to the processblock
+ * @param pb Pointer to the processblock
  * @param bitsneeded 
  * @param errormode 0 for normal error est, err*2^16 forskip
  * @param bellValue 

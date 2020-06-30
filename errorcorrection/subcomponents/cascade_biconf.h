@@ -62,31 +62,31 @@
 
 /// @name PERMUTATION HELPER FUNCTIONS
 /// @{
-void fix_permutedbits(ProcessBlock *kb); 
+void fix_permutedbits(ProcessBlock *pb); 
 /// @}
 
 
 /// @name CASCADE BICONF HELPER FUNCTIONS
 /// @{
-void generate_selectbitstring(ProcessBlock *kb, unsigned int seed);
-void generate_BICONF_bitstring(ProcessBlock *kb);
-int do_paritylist_and_diffs(ProcessBlock *kb, int pass);
-void fix_parity_intervals(ProcessBlock *kb, unsigned int *inh_idx);
+void generate_selectbitstring(ProcessBlock *pb, unsigned int seed);
+void generate_BICONF_bitstring(ProcessBlock *pb);
+int do_paritylist_and_diffs(ProcessBlock *pb, int pass);
+void fix_parity_intervals(ProcessBlock *pb, unsigned int *inh_idx);
 void correct_bit(unsigned int *d, int bitindex);
 int singleLineParityMasked(unsigned int *d, unsigned int *m, int start, int end);
 /// @}
 
 /// @name CASCADE BICONF MAIN FUNCTIONS
 /// @{
-int process_binsearch_alice(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head);
-int initiate_biconf(ProcessBlock *kb);
-int generateBiconfReply(ProcessBlock *kb, char *receivebuf);
-int initiate_biconf_binarysearch(ProcessBlock *kb, int biconflength);
-int prepare_first_binsearch_msg(ProcessBlock *kb, int pass);
-int start_binarysearch(ProcessBlock *kb, char *receivebuf);
-int process_binarysearch(ProcessBlock *kb, char *receivebuf);
-int process_binsearch_bob(ProcessBlock *kb, EcPktHdr_CascadeBinSearchMsg *in_head);
-int receive_biconfreply(ProcessBlock *kb, char *receivebuf);
+int process_binsearch_alice(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
+int initiate_biconf(ProcessBlock *pb);
+int generateBiconfReply(ProcessBlock *pb, char *receivebuf);
+int initiate_biconf_binarysearch(ProcessBlock *pb, int biconflength);
+int prepare_first_binsearch_msg(ProcessBlock *pb, int pass);
+int start_binarysearch(ProcessBlock *pb, char *receivebuf);
+int process_binarysearch(ProcessBlock *pb, char *receivebuf);
+int process_binsearch_bob(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
+int receive_biconfreply(ProcessBlock *pb, char *receivebuf);
 /// @}
 
 #endif /* ECD2_CASCADE_BICONF */

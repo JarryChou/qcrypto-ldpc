@@ -39,10 +39,10 @@ int mdmpidx = 0; /**< Debug value for printing */
 /**
  * @brief Helper to dump message into a file
  * 
- * @param kb processblock pointer
+ * @param pb processblock pointer
  * @param msg message to dump to file
  */
-void dumpmsg(ProcessBlock *kb, char *msg) {
+void dumpmsg(ProcessBlock *pb, char *msg) {
   char dumpname[200];
   int dha; /* handle */
   int tosend = ((unsigned int *)msg)[1];
@@ -53,7 +53,7 @@ void dumpmsg(ProcessBlock *kb, char *msg) {
   return; /* if debug is off */
   #endif
 
-  sprintf(dumpname, "msgdump_%1d_%03d", kb->processorRole, mdmpidx);
+  sprintf(dumpname, "msgdump_%1d_%03d", pb->processorRole, mdmpidx);
   mdmpidx++;
   dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
   do {
@@ -76,9 +76,9 @@ int dumpindex = 0; /**< Debug value for printing */
  * Dumps the processblock structure, if present the buffer files, the parity files and the
    diffidx buffers as plain binaries
  * 
- * @param kb processblock pointer
+ * @param pb processblock pointer
  */
-void dumpstate(ProcessBlock *kb) {
+void dumpstate(ProcessBlock *pb) {
   char dumpname[200];
   int dha; /* handle */
 
@@ -86,25 +86,25 @@ void dumpstate(ProcessBlock *kb) {
   return; /* if debugging is off */
   #endif
 
-  sprintf(dumpname, "kbdump_%1d_%03d", kb->processorRole, dumpindex);
+  sprintf(dumpname, "kbdump_%1d_%03d", pb->processorRole, dumpindex);
   dumpindex++;
   dha = open(dumpname, O_WRONLY | O_CREAT, 0644);
-  if (write(dha, kb, sizeof(ProcessBlock)) == -1) {
+  if (write(dha, pb, sizeof(ProcessBlock)) == -1) {
     fprintf(stderr, "dump fail (1)\n");
   }
-  if (kb->mainBufPtr)
-    if (-1 == write(dha, kb->mainBufPtr, sizeof(unsigned int) *
-        (2 * kb->initialBits + 3 * ((kb->initialBits + 31) / 32)))) {
+  if (pb->mainBufPtr)
+    if (-1 == write(dha, pb->mainBufPtr, sizeof(unsigned int) *
+        (2 * pb->initialBits + 3 * ((pb->initialBits + 31) / 32)))) {
       fprintf(stderr, "dump fail (2)\n");
     }
 
-  if (kb->lp0)
-    if (-1 == write(dha, kb->lp0, sizeof(unsigned int) * 6 * ((kb->workbits + 31) / 32))) {
+  if (pb->lp0)
+    if (-1 == write(dha, pb->lp0, sizeof(unsigned int) * 6 * ((pb->workbits + 31) / 32))) {
       fprintf(stderr, "dump fail (4)\n");
     }
 
-  if (kb->diffidx)
-    if (-1 == write(dha, kb->diffidx, sizeof(unsigned int) * 2 * kb->diffBlockCountMax)) {
+  if (pb->diffidx)
+    if (-1 == write(dha, pb->diffidx, sizeof(unsigned int) * 2 * pb->diffBlockCountMax)) {
       fprintf(stderr, "dump fail (5)\n");
     }
 
@@ -115,15 +115,15 @@ void dumpstate(ProcessBlock *kb) {
 /**
  * @brief for debug: output permutation
  * 
- * @param kb processblock pointer
+ * @param pb processblock pointer
  */
-void output_permutation(ProcessBlock *kb) {
+void output_permutation(ProcessBlock *pb) {
   char name[200] = "permutlist_";
   FILE *fp;
   int i;
-  sprintf(name, "permutelist_%d", kb->processorRole);
+  sprintf(name, "permutelist_%d", pb->processorRole);
   fp = fopen(name, "w");
-  for (i = 0; i < kb->workbits; i++)
-    fprintf(fp, "%d %d\n", kb->permuteIndex[i], kb->reverseIndex[i]);
+  for (i = 0; i < pb->workbits; i++)
+    fprintf(fp, "%d %d\n", pb->permuteIndex[i], pb->reverseIndex[i]);
   fclose(fp);
 }
