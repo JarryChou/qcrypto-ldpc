@@ -146,7 +146,7 @@ EcPktHdr_CascadeBinSearchMsg *comms_makeBinSrchMsgHead(ProcessBlock *processBloc
  * @param processBlock processBlock to obtain epoch metadata from
  * @return int 0 if succcess otherwise error code
  */
-int comms_createEcHeader(char** resultingBufferPtr, enum EcSubtypes subtype, unsigned int additionalByteLength, ProcessBlock *processBlock) {
+int comms_createEcHeader(char** resultingBufferPtr, enum EC_SUBTYPES subtype, unsigned int additionalByteLength, ProcessBlock *processBlock) {
   EcPktHdr_Base* tmpBaseHdr; // Temporary pointer to point to the base
   unsigned int size = additionalByteLength; // Not good practice to reuse params, but this can be removed for micro-optimization
   switch (subtype) {

@@ -101,6 +101,8 @@ int testBitsNeeded(float e) {
  * 
  * Note: uses globalvar skipQberEstimation
  * 
+ * Sends SUBTYPE_QBER_EST_BITS packet
+ * 
  * @param epoch start epoch
  * @return int 0 on success, error code otherwise
  */
@@ -123,10 +125,19 @@ int qber_beginErrorEstimation(unsigned int epoch) {
     msg1 = comms_createQberEstBitsMsg(processBlock, 1, processBlock->initialErrRate, processBlock->bellValue);
   } else {
     /* do a very rough estimation on how many bits are needed in this round */
-    f_inierr = processBlock->initialErrRate / 65536.; /* float version */
-    if (USELESS_ERRORBOUND - f_inierr <= 0) return 41; /* no error extractable */
+    /* float version */
+    f_inierr = processBlock->initialErrRate / 65536.;
+
+    /* if no error extractable */
+    if (USELESS_ERRORBOUND - f_inierr <= 0) 
+      return 41; 
+
     bits_needed = testBitsNeeded(f_inierr);
-    if (bits_needed >= processBlock->initialBits) return 42; /* not possible */
+
+    /* if not possible */
+    if (bits_needed >= processBlock->initialBits) 
+      return 42; 
+
     /* fill message with sample bits */
     msg1 = comms_createQberEstBitsMsg(processBlock, bits_needed, 0, processBlock->bellValue);
   }
@@ -134,9 +145,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   if (!msg1) return 43; /* a malloc error occured */
 
   /* send this structure to the other side */
-  comms_insertSendPacket((char *)msg1, msg1->base.totalLengthInBytes);
-
-  return 0; /* go dormant again.  */
+  return comms_insertSendPacket((char *)msg1, msg1->base.totalLengthInBytes);
 }
 
 /**
@@ -231,7 +240,6 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     if (i) return i;
     h3->tested_bits = processBlock->leakageBits;
     h3->number_of_errors = processBlock->estimatedError;
-    comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
 
     if (replymode == REPLYMODE_TERMINATE) {
       #ifdef DEBUG
@@ -242,15 +250,18 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     } else { // replymode == REPLYMODE_CONTINUE
       setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
     }
+
+    comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
   } else if (replymode == REPLYMODE_MORE_BITS) {
-      // Prepare & send message
-      i = comms_createEcHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
-      if (i) return i;
-      h2->requestedbits = newbitsneeded - processBlock->estimatedSampleSize;
-      comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);
-      // Set processblock params
-      processBlock->skipQberEstim = 1;
-      processBlock->processingState = PSTATE_AWAIT_ERR_EST_MORE_BITS;
+    // Prepare & send message
+    i = comms_createEcHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
+    if (i) return i;
+    h2->requestedbits = newbitsneeded - processBlock->estimatedSampleSize;
+    // Set processblock params
+    processBlock->skipQberEstim = 1;
+    processBlock->processingState = PSTATE_AWAIT_ERR_EST_MORE_BITS;
+
+    comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);
   } else { // logic error in code
     return 80;
   }
@@ -312,7 +323,6 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   int msg4datalen;
   EcPktHdr_CascadeParityList *h4;    /* header pointer */
   unsigned int *h4_d0, *h4_d1; /* pointer to data tracks  */
-  int retval;
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_QberEstBitsAck *)receivebuf;
@@ -374,8 +384,5 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   processBlock->leakageBits += processBlock->partitions0 + processBlock->partitions1;
 
   /* transmit message */
-  retval = comms_insertSendPacket((char *)h4, h4->base.totalLengthInBytes);
-  if (retval) return retval;
-
-  return 0; /* go dormant again... */
+  return comms_insertSendPacket((char *)h4, h4->base.totalLengthInBytes);
 }

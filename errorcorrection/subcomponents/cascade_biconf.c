@@ -371,9 +371,7 @@ int cascade_prepFirstBinSearchMsg(ProcessBlock *processBlock, int pass) {
   processBlock->leakageBits += processBlock->diffBlockCount;
 
   /* send out message */
-  comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
-
-  return 0;
+  return comms_insertSendPacket((char *)h5, h5->base.totalLengthInBytes);
 }
 
 /**
@@ -434,27 +432,6 @@ int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
      for the first pass 0 */
 
   return cascade_prepFirstBinSearchMsg(pb, 0);
-}
-
-/** @brief Alice's wrapper function to process a binarysearch request.
- * 
- * Distinguishes between the two
-   symmetries in the evaluation. This is onyl a wrapper.
-   on alice side, it does a passive check; on bob side, it possibly corrects
-   for errors. 
- * @param receivebuf 
- * @return error code, 0 if success 
- */
-int cascade_processBinSearch(ProcessBlock *pb, char *receivebuf) {
-  EcPktHdr_CascadeBinSearchMsg *in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf; /* holds received message header */
-
-  if (pb->processorRole == INITIATOR) {
-    return cascade_initiatorAlice_processBinSearch(pb, in_head);
-  } else if (pb->processorRole == FOLLOWER) {
-    return cascade_followerBob_processBinSearch(pb, in_head);
-  } else {
-    return 56; // Illegal role
-  }
 }
 
 // CASCADE BICONF MAIN FUNCTIONS
@@ -622,9 +599,7 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBi
   pb->leakageBits += lostBitsCount;
 
   /* mark message for sending */
-  comms_insertSendPacket((char *)outgoingMsgHead, outgoingMsgHead->base.totalLengthInBytes);
-
-  return 0;
+  return comms_insertSendPacket((char *)outgoingMsgHead, outgoingMsgHead->base.totalLengthInBytes);
 }
 
 /** @brief Bob's function to process a binarysearch request. 

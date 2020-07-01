@@ -81,7 +81,6 @@ int cascade_generateBiconfReply(ProcessBlock *pb, char *receivebuf);
 int cascade_makeBiconfBinSearchReq(ProcessBlock *pb, int biconfLength);
 int cascade_prepFirstBinSearchMsg(ProcessBlock *pb, int pass);
 int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf);
-int cascade_processBinSearch(ProcessBlock *pb, char *receivebuf);
 int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int cascade_receiveBiconfReply(ProcessBlock *pb, char *receivebuf);

@@ -39,7 +39,7 @@
 #ifndef EC_PACKET_DEF
 #define EC_PACKET_DEF
 
-enum EcSubtypes {
+enum EC_SUBTYPES {
     SUBTYPE_QBER_EST_BITS = 0,
     SUBTYPE_QBER_EST_REQ_MORE_BITS = 2,
     SUBTYPE_QBER_EST_BITS_ACK = 3,

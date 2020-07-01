@@ -361,27 +361,28 @@ int readBodyFromReceivePipe() {
  */
 int main(int argc, char *argv[]) {
   // Variables
-  int retval, errorCode = 0;          // for checking if error occured in function, or return values in general
-  int i;                        // Helper iterator value
+  int retval, errorCode = 0;                          // for checking if error occured in function, or return values in general
+  int i;                                              // Helper iterator value
   // For select syscall system 
-  fd_set readqueue, writequeue;  /* for main event loop */
-  int selectmax;                 /* keeps largest handle for select call */
+  fd_set readqueue, writequeue;                       /* for main event loop */
+  int selectmax;                                      /* keeps largest handle for select call */
   struct timeval HALFSECOND = {0, 500000};
   struct timeval TENMILLISEC = {0, 10000};
-  /* Buffers or pointers for packet receive / send management */
+  /* Buffers or pointers for packet receive or send management */
   ReceivedPacketNode *tempReceivedPacketNode = NULL;  /* index to go through the linked list */
-  nextPacketToSend = NULL; /* no packets to be sent */
-  lastPacketToSend = NULL;
-  sendIndex = 0;        /* index of next packet to send */
-  receiveIndex = 0;     /* index for reading in a longer packet */
-  processBlockDeque = NULL;      /* no active key blocks in memory */
-  receivedPacketLinkedList = NULL; /* no receive packet s in queue */
+  nextPacketToSend = NULL;                            /* no packets to be sent */
+  lastPacketToSend = NULL;                   
+  sendIndex = 0;                                      /* index of next packet to send */
+  receiveIndex = 0;                                   /* index for reading in a longer packet */
+  processBlockDeque = NULL;                           /* no active key blocks in memory */
+  receivedPacketLinkedList = NULL;                    /* no receive packet s in queue */
   EcPktHdr_Base *tmpBaseHeader = NULL;
   ProcessBlock *tmpProcessBlock = NULL;
+  ActionResult actionResult;                          // For functions to extract higher level decisions up to ecd2.c
   // Variables for command input
-  char cmdInput[CMD_INBUF_LEN];  /* For temporary storage of cmd input */
-  cmdInput[0] = '\0';    /* buffer for commands */
-  input_last_index = 0;   /* input parsing */
+  char cmdInput[CMD_INBUF_LEN];                       /* For temporary storage of cmd input */
+  cmdInput[0] = '\0';                                 /* buffer for commands */
+  input_last_index = 0;                               /* input parsing */
 
 
   // Parameter passing
@@ -443,6 +444,8 @@ int main(int argc, char *argv[]) {
         // Begin qber estimation and send bits over 
         if (!errorCode) {
           errorCode = qber_beginErrorEstimation(newEpoch);
+          // No decision is required, communications is encapsulated in the function above
+          // Sends message of subtype SUBTYPE_QBER_EST_BITS
         }
         // If an error occured on either step, sound off if needed
         if (errorCode && arguments.runtimeErrorMode == END_ON_ERR) {
@@ -490,20 +493,16 @@ int main(int argc, char *argv[]) {
         #endif
 
         /**
-         * The following section uses a rudimentary return value system so as to abstract out the linkages
-         * between sub-components. I'd rather use a design pattern here, but I don't want the code to become
-         * too complicated for people not acquainted with the design pattern.
-         * 
-         * Internally, the retval can come as a:
-         * Positive value: An error has occurred. The value tallies with the error message in errormessage. 
-         * Zero:           0 denotes no error / no further action required.
-         * Negative value: Follow up action is required. The value tallies with the enum in ecd2.h.
-         * 
+         * Food for thought: Extract communications? I thought about it but I figured it's:
+         *    1. Too much effort (out of my scope)
+         *    2. How do I make it easier for scientists to read?
+         *    A. Better to just put comments accordingly
          */
 
         // Separate the functions that do not require a non-null process block
         if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
-          retval = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet);
+          errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet);
+          // No internal follow up is required as communications is encapsulated in the function above
         } else {    
           // Get the process block to process it on
           tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
@@ -513,33 +512,61 @@ int main(int argc, char *argv[]) {
             // Process packet based on the subtype
             switch (tmpBaseHeader->subtype) {
               case SUBTYPE_QBER_EST_REQ_MORE_BITS:
-                retval = qber_replyWithMoreBits(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // No follow up is expected from qber_replyWithMoreBits as communications 
-                // is encapsulated in this code
+                errorCode = qber_replyWithMoreBits(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // No internal follow up is required as communications is encapsulated in the function above
+                // Sends message of subtype SUBTYPE_QBER_EST_BITS
                 break;
 
               case SUBTYPE_QBER_EST_BITS_ACK: /* received error confirmation message */
-                retval = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // Communicated follow up required: Error Correction choice
                 break;
 
               case SUBTYPE_CASCADE_PARITY_LIST: /* received parity list message */
-                retval = cascade_startBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = cascade_startBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // No internal follow up is required as communications is encapsulated in the function above
+                // Sends message of subtype SUBTYPE_CASCADE_BIN_SEARCH_MSG
                 break;
 
               case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* receive a binarysearch message */
-                retval = cascade_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
+                switch (tmpProcessBlock->processorRole) {
+
+                  // Alice in old documentation
+                  case INITIATOR: 
+                    errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, 
+                        (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
+                    // No internal follow up is required as communications is encapsulated in the function above
+                    // Sends message of subtype SUBTYPE_CASCADE_BIN_SEARCH_MSG
+                    break;
+
+                  // Bob in old documentation
+                  case FOLLOWER: 
+                    errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, 
+                        (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
+                    // May send a variety of messages
+                    // Internal decision required for privacy amplification function
+                    break;
+
+                  // Illegal role
+                  default: errorCode = 56; break;
+                }
                 break;
 
               case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-                retval = cascade_generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = cascade_generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // No internal follow up is required as communications is encapsulated in the function above
+                // Sends message of subtype SUBTYPE_CASCADE_BICONF_PARITY_RESP
                 break;
 
               case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
-                retval = cascade_receiveBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = cascade_receiveBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // May send a variety of messages
+                // Internal decision required for privacy amplification function
                 break;
 
               case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
-                retval = privAmp_receivePrivAmpMsg(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = privAmp_receivePrivAmpMsg(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // No internal follow up is required as implementation is encapsulated in the function above
                 break;
 
               default: /* packet subtype not known */
@@ -550,7 +577,7 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      if (isError(retval)) { /* an error occured */
+      if (errorCode) { /* an error occured */
         emsg(errorCode); // Always print errors
         if (arguments.runtimeErrorMode == IGNORE_ERRS_ON_OTHER_END) {
           errorCode = 0; // reset
