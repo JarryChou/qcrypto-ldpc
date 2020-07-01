@@ -32,7 +32,7 @@ void setStateKnowMyErrorAndCalculatek0andk1(ProcessBlock *processBlock) {
   if (processBlock->localError < 0.01444) { /* min bitnumber */
     processBlock->k0 = 64; 
   } else { 
-    processBlock->k0 = (int)(0.92419642 / processBlock->localError); 
+    processBlock->k0 = (int)(0.92419642 / (processBlock->localError)); 
   }
   processBlock->k1 = 3 * processBlock->k0; /* block length second array */
 }
@@ -249,14 +249,10 @@ int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResult
       pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
       return comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
     } else { // replymode == REPLYMODE_CONTINUE
-      printf("Test C");
-      fflush(stdout);
       processBlock->localError = localerror;
       actionResultPtr->nextActionEnum = AR_DECISION_INVOLVING_PREFILLED_DATA;
       actionResultPtr->bufferToSend = (char *)h3;
       actionResultPtr->bufferLengthInBytes = h3->base.totalLengthInBytes;
-      printf("Test D");
-      fflush(stdout);
       return 0;
     }
   } else if (replymode == REPLYMODE_MORE_BITS) {

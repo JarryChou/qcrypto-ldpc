@@ -369,8 +369,6 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult
 
   // Fill in the algorithm for the message
   ((EcPktHdr_QberEstBitsAck *)(actionResultPtr->bufferToSend))->algorithmEnum = chosenAlgorithm;
-  printf("Test A");
-  fflush(stdout);
 
   // Perform whatever preparation work we need to do for the chosenAlgorithm
   switch (chosenAlgorithm) {
@@ -387,8 +385,6 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult
       fprintf(stderr, "Err 81 at chooseEcAlgorithmAsQberFollower\n");
       return 81;
   }
-  printf("Test B");
-  fflush(stdout);
 
   // Insert the packet
   return comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
@@ -543,6 +539,7 @@ int main(int argc, char *argv[]) {
          *    2. How do I make it easier for scientists to read?
          *    A. Better to just put comments accordingly
          */
+        // Reset actionResult
         actionResult.nextActionEnum = AR_NONE;
 
         // Separate the functions that do not require a non-null process block
@@ -550,7 +547,13 @@ int main(int argc, char *argv[]) {
           errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet, &actionResult);
           // Communicated follow up required: Error Correction choice as QBER_FOLLOWER
           if (!errorCode && actionResult.nextActionEnum != AR_NONE) {
-            errorCode = chooseEcAlgorithmAsQberFollower(tmpProcessBlock, &actionResult);
+            // Make sure to set tmpProcessBlock first
+            tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
+            if (!tmpProcessBlock) {
+              errorCode = 48;
+            } else {
+              errorCode = chooseEcAlgorithmAsQberFollower(tmpProcessBlock, &actionResult);
+            }
           }
         } else {    
           // Get the process block to process it on
