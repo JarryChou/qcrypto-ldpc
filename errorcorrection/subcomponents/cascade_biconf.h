@@ -72,17 +72,20 @@ void fix_permutedbits(ProcessBlock *pb);
 void cascade_generateBiconfString(ProcessBlock *pb);
 int cascade_prepParityListAndDiffs(ProcessBlock *pb, int pass);
 void cascade_fixParityIntervals(ProcessBlock *pb, unsigned int *inh_idx);
+void cascade_setStateKnowMyErrorThenCalck0k1(ProcessBlock *processBlock);
+void cascade_prepareParityList1(ProcessBlock *pb, unsigned int *d0, unsigned int *d1);
 /// @}
 
 /// @name CASCADE BICONF MAIN FUNCTIONS
 /// @{
+int cascade_initiateAfterQber(ProcessBlock *processBlock);
 int cascade_initiateBiconf(ProcessBlock *pb);
 int cascade_generateBiconfReply(ProcessBlock *pb, char *receivebuf);
 int cascade_makeBiconfBinSearchReq(ProcessBlock *pb, int biconfLength);
 int cascade_prepFirstBinSearchMsg(ProcessBlock *pb, int pass);
 int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf);
-int cascade_QBER_EST_INITIATORAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
-int cascade_QBER_EST_FOLLOWERBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
+int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
+int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head);
 int cascade_receiveBiconfReply(ProcessBlock *pb, char *receivebuf);
 /// @}
 

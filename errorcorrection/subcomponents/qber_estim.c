@@ -2,41 +2,6 @@
 
 // ERROR ESTIMATION HELPER FUNCTIONS
 /* ------------------------------------------------------------------------ */
-/**
- * @brief helper function to prepare parity lists from original and unpermutated key.
- * 
- * No return value,
-   as no errors are tested here.
- * 
- * @param pb pointer to processblock
- * @param d0 pointer to target parity buffer 0
- * @param d1 pointer to paritybuffer 1
- */
-void prepareParityList1(ProcessBlock *processBlock, unsigned int *d0, unsigned int *d1) {
-  helper_prepParityList(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
-  helper_prepParityList(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
-  return;
-}
-
-/**
- * @brief Helper function to calculate k0 and k1
- * 
- * @param processBlock 
- * @param localerror
- */
-void setStateKnowMyErrorAndCalculatek0andk1(ProcessBlock *processBlock, float localerror) {
-  /* determine process variables */
-  processBlock->processingState = PSTATE_ERR_KNOWN;
-  processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
-  /****** more to do here *************/
-  /* calculate k0 and k1 for further uses */
-  if (localerror < 0.01444) { /* min bitnumber */
-    processBlock->k0 = 64; 
-  } else { 
-    processBlock->k0 = (int)(0.92419642 / localerror); 
-  }
-  processBlock->k1 = 3 * processBlock->k0; /* block length second array */
-}
 
 /**
  * @brief Calculate local error and also return reply mode & new bits needed via pointers
@@ -176,6 +141,9 @@ int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResult
   in_head = (EcPktHdr_QberEstBits *)receivebuf;
   in_data = (unsigned int *)(&receivebuf[sizeof(EcPktHdr_QberEstBits)]);
 
+  // Reset actionResult
+  actionResultPtr->nextActionEnum = AR_NONE;
+
   /* try to find overlap with existing files */
   overlapreply = check_epochoverlap(in_head->base.epoch, in_head->base.numberOfEpochs);
   if (overlapreply) {
@@ -248,12 +216,15 @@ int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResult
       fflush(stdout);
       #endif
       pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
+      return comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
     } else { // replymode == REPLYMODE_CONTINUE
-      // CASCADE SPECIFIC CODE
-      setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
+      // Defer this decision to a higher abstraction level
+      processBlock->localError = localerror;
+      actionResultPtr->nextActionEnum = AR_DECISION_INVOLVING_PREFILLED_DATA;
+      actionResultPtr->bufferToSend = (char *)h3;
+      actionResultPtr->bufferLengthInBytes = h3->base.totalLengthInBytes;
+      return 0;
     }
-
-    return comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
   } else if (replymode == REPLYMODE_MORE_BITS) {
     // Prepare & send message
     i = comms_createEcHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
@@ -312,18 +283,13 @@ int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf) {
  * 
  * @param processBlock pointer to non null processblock
  * @param receivebuf pointer to the receive buffer containing the message.
- * @param actionResultPtr ptr to action result which will contain meta info on the outcome of this function call
  * @return int 0 on success, error code otherwise
  */
-int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf, ActionResult *actionResultPtr) {
+int qber_prepareErrorCorrection(ProcessBlock *processBlock, char *receivebuf) {
   EcPktHdr_QberEstBitsAck *in_head; /* holds header */
   float localerror;
   enum REPLY_MODE replymode;
-  int newbitsneeded, errorCode;
-  unsigned int newseed; /* seed for permutation */
-  int msg4datalen;
-  EcPktHdr_CascadeParityList *h4;    /* header pointer */
-  unsigned int *h4_d0, *h4_d1; /* pointer to data tracks  */
+  int newbitsneeded;
 
   /* get pointers for header...*/
   in_head = (EcPktHdr_QberEstBitsAck *)receivebuf;
@@ -336,7 +302,7 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf, ActionRes
   localerror = calculateLocalError(processBlock, &replymode, &newbitsneeded);
 
   #ifdef DEBUG
-  printf("qber_prepareDualPass kb. estSampleSize: %d estErr: %d errMode: %d lclErr: %.4f \
+  printf("qber_prepareErrorCorrection kb. estSampleSize: %d estErr: %d errMode: %d lclErr: %.4f \
       newBitsNeeded: %d initBits: %d replymode: %d\n",
       processBlock->estimatedSampleSize, processBlock->estimatedError, processBlock->skipQberEstim, 
       localerror, newbitsneeded, processBlock->initialBits, replymode);
@@ -348,44 +314,23 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf, ActionRes
     return 0;
   }
 
-  // else we are continuing to thhe next phase: error correction
-
-  setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
-
-  /* install new seed */
-  // processBlock->RNG_usage = 0; /* use simple RNG */
-  if (rnd_generateRngSeed(&newseed)) 
-    return 39; // if there was an error code produced
-  processBlock->rngState = newseed; /* get new seed for RNG */
-
-  /* prepare permutation array */
-  helper_prepPermutationWrapper(processBlock);
-
-  /* prepare message 5 frame - this should go into helper_prepPermutationWrapper? */
-  processBlock->partitions0 = (processBlock->workbits + processBlock->k0 - 1) / processBlock->k0;
-  processBlock->partitions1 = (processBlock->workbits + processBlock->k1 - 1) / processBlock->k1;
-
-  /* get raw buffer */
-  msg4datalen = (wordCount(processBlock->partitions0) + wordCount(processBlock->partitions1)) * WORD_SIZE;
-  errorCode = comms_createEcHeader((char **)&h4, SUBTYPE_CASCADE_PARITY_LIST, msg4datalen, processBlock);
-  if (errorCode) return errorCode;
-  /* both data arrays */
-  h4_d0 = (unsigned int *)&h4[1];
-  h4_d1 = &h4_d0[wordCount(processBlock->partitions0)];
-  h4->seed = newseed;                        /* permutator seed */
+  // else we are continuing to the next phase: error correction
+  processBlock->localError = localerror;
   
-  /* these are optional; should we drop them? */
-  h4->k0 = processBlock->k0;
-  h4->k1 = processBlock->k1;
-  h4->totalbits = processBlock->workbits;
-
-  /* evaluate parity in blocks */
-  prepareParityList1(processBlock, h4_d0, h4_d1);
-
-  /* update status */
-  processBlock->processingState = PSTATE_PERFORMED_PARITY;
-  processBlock->leakageBits += processBlock->partitions0 + processBlock->partitions1;
-
-  /* transmit message */
-  return comms_insertSendPacket((char *)h4, h4->base.totalLengthInBytes);
+  // NICE TO HAVE: Abstract this section out to reduce linkages to other subcomponents
+  switch (in_head->algorithmEnum) {
+    case EC_ALG_CASCADE_CONTINUE_ROLES:
+      cascade_initiateAfterQber(processBlock);
+      break;
+    case EC_ALG_CASCADE_FLIP_ROLES:
+      break;
+    case EC_ALG_LDPC_CONTINUE_ROLES:
+      break;
+    case EC_ALG_LDPC_FLIP_ROLES:
+      break;
+    default:
+      fprintf(stderr, "Err 81 at qber_prepareErrorCorrection\n");
+      return 81;
+  }
+  return 0;
 }
