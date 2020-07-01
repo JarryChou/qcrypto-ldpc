@@ -1,5 +1,7 @@
 <map id="errorcorrection/subcomponents/helpers.h" name="errorcorrection/subcomponents/helpers.h">
-<area shape="rect" id="node1" title="helper functions or helper enums for ecd2" alt="" coords="49,5,250,47"/>
-<area shape="rect" id="node2" href="$keyblock_8h.html" title="Header file containing the definitions of the keyblock &amp; block related data for the error correction ..." alt="" coords="5,95,165,121"/>
-<area shape="rect" id="node3" href="$rnd_8h.html" title="Random number sources." alt="" coords="189,95,240,121"/>
+<area shape="rect" id="node1" title="helper functions or helper enums for ecd2" alt="" coords="68,5,269,47"/>
+<area shape="rect" id="node2" href="$processblock_8h.html" title="Header file containing the definitions of the processblock &amp; block related data for the error correct..." alt="" coords="5,95,191,121"/>
+<area shape="rect" id="node5" href="$rnd_8h.html" title="Random number sources." alt="" coords="215,95,266,121"/>
+<area shape="rect" id="node3" href="$defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="33,169,163,196"/>
+<area shape="rect" id="node4" title=" " alt="" coords="67,244,129,271"/>
 </map>

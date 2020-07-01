@@ -1,7 +1,16 @@
 var helpers_8h =
 [
+    [ "countSetBits", "helpers_8h.html#a5cdc1df4a8ea7f07fa5566ed058f6416", null ],
+    [ "flipBit", "helpers_8h.html#afd4eafccd46dfc4e06a5eaedd6e735ac", null ],
+    [ "log2Ceil", "helpers_8h.html#ad6c1c07c14baf09f006276342362d98e", null ],
     [ "MAX", "helpers_8h.html#ad935f1ff1a50822e317bdb321ce991ad", null ],
     [ "MIN", "helpers_8h.html#adcd021ac91d43a62b2cdecf9a5b971a7", null ],
+    [ "modulo32", "helpers_8h.html#a34baab3b983b289ac535bd10023d8a38", null ],
+    [ "uint32AllOnesExceptFirstN", "helpers_8h.html#a8a92de0f4cbd8dcb31fb410dfcc8fb42", null ],
+    [ "uint32AllOnesExceptLastN", "helpers_8h.html#a1f914a5ef377dde67db0aff7f0918e42", null ],
+    [ "uint32AllZeroExceptAtN", "helpers_8h.html#a7638838ced95eb558ffd96635e2e568b", null ],
+    [ "wordCount", "helpers_8h.html#ad30e1442a0cf0d5240af264aa777d3b1", null ],
+    [ "wordIndex", "helpers_8h.html#a4f662f55b8c7569ec85c48cca009914d", null ],
     [ "HandleId", "helpers_8h.html#a60dccdec5aced9500d5f728bce5b9b3e", [
       [ "handleId_commandPipe", "helpers_8h.html#a60dccdec5aced9500d5f728bce5b9b3ea9902f55cc4b636c1f2501e7892ffdf80", null ],
       [ "handleId_sendPipe", "helpers_8h.html#a60dccdec5aced9500d5f728bce5b9b3ea359a6ff399089b29328c9e6dc731c354", null ],
@@ -14,14 +23,9 @@ var helpers_8h =
       [ "handleId_numberOfHandles", "helpers_8h.html#a60dccdec5aced9500d5f728bce5b9b3eabe5df9279ffaaaf0127ed51063932c1e", null ]
     ] ],
     [ "atohex", "helpers_8h.html#a9e1a87974d8c015ddb41f248076f09e0", null ],
-    [ "bt_mask", "helpers_8h.html#ae447cbbcd1ebc2fb52c0ef6c0672cffc", null ],
-    [ "cleanup_revealed_bits", "helpers_8h.html#a0f8dfdc2ab01bebd74c6124b10338dea", null ],
-    [ "count_set_bits", "helpers_8h.html#a488a0c1b977333874b769b04542d8694", null ],
-    [ "firstmask", "helpers_8h.html#a25416c9f7516d1e7efb0023fe4fab909", null ],
-    [ "get_order", "helpers_8h.html#a4b2f667b76b849bbfee03eca50de8635", null ],
-    [ "get_order_2", "helpers_8h.html#a68ae99580c147d404785bba0a52f7dc0", null ],
-    [ "lastmask", "helpers_8h.html#a1184ea14470ba58e26ee321f40be77e0", null ],
-    [ "prepare_paritylist_basic", "helpers_8h.html#a48664b8191bbcef90ff35e48740a713d", null ],
-    [ "prepare_permut_core", "helpers_8h.html#a9a0ca8929a5302c8cd5fe75618ced2c7", null ],
-    [ "prepare_permutation", "helpers_8h.html#a4ae068b5e2d78d1c75a5afb4f756a5ff", null ]
+    [ "helper_cleanupRevealedBits", "helpers_8h.html#ad380a04680ce30fb563959a63d89c300", null ],
+    [ "helper_prepParityList", "helpers_8h.html#a1b66c3c3c0f4e51057713ca613717e72", null ],
+    [ "helper_prepPermutationCore", "helpers_8h.html#a03754bf4bbacb4cc96c15bf52d9811df", null ],
+    [ "helper_prepPermutationWrapper", "helpers_8h.html#aee12d965b4676f5deba9efa6579b991f", null ],
+    [ "helper_singleLineParity", "helpers_8h.html#a8274c9d9f9ad9d56c1c10b7634898eb0", null ]
 ];

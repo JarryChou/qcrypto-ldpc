@@ -103,14 +103,14 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" href="comms_8h.html" title="code on communications w.r.t. error correction." alt="" coords="680,184,881,225"/>
 <area shape="rect" href="priv__amp_8h.html" title="privacy amplification portions of the code" alt="" coords="352,273,553,315"/>
 <area shape="rect" href="qber__estim_8h.html" title=" " alt="" coords="905,273,1107,315"/>
-<area shape="rect" href="thread__mgmt_8h.html" title=" " alt="" coords="235,184,436,225"/>
+<area shape="rect" href="processblock__mgmt_8h.html" title=" " alt="" coords="235,184,436,225"/>
 <area shape="rect" href="ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="543,459,691,486"/>
 <area shape="rect" href="ecd2_8c.html" title=" " alt="" coords="543,541,691,568"/>
 <area shape="rect" href="cascade__biconf_8c.html" title=" " alt="" coords="5,452,207,493"/>
 <area shape="rect" href="comms_8c.html" title=" " alt="" coords="680,273,881,315"/>
 <area shape="rect" href="priv__amp_8c.html" title=" " alt="" coords="352,363,553,404"/>
 <area shape="rect" href="qber__estim_8c.html" title=" " alt="" coords="905,363,1107,404"/>
-<area shape="rect" href="thread__mgmt_8c.html" title=" " alt="" coords="75,273,276,315"/>
+<area shape="rect" href="processblock__mgmt_8c.html" title=" " alt="" coords="75,273,276,315"/>
 </map>
 </div>
 </div>
@@ -157,18 +157,8 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ac4fe1c43e02ab8663f6cd57dfd5c62fb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ac4fe1c43e02ab8663f6cd57dfd5c62fb">ERRC_PROTO_tag</a>&#160;&#160;&#160;6</td></tr>
-<tr class="separator:ac4fe1c43e02ab8663f6cd57dfd5c62fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1d00a1baf15d4e255588cbc0061a760"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ab1d00a1baf15d4e255588cbc0061a760">ERRC_ERRDET_0_subtype</a>&#160;&#160;&#160;0</td></tr>
-<tr class="separator:ab1d00a1baf15d4e255588cbc0061a760"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e9cacf1c6a17486564ce51ba57f0d3a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a1e9cacf1c6a17486564ce51ba57f0d3a">ERRC_ERRDET_2_subtype</a>&#160;&#160;&#160;2</td></tr>
-<tr class="separator:a1e9cacf1c6a17486564ce51ba57f0d3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4a6107e36ea199357bd546d72e6cc2c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ad4a6107e36ea199357bd546d72e6cc2c">ERRC_ERRDET_3_subtype</a>&#160;&#160;&#160;3</td></tr>
-<tr class="separator:ad4a6107e36ea199357bd546d72e6cc2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1db8627327c9a70d882662b29243b9c1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a1db8627327c9a70d882662b29243b9c1">ERRC_ERRDET_4_subtype</a>&#160;&#160;&#160;4</td></tr>
-<tr class="separator:a1db8627327c9a70d882662b29243b9c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3160147e9940740f2da9d3380bb6e3c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ad3160147e9940740f2da9d3380bb6e3c">ERRC_ERRDET_5_subtype</a>&#160;&#160;&#160;5</td></tr>
-<tr class="separator:ad3160147e9940740f2da9d3380bb6e3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e81e34179c30daac3108db067832ebd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a6e81e34179c30daac3108db067832ebd">EC_PACKET_TAG</a>&#160;&#160;&#160;6</td></tr>
+<tr class="separator:a6e81e34179c30daac3108db067832ebd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a808615e67d1e011f3e19fef7c4a08d58"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a808615e67d1e011f3e19fef7c4a08d58">RUNLEVEL_FIRSTPASS</a>&#160;&#160;&#160;0</td></tr>
 <tr class="memdesc:a808615e67d1e011f3e19fef7c4a08d58"><td class="mdescLeft">&#160;</td><td class="mdescRight">for message 5  <a href="packets_8h.html#a808615e67d1e011f3e19fef7c4a08d58">More...</a><br /></td></tr>
 <tr class="separator:a808615e67d1e011f3e19fef7c4a08d58"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,58 +174,52 @@ Macros</h2></td></tr>
 <tr class="memitem:ab2189550344e2b319f9fcaab1c407560"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ab2189550344e2b319f9fcaab1c407560">RUNLEVEL_BICONF</a>&#160;&#160;&#160;0x40000000</td></tr>
 <tr class="memdesc:ab2189550344e2b319f9fcaab1c407560"><td class="mdescLeft">&#160;</td><td class="mdescRight">for message 5: this indicates a biconf search  <a href="packets_8h.html#ab2189550344e2b319f9fcaab1c407560">More...</a><br /></td></tr>
 <tr class="separator:ab2189550344e2b319f9fcaab1c407560"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0967bab7caa79a79a7ab1b67af06e108"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a0967bab7caa79a79a7ab1b67af06e108">ERRC_ERRDET_6_subtype</a>&#160;&#160;&#160;6</td></tr>
-<tr class="separator:a0967bab7caa79a79a7ab1b67af06e108"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ee3dbb353366ff9613e830da7568942"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a9ee3dbb353366ff9613e830da7568942">ERRC_ERRDET_7_subtype</a>&#160;&#160;&#160;7</td></tr>
-<tr class="separator:a9ee3dbb353366ff9613e830da7568942"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54b7e55e92b8a00f48a61bf5f4df081f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a54b7e55e92b8a00f48a61bf5f4df081f">ERRC_ERRDET_8_subtype</a>&#160;&#160;&#160;8</td></tr>
-<tr class="separator:a54b7e55e92b8a00f48a61bf5f4df081f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:a7d308a6c97f857d2b00a231949910be2"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___p_r_o_t_o.html">ERRC_PROTO</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a7d308a6c97f857d2b00a231949910be2">errc_p__</a></td></tr>
-<tr class="memdesc:a7d308a6c97f857d2b00a231949910be2"><td class="mdescLeft">&#160;</td><td class="mdescRight">this one is just a mockup for reading a message to determine its length.  <a href="packets_8h.html#a7d308a6c97f857d2b00a231949910be2">More...</a><br /></td></tr>
-<tr class="separator:a7d308a6c97f857d2b00a231949910be2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a17c36b20f01b55ef128e06069f99bcaa"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a17c36b20f01b55ef128e06069f99bcaa">errc_ed_0__</a></td></tr>
-<tr class="memdesc:a17c36b20f01b55ef128e06069f99bcaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">packet for PRNG based subset for bit subset transmission in err estim  <a href="packets_8h.html#a17c36b20f01b55ef128e06069f99bcaa">More...</a><br /></td></tr>
-<tr class="separator:a17c36b20f01b55ef128e06069f99bcaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8ec0a42968d72a8660c9c8d4e29abd8"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___p_r_o_t_o.html">ERRC_PROTO</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#af8ec0a42968d72a8660c9c8d4e29abd8">EcPktHdr_Base</a></td></tr>
+<tr class="memdesc:af8ec0a42968d72a8660c9c8d4e29abd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">this one is just a mockup for reading a message to determine its length.  <a href="packets_8h.html#af8ec0a42968d72a8660c9c8d4e29abd8">More...</a><br /></td></tr>
+<tr class="separator:af8ec0a42968d72a8660c9c8d4e29abd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cd2bd1b395faaa7610a790fe3b60b20"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a0cd2bd1b395faaa7610a790fe3b60b20">EcPktHdr_QberEstBits</a></td></tr>
+<tr class="memdesc:a0cd2bd1b395faaa7610a790fe3b60b20"><td class="mdescLeft">&#160;</td><td class="mdescRight">packet for PRNG based subset for bit subset transmission in err estim  <a href="packets_8h.html#a0cd2bd1b395faaa7610a790fe3b60b20">More...</a><br /></td></tr>
+<tr class="separator:a0cd2bd1b395faaa7610a790fe3b60b20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b50d13daf3bac6b1e99283e5e6831b2"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__1.html">ERRC_ERRDET_1</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a5b50d13daf3bac6b1e99283e5e6831b2">errc_ed_1__</a></td></tr>
 <tr class="memdesc:a5b50d13daf3bac6b1e99283e5e6831b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">packet for explicitely indexed bit fields with a good RNG for err est  <a href="packets_8h.html#a5b50d13daf3bac6b1e99283e5e6831b2">More...</a><br /></td></tr>
 <tr class="separator:a5b50d13daf3bac6b1e99283e5e6831b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd6311b257bb7362be84977e78187137"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__2.html">ERRC_ERRDET_2</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#acd6311b257bb7362be84977e78187137">errc_ed_2__</a></td></tr>
-<tr class="memdesc:acd6311b257bb7362be84977e78187137"><td class="mdescLeft">&#160;</td><td class="mdescRight">packet for requesting more sample bits  <a href="packets_8h.html#acd6311b257bb7362be84977e78187137">More...</a><br /></td></tr>
-<tr class="separator:acd6311b257bb7362be84977e78187137"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad84888d4a3e1b2597fa24c55c4acb359"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html">ERRC_ERRDET_3</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ad84888d4a3e1b2597fa24c55c4acb359">errc_ed_3__</a></td></tr>
-<tr class="memdesc:ad84888d4a3e1b2597fa24c55c4acb359"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acknowledgment packet for communicating the error rate.  <a href="packets_8h.html#ad84888d4a3e1b2597fa24c55c4acb359">More...</a><br /></td></tr>
-<tr class="separator:ad84888d4a3e1b2597fa24c55c4acb359"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a240a41c39f9eabc9d7661a0634d8c891"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__4.html">ERRC_ERRDET_4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a240a41c39f9eabc9d7661a0634d8c891">errc_ed_4__</a></td></tr>
-<tr class="memdesc:a240a41c39f9eabc9d7661a0634d8c891"><td class="mdescLeft">&#160;</td><td class="mdescRight">first parity check bit info  <a href="packets_8h.html#a240a41c39f9eabc9d7661a0634d8c891">More...</a><br /></td></tr>
-<tr class="separator:a240a41c39f9eabc9d7661a0634d8c891"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0aef34be70580f52fd6371ea1cc96a9"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#af0aef34be70580f52fd6371ea1cc96a9">errc_ed_5__</a></td></tr>
-<tr class="memdesc:af0aef34be70580f52fd6371ea1cc96a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Binary search message packet.  <a href="packets_8h.html#af0aef34be70580f52fd6371ea1cc96a9">More...</a><br /></td></tr>
-<tr class="separator:af0aef34be70580f52fd6371ea1cc96a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac91dfee622089f3cfe04f1847d1680f0"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__6.html">ERRC_ERRDET_6</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ac91dfee622089f3cfe04f1847d1680f0">errc_ed_6__</a></td></tr>
-<tr class="memdesc:ac91dfee622089f3cfe04f1847d1680f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">BICONF initiating message.  <a href="packets_8h.html#ac91dfee622089f3cfe04f1847d1680f0">More...</a><br /></td></tr>
-<tr class="separator:ac91dfee622089f3cfe04f1847d1680f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62188052527be702fc2ab4186cc18305"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__7.html">ERRC_ERRDET_7</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a62188052527be702fc2ab4186cc18305">errc_ed_7__</a></td></tr>
-<tr class="memdesc:a62188052527be702fc2ab4186cc18305"><td class="mdescLeft">&#160;</td><td class="mdescRight">BICONF response message.  <a href="packets_8h.html#a62188052527be702fc2ab4186cc18305">More...</a><br /></td></tr>
-<tr class="separator:a62188052527be702fc2ab4186cc18305"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac5d4db56b13f7010420b1c4e2bf93fd6"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__8.html">ERRC_ERRDET_8</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#ac5d4db56b13f7010420b1c4e2bf93fd6">errc_ed_8__</a></td></tr>
-<tr class="memdesc:ac5d4db56b13f7010420b1c4e2bf93fd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">privacy amplification start message  <a href="packets_8h.html#ac5d4db56b13f7010420b1c4e2bf93fd6">More...</a><br /></td></tr>
-<tr class="separator:ac5d4db56b13f7010420b1c4e2bf93fd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adaa81273fe0604a211b0dc0b4a8a916d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structpacket__to__send.html">packet_to_send</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#adaa81273fe0604a211b0dc0b4a8a916d">pkt_s</a></td></tr>
-<tr class="memdesc:adaa81273fe0604a211b0dc0b4a8a916d"><td class="mdescLeft">&#160;</td><td class="mdescRight">structure which holds packets to send  <a href="packets_8h.html#adaa81273fe0604a211b0dc0b4a8a916d">More...</a><br /></td></tr>
-<tr class="separator:adaa81273fe0604a211b0dc0b4a8a916d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a3a213eb47a27b4aeb70a967e842ad1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structpacket__received.html">packet_received</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a2a3a213eb47a27b4aeb70a967e842ad1">pack_r</a></td></tr>
-<tr class="memdesc:a2a3a213eb47a27b4aeb70a967e842ad1"><td class="mdescLeft">&#160;</td><td class="mdescRight">structure to hold received messages  <a href="packets_8h.html#a2a3a213eb47a27b4aeb70a967e842ad1">More...</a><br /></td></tr>
-<tr class="separator:a2a3a213eb47a27b4aeb70a967e842ad1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84dc6fa53adf3cdda56d49151e3704dd"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__2.html">ERRC_ERRDET_2</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a84dc6fa53adf3cdda56d49151e3704dd">EcPktHdr_QberEstReqMoreBits</a></td></tr>
+<tr class="memdesc:a84dc6fa53adf3cdda56d49151e3704dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">packet for requesting more sample bits  <a href="packets_8h.html#a84dc6fa53adf3cdda56d49151e3704dd">More...</a><br /></td></tr>
+<tr class="separator:a84dc6fa53adf3cdda56d49151e3704dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afec6911345f505cfbd6521430ed776ae"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html">ERRC_ERRDET_3</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#afec6911345f505cfbd6521430ed776ae">EcPktHdr_QberEstBitsAck</a></td></tr>
+<tr class="memdesc:afec6911345f505cfbd6521430ed776ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acknowledgment packet for communicating the error rate.  <a href="packets_8h.html#afec6911345f505cfbd6521430ed776ae">More...</a><br /></td></tr>
+<tr class="separator:afec6911345f505cfbd6521430ed776ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84073a522897548fb4824c6b960f6838"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__4.html">ERRC_ERRDET_4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a84073a522897548fb4824c6b960f6838">EcPktHdr_CascadeParityList</a></td></tr>
+<tr class="memdesc:a84073a522897548fb4824c6b960f6838"><td class="mdescLeft">&#160;</td><td class="mdescRight">first parity check bit info  <a href="packets_8h.html#a84073a522897548fb4824c6b960f6838">More...</a><br /></td></tr>
+<tr class="separator:a84073a522897548fb4824c6b960f6838"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46315732243fcce1fc910924ff4e7dbd"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a46315732243fcce1fc910924ff4e7dbd">EcPktHdr_CascadeBinSearchMsg</a></td></tr>
+<tr class="memdesc:a46315732243fcce1fc910924ff4e7dbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Binary search message packet.  <a href="packets_8h.html#a46315732243fcce1fc910924ff4e7dbd">More...</a><br /></td></tr>
+<tr class="separator:a46315732243fcce1fc910924ff4e7dbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a127c38c9a6c83a54804e8cbf0a276f"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__6.html">ERRC_ERRDET_6</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a2a127c38c9a6c83a54804e8cbf0a276f">EcPktHdr_CascadeBiconfInitReq</a></td></tr>
+<tr class="memdesc:a2a127c38c9a6c83a54804e8cbf0a276f"><td class="mdescLeft">&#160;</td><td class="mdescRight">BICONF initiating message.  <a href="packets_8h.html#a2a127c38c9a6c83a54804e8cbf0a276f">More...</a><br /></td></tr>
+<tr class="separator:a2a127c38c9a6c83a54804e8cbf0a276f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31061dc301360661777dbb9be7a8c08b"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__7.html">ERRC_ERRDET_7</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a31061dc301360661777dbb9be7a8c08b">EcPktHdr_CascadeBiconfParityResp</a></td></tr>
+<tr class="memdesc:a31061dc301360661777dbb9be7a8c08b"><td class="mdescLeft">&#160;</td><td class="mdescRight">BICONF response message.  <a href="packets_8h.html#a31061dc301360661777dbb9be7a8c08b">More...</a><br /></td></tr>
+<tr class="separator:a31061dc301360661777dbb9be7a8c08b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35e2d82d70cfd18f72c6510d8bcec6e7"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__8.html">ERRC_ERRDET_8</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a35e2d82d70cfd18f72c6510d8bcec6e7">EcPktHdr_StartPrivAmp</a></td></tr>
+<tr class="memdesc:a35e2d82d70cfd18f72c6510d8bcec6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">privacy amplification start message  <a href="packets_8h.html#a35e2d82d70cfd18f72c6510d8bcec6e7">More...</a><br /></td></tr>
+<tr class="separator:a35e2d82d70cfd18f72c6510d8bcec6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f52e8d71736203acf96383bf60b6c38"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structpacket__to__send.html">packet_to_send</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a4f52e8d71736203acf96383bf60b6c38">PacketToSendNode</a></td></tr>
+<tr class="memdesc:a4f52e8d71736203acf96383bf60b6c38"><td class="mdescLeft">&#160;</td><td class="mdescRight">structure which holds packets to send  <a href="packets_8h.html#a4f52e8d71736203acf96383bf60b6c38">More...</a><br /></td></tr>
+<tr class="separator:a4f52e8d71736203acf96383bf60b6c38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06aa43bb96b2dfab49406817650d543a"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structpacket__received.html">packet_received</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#a06aa43bb96b2dfab49406817650d543a">ReceivedPacketNode</a></td></tr>
+<tr class="memdesc:a06aa43bb96b2dfab49406817650d543a"><td class="mdescLeft">&#160;</td><td class="mdescRight">structure to hold received messages  <a href="packets_8h.html#a06aa43bb96b2dfab49406817650d543a">More...</a><br /></td></tr>
+<tr class="separator:a06aa43bb96b2dfab49406817650d543a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:aa9c8552878a1ed9945cbf0edef5e0473"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473">EcSubtypes</a> { <br />
-&#160;&#160;<a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473add392aa99f6aa9e06ae30450aef657c5">SUBTYPE_QBER_ESTIM</a> = 0, 
-<a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a00300a213c78ee75a8553670a65a08b7">SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES</a> = 2, 
-<a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a68c57f200df424fed82c0bd841968518">SUBTYPE_QBER_ESTIM_ACK</a> = 3, 
+&#160;&#160;<a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032">SUBTYPE_QBER_EST_BITS</a> = 0, 
+<a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362">SUBTYPE_QBER_EST_REQ_MORE_BITS</a> = 2, 
+<a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27">SUBTYPE_QBER_EST_BITS_ACK</a> = 3, 
 <a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54">SUBTYPE_CASCADE_PARITY_LIST</a> = 4, 
 <br />
 &#160;&#160;<a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19">SUBTYPE_CASCADE_BIN_SEARCH_MSG</a> = 5, 
@@ -247,147 +231,19 @@ Enumerations</h2></td></tr>
 <tr class="separator:aa9c8552878a1ed9945cbf0edef5e0473"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="ab1d00a1baf15d4e255588cbc0061a760"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab1d00a1baf15d4e255588cbc0061a760">&#9670;&nbsp;</a></span>ERRC_ERRDET_0_subtype</h2>
+<a id="a6e81e34179c30daac3108db067832ebd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e81e34179c30daac3108db067832ebd">&#9670;&nbsp;</a></span>EC_PACKET_TAG</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define ERRC_ERRDET_0_subtype&#160;&#160;&#160;0</td>
+          <td class="memname">#define EC_PACKET_TAG&#160;&#160;&#160;6</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00081">81</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="a1e9cacf1c6a17486564ce51ba57f0d3a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1e9cacf1c6a17486564ce51ba57f0d3a">&#9670;&nbsp;</a></span>ERRC_ERRDET_2_subtype</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_ERRDET_2_subtype&#160;&#160;&#160;2</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00111">111</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="ad4a6107e36ea199357bd546d72e6cc2c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad4a6107e36ea199357bd546d72e6cc2c">&#9670;&nbsp;</a></span>ERRC_ERRDET_3_subtype</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_ERRDET_3_subtype&#160;&#160;&#160;3</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00126">126</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="a1db8627327c9a70d882662b29243b9c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1db8627327c9a70d882662b29243b9c1">&#9670;&nbsp;</a></span>ERRC_ERRDET_4_subtype</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_ERRDET_4_subtype&#160;&#160;&#160;4</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00143">143</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="ad3160147e9940740f2da9d3380bb6e3c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3160147e9940740f2da9d3380bb6e3c">&#9670;&nbsp;</a></span>ERRC_ERRDET_5_subtype</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_ERRDET_5_subtype&#160;&#160;&#160;5</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00159">159</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="a0967bab7caa79a79a7ab1b67af06e108"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0967bab7caa79a79a7ab1b67af06e108">&#9670;&nbsp;</a></span>ERRC_ERRDET_6_subtype</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_ERRDET_6_subtype&#160;&#160;&#160;6</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00181">181</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="a9ee3dbb353366ff9613e830da7568942"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ee3dbb353366ff9613e830da7568942">&#9670;&nbsp;</a></span>ERRC_ERRDET_7_subtype</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_ERRDET_7_subtype&#160;&#160;&#160;7</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00195">195</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="a54b7e55e92b8a00f48a61bf5f4df081f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54b7e55e92b8a00f48a61bf5f4df081f">&#9670;&nbsp;</a></span>ERRC_ERRDET_8_subtype</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_ERRDET_8_subtype&#160;&#160;&#160;8</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00211">211</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
-
-</div>
-</div>
-<a id="ac4fe1c43e02ab8663f6cd57dfd5c62fb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac4fe1c43e02ab8663f6cd57dfd5c62fb">&#9670;&nbsp;</a></span>ERRC_PROTO_tag</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define ERRC_PROTO_tag&#160;&#160;&#160;6</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00064">64</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00054">54</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -405,7 +261,7 @@ Enumerations</h2></td></tr>
 
 <p>for message 5: this indicates a biconf search </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00165">165</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00140">140</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -423,7 +279,7 @@ Enumerations</h2></td></tr>
 
 <p>for message 5 </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00161">161</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00136">136</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -441,7 +297,7 @@ Enumerations</h2></td></tr>
 
 <p>for message 5 </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00163">163</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00138">138</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -459,7 +315,7 @@ Enumerations</h2></td></tr>
 
 <p>for message 5 </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00164">164</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00139">139</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
@@ -477,24 +333,153 @@ Enumerations</h2></td></tr>
 
 <p>for message 5 </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00162">162</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00137">137</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Typedef Documentation</h2>
-<a id="a17c36b20f01b55ef128e06069f99bcaa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a17c36b20f01b55ef128e06069f99bcaa">&#9670;&nbsp;</a></span>errc_ed_0__</h2>
+<a id="af8ec0a42968d72a8660c9c8d4e29abd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af8ec0a42968d72a8660c9c8d4e29abd8">&#9670;&nbsp;</a></span>EcPktHdr_Base</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a> <a class="el" href="packets_8h.html#a17c36b20f01b55ef128e06069f99bcaa">errc_ed_0__</a></td>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___p_r_o_t_o.html">ERRC_PROTO</a> <a class="el" href="packets_8h.html#af8ec0a42968d72a8660c9c8d4e29abd8">EcPktHdr_Base</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>this one is just a mockup for reading a message to determine its length. </p>
+<p>It represents the common entries at the beginning of all message files. </p>
+
+</div>
+</div>
+<a id="a2a127c38c9a6c83a54804e8cbf0a276f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a127c38c9a6c83a54804e8cbf0a276f">&#9670;&nbsp;</a></span>EcPktHdr_CascadeBiconfInitReq</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__6.html">ERRC_ERRDET_6</a> <a class="el" href="packets_8h.html#a2a127c38c9a6c83a54804e8cbf0a276f">EcPktHdr_CascadeBiconfInitReq</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>BICONF initiating message. </p>
+
+</div>
+</div>
+<a id="a31061dc301360661777dbb9be7a8c08b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31061dc301360661777dbb9be7a8c08b">&#9670;&nbsp;</a></span>EcPktHdr_CascadeBiconfParityResp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__7.html">ERRC_ERRDET_7</a> <a class="el" href="packets_8h.html#a31061dc301360661777dbb9be7a8c08b">EcPktHdr_CascadeBiconfParityResp</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>BICONF response message. </p>
+
+</div>
+</div>
+<a id="a46315732243fcce1fc910924ff4e7dbd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46315732243fcce1fc910924ff4e7dbd">&#9670;&nbsp;</a></span>EcPktHdr_CascadeBinSearchMsg</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a> <a class="el" href="packets_8h.html#a46315732243fcce1fc910924ff4e7dbd">EcPktHdr_CascadeBinSearchMsg</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Binary search message packet. </p>
+
+</div>
+</div>
+<a id="a84073a522897548fb4824c6b960f6838"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84073a522897548fb4824c6b960f6838">&#9670;&nbsp;</a></span>EcPktHdr_CascadeParityList</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__4.html">ERRC_ERRDET_4</a> <a class="el" href="packets_8h.html#a84073a522897548fb4824c6b960f6838">EcPktHdr_CascadeParityList</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>first parity check bit info </p>
+
+</div>
+</div>
+<a id="a0cd2bd1b395faaa7610a790fe3b60b20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0cd2bd1b395faaa7610a790fe3b60b20">&#9670;&nbsp;</a></span>EcPktHdr_QberEstBits</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a> <a class="el" href="packets_8h.html#a0cd2bd1b395faaa7610a790fe3b60b20">EcPktHdr_QberEstBits</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>packet for PRNG based subset for bit subset transmission in err estim </p>
+
+</div>
+</div>
+<a id="afec6911345f505cfbd6521430ed776ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afec6911345f505cfbd6521430ed776ae">&#9670;&nbsp;</a></span>EcPktHdr_QberEstBitsAck</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html">ERRC_ERRDET_3</a> <a class="el" href="packets_8h.html#afec6911345f505cfbd6521430ed776ae">EcPktHdr_QberEstBitsAck</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Acknowledgment packet for communicating the error rate. </p>
+
+</div>
+</div>
+<a id="a84dc6fa53adf3cdda56d49151e3704dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84dc6fa53adf3cdda56d49151e3704dd">&#9670;&nbsp;</a></span>EcPktHdr_QberEstReqMoreBits</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__2.html">ERRC_ERRDET_2</a> <a class="el" href="packets_8h.html#a84dc6fa53adf3cdda56d49151e3704dd">EcPktHdr_QberEstReqMoreBits</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>packet for requesting more sample bits </p>
+
+</div>
+</div>
+<a id="a35e2d82d70cfd18f72c6510d8bcec6e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35e2d82d70cfd18f72c6510d8bcec6e7">&#9670;&nbsp;</a></span>EcPktHdr_StartPrivAmp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__8.html">ERRC_ERRDET_8</a> <a class="el" href="packets_8h.html#a35e2d82d70cfd18f72c6510d8bcec6e7">EcPktHdr_StartPrivAmp</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>privacy amplification start message </p>
 
 </div>
 </div>
@@ -514,164 +499,35 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
-<a id="acd6311b257bb7362be84977e78187137"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acd6311b257bb7362be84977e78187137">&#9670;&nbsp;</a></span>errc_ed_2__</h2>
+<a id="a4f52e8d71736203acf96383bf60b6c38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f52e8d71736203acf96383bf60b6c38">&#9670;&nbsp;</a></span>PacketToSendNode</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__2.html">ERRC_ERRDET_2</a> <a class="el" href="packets_8h.html#acd6311b257bb7362be84977e78187137">errc_ed_2__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>packet for requesting more sample bits </p>
-
-</div>
-</div>
-<a id="ad84888d4a3e1b2597fa24c55c4acb359"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad84888d4a3e1b2597fa24c55c4acb359">&#9670;&nbsp;</a></span>errc_ed_3__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html">ERRC_ERRDET_3</a> <a class="el" href="packets_8h.html#ad84888d4a3e1b2597fa24c55c4acb359">errc_ed_3__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Acknowledgment packet for communicating the error rate. </p>
-
-</div>
-</div>
-<a id="a240a41c39f9eabc9d7661a0634d8c891"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a240a41c39f9eabc9d7661a0634d8c891">&#9670;&nbsp;</a></span>errc_ed_4__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__4.html">ERRC_ERRDET_4</a> <a class="el" href="packets_8h.html#a240a41c39f9eabc9d7661a0634d8c891">errc_ed_4__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>first parity check bit info </p>
-
-</div>
-</div>
-<a id="af0aef34be70580f52fd6371ea1cc96a9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af0aef34be70580f52fd6371ea1cc96a9">&#9670;&nbsp;</a></span>errc_ed_5__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a> <a class="el" href="packets_8h.html#af0aef34be70580f52fd6371ea1cc96a9">errc_ed_5__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Binary search message packet. </p>
-
-</div>
-</div>
-<a id="ac91dfee622089f3cfe04f1847d1680f0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac91dfee622089f3cfe04f1847d1680f0">&#9670;&nbsp;</a></span>errc_ed_6__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__6.html">ERRC_ERRDET_6</a> <a class="el" href="packets_8h.html#ac91dfee622089f3cfe04f1847d1680f0">errc_ed_6__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>BICONF initiating message. </p>
-
-</div>
-</div>
-<a id="a62188052527be702fc2ab4186cc18305"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a62188052527be702fc2ab4186cc18305">&#9670;&nbsp;</a></span>errc_ed_7__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__7.html">ERRC_ERRDET_7</a> <a class="el" href="packets_8h.html#a62188052527be702fc2ab4186cc18305">errc_ed_7__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>BICONF response message. </p>
-
-</div>
-</div>
-<a id="ac5d4db56b13f7010420b1c4e2bf93fd6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac5d4db56b13f7010420b1c4e2bf93fd6">&#9670;&nbsp;</a></span>errc_ed_8__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__8.html">ERRC_ERRDET_8</a> <a class="el" href="packets_8h.html#ac5d4db56b13f7010420b1c4e2bf93fd6">errc_ed_8__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>privacy amplification start message </p>
-
-</div>
-</div>
-<a id="a7d308a6c97f857d2b00a231949910be2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7d308a6c97f857d2b00a231949910be2">&#9670;&nbsp;</a></span>errc_p__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="struct_e_r_r_c___p_r_o_t_o.html">ERRC_PROTO</a> <a class="el" href="packets_8h.html#a7d308a6c97f857d2b00a231949910be2">errc_p__</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>this one is just a mockup for reading a message to determine its length. </p>
-<p>It represents only the common entry at the begnning of all message files </p>
-
-</div>
-</div>
-<a id="a2a3a213eb47a27b4aeb70a967e842ad1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a3a213eb47a27b4aeb70a967e842ad1">&#9670;&nbsp;</a></span>pack_r</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="structpacket__received.html">packet_received</a> <a class="el" href="packets_8h.html#a2a3a213eb47a27b4aeb70a967e842ad1">pack_r</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>structure to hold received messages </p>
-
-</div>
-</div>
-<a id="adaa81273fe0604a211b0dc0b4a8a916d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adaa81273fe0604a211b0dc0b4a8a916d">&#9670;&nbsp;</a></span>pkt_s</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="structpacket__to__send.html">packet_to_send</a> <a class="el" href="packets_8h.html#adaa81273fe0604a211b0dc0b4a8a916d">pkt_s</a></td>
+          <td class="memname">typedef struct <a class="el" href="structpacket__to__send.html">packet_to_send</a> <a class="el" href="packets_8h.html#a4f52e8d71736203acf96383bf60b6c38">PacketToSendNode</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>structure which holds packets to send </p>
+
+</div>
+</div>
+<a id="a06aa43bb96b2dfab49406817650d543a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06aa43bb96b2dfab49406817650d543a">&#9670;&nbsp;</a></span>ReceivedPacketNode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structpacket__received.html">packet_received</a> <a class="el" href="packets_8h.html#a06aa43bb96b2dfab49406817650d543a">ReceivedPacketNode</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>structure to hold received messages </p>
 
 </div>
 </div>
@@ -688,9 +544,9 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473add392aa99f6aa9e06ae30450aef657c5"></a>SUBTYPE_QBER_ESTIM&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473a00300a213c78ee75a8553670a65a08b7"></a>SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473a68c57f200df424fed82c0bd841968518"></a>SUBTYPE_QBER_ESTIM_ACK&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032"></a>SUBTYPE_QBER_EST_BITS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362"></a>SUBTYPE_QBER_EST_REQ_MORE_BITS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27"></a>SUBTYPE_QBER_EST_BITS_ACK&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54"></a>SUBTYPE_CASCADE_PARITY_LIST&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19"></a>SUBTYPE_CASCADE_BIN_SEARCH_MSG&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256"></a>SUBTYPE_CASCADE_BICONF_INIT_REQ&#160;</td><td class="fielddoc"></td></tr>
@@ -700,9 +556,9 @@ Enumerations</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00042">42</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 <div class="fragment"><div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;                {</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473add392aa99f6aa9e06ae30450aef657c5">SUBTYPE_QBER_ESTIM</a> = 0,</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a00300a213c78ee75a8553670a65a08b7">SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES</a> = 2,</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a68c57f200df424fed82c0bd841968518">SUBTYPE_QBER_ESTIM_ACK</a> = 3,</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032">SUBTYPE_QBER_EST_BITS</a> = 0,</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362">SUBTYPE_QBER_EST_REQ_MORE_BITS</a> = 2,</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27">SUBTYPE_QBER_EST_BITS_ACK</a> = 3,</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54">SUBTYPE_CASCADE_PARITY_LIST</a> = 4,</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19">SUBTYPE_CASCADE_BIN_SEARCH_MSG</a> = 5,</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256">SUBTYPE_CASCADE_BICONF_INIT_REQ</a> = 6,</div>
@@ -714,14 +570,14 @@ Enumerations</h2></td></tr>
 </div>
 </div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a00300a213c78ee75a8553670a65a08b7"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a00300a213c78ee75a8553670a65a08b7">SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES</a></div><div class="ttdeci">@ SUBTYPE_QBER_ESTIM_REQ_MORE_SAMPLES</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00044">packets.h:44</a></div></div>
 <div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54">SUBTYPE_CASCADE_PARITY_LIST</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_PARITY_LIST</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00046">packets.h:46</a></div></div>
-<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a68c57f200df424fed82c0bd841968518"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a68c57f200df424fed82c0bd841968518">SUBTYPE_QBER_ESTIM_ACK</a></div><div class="ttdeci">@ SUBTYPE_QBER_ESTIM_ACK</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00045">packets.h:45</a></div></div>
-<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473add392aa99f6aa9e06ae30450aef657c5"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473add392aa99f6aa9e06ae30450aef657c5">SUBTYPE_QBER_ESTIM</a></div><div class="ttdeci">@ SUBTYPE_QBER_ESTIM</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00043">packets.h:43</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362">SUBTYPE_QBER_EST_REQ_MORE_BITS</a></div><div class="ttdeci">@ SUBTYPE_QBER_EST_REQ_MORE_BITS</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00044">packets.h:44</a></div></div>
 <div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a910eac00d12d4ce4c61172cfe48c0bd0"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a910eac00d12d4ce4c61172cfe48c0bd0">SUBTYPE_START_PRIV_AMP</a></div><div class="ttdeci">@ SUBTYPE_START_PRIV_AMP</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00051">packets.h:50</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032">SUBTYPE_QBER_EST_BITS</a></div><div class="ttdeci">@ SUBTYPE_QBER_EST_BITS</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00043">packets.h:43</a></div></div>
 <div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19">SUBTYPE_CASCADE_BIN_SEARCH_MSG</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_BIN_SEARCH_MSG</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00047">packets.h:47</a></div></div>
 <div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256">SUBTYPE_CASCADE_BICONF_INIT_REQ</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_BICONF_INIT_REQ</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00048">packets.h:48</a></div></div>
 <div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a380292092f2fa7462f2d0ac084d86ab5"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a380292092f2fa7462f2d0ac084d86ab5">SUBTYPE_CASCADE_BICONF_PARITY_RESP</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_BICONF_PARITY_RESP</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00049">packets.h:49</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27">SUBTYPE_QBER_EST_BITS_ACK</a></div><div class="ttdeci">@ SUBTYPE_QBER_EST_BITS_ACK</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00045">packets.h:45</a></div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

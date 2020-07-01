@@ -1,4 +1,4 @@
 <map id="blockpointer" name="blockpointer">
-<area shape="rect" id="node1" title="Structure to hold list of blocks." alt="" coords="5,96,97,123"/>
-<area shape="rect" id="node2" href="$structkeyblock.html" title="Definition of a structure containing all informations about a block." alt="" coords="14,5,89,32"/>
+<area shape="rect" id="node1" title="Structure to hold list of blocks." alt="" coords="9,96,101,123"/>
+<area shape="rect" id="node2" href="$structprocessblock.html" title="Definition of a structure containing all informations about a block." alt="" coords="5,5,104,32"/>
 </map>

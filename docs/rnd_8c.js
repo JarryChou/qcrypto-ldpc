@@ -1,12 +1,11 @@
 var rnd_8c =
 [
-    [ "get_r_seed", "rnd_8c.html#ac9442118526276dea7a18026f1af5d33", null ],
-    [ "get_RNG_calls", "rnd_8c.html#a6a5da93987a0344a3d175d566880df92", null ],
-    [ "parity", "rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7", null ],
-    [ "PRNG_value", "rnd_8c.html#a5abf20c27660e20972c8a1573267dfe1", null ],
-    [ "PRNG_value2", "rnd_8c.html#abd261d6d18bfbb9463ea56f5a221770a", null ],
-    [ "PRNG_value2_32", "rnd_8c.html#a099de46fae1a39893ab79719bf42f2c2", null ],
-    [ "set_PRNG_seed", "rnd_8c.html#a8effe8c813e65d7a4b250ab817cc826c", null ],
-    [ "__PRNG_state", "rnd_8c.html#a08cd6b456564193a95d61f08e1261b3a", null ],
+    [ "rnd_generateRngSeed", "rnd_8c.html#aa6b05135c822665d94e10db94975f86a", null ],
+    [ "rnd_getPrngValue", "rnd_8c.html#a53724b475ddd5aa8b3b87cb41fde9a78", null ],
+    [ "rnd_getPrngValue2", "rnd_8c.html#abe3cd06c0d8f9ab6e18594d70abdf2e1", null ],
+    [ "rnd_getPrngValue2_32", "rnd_8c.html#ac7342e547b47c3b84efa8ce904143330", null ],
+    [ "rnd_getRngCalls", "rnd_8c.html#a211c2ba45290d421960f127256ad66f6", null ],
+    [ "setPrngSeed", "rnd_8c.html#a553670491b998fdcc16443fc8c819e3f", null ],
+    [ "__PrngState", "rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5", null ],
     [ "__RNG_calls", "rnd_8c.html#ad8756d06439571bd71f80c6d4f564682", null ]
 ];

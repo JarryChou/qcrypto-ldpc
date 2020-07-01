@@ -1,0 +1,4 @@
+<map id="ERRC_ERRDET_2" name="ERRC_ERRDET_2">
+<area shape="rect" id="node1" title="packet for requesting more sample bits" alt="" coords="5,95,144,121"/>
+<area shape="rect" id="node2" href="$struct_e_r_r_c___p_r_o_t_o.html" title="this one is just a mockup for reading a message to determine its length." alt="" coords="17,5,132,32"/>
+</map>

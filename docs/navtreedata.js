@@ -30,8 +30,8 @@ var NAVTREE =
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
       [ "Data Fields", "functions.html", [
-        [ "All", "functions.html", "functions_dup" ],
-        [ "Variables", "functions_vars.html", "functions_vars" ],
+        [ "All", "functions.html", null ],
+        [ "Variables", "functions_vars.html", null ],
         [ "Enumerator", "functions_eval.html", null ]
       ] ]
     ] ],
@@ -53,16 +53,15 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "alice_2init__ecd2_8sh.html",
-"costream_8c.html#a4553b2e65e49da4d10f241e8ca1676a8",
-"ffind_8c.html#a02d1d4ab121a5b7260f490ebdaf87cb1",
-"fx2regs__c_8h.html#a3579cbfb7fbf6deb1110a9d1d390e6eb",
-"fx2regs__c_8h.html#a8aac46e095b42e4c5a1e87d1afef782b",
-"fx2regs__c_8h.html#ae3355c8efe4aa390493ff530f306f967",
-"index.html",
-"readevents3_8c.html#aa9917c460d33c2c4b1df88aa5c503e08",
-"structcardinfo.html#af3c6be7c3ea3858d8de4ab98d486dffd",
-"tp8_8c.html#ade4f349d5792b0681458b3a5c07044d8",
-"usbtimetagdriver_2driver_2usbtimetagio_8h.html#ab54caa54ed717d9748ab68068e467bc7"
+"costream_8c.html#a4fbd61bb90541afea6576c6b6d665342",
+"ffind_8c.html#a420eb86b5213245f601303eebfaba8ef",
+"fx2regs__c_8h.html#a42b319c155a6d5d98f38417bd6fd88c7",
+"fx2regs__c_8h.html#a98857255505591ab3b15b8a37ea3b8e0",
+"fx2regs__c_8h.html#af1591bc61312af55ae7251f7f3d752fb",
+"packets_8h.html#a6e81e34179c30daac3108db067832ebd",
+"rnd_8h.html#a211c2ba45290d421960f127256ad66f6",
+"structprocessblock.html#a8b13586326f53276af9e69f989ffd9c5",
+"transferd_8h.html#a61d23b393fdc35f2f0e30a1ed566c76da1779df88e5f9b6f323115eff75ef7102"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

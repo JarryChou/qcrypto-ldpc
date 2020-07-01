@@ -95,17 +95,17 @@ Include dependency graph for comms.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="comms_8c__incl.png" border="0" usemap="#aerrorcorrection_2subcomponents_2comms_8c" alt=""/></div>
 <map name="errorcorrection_2subcomponents_2comms_8c" id="aerrorcorrection_2subcomponents_2comms_8c">
-<area shape="rect" title=" " alt="" coords="269,5,470,47"/>
-<area shape="rect" href="comms_8h.html" title="code on communications w.r.t. error correction." alt="" coords="331,95,407,121"/>
-<area shape="rect" href="proc__state_8h.html" title="Defines processing states." alt="" coords="28,169,151,211"/>
-<area shape="rect" href="keyblock_8h.html" title="Header file containing the definitions of the keyblock &amp; block related data for the error correction ..." alt="" coords="480,333,640,360"/>
-<area shape="rect" href="packets_8h.html" title=" " alt="" coords="5,259,160,285"/>
-<area shape="rect" href="globalvars_8h.html" title="Definition file for global variables and arguments in ecd2." alt="" coords="226,177,393,203"/>
-<area shape="rect" href="helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="339,259,522,285"/>
-<area shape="rect" href="debug_8h.html" title="debugging helper functions for ecd2" alt="" coords="487,177,555,203"/>
-<area shape="rect" href="defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="184,259,315,285"/>
-<area shape="rect" title=" " alt="" coords="218,333,281,360"/>
-<area shape="rect" href="rnd_8h.html" title="Random number sources." alt="" coords="405,333,456,360"/>
+<area shape="rect" title=" " alt="" coords="209,5,410,47"/>
+<area shape="rect" href="comms_8h.html" title="code on communications w.r.t. error correction." alt="" coords="271,95,347,121"/>
+<area shape="rect" href="proc__state_8h.html" title="Defines processing states." alt="" coords="5,169,128,211"/>
+<area shape="rect" href="processblock_8h.html" title="Header file containing the definitions of the processblock &amp; block related data for the error correct..." alt="" coords="123,333,309,360"/>
+<area shape="rect" href="packets_8h.html" title=" " alt="" coords="512,259,667,285"/>
+<area shape="rect" href="globalvars_8h.html" title="Definition file for global variables and arguments in ecd2." alt="" coords="383,177,550,203"/>
+<area shape="rect" href="helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="254,259,437,285"/>
+<area shape="rect" href="debug_8h.html" title="debugging helper functions for ecd2" alt="" coords="239,177,307,203"/>
+<area shape="rect" href="defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="280,408,411,435"/>
+<area shape="rect" title=" " alt="" coords="314,483,377,509"/>
+<area shape="rect" href="rnd_8h.html" title="Random number sources." alt="" coords="333,333,384,360"/>
 </map>
 </div>
 </div>
@@ -113,31 +113,119 @@ Include dependency graph for comms.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab685a2df59da9e7fb20e4fd477eca731"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#ab685a2df59da9e7fb20e4fd477eca731">insert_sendpacket</a> (char *<a class="el" href="transferd_8h.html#a87a7526f6179b8f26681fe4dec7f9c48">message</a>, int length)</td></tr>
-<tr class="memdesc:ab685a2df59da9e7fb20e4fd477eca731"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper to insert a send packet in the sendpacket queue.  <a href="comms_8c.html#ab685a2df59da9e7fb20e4fd477eca731">More...</a><br /></td></tr>
-<tr class="separator:ab685a2df59da9e7fb20e4fd477eca731"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee47c9c3a089fffd3ef8713caa9d6bf3"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#aee47c9c3a089fffd3ef8713caa9d6bf3">fillsamplemessage</a> (struct <a class="el" href="structkeyblock.html">keyblock</a> *kb, int bitsneeded, int errormode, float BellValue)</td></tr>
-<tr class="memdesc:aee47c9c3a089fffd3ef8713caa9d6bf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to prepare a message containing a given sample of bits.  <a href="comms_8c.html#aee47c9c3a089fffd3ef8713caa9d6bf3">More...</a><br /></td></tr>
-<tr class="separator:aee47c9c3a089fffd3ef8713caa9d6bf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aceeb2dd5c38b3d906e4670cdac1925db"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#aceeb2dd5c38b3d906e4670cdac1925db">make_messagehead_5</a> (struct <a class="el" href="structkeyblock.html">keyblock</a> *kb)</td></tr>
-<tr class="memdesc:aceeb2dd5c38b3d906e4670cdac1925db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function for binsearch replies; mallocs and fills msg header.  <a href="comms_8c.html#aceeb2dd5c38b3d906e4670cdac1925db">More...</a><br /></td></tr>
-<tr class="separator:aceeb2dd5c38b3d906e4670cdac1925db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae360e287fe395beef547c08969660d3c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#ae360e287fe395beef547c08969660d3c">prepare_first_binsearch_msg</a> (struct <a class="el" href="structkeyblock.html">keyblock</a> *kb, int pass)</td></tr>
-<tr class="memdesc:ae360e287fe395beef547c08969660d3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to prepare the first message head (header_5) for a binary search.  <a href="comms_8c.html#ae360e287fe395beef547c08969660d3c">More...</a><br /></td></tr>
-<tr class="separator:ae360e287fe395beef547c08969660d3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75f878fc47eb039ab852cb1f4b2320d3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#a75f878fc47eb039ab852cb1f4b2320d3">comms_insertSendPacket</a> (char *<a class="el" href="transferd_8h.html#a87a7526f6179b8f26681fe4dec7f9c48">message</a>, int length)</td></tr>
+<tr class="memdesc:a75f878fc47eb039ab852cb1f4b2320d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper to insert a send packet in the sendpacket queue.  <a href="comms_8c.html#a75f878fc47eb039ab852cb1f4b2320d3">More...</a><br /></td></tr>
+<tr class="separator:a75f878fc47eb039ab852cb1f4b2320d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99751954eb9a67eda8036bd488a5412b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="packets_8h.html#a0cd2bd1b395faaa7610a790fe3b60b20">EcPktHdr_QberEstBits</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#a99751954eb9a67eda8036bd488a5412b">comms_createQberEstBitsMsg</a> (<a class="el" href="processblock_8h.html#a44feedff562be0242945ee4949c8d131">ProcessBlock</a> *processBlock, int bitsneeded, int errormode, float bellValue)</td></tr>
+<tr class="memdesc:a99751954eb9a67eda8036bd488a5412b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to prepare a message containing a given sample of bits.  <a href="comms_8c.html#a99751954eb9a67eda8036bd488a5412b">More...</a><br /></td></tr>
+<tr class="separator:a99751954eb9a67eda8036bd488a5412b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c21a57f48650550e9b2f8c78c2a7dfe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="packets_8h.html#a46315732243fcce1fc910924ff4e7dbd">EcPktHdr_CascadeBinSearchMsg</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#a9c21a57f48650550e9b2f8c78c2a7dfe">comms_makeBinSrchMsgHead</a> (<a class="el" href="processblock_8h.html#a44feedff562be0242945ee4949c8d131">ProcessBlock</a> *processBlock, unsigned int indexPresent)</td></tr>
+<tr class="memdesc:a9c21a57f48650550e9b2f8c78c2a7dfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function for binsearch replies; mallocs and fills msg header.  <a href="comms_8c.html#a9c21a57f48650550e9b2f8c78c2a7dfe">More...</a><br /></td></tr>
+<tr class="separator:a9c21a57f48650550e9b2f8c78c2a7dfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a888905060f0c1fd8dc5f49fc49bcc5b5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="comms_8c.html#a888905060f0c1fd8dc5f49fc49bcc5b5">comms_createEcHeader</a> (char **resultingBufferPtr, enum <a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473">EcSubtypes</a> subtype, unsigned int additionalByteLength, <a class="el" href="processblock_8h.html#a44feedff562be0242945ee4949c8d131">ProcessBlock</a> *processBlock)</td></tr>
+<tr class="memdesc:a888905060f0c1fd8dc5f49fc49bcc5b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to create a message header.  <a href="comms_8c.html#a888905060f0c1fd8dc5f49fc49bcc5b5">More...</a><br /></td></tr>
+<tr class="separator:a888905060f0c1fd8dc5f49fc49bcc5b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="aee47c9c3a089fffd3ef8713caa9d6bf3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee47c9c3a089fffd3ef8713caa9d6bf3">&#9670;&nbsp;</a></span>fillsamplemessage()</h2>
+<a id="a888905060f0c1fd8dc5f49fc49bcc5b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a888905060f0c1fd8dc5f49fc49bcc5b5">&#9670;&nbsp;</a></span>comms_createEcHeader()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a>* fillsamplemessage </td>
+          <td class="memname">int comms_createEcHeader </td>
           <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structkeyblock.html">keyblock</a> *&#160;</td>
-          <td class="paramname"><em>kb</em>, </td>
+          <td class="paramtype">char **&#160;</td>
+          <td class="paramname"><em>resultingBufferPtr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">enum <a class="el" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473">EcSubtypes</a>&#160;</td>
+          <td class="paramname"><em>subtype</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>additionalByteLength</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="processblock_8h.html#a44feedff562be0242945ee4949c8d131">ProcessBlock</a> *&#160;</td>
+          <td class="paramname"><em>processBlock</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Helper function to create a message header. </p>
+<p>It creates the buffer for you based on subtype &amp; populates the packet with information that all packets include.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">resultingBufferPtr</td><td>this function will create a buffer based on the subtype. This is the address of the pointer you want to use to refer to the buffer. </td></tr>
+    <tr><td class="paramname">subtype</td><td></td></tr>
+    <tr><td class="paramname">additionalByteLength</td><td>The header size will automatically be factored in. This includes any extra byte length beyond the header. </td></tr>
+    <tr><td class="paramname">processBlock</td><td>processBlock to obtain epoch metadata from </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>int 0 if succcess otherwise error code </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="comms_8c_source.html#l00149">149</a> of file <a class="el" href="comms_8c_source.html">comms.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                                                                                                                                            {</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  <a class="code" href="struct_e_r_r_c___p_r_o_t_o.html">EcPktHdr_Base</a>* tmpBaseHdr; <span class="comment">// Temporary pointer to point to the base</span></div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> size = additionalByteLength; <span class="comment">// Not good practice to reuse params, but this can be removed for micro-optimization</span></div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  <span class="keywordflow">switch</span> (subtype) {</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032">SUBTYPE_QBER_EST_BITS</a>:               size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#a0cd2bd1b395faaa7610a790fe3b60b20">EcPktHdr_QberEstBits</a>);             <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27">SUBTYPE_QBER_EST_BITS_ACK</a>:           size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#afec6911345f505cfbd6521430ed776ae">EcPktHdr_QberEstBitsAck</a>);          <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362">SUBTYPE_QBER_EST_REQ_MORE_BITS</a>:      size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#a84dc6fa53adf3cdda56d49151e3704dd">EcPktHdr_QberEstReqMoreBits</a>);      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54">SUBTYPE_CASCADE_PARITY_LIST</a>:         size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#a84073a522897548fb4824c6b960f6838">EcPktHdr_CascadeParityList</a>);       <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19">SUBTYPE_CASCADE_BIN_SEARCH_MSG</a>:      size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#a46315732243fcce1fc910924ff4e7dbd">EcPktHdr_CascadeBinSearchMsg</a>);     <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256">SUBTYPE_CASCADE_BICONF_INIT_REQ</a>:     size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#a2a127c38c9a6c83a54804e8cbf0a276f">EcPktHdr_CascadeBiconfInitReq</a>);    <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a380292092f2fa7462f2d0ac084d86ab5">SUBTYPE_CASCADE_BICONF_PARITY_RESP</a>:  size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#a31061dc301360661777dbb9be7a8c08b">EcPktHdr_CascadeBiconfParityResp</a>); <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a910eac00d12d4ce4c61172cfe48c0bd0">SUBTYPE_START_PRIV_AMP</a>:              size += <span class="keyword">sizeof</span>(<a class="code" href="packets_8h.html#a35e2d82d70cfd18f72c6510d8bcec6e7">EcPktHdr_StartPrivAmp</a>);            <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="preprocessor">      #ifdef DEBUG</span></div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;      printf(<span class="stringliteral">&quot;comms_createEcHeader processed unsupported type %d&quot;</span>, subtype);</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;      fflush(stdout);</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="preprocessor">      #endif</span></div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;      <span class="keywordflow">return</span> 81;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  }</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  <span class="comment">// Initialize buffer</span></div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  *resultingBufferPtr = <a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(size);</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;  <span class="comment">// If buffer not initialized</span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  <span class="keywordflow">if</span> (!(*resultingBufferPtr)) <span class="keywordflow">return</span> 43;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  <span class="comment">// Initialize the base of the header. Base is expected to be the first variable.</span></div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  tmpBaseHdr = (<a class="code" href="struct_e_r_r_c___p_r_o_t_o.html">EcPktHdr_Base</a>*)(*resultingBufferPtr);</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  tmpBaseHdr-&gt;<a class="code" href="struct_e_r_r_c___p_r_o_t_o.html#abee7361fbb3a8a778b52fe0bcb9fdcf1">tag</a> = <a class="code" href="packets_8h.html#a6e81e34179c30daac3108db067832ebd">EC_PACKET_TAG</a>;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;  tmpBaseHdr-&gt;<a class="code" href="struct_e_r_r_c___p_r_o_t_o.html#a6ac7d79f9c032a7c5286513b450321eb">subtype</a> = subtype;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  tmpBaseHdr-&gt;<a class="code" href="struct_e_r_r_c___p_r_o_t_o.html#a641e072e5aa6d618c66a3bd892691169">totalLengthInBytes</a> = size;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  tmpBaseHdr-&gt;<a class="code" href="struct_e_r_r_c___p_r_o_t_o.html#aaf414842367c50b0cc87d6b7980d1aaa">epoch</a> = processBlock-&gt;<a class="code" href="structprocessblock.html#aeac0a3f7ff74166eebc7b162b9c9cbd5">startEpoch</a>;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;  tmpBaseHdr-&gt;<a class="code" href="struct_e_r_r_c___p_r_o_t_o.html#ae66c7bbf0339cbc519d47e71c269394d">numberOfEpochs</a> = processBlock-&gt;<a class="code" href="structprocessblock.html#adf7bf13a5043f9305ff0d25e914420df">numberOfEpochs</a>;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;  <span class="comment">// Return success</span></div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;  <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a99751954eb9a67eda8036bd488a5412b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99751954eb9a67eda8036bd488a5412b">&#9670;&nbsp;</a></span>comms_createQberEstBitsMsg()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="packets_8h.html#a0cd2bd1b395faaa7610a790fe3b60b20">EcPktHdr_QberEstBits</a>* comms_createQberEstBitsMsg </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="processblock_8h.html#a44feedff562be0242945ee4949c8d131">ProcessBlock</a> *&#160;</td>
+          <td class="paramname"><em>processBlock</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -155,7 +243,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>BellValue</em>&#160;</td>
+          <td class="paramname"><em>bellValue</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -169,85 +257,78 @@ Functions</h2></td></tr>
 <p>Modified to tell the other side about the Bell value for privacy amp in the device indep mode</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">kb</td><td>Pointer to the keyblock </td></tr>
+    <tr><td class="paramname">pb</td><td>Pointer to the processblock </td></tr>
     <tr><td class="paramname">bitsneeded</td><td></td></tr>
     <tr><td class="paramname">errormode</td><td>0 for normal error est, err*2^16 forskip </td></tr>
-    <tr><td class="paramname">BellValue</td><td></td></tr>
+    <tr><td class="paramname">bellValue</td><td></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>struct ERRC_ERRDET_0* pointer tht emessage, NULL on error </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>EcPktHdr_QberEstBits* pointer tht emessage, NULL on error </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="comms_8c_source.html#l00049">49</a> of file <a class="el" href="comms_8c_source.html">comms.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                                                                        {</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="keywordtype">int</span> msgsize;                 <span class="comment">/* keeps size of message */</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a> *msg1;  <span class="comment">/* for header to be sent */</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *msg1_data;     <span class="comment">/* pointer to data array */</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>, bipo, rn_order;       <span class="comment">/* counting index, bit position */</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> localdata, bpm; <span class="comment">/* for bit extraction */</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="comment">/* prepare a structure to be sent out to the other side */</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="comment">/* first: get buffer.... */</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  msgsize = <span class="keyword">sizeof</span>(<span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a>) + 4 * ((bitsneeded + 31) / 32);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  msg1 = (<span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a> *)<a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(msgsize);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordflow">if</span> (!msg1) <span class="keywordflow">return</span> NULL; <span class="comment">/* cannot malloc */</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="comment">/* ...extract pointer to data structure... */</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  msg1_data = (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *)&amp;msg1[1];</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="comment">/* ..fill header.... */</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a6688c938cb57a5e2d293c8ac833414c7">tag</a> = <a class="code" href="packets_8h.html#ac4fe1c43e02ab8663f6cd57dfd5c62fb">ERRC_PROTO_tag</a>;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a0a9aa8f4270d5599dc34e9e2be95bb38">bytelength</a> = msgsize;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a7fa4fe558ebcbacb143bdc54828d3cd3">subtype</a> = <a class="code" href="packets_8h.html#ab1d00a1baf15d4e255588cbc0061a760">ERRC_ERRDET_0_subtype</a>;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#ac80b74c909527ea2364aadefe2008a1b">epoch</a> = kb-&gt;<a class="code" href="structkeyblock.html#af477132d975581ce79cab80a4fdfafd1">startepoch</a>;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a509fbd9d1d596b4a15316dcbd2cf8c85">number_of_epochs</a> = kb-&gt;<a class="code" href="structkeyblock.html#a39ef5181e0b5a80b4487af22f3fc0424">numberofepochs</a>;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a36a186fc3bbd550f2ccfd8c769386e3c">seed</a> = kb-&gt;<a class="code" href="structkeyblock.html#acb4d8d5a8ec6dfeaad5352daf4d8b843">RNG_state</a>; <span class="comment">/* this is the seed */</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a6a3187d15716ade00f3a2919c94f06ea">numberofbits</a> = bitsneeded;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#aa95efec38ee85b547859e222c9021223">errormode</a> = <a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#aa95efec38ee85b547859e222c9021223">errormode</a>;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  msg1-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a2bfafae0a91b877e8728e4d552148bca">BellValue</a> = <a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a2bfafae0a91b877e8728e4d552148bca">BellValue</a>;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="comment">/* determine random number order needed for given bitlength */</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="comment">/* can this go into the keyblock preparation ??? */</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  rn_order = <a class="code" href="helpers_8c.html#a68ae99580c147d404785bba0a52f7dc0">get_order_2</a>(kb-&gt;<a class="code" href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">initialbits</a>);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="comment">/* mark selected bits in this stream and fill this structure with bits */</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  localdata = 0;                     <span class="comment">/* storage for bits */</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keywordflow">for</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = 0; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &lt; bitsneeded; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>++) { <span class="comment">/* count through all needed bits */</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">do</span> {                             <span class="comment">/* generate a bit position */</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      bipo = <a class="code" href="rnd_8c.html#abd261d6d18bfbb9463ea56f5a221770a">PRNG_value2</a>(rn_order, &amp;kb-&gt;<a class="code" href="structkeyblock.html#acb4d8d5a8ec6dfeaad5352daf4d8b843">RNG_state</a>);</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      <span class="keywordflow">if</span> (bipo &gt; kb-&gt;<a class="code" href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">initialbits</a>) <span class="keywordflow">continue</span>;          <span class="comment">/* out of range */</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      bpm = <a class="code" href="helpers_8h.html#ae447cbbcd1ebc2fb52c0ef6c0672cffc">bt_mask</a>(bipo);                           <span class="comment">/* bit mask */</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;      <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a61d57ba0147360adcc41320ff84c62ef">testmarker</a>[bipo / 32] &amp; bpm) <span class="keywordflow">continue</span>; <span class="comment">/* already used */</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;      <span class="comment">/* got finally a bit */</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      kb-&gt;<a class="code" href="structkeyblock.html#a61d57ba0147360adcc41320ff84c62ef">testmarker</a>[bipo / 32] |= bpm; <span class="comment">/* mark as used */</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;      <span class="keywordflow">if</span> (kb-&gt;<a class="code" href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">mainbuf</a>[bipo / 32] &amp; bpm) localdata |= <a class="code" href="helpers_8h.html#ae447cbbcd1ebc2fb52c0ef6c0672cffc">bt_mask</a>(<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;      <span class="keywordflow">if</span> ((<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &amp; 31) == 31) {</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        msg1_data[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> / 32] = localdata;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        localdata = 0; <span class="comment">/* reset buffer */</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;      }</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;      <span class="keywordflow">break</span>; <span class="comment">/* end rng search cycle */</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    } <span class="keywordflow">while</span> (1);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  }</div>
+<p class="definition">Definition at line <a class="el" href="comms_8c_source.html#l00052">52</a> of file <a class="el" href="comms_8c_source.html">comms.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                                                                                                                             {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__0.html">EcPktHdr_QberEstBits</a> *msg1;  <span class="comment">/* for header to be sent */</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *msg1_data;     <span class="comment">/* pointer to data array */</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>, bipo, rn_order;       <span class="comment">/* counting index, bit position */</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> localdata, bpm; <span class="comment">/* for bit extraction */</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="comment">/* prepare a structure to be sent out to the other side */</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="comment">/* first: get buffer.... */</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = <a class="code" href="comms_8c.html#a888905060f0c1fd8dc5f49fc49bcc5b5">comms_createEcHeader</a>((<span class="keywordtype">char</span> **)&amp;msg1, <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032">SUBTYPE_QBER_EST_BITS</a>, <a class="code" href="defaultdefinitions_8h.html#a92ed8507d1cd2331ad09275c5c4c1c89">WORD_SIZE</a> * <a class="code" href="helpers_8h.html#ad30e1442a0cf0d5240af264aa777d3b1">wordCount</a>(bitsneeded), processBlock);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>) <span class="keywordflow">return</span> NULL; <span class="comment">/* cannot malloc */</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="comment">/* ..fill header.... */</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  msg1-&gt;seed = processBlock-&gt;<a class="code" href="structprocessblock.html#ab5cf8932604e267deb8e8af851d6706b">rngState</a>; <span class="comment">/* this is the seed */</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  msg1-&gt;numberofbits = bitsneeded;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  msg1-&gt;fixedErrorRate = errormode;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  msg1-&gt;bellValue = bellValue;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="comment">/* ...extract pointer to data structure... */</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  msg1_data = (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *)&amp;msg1[1];</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="comment">/* determine random number order needed for given bitlength */</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="comment">/* can this go into the processblock preparation ??? */</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  rn_order = <a class="code" href="helpers_8h.html#ad6c1c07c14baf09f006276342362d98e">log2Ceil</a>(processBlock-&gt;<a class="code" href="structprocessblock.html#a29565bbc5972e9e05e4f3df0a265c92a">initialBits</a>);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="comment">/* mark selected bits in this stream and fill this structure with bits */</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  localdata = 0;                     <span class="comment">/* storage for bits */</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="keywordflow">for</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = 0; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &lt; bitsneeded; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>++) { <span class="comment">/* count through all needed bits */</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordflow">while</span> (<a class="code" href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13a6d32c34708a0a3507c4bdb89219d650b">True</a>) {                             <span class="comment">/* generate a bit position */</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      bipo = <a class="code" href="rnd_8c.html#abe3cd06c0d8f9ab6e18594d70abdf2e1">rnd_getPrngValue2</a>(rn_order, &amp;processBlock-&gt;<a class="code" href="structprocessblock.html#ab5cf8932604e267deb8e8af851d6706b">rngState</a>);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      <span class="keywordflow">if</span> (bipo &gt; processBlock-&gt;<a class="code" href="structprocessblock.html#a29565bbc5972e9e05e4f3df0a265c92a">initialBits</a>) <span class="keywordflow">continue</span>;          <span class="comment">/* out of range */</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      bpm = <a class="code" href="helpers_8h.html#a7638838ced95eb558ffd96635e2e568b">uint32AllZeroExceptAtN</a>(bipo);                                    <span class="comment">/* bit mask */</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;      <span class="keywordflow">if</span> (processBlock-&gt;<a class="code" href="structprocessblock.html#a5ec2248b2f626fb86a01fa8ee2aa1d88">testedBitsMarker</a>[<a class="code" href="helpers_8h.html#a4f662f55b8c7569ec85c48cca009914d">wordIndex</a>(bipo)] &amp; bpm) <span class="keywordflow">continue</span>; <span class="comment">/* already used */</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      <span class="comment">/* got finally a bit */</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      processBlock-&gt;<a class="code" href="structprocessblock.html#a5ec2248b2f626fb86a01fa8ee2aa1d88">testedBitsMarker</a>[<a class="code" href="helpers_8h.html#a4f662f55b8c7569ec85c48cca009914d">wordIndex</a>(bipo)] |= bpm; <span class="comment">/* mark as used */</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      <span class="keywordflow">if</span> (processBlock-&gt;<a class="code" href="structprocessblock.html#accda37f2371cccb1f3e4e22f929d717d">mainBufPtr</a>[<a class="code" href="helpers_8h.html#a4f662f55b8c7569ec85c48cca009914d">wordIndex</a>(bipo)] &amp; bpm) localdata |= <a class="code" href="helpers_8h.html#a7638838ced95eb558ffd96635e2e568b">uint32AllZeroExceptAtN</a>(<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      <span class="keywordflow">if</span> ((<a class="code" href="helpers_8h.html#a34baab3b983b289ac535bd10023d8a38">modulo32</a>(<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>)) == 31) {</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        msg1_data[<a class="code" href="helpers_8h.html#a4f662f55b8c7569ec85c48cca009914d">wordIndex</a>(<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>)] = localdata;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;        localdata = 0; <span class="comment">/* reset buffer */</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      }</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;      <span class="keywordflow">break</span>; <span class="comment">/* end rng search cycle */</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    }</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  }</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="comment">/* fill in last localdata */</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="helpers_8h.html#a34baab3b983b289ac535bd10023d8a38">modulo32</a>(<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>) != 0) {</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    msg1_data[<a class="code" href="helpers_8h.html#a4f662f55b8c7569ec85c48cca009914d">wordIndex</a>(<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>)] = localdata;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  } <span class="comment">/* there was something left */</span></div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="comment">/* fill in last localdata */</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &amp; 31) {</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    msg1_data[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> / 32] = localdata;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  } <span class="comment">/* there was something left */</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160; </div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="comment">/* update thread structure with used bits */</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  kb-&gt;<a class="code" href="structkeyblock.html#a6fbe46cd00a669058100f9a0b70a34f3">leakagebits</a> += bitsneeded;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  kb-&gt;<a class="code" href="structkeyblock.html#a35590fd5f98257e0a10964384ddba356">processingstate</a> = <a class="code" href="proc__state_8h.html#a9dfb56a993be1284ab01656a33e4835a">PRS_WAITRESPONSE1</a>;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordflow">return</span> msg1; <span class="comment">/* pointer to message */</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;}</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="comment">/* update processblock structure with used bits */</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  processBlock-&gt;<a class="code" href="structprocessblock.html#abc60e3e56f4323a6646d9297b1e1f27a">leakageBits</a> += bitsneeded;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  processBlock-&gt;<a class="code" href="structprocessblock.html#a8b13586326f53276af9e69f989ffd9c5">processingState</a> = <a class="code" href="proc__state_8h.html#af9eb81a59ffdb15bc6b12685edd466e5">PSTATE_AWAIT_ERR_EST_RESP</a>;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordflow">return</span> msg1; <span class="comment">/* pointer to message */</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="ab685a2df59da9e7fb20e4fd477eca731"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab685a2df59da9e7fb20e4fd477eca731">&#9670;&nbsp;</a></span>insert_sendpacket()</h2>
+<a id="a75f878fc47eb039ab852cb1f4b2320d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75f878fc47eb039ab852cb1f4b2320d3">&#9670;&nbsp;</a></span>comms_insertSendPacket()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int insert_sendpacket </td>
+          <td class="memname">int comms_insertSendPacket </td>
           <td>(</td>
           <td class="paramtype">char *&#160;</td>
           <td class="paramname"><em>message</em>, </td>
@@ -278,93 +359,49 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>int 0 if success, otherwise error code if malloc failure </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="comms_8c_source.html#l00016">16</a> of file <a class="el" href="comms_8c_source.html">comms.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;                                                 {</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keyword">struct </span><a class="code" href="structpacket__to__send.html">packet_to_send</a> *newpacket, *lp;</div>
+<div class="fragment"><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;                                                      {</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <a class="code" href="structpacket__to__send.html">PacketToSendNode</a> *newpacket;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  <span class="comment">// pidx++; // Unused global int variable</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  newpacket = (<span class="keyword">struct </span><a class="code" href="structpacket__to__send.html">packet_to_send</a> *)<a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> <a class="code" href="structpacket__to__send.html">packet_to_send</a>));</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  newpacket = (<a class="code" href="structpacket__to__send.html">PacketToSendNode</a>*)<a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(<span class="keyword">sizeof</span>(<a class="code" href="structpacket__to__send.html">PacketToSendNode</a>));</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keywordflow">if</span> (!newpacket) <span class="keywordflow">return</span> 43;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  newpacket-&gt;<a class="code" href="structpacket__to__send.html#ad0befdf18a26825a57674a4f59986ca2">length</a> = <a class="code" href="structpacket__to__send.html#ad0befdf18a26825a57674a4f59986ca2">length</a>;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  newpacket-&gt;<a class="code" href="structpacket__to__send.html#ad0befdf18a26825a57674a4f59986ca2">length</a> = length;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  newpacket-&gt;<a class="code" href="structpacket__to__send.html#a595a74e76d5e95ccc3a6360fe37f43ec">packet</a> = <a class="code" href="transferd_8h.html#a87a7526f6179b8f26681fe4dec7f9c48">message</a>; <span class="comment">/* content */</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  newpacket-&gt;<a class="code" href="structpacket__to__send.html#a3a11edfcaec956d36622c5131abdf239">next</a> = NULL;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  lp = <a class="code" href="globalvars_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a>;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  <span class="keywordflow">if</span> (lp) lp-&gt;<a class="code" href="structpacket__to__send.html#a3a11edfcaec956d36622c5131abdf239">next</a> = newpacket; <span class="comment">/* insetr in chain */</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <a class="code" href="globalvars_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a> = newpacket;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keywordflow">if</span> (!<a class="code" href="globalvars_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a>) <a class="code" href="globalvars_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a> = newpacket;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="globalvars_8h.html#ac2854c992b33a9a3ca0aabefb8f5b07a">lastPacketToSend</a>) </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="globalvars_8h.html#ac2854c992b33a9a3ca0aabefb8f5b07a">lastPacketToSend</a>-&gt;<a class="code" href="structpacket__to__send.html#a3a11edfcaec956d36622c5131abdf239">next</a> = newpacket; <span class="comment">/* insert into chain */</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <a class="code" href="globalvars_8h.html#ac2854c992b33a9a3ca0aabefb8f5b07a">lastPacketToSend</a> = newpacket;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="comment">/* for debug: send message, take identity from first available slot */</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="comment">/*dumpmsg(blocklist-&gt;content, message); */</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordflow">if</span> (!<a class="code" href="globalvars_8h.html#ad37829218c339b4f5ed301c6d72caa15">nextPacketToSend</a>) </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <a class="code" href="globalvars_8h.html#ad37829218c339b4f5ed301c6d72caa15">nextPacketToSend</a> = newpacket;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keywordflow">return</span> 0; <span class="comment">/* success */</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;}</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="comment">/* for debug: send message, take identity from first available slot */</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="comment">/*dumpmsg(processBlockDeque-&gt;content, message); */</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordflow">return</span> 0; <span class="comment">/* success */</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="aceeb2dd5c38b3d906e4670cdac1925db"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aceeb2dd5c38b3d906e4670cdac1925db">&#9670;&nbsp;</a></span>make_messagehead_5()</h2>
+<a id="a9c21a57f48650550e9b2f8c78c2a7dfe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c21a57f48650550e9b2f8c78c2a7dfe">&#9670;&nbsp;</a></span>comms_makeBinSrchMsgHead()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a>* make_messagehead_5 </td>
+          <td class="memname"><a class="el" href="packets_8h.html#a46315732243fcce1fc910924ff4e7dbd">EcPktHdr_CascadeBinSearchMsg</a>* comms_makeBinSrchMsgHead </td>
           <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structkeyblock.html">keyblock</a> *&#160;</td>
-          <td class="paramname"><em>kb</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Helper function for binsearch replies; mallocs and fills msg header. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">kb</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>struct ERRC_ERRDET_5* </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="comms_8c_source.html#l00115">115</a> of file <a class="el" href="comms_8c_source.html">comms.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;                                                              {</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="keywordtype">int</span> msglen; <span class="comment">/* length of outgoing structure (data+header) */</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a> *out_head;                 <span class="comment">/* return value */</span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  msglen = ((kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a> + 31) / 32) * 4 * 2 + <span class="comment">/* two bitfields */</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;           <span class="keyword">sizeof</span>(<span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a>);          <span class="comment">/* ..plus one header */</span></div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  out_head = (<span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a> *)<a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(msglen);</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="keywordflow">if</span> (!out_head) <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a8f7ec08ae972b12072164c39bc59ab">tag</a> = <a class="code" href="packets_8h.html#ac4fe1c43e02ab8663f6cd57dfd5c62fb">ERRC_PROTO_tag</a>;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a784eb104ba6931cd2db05da60b910e9e">bytelength</a> = msglen;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a3784ecd52415a2f613127e6051bce49d">subtype</a> = <a class="code" href="packets_8h.html#ad3160147e9940740f2da9d3380bb6e3c">ERRC_ERRDET_5_subtype</a>;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#aab54054c4d43d38694a449989399a795">epoch</a> = kb-&gt;<a class="code" href="structkeyblock.html#af477132d975581ce79cab80a4fdfafd1">startepoch</a>;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9bffabb94876cd95c0184171b8cf8ff1">number_of_epochs</a> = kb-&gt;<a class="code" href="structkeyblock.html#a39ef5181e0b5a80b4487af22f3fc0424">numberofepochs</a>;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a8c3bd965196c1803e9e8dc28d6100ea1">number_entries</a> = kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a>;</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#ab8bdb8155b56a89a2e5952cfc718f079">index_present</a> = 0;              <span class="comment">/* this is an ordidary reply */</span></div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  out_head-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a38ec7e57c9b970d1b36000793f3b58">runlevel</a> = kb-&gt;<a class="code" href="structkeyblock.html#a6b2fc395075221a7edec698fc747c04b">binsearch_depth</a>; <span class="comment">/* next round */</span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160; </div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keywordflow">return</span> out_head;</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;}</div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="ae360e287fe395beef547c08969660d3c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae360e287fe395beef547c08969660d3c">&#9670;&nbsp;</a></span>prepare_first_binsearch_msg()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int prepare_first_binsearch_msg </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structkeyblock.html">keyblock</a> *&#160;</td>
-          <td class="paramname"><em>kb</em>, </td>
+          <td class="paramtype"><a class="el" href="processblock_8h.html#a44feedff562be0242945ee4949c8d131">ProcessBlock</a> *&#160;</td>
+          <td class="paramname"><em>processBlock</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>pass</em>&#160;</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>indexPresent</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -374,181 +411,105 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Function to prepare the first message head (header_5) for a binary search. </p>
-<p>This assumes that all the parity buffers have been malloced and the remote parities reside in the proper arrays. This function will be called several times for different passes; it expexts local parities to be evaluated already.</p>
+<p>Helper function for binsearch replies; mallocs and fills msg header. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">kb</td><td>keyblock ptr </td></tr>
-    <tr><td class="paramname">pass</td><td>pass number </td></tr>
+    <tr><td class="paramname">processBlock</td><td></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>int 0 on success, error code otherwise </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>EcPktHdr_CascadeBinSearchMsg* </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="comms_8c_source.html#l00146">146</a> of file <a class="el" href="comms_8c_source.html">comms.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                                                               {</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>, j;                             <span class="comment">/* index variables */</span></div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <span class="keywordtype">int</span> k;                                <span class="comment">/* length of keyblocks */</span></div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *<a class="code" href="chopper_8c.html#a9730d023c4355c7cd5acd01543b14e64">pd</a>;                     <span class="comment">/* parity difference bitfield pointer */</span></div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> msg5size;                <span class="comment">/* size of message */</span></div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  <span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a> *h5;             <span class="comment">/* pointer to first message */</span></div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *h5_data, *h5_idx;       <span class="comment">/* data pointers */</span></div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *d;                      <span class="comment">/* temporary pointer on parity data */</span></div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> resbuf, tmp_par, lm, fm; <span class="comment">/* parity determination variables */</span></div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="keywordtype">int</span> kdiff, fbi, lbi, fi, li, ri;      <span class="comment">/* working variables for parity eval */</span></div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;  <span class="keywordtype">int</span> partitions; <span class="comment">/* local partitions o go through for diff idx */</span></div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160; </div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="keywordflow">switch</span> (pass) { <span class="comment">/* sort out specifics */</span></div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordflow">case</span> 0:       <span class="comment">/* unpermutated pass */</span></div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;      <a class="code" href="structprotocol__details.html">pd</a> = kb-&gt;<a class="code" href="structkeyblock.html#a1c8f5cce6f4cc4cd106eef01127e2ce8">pd0</a>;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;      k = kb-&gt;<a class="code" href="structkeyblock.html#aa80fc600c52bfd73abf5f80591bcab85">k0</a>;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;      partitions = kb-&gt;<a class="code" href="structkeyblock.html#ae314ec8f6d803cc48f9451080aeb13e0">partitions0</a>;</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;      d = kb-&gt;<a class="code" href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">mainbuf</a>; <span class="comment">/* unpermuted key */</span></div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;      <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="keywordflow">case</span> 1: <span class="comment">/* permutated pass */</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;      <a class="code" href="structprotocol__details.html">pd</a> = kb-&gt;<a class="code" href="structkeyblock.html#a2967977b023a5e74532df4eac5bf773e">pd1</a>;</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;      k = kb-&gt;<a class="code" href="structkeyblock.html#a2b4995d4c06a41acc9720753ee1f6e0e">k1</a>;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;      partitions = kb-&gt;<a class="code" href="structkeyblock.html#ae05b307d9c0e5fef4f65163ca099e834">partitions1</a>;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;      d = kb-&gt;<a class="code" href="structkeyblock.html#a50c5a9eb9973e7648bd1359fa31fa789">permutebuf</a>; <span class="comment">/* permuted key */</span></div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;      <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordflow">default</span>:     <span class="comment">/* illegal */</span></div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;      <span class="keywordflow">return</span> 59; <span class="comment">/* illegal pass arg */</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  }</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160; </div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;  <span class="comment">/* fill difference index memory */</span></div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  j = 0; <span class="comment">/* index for mismatching blocks */</span></div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  <span class="keywordflow">for</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = 0; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &lt; partitions; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>++) {</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="helpers_8h.html#ae447cbbcd1ebc2fb52c0ef6c0672cffc">bt_mask</a>(<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>) &amp; <a class="code" href="structprotocol__details.html">pd</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> / 32]) {       <span class="comment">/* this block is mismatched */</span></div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;      kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>[j] = <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> * k;            <span class="comment">/* store bit index, not block index */</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;      kb-&gt;<a class="code" href="structkeyblock.html#aad9a85897bab20d52c1c39fd5d61e95e">diffidxe</a>[j] = <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> * k + (k - 1); <span class="comment">/* last block */</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;      j++;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    }</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;  }</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;  <span class="comment">/* mark pass/round correctly in kb */</span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;  kb-&gt;<a class="code" href="structkeyblock.html#a6b2fc395075221a7edec698fc747c04b">binsearch_depth</a> = (pass == 0 ? <a class="code" href="packets_8h.html#a808615e67d1e011f3e19fef7c4a08d58">RUNLEVEL_FIRSTPASS</a> : <a class="code" href="packets_8h.html#a019dde3ab1b5b014ebec3af3d946ba23">RUNLEVEL_SECONDPASS</a>) |</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;                        0; <span class="comment">/* first round */</span></div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160; </div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;  <span class="comment">/* prepare message buffer for first binsearch message  */</span></div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;  msg5size = <span class="keyword">sizeof</span>(<span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a>) <span class="comment">/* header need */</span></div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;             + ((kb-&gt;diffnumber + 31) / 32) *</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;                   <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> int)               <span class="comment">/* parity data need */</span></div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;             + kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a> * <span class="keyword">sizeof</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>); <span class="comment">/* indexing need */</span></div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;  h5 = (<span class="keyword">struct </span><a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a> *)<a class="code" href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a>(msg5size);</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;  <span class="keywordflow">if</span> (!h5) <span class="keywordflow">return</span> 55;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;  h5_data = (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *)&amp;h5[1]; <span class="comment">/* start of data */</span></div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a8f7ec08ae972b12072164c39bc59ab">tag</a> = <a class="code" href="packets_8h.html#ac4fe1c43e02ab8663f6cd57dfd5c62fb">ERRC_PROTO_tag</a>;</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a3784ecd52415a2f613127e6051bce49d">subtype</a> = <a class="code" href="packets_8h.html#ad3160147e9940740f2da9d3380bb6e3c">ERRC_ERRDET_5_subtype</a>;</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a784eb104ba6931cd2db05da60b910e9e">bytelength</a> = msg5size;</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#aab54054c4d43d38694a449989399a795">epoch</a> = kb-&gt;<a class="code" href="structkeyblock.html#af477132d975581ce79cab80a4fdfafd1">startepoch</a>;</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9bffabb94876cd95c0184171b8cf8ff1">number_of_epochs</a> = kb-&gt;<a class="code" href="structkeyblock.html#a39ef5181e0b5a80b4487af22f3fc0424">numberofepochs</a>;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a8c3bd965196c1803e9e8dc28d6100ea1">number_entries</a> = kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a>;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#ab8bdb8155b56a89a2e5952cfc718f079">index_present</a> = 1;              <span class="comment">/* this round we have an index table */</span></div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;  h5-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a38ec7e57c9b970d1b36000793f3b58">runlevel</a> = kb-&gt;<a class="code" href="structkeyblock.html#a6b2fc395075221a7edec698fc747c04b">binsearch_depth</a>; <span class="comment">/* keep local status */</span></div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160; </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;  <span class="comment">/* prepare block index list of simple type 1, uncompressed uint32 */</span></div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;  h5_idx = &amp;h5_data[((kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a> + 31) / 32)];</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  <span class="keywordflow">for</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = 0; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &lt; kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a>; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>++) h5_idx[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>] = kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>];</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160; </div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;  <span class="comment">/* prepare parity results */</span></div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;  resbuf = 0;</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  tmp_par = 0;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;  for (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> = 0; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &lt; kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a>; <a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>++) {          <span class="comment">/* go through all keyblocks */</span></div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    kdiff = kb-&gt;<a class="code" href="structkeyblock.html#aad9a85897bab20d52c1c39fd5d61e95e">diffidxe</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>] - kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>] + 1; <span class="comment">/* left length */</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    fbi = kb-&gt;<a class="code" href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">diffidx</a>[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a>];</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    lbi = fbi + kdiff / 2 - 1; <span class="comment">/* first and last bitidx */</span></div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    fi = fbi / 32;</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    fm = <a class="code" href="helpers_8h.html#a25416c9f7516d1e7efb0023fe4fab909">firstmask</a>(fbi &amp; 31); <span class="comment">/* beginning */</span></div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    li = lbi / 32;</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    lm = <a class="code" href="helpers_8h.html#a1184ea14470ba58e26ee321f40be77e0">lastmask</a>(lbi &amp; 31); <span class="comment">/* end */</span></div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordflow">if</span> (li == fi) {          <span class="comment">/* in same word */</span></div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;      tmp_par = d[fi] &amp; lm &amp; fm;</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;      tmp_par = (d[fi] &amp; fm) ^ (d[li] &amp; lm);</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;      <span class="keywordflow">for</span> (ri = fi + 1; ri &lt; li; ri++) tmp_par ^= d[ri];</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    } <span class="comment">/* tmp_par holds now a combination of bits to be tested */</span></div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    resbuf = (resbuf &lt;&lt; 1) + <a class="code" href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a>(tmp_par);</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keywordflow">if</span> ((<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &amp; 31) == 31) {</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;      h5_data[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> / 32] = resbuf;</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    }</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;  }</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &amp; 31)</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    h5_data[<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> / 32] = resbuf &lt;&lt; (32 - (<a class="code" href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a> &amp; 31)); <span class="comment">/* last parity bits */</span></div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160; </div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;  <span class="comment">/* increment lost bits */</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;  kb-&gt;<a class="code" href="structkeyblock.html#a6fbe46cd00a669058100f9a0b70a34f3">leakagebits</a> += kb-&gt;<a class="code" href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">diffnumber</a>;</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160; </div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;  <span class="comment">/* send out message */</span></div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;  <a class="code" href="comms_8c.html#ab685a2df59da9e7fb20e4fd477eca731">insert_sendpacket</a>((<span class="keywordtype">char</span> *)h5, msg5size);</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160; </div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;  <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="comms_8c_source.html#l00110">110</a> of file <a class="el" href="comms_8c_source.html">comms.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                                                                                                              {</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> sizeOfMsgBody;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordtype">int</span> errorCode;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html">EcPktHdr_CascadeBinSearchMsg</a> *outgoingMsgHead;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keywordflow">switch</span> (indexPresent) {</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordflow">case</span> 0: </div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;      sizeOfMsgBody = <a class="code" href="helpers_8h.html#ad30e1442a0cf0d5240af264aa777d3b1">wordCount</a>(processBlock-&gt;<a class="code" href="structprocessblock.html#af7992a77400a4e58e1caf1890f694da0">diffBlockCount</a>) * <a class="code" href="defaultdefinitions_8h.html#a92ed8507d1cd2331ad09275c5c4c1c89">WORD_SIZE</a> * 2; <span class="comment">/* two bitfields */</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordflow">case</span> 1:</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;      sizeOfMsgBody = <a class="code" href="helpers_8h.html#ad30e1442a0cf0d5240af264aa777d3b1">wordCount</a>(processBlock-&gt;<a class="code" href="structprocessblock.html#af7992a77400a4e58e1caf1890f694da0">diffBlockCount</a>) * <a class="code" href="defaultdefinitions_8h.html#a92ed8507d1cd2331ad09275c5c4c1c89">WORD_SIZE</a>     <span class="comment">// parity data need</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;          + processBlock-&gt;<a class="code" href="structprocessblock.html#af7992a77400a4e58e1caf1890f694da0">diffBlockCount</a> * <a class="code" href="defaultdefinitions_8h.html#a92ed8507d1cd2331ad09275c5c4c1c89">WORD_SIZE</a>;                    <span class="comment">// indexing need</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keywordflow">case</span> 4:</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;      sizeOfMsgBody = 3 * <a class="code" href="defaultdefinitions_8h.html#a92ed8507d1cd2331ad09275c5c4c1c89">WORD_SIZE</a>;       <span class="comment">/* parity data need and indexing need for selection and compl */</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;      fprintf(stderr, <span class="stringliteral">&quot;Used unsupported indexPresent index %d&quot;</span>, indexPresent);</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;      <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  }</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  errorCode = <a class="code" href="comms_8c.html#a888905060f0c1fd8dc5f49fc49bcc5b5">comms_createEcHeader</a>((<span class="keywordtype">char</span> **)&amp;outgoingMsgHead, <a class="code" href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19">SUBTYPE_CASCADE_BIN_SEARCH_MSG</a>, sizeOfMsgBody, processBlock);</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  <span class="keywordflow">if</span> (errorCode) </div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  outgoingMsgHead-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a8c3bd965196c1803e9e8dc28d6100ea1">number_entries</a> = processBlock-&gt;<a class="code" href="structprocessblock.html#af7992a77400a4e58e1caf1890f694da0">diffBlockCount</a>;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  outgoingMsgHead-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a38ec7e57c9b970d1b36000793f3b58">runlevel</a> = processBlock-&gt;<a class="code" href="structprocessblock.html#a6234458c4fe38865b8f34047eff69532">binarySearchDepth</a>; <span class="comment">/* next round */</span></div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  outgoingMsgHead-&gt;<a class="code" href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a1997a0d0eab6c3a879f77f4a0e66db5c">indexPresent</a> = indexPresent; <span class="comment">// 0: ordinary reply, 1: first msg, 4: this round we have a start/stop table</span></div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keywordflow">return</span> outgoingMsgHead;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_aa95efec38ee85b547859e222c9021223"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#aa95efec38ee85b547859e222c9021223">ERRC_ERRDET_0::errormode</a></div><div class="ttdeci">unsigned int errormode</div><div class="ttdoc">initial error est skip?</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00077">packets.h:77</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a9bffabb94876cd95c0184171b8cf8ff1"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9bffabb94876cd95c0184171b8cf8ff1">ERRC_ERRDET_5::number_of_epochs</a></div><div class="ttdeci">unsigned int number_of_epochs</div><div class="ttdoc">length of the block</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00153">packets.h:153</a></div></div>
-<div class="ttc" id="arnd_8c_html_abd261d6d18bfbb9463ea56f5a221770a"><div class="ttname"><a href="rnd_8c.html#abd261d6d18bfbb9463ea56f5a221770a">PRNG_value2</a></div><div class="ttdeci">unsigned int PRNG_value2(int k, unsigned int *state)</div><div class="ttdoc">version which iterates the PRNG from a given state location</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00100">rnd.c:100</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_a0a9aa8f4270d5599dc34e9e2be95bb38"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a0a9aa8f4270d5599dc34e9e2be95bb38">ERRC_ERRDET_0::bytelength</a></div><div class="ttdeci">unsigned int bytelength</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00071">packets.h:71</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a784eb104ba6931cd2db05da60b910e9e"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a784eb104ba6931cd2db05da60b910e9e">ERRC_ERRDET_5::bytelength</a></div><div class="ttdeci">unsigned int bytelength</div><div class="ttdoc">the length of the packet incl header</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00150">packets.h:150</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_a2bfafae0a91b877e8728e4d552148bca"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a2bfafae0a91b877e8728e4d552148bca">ERRC_ERRDET_0::BellValue</a></div><div class="ttdeci">float BellValue</div><div class="ttdoc">may contain a value for Bell violat</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00078">packets.h:78</a></div></div>
-<div class="ttc" id="ahelpers_8c_html_a68ae99580c147d404785bba0a52f7dc0"><div class="ttname"><a href="helpers_8c.html#a68ae99580c147d404785bba0a52f7dc0">get_order_2</a></div><div class="ttdeci">int get_order_2(int x)</div><div class="ttdoc">get the number of bits necessary to carry a number x</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8c_source.html#l00026">helpers.c:26</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_a509fbd9d1d596b4a15316dcbd2cf8c85"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a509fbd9d1d596b4a15316dcbd2cf8c85">ERRC_ERRDET_0::number_of_epochs</a></div><div class="ttdeci">unsigned int number_of_epochs</div><div class="ttdoc">defines implicitly the block length</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00074">packets.h:74</a></div></div>
-<div class="ttc" id="ahelpers_8h_html_a25416c9f7516d1e7efb0023fe4fab909"><div class="ttname"><a href="helpers_8h.html#a25416c9f7516d1e7efb0023fe4fab909">firstmask</a></div><div class="ttdeci">__inline__ unsigned int firstmask(int i)</div><div class="ttdoc">Helper function for parity isolation.</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00086">helpers.h:86</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_aab54054c4d43d38694a449989399a795"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#aab54054c4d43d38694a449989399a795">ERRC_ERRDET_5::epoch</a></div><div class="ttdeci">unsigned int epoch</div><div class="ttdoc">defines epoch of first packet</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00152">packets.h:152</a></div></div>
-<div class="ttc" id="apackets_8h_html_ad3160147e9940740f2da9d3380bb6e3c"><div class="ttname"><a href="packets_8h.html#ad3160147e9940740f2da9d3380bb6e3c">ERRC_ERRDET_5_subtype</a></div><div class="ttdeci">#define ERRC_ERRDET_5_subtype</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00159">packets.h:158</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a7cc8739f33c53ca94123d468a1c090a4"><div class="ttname"><a href="structkeyblock.html#a7cc8739f33c53ca94123d468a1c090a4">keyblock::initialbits</a></div><div class="ttdeci">int initialbits</div><div class="ttdoc">bits to start with</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00043">keyblock.h:43</a></div></div>
-<div class="ttc" id="astructkeyblock_html_af477132d975581ce79cab80a4fdfafd1"><div class="ttname"><a href="structkeyblock.html#af477132d975581ce79cab80a4fdfafd1">keyblock::startepoch</a></div><div class="ttdeci">unsigned int startepoch</div><div class="ttdoc">initial epoch of block</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00034">keyblock.h:34</a></div></div>
-<div class="ttc" id="acomms_8c_html_ab685a2df59da9e7fb20e4fd477eca731"><div class="ttname"><a href="comms_8c.html#ab685a2df59da9e7fb20e4fd477eca731">insert_sendpacket</a></div><div class="ttdeci">int insert_sendpacket(char *message, int length)</div><div class="ttdoc">Helper to insert a send packet in the sendpacket queue.</div><div class="ttdef"><b>Definition:</b> <a href="comms_8c_source.html#l00016">comms.c:16</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a35590fd5f98257e0a10964384ddba356"><div class="ttname"><a href="structkeyblock.html#a35590fd5f98257e0a10964384ddba356">keyblock::processingstate</a></div><div class="ttdeci">int processingstate</div><div class="ttdoc">determines processing status current block.</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00045">keyblock.h:45</a></div></div>
-<div class="ttc" id="apackets_8h_html_a019dde3ab1b5b014ebec3af3d946ba23"><div class="ttname"><a href="packets_8h.html#a019dde3ab1b5b014ebec3af3d946ba23">RUNLEVEL_SECONDPASS</a></div><div class="ttdeci">#define RUNLEVEL_SECONDPASS</div><div class="ttdoc">for message 5</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00162">packets.h:161</a></div></div>
-<div class="ttc" id="ahelpers_8h_html_a1184ea14470ba58e26ee321f40be77e0"><div class="ttname"><a href="helpers_8h.html#a1184ea14470ba58e26ee321f40be77e0">lastmask</a></div><div class="ttdeci">__inline__ unsigned int lastmask(int i)</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00087">helpers.h:87</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a19b74f671254c24bedb3b167c2b73621"><div class="ttname"><a href="structkeyblock.html#a19b74f671254c24bedb3b167c2b73621">keyblock::mainbuf</a></div><div class="ttdeci">unsigned int * mainbuf</div><div class="ttdoc">points to main buffer for key</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00037">keyblock.h:37</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_ac80b74c909527ea2364aadefe2008a1b"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#ac80b74c909527ea2364aadefe2008a1b">ERRC_ERRDET_0::epoch</a></div><div class="ttdeci">unsigned int epoch</div><div class="ttdoc">defines epoch of first packet</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00073">packets.h:73</a></div></div>
-<div class="ttc" id="achopper_8c_html_a9730d023c4355c7cd5acd01543b14e64"><div class="ttname"><a href="chopper_8c.html#a9730d023c4355c7cd5acd01543b14e64">pd</a></div><div class="ttdeci">struct protocol_details pd</div></div>
-<div class="ttc" id="astructpacket__to__send_html_a595a74e76d5e95ccc3a6360fe37f43ec"><div class="ttname"><a href="structpacket__to__send.html#a595a74e76d5e95ccc3a6360fe37f43ec">packet_to_send::packet</a></div><div class="ttdeci">char * packet</div><div class="ttdoc">pointer to content</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00218">packets.h:218</a></div></div>
-<div class="ttc" id="astructkeyblock_html_ae05b307d9c0e5fef4f65163ca099e834"><div class="ttname"><a href="structkeyblock.html#ae05b307d9c0e5fef4f65163ca099e834">keyblock::partitions1</a></div><div class="ttdeci">int partitions1</div><div class="ttdoc">number of partitions of k0,k1 length</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00055">keyblock.h:55</a></div></div>
-<div class="ttc" id="apackets_8h_html_ac4fe1c43e02ab8663f6cd57dfd5c62fb"><div class="ttname"><a href="packets_8h.html#ac4fe1c43e02ab8663f6cd57dfd5c62fb">ERRC_PROTO_tag</a></div><div class="ttdeci">#define ERRC_PROTO_tag</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00064">packets.h:63</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a2b4995d4c06a41acc9720753ee1f6e0e"><div class="ttname"><a href="structkeyblock.html#a2b4995d4c06a41acc9720753ee1f6e0e">keyblock::k1</a></div><div class="ttdeci">int k1</div><div class="ttdoc">binary block search lengths</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00053">keyblock.h:53</a></div></div>
-<div class="ttc" id="apackets_8h_html_a808615e67d1e011f3e19fef7c4a08d58"><div class="ttname"><a href="packets_8h.html#a808615e67d1e011f3e19fef7c4a08d58">RUNLEVEL_FIRSTPASS</a></div><div class="ttdeci">#define RUNLEVEL_FIRSTPASS</div><div class="ttdoc">for message 5</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00161">packets.h:160</a></div></div>
-<div class="ttc" id="arnd_8c_html_abcc0dd5e29de4965c7b9816465f933b7"><div class="ttname"><a href="rnd_8c.html#abcc0dd5e29de4965c7b9816465f933b7">parity</a></div><div class="ttdeci">int parity(unsigned int a)</div><div class="ttdoc">this is an implementation of an m-sequence</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00043">rnd.c:43</a></div></div>
-<div class="ttc" id="aproc__state_8h_html_a9dfb56a993be1284ab01656a33e4835a"><div class="ttname"><a href="proc__state_8h.html#a9dfb56a993be1284ab01656a33e4835a">PRS_WAITRESPONSE1</a></div><div class="ttdeci">#define PRS_WAITRESPONSE1</div><div class="ttdoc">waiting for error est response from bob</div><div class="ttdef"><b>Definition:</b> <a href="proc__state_8h_source.html#l00043">proc_state.h:42</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a1c8f5cce6f4cc4cd106eef01127e2ce8"><div class="ttname"><a href="structkeyblock.html#a1c8f5cce6f4cc4cd106eef01127e2ce8">keyblock::pd0</a></div><div class="ttdeci">unsigned int * pd0</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00058">keyblock.h:58</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a></div><div class="ttdoc">Binary search message packet.</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00148">packets.h:148</a></div></div>
+<div class="ttc" id="ahelpers_8h_html_ad30e1442a0cf0d5240af264aa777d3b1"><div class="ttname"><a href="helpers_8h.html#ad30e1442a0cf0d5240af264aa777d3b1">wordCount</a></div><div class="ttdeci">#define wordCount(LAST_BIT_INDEX)</div><div class="ttdoc">Macro to get number of 32-bit words that used by buffer.</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00083">helpers.h:82</a></div></div>
+<div class="ttc" id="astructprocessblock_html_abc60e3e56f4323a6646d9297b1e1f27a"><div class="ttname"><a href="structprocessblock.html#abc60e3e56f4323a6646d9297b1e1f27a">processblock::leakageBits</a></div><div class="ttdeci">int leakageBits</div><div class="ttdoc">information which has gone public</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00057">processblock.h:57</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a1997a0d0eab6c3a879f77f4a0e66db5c"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a1997a0d0eab6c3a879f77f4a0e66db5c">ERRC_ERRDET_5::indexPresent</a></div><div class="ttdeci">unsigned int indexPresent</div><div class="ttdoc">format /presence of index data</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00131">packets.h:131</a></div></div>
+<div class="ttc" id="apackets_8h_html_a35e2d82d70cfd18f72c6510d8bcec6e7"><div class="ttname"><a href="packets_8h.html#a35e2d82d70cfd18f72c6510d8bcec6e7">EcPktHdr_StartPrivAmp</a></div><div class="ttdeci">struct ERRC_ERRDET_8 EcPktHdr_StartPrivAmp</div><div class="ttdoc">privacy amplification start message</div></div>
+<div class="ttc" id="astruct_e_r_r_c___p_r_o_t_o_html_a6ac7d79f9c032a7c5286513b450321eb"><div class="ttname"><a href="struct_e_r_r_c___p_r_o_t_o.html#a6ac7d79f9c032a7c5286513b450321eb">ERRC_PROTO::subtype</a></div><div class="ttdeci">unsigned int subtype</div><div class="ttdoc">0 for PRNG based subset</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00064">packets.h:64</a></div></div>
+<div class="ttc" id="aglobalvars_8h_html_ad37829218c339b4f5ed301c6d72caa15"><div class="ttname"><a href="globalvars_8h.html#ad37829218c339b4f5ed301c6d72caa15">nextPacketToSend</a></div><div class="ttdeci">PacketToSendNode * nextPacketToSend</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00209">ecd2.h:209</a></div></div>
+<div class="ttc" id="astructprocessblock_html_a6234458c4fe38865b8f34047eff69532"><div class="ttname"><a href="structprocessblock.html#a6234458c4fe38865b8f34047eff69532">processblock::binarySearchDepth</a></div><div class="ttdeci">int binarySearchDepth</div><div class="ttdoc">encodes state of the scan.</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00076">processblock.h:76</a></div></div>
+<div class="ttc" id="adefaultdefinitions_8h_html_ae7d38601dfbd73adbe5c1b3ec34e0e13a6d32c34708a0a3507c4bdb89219d650b"><div class="ttname"><a href="defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13a6d32c34708a0a3507c4bdb89219d650b">True</a></div><div class="ttdeci">@ True</div><div class="ttdef"><b>Definition:</b> <a href="defaultdefinitions_8h_source.html#l00070">defaultdefinitions.h:70</a></div></div>
+<div class="ttc" id="ahelpers_8h_html_a34baab3b983b289ac535bd10023d8a38"><div class="ttname"><a href="helpers_8h.html#a34baab3b983b289ac535bd10023d8a38">modulo32</a></div><div class="ttdeci">#define modulo32(X)</div><div class="ttdoc">Can also be defined as &quot;get least significant 5 bits&quot;, but this definition is more meaningful.</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00084">helpers.h:83</a></div></div>
+<div class="ttc" id="astructprocessblock_html_accda37f2371cccb1f3e4e22f929d717d"><div class="ttname"><a href="structprocessblock.html#accda37f2371cccb1f3e4e22f929d717d">processblock::mainBufPtr</a></div><div class="ttdeci">unsigned int * mainBufPtr</div><div class="ttdoc">points to main buffer for key</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00050">processblock.h:50</a></div></div>
+<div class="ttc" id="apackets_8h_html_a6e81e34179c30daac3108db067832ebd"><div class="ttname"><a href="packets_8h.html#a6e81e34179c30daac3108db067832ebd">EC_PACKET_TAG</a></div><div class="ttdeci">#define EC_PACKET_TAG</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00054">packets.h:53</a></div></div>
+<div class="ttc" id="apackets_8h_html_a2a127c38c9a6c83a54804e8cbf0a276f"><div class="ttname"><a href="packets_8h.html#a2a127c38c9a6c83a54804e8cbf0a276f">EcPktHdr_CascadeBiconfInitReq</a></div><div class="ttdeci">struct ERRC_ERRDET_6 EcPktHdr_CascadeBiconfInitReq</div><div class="ttdoc">BICONF initiating message.</div></div>
+<div class="ttc" id="arnd_8c_html_abe3cd06c0d8f9ab6e18594d70abdf2e1"><div class="ttname"><a href="rnd_8c.html#abe3cd06c0d8f9ab6e18594d70abdf2e1">rnd_getPrngValue2</a></div><div class="ttdeci">unsigned int rnd_getPrngValue2(int k, unsigned int *state)</div><div class="ttdoc">version which iterates the PRNG from a given state location</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00101">rnd.c:101</a></div></div>
+<div class="ttc" id="astructpacket__to__send_html_a595a74e76d5e95ccc3a6360fe37f43ec"><div class="ttname"><a href="structpacket__to__send.html#a595a74e76d5e95ccc3a6360fe37f43ec">packet_to_send::packet</a></div><div class="ttdeci">char * packet</div><div class="ttdoc">pointer to content</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00178">packets.h:178</a></div></div>
+<div class="ttc" id="apackets_8h_html_a84dc6fa53adf3cdda56d49151e3704dd"><div class="ttname"><a href="packets_8h.html#a84dc6fa53adf3cdda56d49151e3704dd">EcPktHdr_QberEstReqMoreBits</a></div><div class="ttdeci">struct ERRC_ERRDET_2 EcPktHdr_QberEstReqMoreBits</div><div class="ttdoc">packet for requesting more sample bits</div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54">SUBTYPE_CASCADE_PARITY_LIST</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_PARITY_LIST</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00046">packets.h:46</a></div></div>
+<div class="ttc" id="apackets_8h_html_a84073a522897548fb4824c6b960f6838"><div class="ttname"><a href="packets_8h.html#a84073a522897548fb4824c6b960f6838">EcPktHdr_CascadeParityList</a></div><div class="ttdeci">struct ERRC_ERRDET_4 EcPktHdr_CascadeParityList</div><div class="ttdoc">first parity check bit info</div></div>
+<div class="ttc" id="astructprocessblock_html_ab5cf8932604e267deb8e8af851d6706b"><div class="ttname"><a href="structprocessblock.html#ab5cf8932604e267deb8e8af851d6706b">processblock::rngState</a></div><div class="ttdeci">unsigned int rngState</div><div class="ttdoc">keeps the state of the PRNG for this processblock</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00065">processblock.h:65</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html">ERRC_ERRDET_5</a></div><div class="ttdoc">Binary search message packet.</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00128">packets.h:128</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___p_r_o_t_o_html_aaf414842367c50b0cc87d6b7980d1aaa"><div class="ttname"><a href="struct_e_r_r_c___p_r_o_t_o.html#aaf414842367c50b0cc87d6b7980d1aaa">ERRC_PROTO::epoch</a></div><div class="ttdeci">unsigned int epoch</div><div class="ttdoc">defines epoch of first packet</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00065">packets.h:65</a></div></div>
+<div class="ttc" id="acomms_8c_html_a888905060f0c1fd8dc5f49fc49bcc5b5"><div class="ttname"><a href="comms_8c.html#a888905060f0c1fd8dc5f49fc49bcc5b5">comms_createEcHeader</a></div><div class="ttdeci">int comms_createEcHeader(char **resultingBufferPtr, enum EcSubtypes subtype, unsigned int additionalByteLength, ProcessBlock *processBlock)</div><div class="ttdoc">Helper function to create a message header.</div><div class="ttdef"><b>Definition:</b> <a href="comms_8c_source.html#l00149">comms.c:149</a></div></div>
 <div class="ttc" id="adebug_8c_html_af8c2db3d81151416ecd3dcb6f38e3711"><div class="ttname"><a href="debug_8c.html#af8c2db3d81151416ecd3dcb6f38e3711">malloc2</a></div><div class="ttdeci">char * malloc2(unsigned int s)</div><div class="ttdoc">malloc wrapper for debugging purposes</div><div class="ttdef"><b>Definition:</b> <a href="debug_8c_source.html#l00011">debug.c:11</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_a6a3187d15716ade00f3a2919c94f06ea"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a6a3187d15716ade00f3a2919c94f06ea">ERRC_ERRDET_0::numberofbits</a></div><div class="ttdeci">unsigned int numberofbits</div><div class="ttdoc">bits to follow</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00076">packets.h:76</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a6b2fc395075221a7edec698fc747c04b"><div class="ttname"><a href="structkeyblock.html#a6b2fc395075221a7edec698fc747c04b">keyblock::binsearch_depth</a></div><div class="ttdeci">int binsearch_depth</div><div class="ttdoc">encodes state of the scan.</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00063">keyblock.h:63</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_a6688c938cb57a5e2d293c8ac833414c7"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a6688c938cb57a5e2d293c8ac833414c7">ERRC_ERRDET_0::tag</a></div><div class="ttdeci">unsigned int tag</div><div class="ttdoc">always 6</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00070">packets.h:70</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a></div><div class="ttdoc">packet for PRNG based subset for bit subset transmission in err estim</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00069">packets.h:69</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a39ef5181e0b5a80b4487af22f3fc0424"><div class="ttname"><a href="structkeyblock.html#a39ef5181e0b5a80b4487af22f3fc0424">keyblock::numberofepochs</a></div><div class="ttdeci">unsigned int numberofepochs</div><div class="ttdoc">number of consecutive epochs being processed</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00035">keyblock.h:35</a></div></div>
-<div class="ttc" id="astructkeyblock_html_aad9a85897bab20d52c1c39fd5d61e95e"><div class="ttname"><a href="structkeyblock.html#aad9a85897bab20d52c1c39fd5d61e95e">keyblock::diffidxe</a></div><div class="ttdeci">unsigned int * diffidxe</div><div class="ttdoc">end of interval</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00062">keyblock.h:62</a></div></div>
-<div class="ttc" id="ahelpers_8h_html_ae447cbbcd1ebc2fb52c0ef6c0672cffc"><div class="ttname"><a href="helpers_8h.html#ae447cbbcd1ebc2fb52c0ef6c0672cffc">bt_mask</a></div><div class="ttdeci">__inline__ unsigned int bt_mask(int i)</div><div class="ttdoc">Helper for mask for a given index i on the longint array.</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00078">helpers.h:78</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a4ec05d5e560406d74383c7b3b2c805eb"><div class="ttname"><a href="structkeyblock.html#a4ec05d5e560406d74383c7b3b2c805eb">keyblock::diffidx</a></div><div class="ttdeci">unsigned int * diffidx</div><div class="ttdoc">pointer to a list of parity mismatch blocks</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00061">keyblock.h:61</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a3784ecd52415a2f613127e6051bce49d"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a3784ecd52415a2f613127e6051bce49d">ERRC_ERRDET_5::subtype</a></div><div class="ttdeci">unsigned int subtype</div><div class="ttdoc">5 for request of bit number packet</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00151">packets.h:151</a></div></div>
-<div class="ttc" id="astructpacket__to__send_html_ad0befdf18a26825a57674a4f59986ca2"><div class="ttname"><a href="structpacket__to__send.html#ad0befdf18a26825a57674a4f59986ca2">packet_to_send::length</a></div><div class="ttdeci">int length</div><div class="ttdoc">in bytes</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00217">packets.h:217</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a8c3bd965196c1803e9e8dc28d6100ea1"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a8c3bd965196c1803e9e8dc28d6100ea1">ERRC_ERRDET_5::number_entries</a></div><div class="ttdeci">unsigned int number_entries</div><div class="ttdoc">number of blocks with parity mismatch</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00154">packets.h:154</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a3a2a106a9870115b7ef0b00d49d23c43"><div class="ttname"><a href="structkeyblock.html#a3a2a106a9870115b7ef0b00d49d23c43">keyblock::diffnumber</a></div><div class="ttdeci">int diffnumber</div><div class="ttdoc">number of different blocks in current round</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00059">keyblock.h:59</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a2967977b023a5e74532df4eac5bf773e"><div class="ttname"><a href="structkeyblock.html#a2967977b023a5e74532df4eac5bf773e">keyblock::pd1</a></div><div class="ttdeci">unsigned int * pd1</div><div class="ttdoc">pointer to parity difference fileld</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00058">keyblock.h:58</a></div></div>
-<div class="ttc" id="astructkeyblock_html_acb4d8d5a8ec6dfeaad5352daf4d8b843"><div class="ttname"><a href="structkeyblock.html#acb4d8d5a8ec6dfeaad5352daf4d8b843">keyblock::RNG_state</a></div><div class="ttdeci">unsigned int RNG_state</div><div class="ttdoc">keeps the state of the PRNG for this thread</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00052">keyblock.h:52</a></div></div>
-<div class="ttc" id="aglobalvars_8h_html_ad2ccf7edc49e0e4e4d3f6c40df187f9b"><div class="ttname"><a href="globalvars_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a></div><div class="ttdeci">struct packet_to_send * next_packet_to_send</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00209">ecd2.h:209</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a6fbe46cd00a669058100f9a0b70a34f3"><div class="ttname"><a href="structkeyblock.html#a6fbe46cd00a669058100f9a0b70a34f3">keyblock::leakagebits</a></div><div class="ttdeci">int leakagebits</div><div class="ttdoc">information which has gone public</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00044">keyblock.h:44</a></div></div>
-<div class="ttc" id="aglobalvars_8h_html_a533147eb4caa484f9a001a15a2a376d5"><div class="ttname"><a href="globalvars_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a></div><div class="ttdeci">struct packet_to_send * last_packet_to_send</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00210">ecd2.h:210</a></div></div>
+<div class="ttc" id="apackets_8h_html_a0cd2bd1b395faaa7610a790fe3b60b20"><div class="ttname"><a href="packets_8h.html#a0cd2bd1b395faaa7610a790fe3b60b20">EcPktHdr_QberEstBits</a></div><div class="ttdeci">struct ERRC_ERRDET_0 EcPktHdr_QberEstBits</div><div class="ttdoc">packet for PRNG based subset for bit subset transmission in err estim</div></div>
+<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html">ERRC_ERRDET_0</a></div><div class="ttdoc">packet for PRNG based subset for bit subset transmission in err estim</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00073">packets.h:73</a></div></div>
+<div class="ttc" id="aglobalvars_8h_html_ac2854c992b33a9a3ca0aabefb8f5b07a"><div class="ttname"><a href="globalvars_8h.html#ac2854c992b33a9a3ca0aabefb8f5b07a">lastPacketToSend</a></div><div class="ttdeci">PacketToSendNode * lastPacketToSend</div><div class="ttdef"><b>Definition:</b> <a href="ecd2_8h_source.html#l00210">ecd2.h:210</a></div></div>
+<div class="ttc" id="apackets_8h_html_a46315732243fcce1fc910924ff4e7dbd"><div class="ttname"><a href="packets_8h.html#a46315732243fcce1fc910924ff4e7dbd">EcPktHdr_CascadeBinSearchMsg</a></div><div class="ttdeci">struct ERRC_ERRDET_5 EcPktHdr_CascadeBinSearchMsg</div><div class="ttdoc">Binary search message packet.</div></div>
+<div class="ttc" id="adefaultdefinitions_8h_html_a92ed8507d1cd2331ad09275c5c4c1c89"><div class="ttname"><a href="defaultdefinitions_8h.html#a92ed8507d1cd2331ad09275c5c4c1c89">WORD_SIZE</a></div><div class="ttdeci">#define WORD_SIZE</div><div class="ttdoc">More readable than sizeof(unsigned int) everywhere.</div><div class="ttdef"><b>Definition:</b> <a href="defaultdefinitions_8h_source.html#l00073">defaultdefinitions.h:72</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___p_r_o_t_o_html_a641e072e5aa6d618c66a3bd892691169"><div class="ttname"><a href="struct_e_r_r_c___p_r_o_t_o.html#a641e072e5aa6d618c66a3bd892691169">ERRC_PROTO::totalLengthInBytes</a></div><div class="ttdeci">unsigned int totalLengthInBytes</div><div class="ttdoc">including header</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00063">packets.h:63</a></div></div>
+<div class="ttc" id="apackets_8h_html_a31061dc301360661777dbb9be7a8c08b"><div class="ttname"><a href="packets_8h.html#a31061dc301360661777dbb9be7a8c08b">EcPktHdr_CascadeBiconfParityResp</a></div><div class="ttdeci">struct ERRC_ERRDET_7 EcPktHdr_CascadeBiconfParityResp</div><div class="ttdoc">BICONF response message.</div></div>
+<div class="ttc" id="astructprocessblock_html_aeac0a3f7ff74166eebc7b162b9c9cbd5"><div class="ttname"><a href="structprocessblock.html#aeac0a3f7ff74166eebc7b162b9c9cbd5">processblock::startEpoch</a></div><div class="ttdeci">unsigned int startEpoch</div><div class="ttdoc">initial epoch of block</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00047">processblock.h:47</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___p_r_o_t_o_html_ae66c7bbf0339cbc519d47e71c269394d"><div class="ttname"><a href="struct_e_r_r_c___p_r_o_t_o.html#ae66c7bbf0339cbc519d47e71c269394d">ERRC_PROTO::numberOfEpochs</a></div><div class="ttdeci">unsigned int numberOfEpochs</div><div class="ttdoc">defines implicitly the block length</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00066">packets.h:66</a></div></div>
+<div class="ttc" id="astructprocessblock_html_a8b13586326f53276af9e69f989ffd9c5"><div class="ttname"><a href="structprocessblock.html#a8b13586326f53276af9e69f989ffd9c5">processblock::processingState</a></div><div class="ttdeci">int processingState</div><div class="ttdoc">determines processing status current block.</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00058">processblock.h:58</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362">SUBTYPE_QBER_EST_REQ_MORE_BITS</a></div><div class="ttdeci">@ SUBTYPE_QBER_EST_REQ_MORE_BITS</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00044">packets.h:44</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___p_r_o_t_o_html"><div class="ttname"><a href="struct_e_r_r_c___p_r_o_t_o.html">ERRC_PROTO</a></div><div class="ttdoc">this one is just a mockup for reading a message to determine its length.</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00061">packets.h:61</a></div></div>
+<div class="ttc" id="astructprocessblock_html_adf7bf13a5043f9305ff0d25e914420df"><div class="ttname"><a href="structprocessblock.html#adf7bf13a5043f9305ff0d25e914420df">processblock::numberOfEpochs</a></div><div class="ttdeci">unsigned int numberOfEpochs</div><div class="ttdoc">number of consecutive epochs being processed</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00048">processblock.h:48</a></div></div>
+<div class="ttc" id="astructpacket__to__send_html_ad0befdf18a26825a57674a4f59986ca2"><div class="ttname"><a href="structpacket__to__send.html#ad0befdf18a26825a57674a4f59986ca2">packet_to_send::length</a></div><div class="ttdeci">int length</div><div class="ttdoc">in bytes</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00177">packets.h:177</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a8c3bd965196c1803e9e8dc28d6100ea1"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a8c3bd965196c1803e9e8dc28d6100ea1">ERRC_ERRDET_5::number_entries</a></div><div class="ttdeci">unsigned int number_entries</div><div class="ttdoc">number of blocks with parity mismatch</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00130">packets.h:130</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a910eac00d12d4ce4c61172cfe48c0bd0"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a910eac00d12d4ce4c61172cfe48c0bd0">SUBTYPE_START_PRIV_AMP</a></div><div class="ttdeci">@ SUBTYPE_START_PRIV_AMP</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00051">packets.h:50</a></div></div>
+<div class="ttc" id="apackets_8h_html_afec6911345f505cfbd6521430ed776ae"><div class="ttname"><a href="packets_8h.html#afec6911345f505cfbd6521430ed776ae">EcPktHdr_QberEstBitsAck</a></div><div class="ttdeci">struct ERRC_ERRDET_3 EcPktHdr_QberEstBitsAck</div><div class="ttdoc">Acknowledgment packet for communicating the error rate.</div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032">SUBTYPE_QBER_EST_BITS</a></div><div class="ttdeci">@ SUBTYPE_QBER_EST_BITS</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00043">packets.h:43</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___p_r_o_t_o_html_abee7361fbb3a8a778b52fe0bcb9fdcf1"><div class="ttname"><a href="struct_e_r_r_c___p_r_o_t_o.html#abee7361fbb3a8a778b52fe0bcb9fdcf1">ERRC_PROTO::tag</a></div><div class="ttdeci">unsigned int tag</div><div class="ttdoc">always 6</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00062">packets.h:62</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19">SUBTYPE_CASCADE_BIN_SEARCH_MSG</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_BIN_SEARCH_MSG</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00047">packets.h:47</a></div></div>
+<div class="ttc" id="ahelpers_8h_html_a4f662f55b8c7569ec85c48cca009914d"><div class="ttname"><a href="helpers_8h.html#a4f662f55b8c7569ec85c48cca009914d">wordIndex</a></div><div class="ttdeci">#define wordIndex(BIT_INDEX)</div><div class="ttdoc">Macro to get index of 32-bit word given the index of the bit.</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00082">helpers.h:81</a></div></div>
+<div class="ttc" id="astructprocessblock_html_a29565bbc5972e9e05e4f3df0a265c92a"><div class="ttname"><a href="structprocessblock.html#a29565bbc5972e9e05e4f3df0a265c92a">processblock::initialBits</a></div><div class="ttdeci">int initialBits</div><div class="ttdoc">bits to start with</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00056">processblock.h:56</a></div></div>
+<div class="ttc" id="ahelpers_8h_html_ad6c1c07c14baf09f006276342362d98e"><div class="ttname"><a href="helpers_8h.html#ad6c1c07c14baf09f006276342362d98e">log2Ceil</a></div><div class="ttdeci">#define log2Ceil(X)</div><div class="ttdoc">See https://stackoverflow.com/questions/671815/what-is-the-fastest-most-efficient-way-to-find-the-hig...</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00080">helpers.h:79</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256">SUBTYPE_CASCADE_BICONF_INIT_REQ</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_BICONF_INIT_REQ</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00048">packets.h:48</a></div></div>
 <div class="ttc" id="atransferd_8h_html_a87a7526f6179b8f26681fe4dec7f9c48"><div class="ttname"><a href="transferd_8h.html#a87a7526f6179b8f26681fe4dec7f9c48">message</a></div><div class="ttdeci">char message[MESSAGELENGTH]</div><div class="ttdef"><b>Definition:</b> <a href="transferd_8h_source.html#l00360">transferd.h:360</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_a7fa4fe558ebcbacb143bdc54828d3cd3"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a7fa4fe558ebcbacb143bdc54828d3cd3">ERRC_ERRDET_0::subtype</a></div><div class="ttdeci">unsigned int subtype</div><div class="ttdoc">0 for PRNG based subset</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00072">packets.h:72</a></div></div>
-<div class="ttc" id="astructkeyblock_html_aa80fc600c52bfd73abf5f80591bcab85"><div class="ttname"><a href="structkeyblock.html#aa80fc600c52bfd73abf5f80591bcab85">keyblock::k0</a></div><div class="ttdeci">int k0</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00053">keyblock.h:53</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__0_html_a36a186fc3bbd550f2ccfd8c769386e3c"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__0.html#a36a186fc3bbd550f2ccfd8c769386e3c">ERRC_ERRDET_0::seed</a></div><div class="ttdeci">unsigned int seed</div><div class="ttdoc">seed for PRNG</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00075">packets.h:75</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a9a38ec7e57c9b970d1b36000793f3b58"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a38ec7e57c9b970d1b36000793f3b58">ERRC_ERRDET_5::runlevel</a></div><div class="ttdeci">unsigned int runlevel</div><div class="ttdoc">pass and bisectioning depth</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00156">packets.h:156</a></div></div>
-<div class="ttc" id="astructpacket__to__send_html_a3a11edfcaec956d36622c5131abdf239"><div class="ttname"><a href="structpacket__to__send.html#a3a11edfcaec956d36622c5131abdf239">packet_to_send::next</a></div><div class="ttdeci">struct packet_to_send * next</div><div class="ttdoc">next one to send</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00219">packets.h:219</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a9a8f7ec08ae972b12072164c39bc59ab"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a8f7ec08ae972b12072164c39bc59ab">ERRC_ERRDET_5::tag</a></div><div class="ttdeci">unsigned int tag</div><div class="ttdoc">6 for an error correction packet</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00149">packets.h:149</a></div></div>
+<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_a9a38ec7e57c9b970d1b36000793f3b58"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#a9a38ec7e57c9b970d1b36000793f3b58">ERRC_ERRDET_5::runlevel</a></div><div class="ttdeci">unsigned int runlevel</div><div class="ttdoc">pass and bisectioning depth</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00132">packets.h:132</a></div></div>
+<div class="ttc" id="astructpacket__to__send_html_a3a11edfcaec956d36622c5131abdf239"><div class="ttname"><a href="structpacket__to__send.html#a3a11edfcaec956d36622c5131abdf239">packet_to_send::next</a></div><div class="ttdeci">struct packet_to_send * next</div><div class="ttdoc">next one to send</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00179">packets.h:179</a></div></div>
+<div class="ttc" id="astructprocessblock_html_a5ec2248b2f626fb86a01fa8ee2aa1d88"><div class="ttname"><a href="structprocessblock.html#a5ec2248b2f626fb86a01fa8ee2aa1d88">processblock::testedBitsMarker</a></div><div class="ttdeci">unsigned int * testedBitsMarker</div><div class="ttdoc">marks tested bits</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00052">processblock.h:52</a></div></div>
+<div class="ttc" id="ahelpers_8h_html_a7638838ced95eb558ffd96635e2e568b"><div class="ttname"><a href="helpers_8h.html#a7638838ced95eb558ffd96635e2e568b">uint32AllZeroExceptAtN</a></div><div class="ttdeci">#define uint32AllZeroExceptAtN(N_FROM_RIGHT)</div><div class="ttdoc">previously uint32AllZeroExceptAtN</div><div class="ttdef"><b>Definition:</b> <a href="helpers_8h_source.html#l00085">helpers.h:84</a></div></div>
+<div class="ttc" id="astructprocessblock_html_af7992a77400a4e58e1caf1890f694da0"><div class="ttname"><a href="structprocessblock.html#af7992a77400a4e58e1caf1890f694da0">processblock::diffBlockCount</a></div><div class="ttdeci">int diffBlockCount</div><div class="ttdoc">number of different blocks in current round</div><div class="ttdef"><b>Definition:</b> <a href="processblock_8h_source.html#l00072">processblock.h:72</a></div></div>
 <div class="ttc" id="atransferd_8h_html_acb559820d9ca11295b4500f179ef6392"><div class="ttname"><a href="transferd_8h.html#acb559820d9ca11295b4500f179ef6392">i</a></div><div class="ttdeci">int i</div><div class="ttdef"><b>Definition:</b> <a href="transferd_8h_source.html#l00321">transferd.h:321</a></div></div>
-<div class="ttc" id="astructkeyblock_html_ae314ec8f6d803cc48f9451080aeb13e0"><div class="ttname"><a href="structkeyblock.html#ae314ec8f6d803cc48f9451080aeb13e0">keyblock::partitions0</a></div><div class="ttdeci">int partitions0</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00055">keyblock.h:55</a></div></div>
-<div class="ttc" id="astructprotocol__details_html"><div class="ttname"><a href="structprotocol__details.html">protocol_details</a></div><div class="ttdef"><b>Definition:</b> <a href="chopper_8c_source.html#l00212">chopper.c:212</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a50c5a9eb9973e7648bd1359fa31fa789"><div class="ttname"><a href="structkeyblock.html#a50c5a9eb9973e7648bd1359fa31fa789">keyblock::permutebuf</a></div><div class="ttdeci">unsigned int * permutebuf</div><div class="ttdoc">keeps permuted bits</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00038">keyblock.h:38</a></div></div>
-<div class="ttc" id="astructkeyblock_html_a61d57ba0147360adcc41320ff84c62ef"><div class="ttname"><a href="structkeyblock.html#a61d57ba0147360adcc41320ff84c62ef">keyblock::testmarker</a></div><div class="ttdeci">unsigned int * testmarker</div><div class="ttdoc">marks tested bits</div><div class="ttdef"><b>Definition:</b> <a href="keyblock_8h_source.html#l00039">keyblock.h:39</a></div></div>
-<div class="ttc" id="astruct_e_r_r_c___e_r_r_d_e_t__5_html_ab8bdb8155b56a89a2e5952cfc718f079"><div class="ttname"><a href="struct_e_r_r_c___e_r_r_d_e_t__5.html#ab8bdb8155b56a89a2e5952cfc718f079">ERRC_ERRDET_5::index_present</a></div><div class="ttdeci">unsigned int index_present</div><div class="ttdoc">format /presence of index data</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00155">packets.h:155</a></div></div>
-<div class="ttc" id="apackets_8h_html_ab1d00a1baf15d4e255588cbc0061a760"><div class="ttname"><a href="packets_8h.html#ab1d00a1baf15d4e255588cbc0061a760">ERRC_ERRDET_0_subtype</a></div><div class="ttdeci">#define ERRC_ERRDET_0_subtype</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00081">packets.h:80</a></div></div>
-<div class="ttc" id="astructpacket__to__send_html"><div class="ttname"><a href="structpacket__to__send.html">packet_to_send</a></div><div class="ttdoc">structure which holds packets to send</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00216">packets.h:216</a></div></div>
+<div class="ttc" id="aproc__state_8h_html_af9eb81a59ffdb15bc6b12685edd466e5"><div class="ttname"><a href="proc__state_8h.html#af9eb81a59ffdb15bc6b12685edd466e5">PSTATE_AWAIT_ERR_EST_RESP</a></div><div class="ttdeci">#define PSTATE_AWAIT_ERR_EST_RESP</div><div class="ttdoc">waiting for error est response from bob</div><div class="ttdef"><b>Definition:</b> <a href="proc__state_8h_source.html#l00043">proc_state.h:42</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a380292092f2fa7462f2d0ac084d86ab5"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a380292092f2fa7462f2d0ac084d86ab5">SUBTYPE_CASCADE_BICONF_PARITY_RESP</a></div><div class="ttdeci">@ SUBTYPE_CASCADE_BICONF_PARITY_RESP</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00049">packets.h:49</a></div></div>
+<div class="ttc" id="astructpacket__to__send_html"><div class="ttname"><a href="structpacket__to__send.html">packet_to_send</a></div><div class="ttdoc">structure which holds packets to send</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00176">packets.h:176</a></div></div>
+<div class="ttc" id="apackets_8h_html_aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27"><div class="ttname"><a href="packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27">SUBTYPE_QBER_EST_BITS_ACK</a></div><div class="ttdeci">@ SUBTYPE_QBER_EST_BITS_ACK</div><div class="ttdef"><b>Definition:</b> <a href="packets_8h_source.html#l00045">packets.h:45</a></div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

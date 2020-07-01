@@ -1,12 +1,12 @@
 var rnd_8h =
 [
+    [ "parity", "rnd_8h.html#acd4cab02c31bf9470a13568409db79d7", null ],
     [ "PRNG_FEEDBACK", "rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2", null ],
     [ "RANDOMGENERATOR", "rnd_8h.html#aaea73438572cc3794c335c6ed21b7584", null ],
-    [ "get_r_seed", "rnd_8h.html#ac9442118526276dea7a18026f1af5d33", null ],
-    [ "get_RNG_calls", "rnd_8h.html#a6a5da93987a0344a3d175d566880df92", null ],
-    [ "parity", "rnd_8h.html#a242ad3ed3deb18df8f72df8143c7914d", null ],
-    [ "PRNG_value", "rnd_8h.html#a3bdedb489515cc1650784d3113687b4c", null ],
-    [ "PRNG_value2", "rnd_8h.html#a525593138df58fe727614d6349028137", null ],
-    [ "PRNG_value2_32", "rnd_8h.html#a81b963cdc2f17fdbe5fd754fb9fad005", null ],
-    [ "set_PRNG_seed", "rnd_8h.html#aa26bab94960c746a82170635027f7b1e", null ]
+    [ "rnd_generateRngSeed", "rnd_8h.html#ad3885c717fed4ff30e80ed4c3d331260", null ],
+    [ "rnd_getPrngValue", "rnd_8h.html#a64746c7b8d9de9dec505b49cfd43db14", null ],
+    [ "rnd_getPrngValue2", "rnd_8h.html#a52f32159648fd8c97eb6d47a6399b6dd", null ],
+    [ "rnd_getPrngValue2_32", "rnd_8h.html#ac000554c758a41ad355cee426bc2de0d", null ],
+    [ "rnd_getRngCalls", "rnd_8h.html#a211c2ba45290d421960f127256ad66f6", null ],
+    [ "setPrngSeed", "rnd_8h.html#a2407bf6723fe9379f6330c06324af382", null ]
 ];

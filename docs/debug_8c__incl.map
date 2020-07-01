@@ -1,5 +1,9 @@
 <map id="errorcorrection/subcomponents/debug.c" name="errorcorrection/subcomponents/debug.c">
-<area shape="rect" id="node1" title=" " alt="" coords="5,5,207,47"/>
-<area shape="rect" id="node2" href="$debug_8h.html" title="debugging helper functions for ecd2" alt="" coords="72,95,140,121"/>
-<area shape="rect" id="node3" href="$keyblock_8h.html" title="Header file containing the definitions of the keyblock &amp; block related data for the error correction ..." alt="" coords="26,169,186,196"/>
+<area shape="rect" id="node1" title=" " alt="" coords="35,5,236,47"/>
+<area shape="rect" id="node2" href="$debug_8h.html" title="debugging helper functions for ecd2" alt="" coords="101,95,169,121"/>
+<area shape="rect" id="node3" href="$processblock_8h.html" title="Header file containing the definitions of the processblock &amp; block related data for the error correct..." alt="" coords="5,244,191,271"/>
+<area shape="rect" id="node6" href="$helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="135,169,210,196"/>
+<area shape="rect" id="node4" href="$defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="33,319,163,345"/>
+<area shape="rect" id="node5" title=" " alt="" coords="67,393,129,420"/>
+<area shape="rect" id="node7" href="$rnd_8h.html" title="Random number sources." alt="" coords="215,244,266,271"/>
 </map>

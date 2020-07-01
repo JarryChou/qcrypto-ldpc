@@ -1,10 +1,10 @@
 var proc__state_8h =
 [
-    [ "PRS_DOING_BICONF", "proc__state_8h.html#ac43b59c69056b39272a75b5be40dca17", null ],
-    [ "PRS_GETMOREEST", "proc__state_8h.html#a64941393907404cbf37a8c47cde148a1", null ],
-    [ "PRS_JUSTLOADED", "proc__state_8h.html#af4b692f5df4bfe46ea356de0d354a8c9", null ],
-    [ "PRS_KNOWMYERROR", "proc__state_8h.html#a0be1ff5d97ef3d7220e33fff7db7c225", null ],
-    [ "PRS_NEGOTIATEROLE", "proc__state_8h.html#a73573cb52891ce1ec0d5c57cee0679b5", null ],
-    [ "PRS_PERFORMEDPARITY1", "proc__state_8h.html#aa9c79ea303470a681f5566d00a4e68e8", null ],
-    [ "PRS_WAITRESPONSE1", "proc__state_8h.html#a9dfb56a993be1284ab01656a33e4835a", null ]
+    [ "PSTATE_AWAIT_ERR_EST_MORE_BITS", "proc__state_8h.html#a9d4103c69b6c7a1c536c354de738144d", null ],
+    [ "PSTATE_AWAIT_ERR_EST_RESP", "proc__state_8h.html#af9eb81a59ffdb15bc6b12685edd466e5", null ],
+    [ "PSTATE_DOING_BICONF", "proc__state_8h.html#a4812381a808aca12ddc262fa7be629e5", null ],
+    [ "PSTATE_ERR_KNOWN", "proc__state_8h.html#ae3708dbdc6e648bb7af699bda464d322", null ],
+    [ "PSTATE_JUST_LOADED", "proc__state_8h.html#a6480f3db0ec68a9f9ccc645689a2e60e", null ],
+    [ "PSTATE_NEGOTIATING_ROLE", "proc__state_8h.html#ab423e6d41d04e2899dafca21366e3051", null ],
+    [ "PSTATE_PERFORMED_PARITY", "proc__state_8h.html#a3c578b81f3bc517d0237e6d1b893e21f", null ]
 ];

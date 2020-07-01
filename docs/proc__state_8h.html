@@ -99,7 +99,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" href="cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="37,273,238,315"/>
 <area shape="rect" href="comms_8h.html" title="code on communications w.r.t. error correction." alt="" coords="189,95,390,136"/>
 <area shape="rect" href="qber__estim_8h.html" title=" " alt="" coords="642,184,844,225"/>
-<area shape="rect" href="thread__mgmt_8h.html" title=" " alt="" coords="465,95,666,136"/>
+<area shape="rect" href="processblock__mgmt_8h.html" title=" " alt="" coords="465,95,666,136"/>
 <area shape="rect" href="ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="480,370,628,397"/>
 <area shape="rect" href="cascade__biconf_8c.html" title=" " alt="" coords="37,363,238,404"/>
 <area shape="rect" href="ecd2_8c.html" title=" " alt="" coords="480,452,628,479"/>
@@ -107,7 +107,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" href="comms_8c.html" title=" " alt="" coords="37,184,238,225"/>
 <area shape="rect" href="priv__amp_8c.html" title=" " alt="" coords="314,273,516,315"/>
 <area shape="rect" href="qber__estim_8c.html" title=" " alt="" coords="642,273,844,315"/>
-<area shape="rect" href="thread__mgmt_8c.html" title=" " alt="" coords="868,184,1069,225"/>
+<area shape="rect" href="processblock__mgmt_8c.html" title=" " alt="" coords="868,184,1069,225"/>
 </map>
 </div>
 </div>
@@ -116,27 +116,27 @@ This graph shows which files directly or indirectly include this file:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Definitions of the processing state</div></td></tr>
-<tr class="memitem:af4b692f5df4bfe46ea356de0d354a8c9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#af4b692f5df4bfe46ea356de0d354a8c9">PRS_JUSTLOADED</a>&#160;&#160;&#160;0</td></tr>
-<tr class="memdesc:af4b692f5df4bfe46ea356de0d354a8c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">no processing yet (passive role)  <a href="proc__state_8h.html#af4b692f5df4bfe46ea356de0d354a8c9">More...</a><br /></td></tr>
-<tr class="separator:af4b692f5df4bfe46ea356de0d354a8c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73573cb52891ce1ec0d5c57cee0679b5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a73573cb52891ce1ec0d5c57cee0679b5">PRS_NEGOTIATEROLE</a>&#160;&#160;&#160;1</td></tr>
-<tr class="memdesc:a73573cb52891ce1ec0d5c57cee0679b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">in role negotiation with other side  <a href="proc__state_8h.html#a73573cb52891ce1ec0d5c57cee0679b5">More...</a><br /></td></tr>
-<tr class="separator:a73573cb52891ce1ec0d5c57cee0679b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9dfb56a993be1284ab01656a33e4835a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a9dfb56a993be1284ab01656a33e4835a">PRS_WAITRESPONSE1</a>&#160;&#160;&#160;2</td></tr>
-<tr class="memdesc:a9dfb56a993be1284ab01656a33e4835a"><td class="mdescLeft">&#160;</td><td class="mdescRight">waiting for error est response from bob  <a href="proc__state_8h.html#a9dfb56a993be1284ab01656a33e4835a">More...</a><br /></td></tr>
-<tr class="separator:a9dfb56a993be1284ab01656a33e4835a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64941393907404cbf37a8c47cde148a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a64941393907404cbf37a8c47cde148a1">PRS_GETMOREEST</a>&#160;&#160;&#160;3</td></tr>
-<tr class="memdesc:a64941393907404cbf37a8c47cde148a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">waiting for more error est bits from Alice  <a href="proc__state_8h.html#a64941393907404cbf37a8c47cde148a1">More...</a><br /></td></tr>
-<tr class="separator:a64941393907404cbf37a8c47cde148a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0be1ff5d97ef3d7220e33fff7db7c225"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a0be1ff5d97ef3d7220e33fff7db7c225">PRS_KNOWMYERROR</a>&#160;&#160;&#160;4</td></tr>
-<tr class="memdesc:a0be1ff5d97ef3d7220e33fff7db7c225"><td class="mdescLeft">&#160;</td><td class="mdescRight">know my error estimation  <a href="proc__state_8h.html#a0be1ff5d97ef3d7220e33fff7db7c225">More...</a><br /></td></tr>
-<tr class="separator:a0be1ff5d97ef3d7220e33fff7db7c225"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9c79ea303470a681f5566d00a4e68e8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#aa9c79ea303470a681f5566d00a4e68e8">PRS_PERFORMEDPARITY1</a>&#160;&#160;&#160;5</td></tr>
-<tr class="memdesc:aa9c79ea303470a681f5566d00a4e68e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">know my error estimation  <a href="proc__state_8h.html#aa9c79ea303470a681f5566d00a4e68e8">More...</a><br /></td></tr>
-<tr class="separator:aa9c79ea303470a681f5566d00a4e68e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac43b59c69056b39272a75b5be40dca17"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#ac43b59c69056b39272a75b5be40dca17">PRS_DOING_BICONF</a>&#160;&#160;&#160;6</td></tr>
-<tr class="memdesc:ac43b59c69056b39272a75b5be40dca17"><td class="mdescLeft">&#160;</td><td class="mdescRight">last biconf round  <a href="proc__state_8h.html#ac43b59c69056b39272a75b5be40dca17">More...</a><br /></td></tr>
-<tr class="separator:ac43b59c69056b39272a75b5be40dca17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6480f3db0ec68a9f9ccc645689a2e60e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a6480f3db0ec68a9f9ccc645689a2e60e">PSTATE_JUST_LOADED</a>&#160;&#160;&#160;0</td></tr>
+<tr class="memdesc:a6480f3db0ec68a9f9ccc645689a2e60e"><td class="mdescLeft">&#160;</td><td class="mdescRight">no processing yet (passive role)  <a href="proc__state_8h.html#a6480f3db0ec68a9f9ccc645689a2e60e">More...</a><br /></td></tr>
+<tr class="separator:a6480f3db0ec68a9f9ccc645689a2e60e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab423e6d41d04e2899dafca21366e3051"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#ab423e6d41d04e2899dafca21366e3051">PSTATE_NEGOTIATING_ROLE</a>&#160;&#160;&#160;1</td></tr>
+<tr class="memdesc:ab423e6d41d04e2899dafca21366e3051"><td class="mdescLeft">&#160;</td><td class="mdescRight">in role negotiation with other side (UNUSED)  <a href="proc__state_8h.html#ab423e6d41d04e2899dafca21366e3051">More...</a><br /></td></tr>
+<tr class="separator:ab423e6d41d04e2899dafca21366e3051"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9eb81a59ffdb15bc6b12685edd466e5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#af9eb81a59ffdb15bc6b12685edd466e5">PSTATE_AWAIT_ERR_EST_RESP</a>&#160;&#160;&#160;2</td></tr>
+<tr class="memdesc:af9eb81a59ffdb15bc6b12685edd466e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">waiting for error est response from bob  <a href="proc__state_8h.html#af9eb81a59ffdb15bc6b12685edd466e5">More...</a><br /></td></tr>
+<tr class="separator:af9eb81a59ffdb15bc6b12685edd466e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d4103c69b6c7a1c536c354de738144d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a9d4103c69b6c7a1c536c354de738144d">PSTATE_AWAIT_ERR_EST_MORE_BITS</a>&#160;&#160;&#160;3</td></tr>
+<tr class="memdesc:a9d4103c69b6c7a1c536c354de738144d"><td class="mdescLeft">&#160;</td><td class="mdescRight">waiting for more error est bits from Alice  <a href="proc__state_8h.html#a9d4103c69b6c7a1c536c354de738144d">More...</a><br /></td></tr>
+<tr class="separator:a9d4103c69b6c7a1c536c354de738144d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3708dbdc6e648bb7af699bda464d322"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#ae3708dbdc6e648bb7af699bda464d322">PSTATE_ERR_KNOWN</a>&#160;&#160;&#160;4</td></tr>
+<tr class="memdesc:ae3708dbdc6e648bb7af699bda464d322"><td class="mdescLeft">&#160;</td><td class="mdescRight">know my error estimation  <a href="proc__state_8h.html#ae3708dbdc6e648bb7af699bda464d322">More...</a><br /></td></tr>
+<tr class="separator:ae3708dbdc6e648bb7af699bda464d322"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c578b81f3bc517d0237e6d1b893e21f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a3c578b81f3bc517d0237e6d1b893e21f">PSTATE_PERFORMED_PARITY</a>&#160;&#160;&#160;5</td></tr>
+<tr class="memdesc:a3c578b81f3bc517d0237e6d1b893e21f"><td class="mdescLeft">&#160;</td><td class="mdescRight">know my error estimation  <a href="proc__state_8h.html#a3c578b81f3bc517d0237e6d1b893e21f">More...</a><br /></td></tr>
+<tr class="separator:a3c578b81f3bc517d0237e6d1b893e21f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4812381a808aca12ddc262fa7be629e5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc__state_8h.html#a4812381a808aca12ddc262fa7be629e5">PSTATE_DOING_BICONF</a>&#160;&#160;&#160;6</td></tr>
+<tr class="memdesc:a4812381a808aca12ddc262fa7be629e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">last biconf round  <a href="proc__state_8h.html#a4812381a808aca12ddc262fa7be629e5">More...</a><br /></td></tr>
+<tr class="separator:a4812381a808aca12ddc262fa7be629e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Defines processing states. </p>
@@ -152,32 +152,14 @@ Macros</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="ac43b59c69056b39272a75b5be40dca17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac43b59c69056b39272a75b5be40dca17">&#9670;&nbsp;</a></span>PRS_DOING_BICONF</h2>
+<a id="a9d4103c69b6c7a1c536c354de738144d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d4103c69b6c7a1c536c354de738144d">&#9670;&nbsp;</a></span>PSTATE_AWAIT_ERR_EST_MORE_BITS</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define PRS_DOING_BICONF&#160;&#160;&#160;6</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>last biconf round </p>
-
-<p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00047">47</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
-
-</div>
-</div>
-<a id="a64941393907404cbf37a8c47cde148a1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a64941393907404cbf37a8c47cde148a1">&#9670;&nbsp;</a></span>PRS_GETMOREEST</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PRS_GETMOREEST&#160;&#160;&#160;3</td>
+          <td class="memname">#define PSTATE_AWAIT_ERR_EST_MORE_BITS&#160;&#160;&#160;3</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -188,32 +170,50 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a id="af4b692f5df4bfe46ea356de0d354a8c9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af4b692f5df4bfe46ea356de0d354a8c9">&#9670;&nbsp;</a></span>PRS_JUSTLOADED</h2>
+<a id="af9eb81a59ffdb15bc6b12685edd466e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9eb81a59ffdb15bc6b12685edd466e5">&#9670;&nbsp;</a></span>PSTATE_AWAIT_ERR_EST_RESP</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define PRS_JUSTLOADED&#160;&#160;&#160;0</td>
+          <td class="memname">#define PSTATE_AWAIT_ERR_EST_RESP&#160;&#160;&#160;2</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>no processing yet (passive role) </p>
+<p>waiting for error est response from bob </p>
 
-<p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00041">41</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00043">43</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
 
 </div>
 </div>
-<a id="a0be1ff5d97ef3d7220e33fff7db7c225"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0be1ff5d97ef3d7220e33fff7db7c225">&#9670;&nbsp;</a></span>PRS_KNOWMYERROR</h2>
+<a id="a4812381a808aca12ddc262fa7be629e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4812381a808aca12ddc262fa7be629e5">&#9670;&nbsp;</a></span>PSTATE_DOING_BICONF</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define PRS_KNOWMYERROR&#160;&#160;&#160;4</td>
+          <td class="memname">#define PSTATE_DOING_BICONF&#160;&#160;&#160;6</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>last biconf round </p>
+
+<p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00047">47</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
+
+</div>
+</div>
+<a id="ae3708dbdc6e648bb7af699bda464d322"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3708dbdc6e648bb7af699bda464d322">&#9670;&nbsp;</a></span>PSTATE_ERR_KNOWN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PSTATE_ERR_KNOWN&#160;&#160;&#160;4</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -224,32 +224,50 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a id="a73573cb52891ce1ec0d5c57cee0679b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73573cb52891ce1ec0d5c57cee0679b5">&#9670;&nbsp;</a></span>PRS_NEGOTIATEROLE</h2>
+<a id="a6480f3db0ec68a9f9ccc645689a2e60e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6480f3db0ec68a9f9ccc645689a2e60e">&#9670;&nbsp;</a></span>PSTATE_JUST_LOADED</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define PRS_NEGOTIATEROLE&#160;&#160;&#160;1</td>
+          <td class="memname">#define PSTATE_JUST_LOADED&#160;&#160;&#160;0</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>in role negotiation with other side </p>
+<p>no processing yet (passive role) </p>
+
+<p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00041">41</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
+
+</div>
+</div>
+<a id="ab423e6d41d04e2899dafca21366e3051"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab423e6d41d04e2899dafca21366e3051">&#9670;&nbsp;</a></span>PSTATE_NEGOTIATING_ROLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PSTATE_NEGOTIATING_ROLE&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>in role negotiation with other side (UNUSED) </p>
 
 <p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00042">42</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
 
 </div>
 </div>
-<a id="aa9c79ea303470a681f5566d00a4e68e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9c79ea303470a681f5566d00a4e68e8">&#9670;&nbsp;</a></span>PRS_PERFORMEDPARITY1</h2>
+<a id="a3c578b81f3bc517d0237e6d1b893e21f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c578b81f3bc517d0237e6d1b893e21f">&#9670;&nbsp;</a></span>PSTATE_PERFORMED_PARITY</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define PRS_PERFORMEDPARITY1&#160;&#160;&#160;5</td>
+          <td class="memname">#define PSTATE_PERFORMED_PARITY&#160;&#160;&#160;5</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -257,24 +275,6 @@ Macros</h2></td></tr>
 <p>know my error estimation </p>
 
 <p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00046">46</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
-
-</div>
-</div>
-<a id="a9dfb56a993be1284ab01656a33e4835a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9dfb56a993be1284ab01656a33e4835a">&#9670;&nbsp;</a></span>PRS_WAITRESPONSE1</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PRS_WAITRESPONSE1&#160;&#160;&#160;2</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>waiting for error est response from bob </p>
-
-<p class="definition">Definition at line <a class="el" href="proc__state_8h_source.html#l00043">43</a> of file <a class="el" href="proc__state_8h_source.html">proc_state.h</a>.</p>
 
 </div>
 </div>

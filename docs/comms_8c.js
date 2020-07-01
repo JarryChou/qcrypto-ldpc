@@ -1,7 +1,7 @@
 var comms_8c =
 [
-    [ "fillsamplemessage", "comms_8c.html#aee47c9c3a089fffd3ef8713caa9d6bf3", null ],
-    [ "insert_sendpacket", "comms_8c.html#ab685a2df59da9e7fb20e4fd477eca731", null ],
-    [ "make_messagehead_5", "comms_8c.html#aceeb2dd5c38b3d906e4670cdac1925db", null ],
-    [ "prepare_first_binsearch_msg", "comms_8c.html#ae360e287fe395beef547c08969660d3c", null ]
+    [ "comms_createEcHeader", "comms_8c.html#a888905060f0c1fd8dc5f49fc49bcc5b5", null ],
+    [ "comms_createQberEstBitsMsg", "comms_8c.html#a99751954eb9a67eda8036bd488a5412b", null ],
+    [ "comms_insertSendPacket", "comms_8c.html#a75f878fc47eb039ab852cb1f4b2320d3", null ],
+    [ "comms_makeBinSrchMsgHead", "comms_8c.html#a9c21a57f48650550e9b2f8c78c2a7dfe", null ]
 ];

@@ -1,14 +1,15 @@
 var qber__estim_8h =
 [
-    [ "ReplyMode", "qber__estim_8h.html#a600176bf73ae5bd9e46ff1ee6e00c0b9", [
-      [ "replyMode_terminate", "qber__estim_8h.html#a600176bf73ae5bd9e46ff1ee6e00c0b9aed018976895cfa88ae31c2f02b3bde21", null ],
-      [ "replyMode_moreBits", "qber__estim_8h.html#a600176bf73ae5bd9e46ff1ee6e00c0b9ad42bae179cc4663ed7519e29a72eec1f", null ],
-      [ "replyMode_continue", "qber__estim_8h.html#a600176bf73ae5bd9e46ff1ee6e00c0b9a8dd280cf09ab554186b2d9ca9ba1e4a4", null ]
+    [ "REPLY_MODE", "qber__estim_8h.html#a9c012c01f786907f0c93e7e12bd08359", [
+      [ "REPLYMODE_TERMINATE", "qber__estim_8h.html#a9c012c01f786907f0c93e7e12bd08359ad8aadc9497092491757981008b85465f", null ],
+      [ "REPLYMODE_MORE_BITS", "qber__estim_8h.html#a9c012c01f786907f0c93e7e12bd08359ae44aae58f63a24215fd18fa5d4482cd1", null ],
+      [ "REPLYMODE_CONTINUE", "qber__estim_8h.html#a9c012c01f786907f0c93e7e12bd08359aca8d297365821d354a2bbb62302db454", null ]
     ] ],
-    [ "errorest_1", "qber__estim_8h.html#aac721bd8e63ef2f563d58d393e9d4f6d", null ],
-    [ "prepare_dualpass", "qber__estim_8h.html#a83321efc5bc5da83948e24467cbfc443", null ],
-    [ "prepare_paritylist1", "qber__estim_8h.html#a5bcded068b32e7b3838388eb55c37e89", null ],
-    [ "process_esti_message_0", "qber__estim_8h.html#acce7cf9a46fcc01f52c4437a165e7a9d", null ],
-    [ "send_more_esti_bits", "qber__estim_8h.html#ae0da977190751f93cb961052cd942fad", null ],
-    [ "testbits_needed", "qber__estim_8h.html#ac4840865cd92c1a132c58bbcaf86d93e", null ]
+    [ "calculatek0andk1", "qber__estim_8h.html#a653cd1293fc04a428242343b847f699d", null ],
+    [ "prepareParityList1", "qber__estim_8h.html#a4b36366cab654a50ee197fede686c5e6", null ],
+    [ "qber_beginErrorEstimation", "qber__estim_8h.html#a0f7bdcca5920126c0d7c0f22a2b4bfc3", null ],
+    [ "qber_prepareDualPass", "qber__estim_8h.html#a36b6a4849ab75dad10f049acb70a98f6", null ],
+    [ "qber_processMoreEstBitsReq", "qber__estim_8h.html#a88eaf60ce51bc8a009f5d6f86cbc1237", null ],
+    [ "qber_processReceivedQberEstBits", "qber__estim_8h.html#a65791eeb0a60ba7a5fae9cdffca77441", null ],
+    [ "testBitsNeeded", "qber__estim_8h.html#a68c14f72e0a0a7370415b5bae71c8b03", null ]
 ];

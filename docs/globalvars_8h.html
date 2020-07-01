@@ -102,13 +102,13 @@ Include dependency graph for globalvars.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="globalvars_8h__incl.png" border="0" usemap="#aerrorcorrection_2definitions_2globalvars_8h" alt=""/></div>
 <map name="errorcorrection_2definitions_2globalvars_8h" id="aerrorcorrection_2definitions_2globalvars_8h">
-<area shape="rect" title="Definition file for global variables and arguments in ecd2." alt="" coords="168,5,336,47"/>
-<area shape="rect" href="defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="5,95,136,121"/>
-<area shape="rect" href="helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="161,95,343,121"/>
-<area shape="rect" href="packets_8h.html" title=" " alt="" coords="367,95,446,121"/>
-<area shape="rect" title=" " alt="" coords="39,169,102,196"/>
-<area shape="rect" href="keyblock_8h.html" title="Header file containing the definitions of the keyblock &amp; block related data for the error correction ..." alt="" coords="149,169,309,196"/>
-<area shape="rect" href="rnd_8h.html" title="Random number sources." alt="" coords="333,169,384,196"/>
+<area shape="rect" title="Definition file for global variables and arguments in ecd2." alt="" coords="52,5,220,47"/>
+<area shape="rect" href="defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="5,244,136,271"/>
+<area shape="rect" href="helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="45,95,227,121"/>
+<area shape="rect" href="packets_8h.html" title=" " alt="" coords="251,95,330,121"/>
+<area shape="rect" title=" " alt="" coords="39,319,102,345"/>
+<area shape="rect" href="processblock_8h.html" title="Header file containing the definitions of the processblock &amp; block related data for the error correct..." alt="" coords="43,169,229,196"/>
+<area shape="rect" href="rnd_8h.html" title="Random number sources." alt="" coords="253,169,304,196"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -122,13 +122,13 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" href="comms_8h.html" title="code on communications w.r.t. error correction." alt="" coords="465,95,666,136"/>
 <area shape="rect" href="priv__amp_8h.html" title="privacy amplification portions of the code" alt="" coords="314,184,516,225"/>
 <area shape="rect" href="qber__estim_8h.html" title=" " alt="" coords="642,184,844,225"/>
-<area shape="rect" href="thread__mgmt_8h.html" title=" " alt="" coords="178,95,380,136"/>
+<area shape="rect" href="processblock__mgmt_8h.html" title=" " alt="" coords="178,95,380,136"/>
 <area shape="rect" href="ecd2_8c.html" title=" " alt="" coords="505,452,653,479"/>
 <area shape="rect" href="cascade__biconf_8c.html" title=" " alt="" coords="37,363,238,404"/>
 <area shape="rect" href="comms_8c.html" title=" " alt="" coords="868,184,1069,225"/>
 <area shape="rect" href="priv__amp_8c.html" title=" " alt="" coords="314,273,516,315"/>
 <area shape="rect" href="qber__estim_8c.html" title=" " alt="" coords="693,273,894,315"/>
-<area shape="rect" href="thread__mgmt_8c.html" title=" " alt="" coords="37,184,238,225"/>
+<area shape="rect" href="processblock__mgmt_8c.html" title=" " alt="" coords="37,184,238,225"/>
 </map>
 </div>
 </div>
@@ -150,14 +150,14 @@ Variables</h2></td></tr>
 <tr class="memitem:ada59c388a54132792188bb23541d03c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="globalvars_8h.html#ae3d8c060c4264f2c158c036a09f988aa">Arguments</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="globalvars_8h.html#ada59c388a54132792188bb23541d03c1">arguments</a></td></tr>
 <tr class="memdesc:ada59c388a54132792188bb23541d03c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">contains arguments read in when initializing program  <a href="globalvars_8h.html#ada59c388a54132792188bb23541d03c1">More...</a><br /></td></tr>
 <tr class="separator:ada59c388a54132792188bb23541d03c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Global variables used by thread_mgmt</div></td></tr>
-<tr class="memitem:a7f5d903352c2133a67099abbf29041dc"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structblockpointer.html">blockpointer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="globalvars_8h.html#a7f5d903352c2133a67099abbf29041dc">blocklist</a></td></tr>
-<tr class="separator:a7f5d903352c2133a67099abbf29041dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Global variables used by processblock_mgmt</div></td></tr>
+<tr class="memitem:a8b53e9cb2b2d1bfcac90807ec8415c75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="processblock_8h.html#a56acfbd9c9b8f2179a1bad5d0738c710">ProcessBlockDequeNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="globalvars_8h.html#a8b53e9cb2b2d1bfcac90807ec8415c75">processBlockDeque</a></td></tr>
+<tr class="separator:a8b53e9cb2b2d1bfcac90807ec8415c75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Global variables used by comms</div></td></tr>
-<tr class="memitem:ad2ccf7edc49e0e4e4d3f6c40df187f9b"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structpacket__to__send.html">packet_to_send</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="globalvars_8h.html#ad2ccf7edc49e0e4e4d3f6c40df187f9b">next_packet_to_send</a></td></tr>
-<tr class="separator:ad2ccf7edc49e0e4e4d3f6c40df187f9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a533147eb4caa484f9a001a15a2a376d5"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structpacket__to__send.html">packet_to_send</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="globalvars_8h.html#a533147eb4caa484f9a001a15a2a376d5">last_packet_to_send</a></td></tr>
-<tr class="separator:a533147eb4caa484f9a001a15a2a376d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad37829218c339b4f5ed301c6d72caa15"><td class="memItemLeft" align="right" valign="top"><a class="el" href="packets_8h.html#a4f52e8d71736203acf96383bf60b6c38">PacketToSendNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="globalvars_8h.html#ad37829218c339b4f5ed301c6d72caa15">nextPacketToSend</a></td></tr>
+<tr class="separator:ad37829218c339b4f5ed301c6d72caa15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2854c992b33a9a3ca0aabefb8f5b07a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="packets_8h.html#a4f52e8d71736203acf96383bf60b6c38">PacketToSendNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="globalvars_8h.html#ac2854c992b33a9a3ca0aabefb8f5b07a">lastPacketToSend</a></td></tr>
+<tr class="separator:ac2854c992b33a9a3ca0aabefb8f5b07a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Definition file for global variables and arguments in ecd2. </p>
@@ -217,8 +217,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a7f5d903352c2133a67099abbf29041dc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7f5d903352c2133a67099abbf29041dc">&#9670;&nbsp;</a></span>blocklist</h2>
+<a id="ac2854c992b33a9a3ca0aabefb8f5b07a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2854c992b33a9a3ca0aabefb8f5b07a">&#9670;&nbsp;</a></span>lastPacketToSend</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -227,31 +227,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structblockpointer.html">blockpointer</a>* blocklist</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ecd2_8h_source.html#l00208">208</a> of file <a class="el" href="ecd2_8h_source.html">ecd2.h</a>.</p>
-
-</div>
-</div>
-<a id="a533147eb4caa484f9a001a15a2a376d5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a533147eb4caa484f9a001a15a2a376d5">&#9670;&nbsp;</a></span>last_packet_to_send</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct <a class="el" href="structpacket__to__send.html">packet_to_send</a>* last_packet_to_send</td>
+          <td class="memname"><a class="el" href="packets_8h.html#a4f52e8d71736203acf96383bf60b6c38">PacketToSendNode</a>* lastPacketToSend</td>
         </tr>
       </table>
   </td>
@@ -265,8 +241,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ad2ccf7edc49e0e4e4d3f6c40df187f9b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad2ccf7edc49e0e4e4d3f6c40df187f9b">&#9670;&nbsp;</a></span>next_packet_to_send</h2>
+<a id="ad37829218c339b4f5ed301c6d72caa15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad37829218c339b4f5ed301c6d72caa15">&#9670;&nbsp;</a></span>nextPacketToSend</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -275,7 +251,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structpacket__to__send.html">packet_to_send</a>* next_packet_to_send</td>
+          <td class="memname"><a class="el" href="packets_8h.html#a4f52e8d71736203acf96383bf60b6c38">PacketToSendNode</a>* nextPacketToSend</td>
         </tr>
       </table>
   </td>
@@ -286,6 +262,30 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="ecd2_8h_source.html#l00209">209</a> of file <a class="el" href="ecd2_8h_source.html">ecd2.h</a>.</p>
+
+</div>
+</div>
+<a id="a8b53e9cb2b2d1bfcac90807ec8415c75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b53e9cb2b2d1bfcac90807ec8415c75">&#9670;&nbsp;</a></span>processBlockDeque</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="processblock_8h.html#a56acfbd9c9b8f2179a1bad5d0738c710">ProcessBlockDequeNode</a>* processBlockDeque</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecd2_8h_source.html#l00208">208</a> of file <a class="el" href="ecd2_8h_source.html">ecd2.h</a>.</p>
 
 </div>
 </div>

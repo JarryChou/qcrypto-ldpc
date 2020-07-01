@@ -1,11 +1,11 @@
 <map id="packetheaders/pkt_header_3.h" name="packetheaders/pkt_header_3.h">
 <area shape="rect" id="node1" title=" " alt="" coords="422,5,622,32"/>
-<area shape="rect" id="node2" href="$thread__mgmt_8h.html" title=" " alt="" coords="421,80,623,121"/>
+<area shape="rect" id="node2" href="$processblock__mgmt_8h.html" title=" " alt="" coords="421,80,623,121"/>
 <area shape="rect" id="node3" href="$priv__amp_8h.html" title="privacy amplification portions of the code" alt="" coords="248,169,449,211"/>
 <area shape="rect" id="node4" href="$cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="5,259,207,300"/>
 <area shape="rect" id="node5" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="339,355,487,382"/>
 <area shape="rect" id="node9" href="$qber__estim_8h.html" title=" " alt="" coords="560,169,761,211"/>
-<area shape="rect" id="node11" href="$thread__mgmt_8c.html" title=" " alt="" coords="785,169,987,211"/>
+<area shape="rect" id="node11" href="$processblock__mgmt_8c.html" title=" " alt="" coords="785,169,987,211"/>
 <area shape="rect" id="node8" href="$priv__amp_8c.html" title=" " alt="" coords="283,259,484,300"/>
 <area shape="rect" id="node7" href="$cascade__biconf_8c.html" title=" " alt="" coords="5,348,207,389"/>
 <area shape="rect" id="node6" href="$ecd2_8c.html" title=" " alt="" coords="339,437,487,464"/>

@@ -1,0 +1,12 @@
+<map id="errorcorrection/subcomponents/processblock_mgmt.h" name="errorcorrection/subcomponents/processblock_mgmt.h">
+<area shape="rect" id="node1" title=" " alt="" coords="421,5,623,47"/>
+<area shape="rect" id="node2" href="$priv__amp_8h.html" title="privacy amplification portions of the code" alt="" coords="248,95,449,136"/>
+<area shape="rect" id="node3" href="$cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="5,184,207,225"/>
+<area shape="rect" id="node4" href="$ecd2_8h.html" title="Error correction demon. (modifications to original errcd see below)." alt="" coords="339,281,487,307"/>
+<area shape="rect" id="node8" href="$qber__estim_8h.html" title=" " alt="" coords="560,95,761,136"/>
+<area shape="rect" id="node10" href="$processblock__mgmt_8c.html" title=" " alt="" coords="785,95,987,136"/>
+<area shape="rect" id="node7" href="$priv__amp_8c.html" title=" " alt="" coords="283,184,484,225"/>
+<area shape="rect" id="node6" href="$cascade__biconf_8c.html" title=" " alt="" coords="5,273,207,315"/>
+<area shape="rect" id="node5" href="$ecd2_8c.html" title=" " alt="" coords="339,363,487,389"/>
+<area shape="rect" id="node9" href="$qber__estim_8c.html" title=" " alt="" coords="611,184,812,225"/>
+</map>
