@@ -22,18 +22,17 @@ void prepareParityList1(ProcessBlock *processBlock, unsigned int *d0, unsigned i
  * @brief Helper function to calculate k0 and k1
  * 
  * @param processBlock 
- * @param localerror
  */
-void setStateKnowMyErrorAndCalculatek0andk1(ProcessBlock *processBlock, float localerror) {
+void setStateKnowMyErrorAndCalculatek0andk1(ProcessBlock *processBlock) {
   /* determine process variables */
   processBlock->processingState = PSTATE_ERR_KNOWN;
   processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
   /****** more to do here *************/
   /* calculate k0 and k1 for further uses */
-  if (localerror < 0.01444) { /* min bitnumber */
+  if (processBlock->localError < 0.01444) { /* min bitnumber */
     processBlock->k0 = 64; 
   } else { 
-    processBlock->k0 = (int)(0.92419642 / localerror); 
+    processBlock->k0 = (int)(0.92419642 / processBlock->localError); 
   }
   processBlock->k1 = 3 * processBlock->k0; /* block length second array */
 }
@@ -248,12 +247,14 @@ int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResult
       fflush(stdout);
       #endif
       pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
+      return comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
     } else { // replymode == REPLYMODE_CONTINUE
-      // CASCADE SPECIFIC CODE
-      setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
+      processBlock->localError = localerror;
+      actionResultPtr->nextActionEnum = AR_DECISION_INVOLVING_PREFILLED_DATA;
+      actionResultPtr->bufferToSend = (char *)h3;
+      actionResultPtr->bufferLengthInBytes = h3->base.totalLengthInBytes;
+      return 0;
     }
-
-    return comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
   } else if (replymode == REPLYMODE_MORE_BITS) {
     // Prepare & send message
     i = comms_createEcHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
@@ -349,8 +350,8 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf, ActionRes
   }
 
   // else we are continuing to thhe next phase: error correction
-
-  setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
+  processBlock->localError = localerror;
+  setStateKnowMyErrorAndCalculatek0andk1(processBlock);
 
   /* install new seed */
   // processBlock->RNG_usage = 0; /* use simple RNG */

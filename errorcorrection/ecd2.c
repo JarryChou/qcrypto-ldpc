@@ -349,6 +349,47 @@ int readBodyFromReceivePipe() {
   return 0;
 }
 
+/**
+ * @brief Contains body for code to decide what algorithm to use after QBER estimation as the QBER follower
+ * 
+ * @param pb 
+ * @param actionResultPtr 
+ * @return int error code
+ */
+int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResultPtr) {
+  EC_ALGORITHM chosenAlgorithm;
+  // Assertion check to make sure code is correct
+  if (actionResultPtr->nextActionEnum != AR_DECISION_INVOLVING_PREFILLED_DATA) {
+    fprintf(stderr, "err 81 @ chooseEcAlgorithmAsQberFollower");
+    return 81;
+  }
+
+  // Currently the QBER_FOLLOWER will prepare for 
+  chosenAlgorithm = EC_ALG_CASCADE_CONTINUE_ROLES;
+
+  // Fill in the algorithm for the message
+  ((EcPktHdr_QberEstBitsAck *)(actionResultPtr->bufferToSend))->algorithmEnum = chosenAlgorithm;
+
+  // Perform whatever preparation work we need to do for the chosenAlgorithm
+  switch (chosenAlgorithm) {
+    case EC_ALG_CASCADE_CONTINUE_ROLES:
+      setStateKnowMyErrorAndCalculatek0andk1(pb);
+      break;
+    case EC_ALG_CASCADE_FLIP_ROLES:
+      break;
+    case EC_ALG_LDPC_CONTINUE_ROLES:
+      break;
+    case EC_ALG_LDPC_FLIP_ROLES:
+      break;
+    default:
+      fprintf(stderr, "Err 81 at chooseEcAlgorithmAsQberFollower\n");
+      return 81;
+  }
+
+  // Insert the packet
+  return comms_insertSendPacket((char *)actionResultPtr->bufferToSend, actionResultPtr->bufferLengthInBytes);
+}
+
 // MAIN FUNCTION
 /* ------------------------------------------------------------------------- */
 
@@ -504,7 +545,7 @@ int main(int argc, char *argv[]) {
           errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet, &actionResult);
           // Communicated follow up required: Error Correction choice as QBER_FOLLOWER
           if (!errorCode && actionResult.nextActionEnum != AR_NONE) {
-            
+            errorCode = chooseEcAlgorithmAsQberFollower(tmpProcessBlock, &actionResult);
           }
         } else {    
           // Get the process block to process it on
