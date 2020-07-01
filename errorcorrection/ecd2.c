@@ -356,15 +356,16 @@ int readBodyFromReceivePipe() {
  * @param actionResultPtr 
  * @return int error code
  */
-int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResultPtr) {
+int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, ActionResult* actionResultPtr) {
   EC_ALGORITHM chosenAlgorithm;
+  int errorCode = 0;
   // Assertion check to make sure code is correct
   if (actionResultPtr->nextActionEnum != AR_DECISION_INVOLVING_PREFILLED_DATA) {
     fprintf(stderr, "err 81 @ chooseEcAlgorithmAsQberFollower");
     return 81;
   }
 
-  // Currently the QBER_FOLLOWER will prepare for 
+  // The chosenAlgorithm by the QBER_FOLLOWER is hardcoded (originally is EC_ALG_CASCADE_CONTINUE_ROLES)
   chosenAlgorithm = EC_ALG_CASCADE_CONTINUE_ROLES;
 
   // Fill in the algorithm for the message
@@ -373,21 +374,25 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult
   // Perform whatever preparation work we need to do for the chosenAlgorithm
   switch (chosenAlgorithm) {
     case EC_ALG_CASCADE_CONTINUE_ROLES:
-      cascade_setStateKnowMyErrorThenCalck0k1(pb);
-      break;
+      processBlock->processorRole = PROC_ROLE_EC_FOLLOWER;
+      cascade_setStateKnowMyErrorThenCalck0k1(processBlock);
+      // Insert the packet
+      return comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
     case EC_ALG_CASCADE_FLIP_ROLES:
-      break;
+      // QBER_FOLLOWER will now be the one initiating the error correction procedure
+      processBlock->processorRole = PROC_ROLE_EC_INITIATOR;
+      errorCode = comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
+      if (errorCode) 
+        return errorCode;
+      return 81;
     case EC_ALG_LDPC_CONTINUE_ROLES:
-      break;
+      return 81;
     case EC_ALG_LDPC_FLIP_ROLES:
-      break;
+      return 81;
     default:
       fprintf(stderr, "Err 81 at chooseEcAlgorithmAsQberFollower\n");
       return 81;
   }
-
-  // Insert the packet
-  return comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
 }
 
 // MAIN FUNCTION
@@ -588,7 +593,7 @@ int main(int argc, char *argv[]) {
                 switch (tmpProcessBlock->processorRole) {
 
                   // Alice in old documentation
-                  case QBER_EST_INITIATOR: 
+                  case PROC_ROLE_QBER_EST_INITIATOR: 
                     errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
                     // No internal follow up is required as communications is encapsulated in the function above
@@ -596,7 +601,7 @@ int main(int argc, char *argv[]) {
                     break;
 
                   // Bob in old documentation
-                  case QBER_EST_FOLLOWER: 
+                  case PROC_ROLE_QBER_EST_FOLLOWER: 
                     errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
                     // May send a variety of messages, triggers privacy amp if conditions are met

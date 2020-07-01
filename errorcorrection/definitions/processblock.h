@@ -36,10 +36,10 @@
  * These terms are used for clarity without the need of domain knowledge e.g. client/server.
  */
 enum EC_PROCESSOR_ROLE {
-  QBER_EST_INITIATOR = 0,     ///< Previously identified as Alice, the party that initiates QBER est
-  QBER_EST_FOLLOWER = 1,      ///< Previously identified as Bob
-  EC_INITIATOR = 2,           ///< After QBER estimation, the party that initiates the error correction algorithm
-  EC_FOLLOWER = 3             ///< After QBER estimation, the party on the other end
+  PROC_ROLE_QBER_EST_INITIATOR = 0,     ///< Previously identified as Alice, the party that initiates QBER est
+  PROC_ROLE_QBER_EST_FOLLOWER = 1,      ///< Previously identified as Bob
+  PROC_ROLE_EC_INITIATOR = 2,           ///< After QBER estimation, the party that initiates the error correction algorithm
+  PROC_ROLE_EC_FOLLOWER = 3             ///< After QBER estimation, the party on the other end
 };
 typedef enum EC_PROCESSOR_ROLE PROCESSOR_ROLE;
 

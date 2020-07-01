@@ -353,7 +353,7 @@ int readHeaderFromReceivePipe();
 // Read body from  receive  pipe
 int readBodyFromReceivePipe();
 // Contains body for code to decide what algorithm to use after QBER estimation as the QBER follower
-int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult);
+int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, ActionResult* actionResult);
 
 // MAIN FUNCTION DECLARATION
 /* ------------------------------------------------------------------------- */

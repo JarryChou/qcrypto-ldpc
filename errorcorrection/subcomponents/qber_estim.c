@@ -80,7 +80,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   if (!(processBlock = pBlkMgmt_getProcessBlock(epoch))) return 73; /* cannot find key block */
 
   /* set role in block to alice (initiating the seed) in keybloc struct */
-  processBlock->processorRole = QBER_EST_INITIATOR;
+  processBlock->processorRole = PROC_ROLE_QBER_EST_INITIATOR;
   processBlock->skipQberEstim = arguments.skipQberEstimation;
   /* seed the rng, (the state has to be kept with the processblock, use a lock system for the rng in case several ) */
   // processBlock->RNG_usage = 0; /* use simple RNG */
@@ -163,7 +163,7 @@ int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResult
     processBlock->leakageBits = 0;
     processBlock->estimatedSampleSize = 0;
     processBlock->estimatedError = 0;
-    processBlock->processorRole = QBER_EST_FOLLOWER;
+    processBlock->processorRole = PROC_ROLE_QBER_EST_FOLLOWER;
     processBlock->bellValue = in_head->bellValue;
   }
 
@@ -314,9 +314,14 @@ int qber_prepareErrorCorrection(ProcessBlock *processBlock, char *receivebuf) {
   // NICE TO HAVE: Abstract this section out to reduce linkages to other subcomponents
   switch (in_head->algorithmEnum) {
     case EC_ALG_CASCADE_CONTINUE_ROLES:
+      processBlock->processorRole = PROC_ROLE_EC_INITIATOR;
       return cascade_initiateAfterQber(processBlock);
     case EC_ALG_CASCADE_FLIP_ROLES:
-      return 81;
+      // QBER_INITIATOR is now the EC_FOLLOWER
+      processBlock->processorRole = PROC_ROLE_EC_FOLLOWER;
+      cascade_setStateKnowMyErrorThenCalck0k1(processBlock);
+      // Do nothing, await the cascade message from the now EC_INITIATOR
+      return 0;
     case EC_ALG_LDPC_CONTINUE_ROLES:
       return 81;
     case EC_ALG_LDPC_FLIP_ROLES:
