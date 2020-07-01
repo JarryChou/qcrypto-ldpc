@@ -163,8 +163,7 @@ int privAmp_doPrivAmp(ProcessBlock *pb, unsigned int seed, int lostbits) {
   }
 
   /* here we do the accounting of gained and lost bits */
-  pb->finalKeyBits =
-      pb->workbits - (pb->leakageBits + sneakloss) + redundantloss;
+  pb->finalKeyBits = pb->workbits - (pb->leakageBits + sneakloss) + redundantloss;
   if (pb->finalKeyBits < 0) pb->finalKeyBits = 0; /* no hope. */
 
   /* dirtwork for testing. I need to leave this in because it is the basis

@@ -366,7 +366,8 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, ActionResult* ac
   }
 
   // The chosenAlgorithm by the QBER_FOLLOWER is hardcoded (originally is EC_ALG_CASCADE_CONTINUE_ROLES)
-  chosenAlgorithm = EC_ALG_CASCADE_CONTINUE_ROLES;
+  // chosenAlgorithm = EC_ALG_CASCADE_CONTINUE_ROLES;
+  chosenAlgorithm = EC_ALG_CASCADE_FLIP_ROLES;
 
   // Fill in the algorithm for the message
   ((EcPktHdr_QberEstBitsAck *)(actionResultPtr->bufferToSend))->algorithmEnum = chosenAlgorithm;
@@ -543,6 +544,10 @@ int main(int argc, char *argv[]) {
          *    1. Too much effort (out of my scope)
          *    2. How do I make it easier for scientists to read?
          *    A. Better to just put comments accordingly
+         * 
+         *    WARNING: THE CODE DOESN'T (always) VALIDATE THE DATA OF RECEIVED PACKETS. 
+         *             THIS IS A POTENTIAL RED FLAG... 
+         *             I don't have enough time to really dive into this, but this is vital w.r.t. malloc
          */
 
         // Separate the functions that do not require a non-null process block
