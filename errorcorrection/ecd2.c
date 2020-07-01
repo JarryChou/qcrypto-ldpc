@@ -369,6 +369,8 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult
 
   // Fill in the algorithm for the message
   ((EcPktHdr_QberEstBitsAck *)(actionResultPtr->bufferToSend))->algorithmEnum = chosenAlgorithm;
+  printf("Test A");
+  fflush(stdout);
 
   // Perform whatever preparation work we need to do for the chosenAlgorithm
   switch (chosenAlgorithm) {
@@ -385,9 +387,11 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult
       fprintf(stderr, "Err 81 at chooseEcAlgorithmAsQberFollower\n");
       return 81;
   }
+  printf("Test B");
+  fflush(stdout);
 
   // Insert the packet
-  return comms_insertSendPacket((char *)actionResultPtr->bufferToSend, actionResultPtr->bufferLengthInBytes);
+  return comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
 }
 
 // MAIN FUNCTION
@@ -419,7 +423,7 @@ int main(int argc, char *argv[]) {
   receivedPacketLinkedList = NULL;                    /* no receive packet s in queue */
   EcPktHdr_Base *tmpBaseHeader = NULL;
   ProcessBlock *tmpProcessBlock = NULL;
-  ActionResult actionResult;                          // For functions to extract higher level decisions up to ecd2.c
+  ActionResult actionResult = {AR_NONE, NULL, 0};     // For functions to extract higher level decisions up to ecd2.c
   // Variables for command input
   char cmdInput[CMD_INBUF_LEN];                       /* For temporary storage of cmd input */
   cmdInput[0] = '\0';                                 /* buffer for commands */
@@ -539,6 +543,7 @@ int main(int argc, char *argv[]) {
          *    2. How do I make it easier for scientists to read?
          *    A. Better to just put comments accordingly
          */
+        actionResult.nextActionEnum = AR_NONE;
 
         // Separate the functions that do not require a non-null process block
         if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
@@ -562,11 +567,9 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SUBTYPE_QBER_EST_BITS_ACK: /* received error confirmation message */
-                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet, &actionResult);
-                // Communicated follow up required: Error Correction choice as QBER_INITIATOR
-                if (!errorCode && actionResult.nextActionEnum != AR_NONE) {
-                  
-                }
+                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // No internal follow up is required as communications is encapsulated in the function above
+                // message dependent on algorithm chosen by bob
                 break;
 
               case SUBTYPE_CASCADE_PARITY_LIST: /* received parity list message */
