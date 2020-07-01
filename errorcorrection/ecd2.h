@@ -190,7 +190,6 @@
 
 // Definition header files
 #include "definitions/action_result.h"
-#include "definitions/algorithms/algorithms.h"
 #include "definitions/defaultdefinitions.h"
 #include "definitions/globalvars.h"
 
@@ -352,8 +351,6 @@ int parseCmdAndInitProcessBlk(char* dpnt, char* cmdInput, unsigned int *newEpoch
 int readHeaderFromReceivePipe();
 // Read body from  receive  pipe
 int readBodyFromReceivePipe();
-// Contains body for code to decide what algorithm to use after QBER estimation as the QBER follower
-int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult);
 
 // MAIN FUNCTION DECLARATION
 /* ------------------------------------------------------------------------- */

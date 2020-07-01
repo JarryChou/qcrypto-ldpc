@@ -61,8 +61,7 @@ typedef struct processblock {
   int initialErrRate;                   /**< in multiples of 2^-16 */
   Boolean skipQberEstim;                /**< determines if error estimation has to be done */
   int estimatedError;                   /**< number of estimated error bits */
-  int estimatedSampleSize;              /**< sample size for error estimation  */
-  float localError;                     /**< local error after qber estimation */
+  int estimatedSampleSize;              /**< sample size for error  estimation  */
   // int finalerrors;                   /**< number of discovered errors */
   // int RNG_usage;                     /**< defines mode of randomness. 0: PRNG, 1: good stuff (which has not been implemented) */
   unsigned int rngState;                /**< keeps the state of the PRNG for this processblock */

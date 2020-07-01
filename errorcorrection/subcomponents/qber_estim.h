@@ -44,7 +44,6 @@
 /// \endcond
 
 #include "../definitions/action_result.h"
-#include "../definitions/algorithms/algorithms.h"
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
 #include "../definitions/processblock.h"
@@ -55,8 +54,6 @@
 #include "debug.h"
 #include "helpers.h"
 #include "processblock_mgmt.h"
-
-#include "cascade_biconf.h"
 
 /**
  * @brief 
@@ -70,6 +67,8 @@ enum REPLY_MODE {
 
 /// @name ERROR ESTIMATION HELPER FUNCTIONS
 /// @{
+void prepareParityList1(ProcessBlock *pb, unsigned int *d0, unsigned int *d1);
+void calculatek0andk1(ProcessBlock *processblock);
 int testBitsNeeded(float e);
 /// @}
 
@@ -78,7 +77,7 @@ int testBitsNeeded(float e);
 int qber_beginErrorEstimation(unsigned int epoch);
 int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResultPtr);
 int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf);
-int qber_prepareErrorCorrection(ProcessBlock *processBlock, char *receivebuf);
+int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf, ActionResult *actionResultPtr);
 /// @}
 
 #endif /* ECD2_QBER_ESTIM */

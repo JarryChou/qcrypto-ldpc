@@ -69,16 +69,9 @@ enum EC_DECISION_REQUIRED {
 };
 typedef enum EC_DECISION_REQUIRED DECISION_REQUIRED;
 
-/**
- * @brief Struct to contain the metadata.
- * 
- * Nice to have: Some kind of high level abstraction that identifies the type of data this contains.
- * Right now that is hardcoded.
- * 
- */
 typedef struct EC_ACTION_RESULT_STRUCT {
     DECISION_REQUIRED nextActionEnum;
-    // enum EC_SUBTYPES subtype;
+    enum EC_SUBTYPES subtype;
     char *bufferToSend;
     unsigned int bufferLengthInBytes;
 } ActionResult;
