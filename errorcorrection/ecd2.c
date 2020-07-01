@@ -373,7 +373,7 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *pb, ActionResult* actionResult
   // Perform whatever preparation work we need to do for the chosenAlgorithm
   switch (chosenAlgorithm) {
     case EC_ALG_CASCADE_CONTINUE_ROLES:
-      setStateKnowMyErrorAndCalculatek0andk1(pb);
+      cascade_setStateKnowMyErrorThenCalck0k1(pb);
       break;
     case EC_ALG_CASCADE_FLIP_ROLES:
       break;
@@ -539,13 +539,15 @@ int main(int argc, char *argv[]) {
          *    2. How do I make it easier for scientists to read?
          *    A. Better to just put comments accordingly
          */
-        // Reset actionResult
-        actionResult.nextActionEnum = AR_NONE;
 
         // Separate the functions that do not require a non-null process block
         if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
+          // Reset actionResult
+          actionResult.nextActionEnum = AR_NONE;
+          
           errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet, &actionResult);
           // Communicated follow up required: Error Correction choice as QBER_FOLLOWER
+          
           if (!errorCode && actionResult.nextActionEnum != AR_NONE) {
             // Make sure to set tmpProcessBlock first
             tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
@@ -570,7 +572,7 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SUBTYPE_QBER_EST_BITS_ACK: /* received error confirmation message */
-                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
+                errorCode = qber_prepareErrorCorrection(tmpProcessBlock, tempReceivedPacketNode->packet);
                 // No internal follow up is required as communications is encapsulated in the function above
                 // message dependent on algorithm chosen by bob
                 break;
@@ -587,7 +589,7 @@ int main(int argc, char *argv[]) {
 
                   // Alice in old documentation
                   case QBER_EST_INITIATOR: 
-                    errorCode = cascade_QBER_EST_INITIATORAlice_processBinSearch(tmpProcessBlock, 
+                    errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
                     // No internal follow up is required as communications is encapsulated in the function above
                     // Sends message of subtype SUBTYPE_CASCADE_BIN_SEARCH_MSG
@@ -595,7 +597,7 @@ int main(int argc, char *argv[]) {
 
                   // Bob in old documentation
                   case QBER_EST_FOLLOWER: 
-                    errorCode = cascade_QBER_EST_FOLLOWERBob_processBinSearch(tmpProcessBlock, 
+                    errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
                     // May send a variety of messages, triggers privacy amp if conditions are met
                     break;

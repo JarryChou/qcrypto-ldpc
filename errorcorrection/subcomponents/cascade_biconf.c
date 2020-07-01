@@ -375,6 +375,100 @@ int cascade_prepFirstBinSearchMsg(ProcessBlock *processBlock, int pass) {
 }
 
 /**
+ * @brief Helper function to calculate k0 and k1
+ * 
+ * @param processBlock 
+ */
+void cascade_setStateKnowMyErrorThenCalck0k1(ProcessBlock *processBlock) {
+  /* determine process variables */
+  processBlock->processingState = PSTATE_ERR_KNOWN;
+  processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
+  /****** more to do here *************/
+  /* calculate k0 and k1 for further uses */
+  if (processBlock->localError < 0.01444) { /* min bitnumber */
+    processBlock->k0 = 64; 
+  } else { 
+    processBlock->k0 = (int)(0.92419642 / processBlock->localError); 
+  }
+  processBlock->k1 = 3 * processBlock->k0; /* block length second array */
+}
+
+/**
+ * @brief helper function to prepare parity lists from original and unpermutated key.
+ * 
+ * No return value,
+   as no errors are tested here.
+ * 
+ * @param pb pointer to processblock
+ * @param d0 pointer to target parity buffer 0
+ * @param d1 pointer to paritybuffer 1
+ */
+void cascade_prepareParityList1(ProcessBlock *processBlock, unsigned int *d0, unsigned int *d1) {
+  helper_prepParityList(processBlock->mainBufPtr, d0, processBlock->k0, processBlock->workbits);
+  helper_prepParityList(processBlock->permuteBufPtr, d1, processBlock->k1, processBlock->workbits);
+  return;
+}
+
+// CASCADE MAIN FUNCTIONS
+/* ------------------------------------------------------------------------- */
+
+/**
+ * @brief 
+ * 
+ * @param processBlock 
+ * @return int 
+ */
+int cascade_initiateAfterQber(ProcessBlock *processBlock) {
+  unsigned int newseed;             /* seed for permutation */
+  int msg4datalen, errorCode;
+  EcPktHdr_CascadeParityList *h4;   // header pointer 
+  unsigned int *h4_d0, *h4_d1;      /* pointer to data tracks  */
+
+  cascade_setStateKnowMyErrorThenCalck0k1(processBlock);
+
+  /* install new seed */
+  if (rnd_generateRngSeed(&newseed)) {
+    // return error if there was an error code produced
+    return 39; 
+  }
+  /* get new seed for RNG */
+  processBlock->rngState = newseed; 
+
+  /* prepare permutation array */
+  helper_prepPermutationWrapper(processBlock);
+
+  /* prepare message 5 frame - this should go into helper_prepPermutationWrapper? */
+  processBlock->partitions0 = (processBlock->workbits + processBlock->k0 - 1) / processBlock->k0;
+  processBlock->partitions1 = (processBlock->workbits + processBlock->k1 - 1) / processBlock->k1;
+
+  /* get raw buffer */
+  msg4datalen = (wordCount(processBlock->partitions0) + wordCount(processBlock->partitions1)) * WORD_SIZE;
+  errorCode = comms_createEcHeader((char **)&h4, SUBTYPE_CASCADE_PARITY_LIST, msg4datalen, processBlock);
+  if (errorCode) 
+    return errorCode;
+
+  /* both data arrays */
+  h4_d0 = (unsigned int *)&h4[1];
+  h4_d1 = &h4_d0[wordCount(processBlock->partitions0)];
+  h4->seed = newseed;                        /* permutator seed */
+
+  /* these are optional; should we drop them? */
+  h4->k0 = processBlock->k0;
+  h4->k1 = processBlock->k1;
+  h4->totalbits = processBlock->workbits;
+
+  /* evaluate parity in blocks */
+  cascade_prepareParityList1(processBlock, h4_d0, h4_d1);
+
+  /* update status */
+  processBlock->processingState = PSTATE_PERFORMED_PARITY;
+  processBlock->leakageBits += processBlock->partitions0 + processBlock->partitions1;
+
+  /* transmit message */
+  return comms_insertSendPacket((char *)h4, h4->base.totalLengthInBytes);
+}
+
+/**
  * @brief Function to proceed with the parity evaluation message.
  * 
  * This function should start the Binary search machinery.
@@ -450,7 +544,7 @@ int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
  * @param in_head header for incoming request
  * @return error code, 0 if success
  */
-int cascade_QBER_EST_INITIATORAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
@@ -614,7 +708,7 @@ int cascade_QBER_EST_INITIATORAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_
  * @param in_head header of incoming type-5 ec packet
  * @return error code, 0 if success 
  */
-int cascade_QBER_EST_FOLLOWERBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
