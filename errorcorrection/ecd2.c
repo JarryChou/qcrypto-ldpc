@@ -216,17 +216,21 @@ int readFromCmdPipe(char* cmdInput) {
 }
 
 /**
- * @brief Create a processblock and start qber based on the cmd stored in cimd_input
+ * @brief Create a processblock based on command read into cmdInput (terminated with 0, from the command pipe)
  * 
  * Uses static variable: input_last_index
  * 
  * @param dpnt 
  * @param cmdInput 
+ * @param newEpochPtr pointer to return newEpoch value to.
  * @return 0 if success otherwise error code 
  */
-int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmdInput) {
+int parseCmdAndInitProcessBlk(char* dpnt, char* cmdInput, unsigned int *newEpochPtr) {
   int i, sl;
-  unsigned int newEpoch;
+  int fieldsAssigned;
+  int consecutiveEpochs;
+  float newesterror = 0; /* for initial parsing of a block */
+  float bellValue;       /* for Ekert-type protocols */
   int errorCode = 0;
 
   /* parse command string */
@@ -234,11 +238,45 @@ int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmdInput) {
   if (dpnt) { /* we got a newline */
     dpnt[0] = 0;
     sl = strlen(cmdInput);
-    errorCode = processCmdAndCreateProcBlk(cmdInput, &newEpoch);
-    
-    if (!errorCode) {
-      errorCode = qber_beginErrorEstimation(newEpoch);
+    fieldsAssigned = sscanf(cmdInput, "%x %i %f %f", newEpochPtr, &consecutiveEpochs, &newesterror, &bellValue);
+    printf("got cmd: epoch: %08x, num: %d, esterr: %f fieldsAssigned: %d\n", *newEpochPtr, 
+        consecutiveEpochs, newesterror, fieldsAssigned);
+    #ifdef DEBUG
+    fflush(stdout);
+    #endif
+    // Assign default values based on how many fields assigned
+    switch (fieldsAssigned) {
+      case 0:                                     /* no conversion */
+        if (arguments.runtimeErrorMode != END_ON_ERR) break;/* nocomplain */
+        return 30;                                /* not enough arguments */
+      case 1: consecutiveEpochs = 1;                 /* use default epoch number */
+      case 2: newesterror = arguments.initialErrRate; // use default initial error rate, or error rate passed in
+      case 3: bellValue = PERFECT_BELL;           /* assume perfect Bell */
+      case 4:                                     /* everything is there */
+        // Parameter validation
+        if (newesterror < 0 || newesterror > MAX_INI_ERR) { // error rate out of bounds
+          if (arguments.runtimeErrorMode != END_ON_ERR) break;
+          return 31;
+        } else if (consecutiveEpochs < 1) { // epoch num out of bounds
+          if (arguments.runtimeErrorMode != END_ON_ERR) break;
+          return 32;
+        } else if (check_epochoverlap(*newEpochPtr, consecutiveEpochs)) { // ensure start epoch & epoch num has not been used
+          if (arguments.runtimeErrorMode != END_ON_ERR) break;
+          return 33;
+        }
+
+        /* create new processblock */
+        if ((errorCode = pBlkMgmt_createProcessBlock(*newEpochPtr, consecutiveEpochs, newesterror, bellValue))) {
+          if (arguments.runtimeErrorMode != END_ON_ERR) break;
+          return errorCode; /* error reading files */
+        }
+
+        printf("got a processblock and will send msg1\n");
+        #ifdef DEBUG
+        fflush(stdout);
+        #endif
     }
+
     /* cmdInput and dpnt (move back rest) */
     for (i = 0; i < input_last_index - sl - 1; i++) cmdInput[i] = dpnt[i + 1];
     input_last_index -= sl + 1;
@@ -246,61 +284,6 @@ int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmdInput) {
   }
 
   return errorCode;
-}
-
-/**
- * @brief process an input string, terminated with 0, from the command pipe
- * 
- * When you process a command, you spawn a new processblock and also begin the QBER estimation process.
- * 
- * @param newEpoch ptr to return new epoch number to
- * @param cmdInput buffer for command
- * @return 0 if success, otherwise return error code 
- */
-int processCmdAndCreateProcBlk(char *cmdInput, unsigned int *newEpoch) {
-  int fieldsAssigned, errorCode;
-  int newepochnumber;
-  float newesterror = 0; /* for initial parsing of a block */
-  float bellValue;       /* for Ekert-type protocols */
-
-  fieldsAssigned = sscanf(cmdInput, "%x %i %f %f", newEpoch, &newepochnumber, &newesterror, &bellValue);
-  printf("got cmd: epoch: %08x, num: %d, esterr: %f fieldsAssigned: %d\n", *newEpoch, newepochnumber, newesterror, fieldsAssigned);
-  #ifdef DEBUG
-  fflush(stdout);
-  #endif
-  // Assign default values based on how many fields assigned
-  switch (fieldsAssigned) {
-    case 0:                                     /* no conversion */
-      if (arguments.runtimeErrorMode != END_ON_ERR) break;/* nocomplain */
-      return 30;                                /* not enough arguments */
-    case 1: newepochnumber = 1;                 /* use default epoch number */
-    case 2: newesterror = arguments.initialErrRate; // use default initial error rate, or error rate passed in
-    case 3: bellValue = PERFECT_BELL;           /* assume perfect Bell */
-    case 4:                                     /* everything is there */
-      // Parameter validation
-      if (newesterror < 0 || newesterror > MAX_INI_ERR) { // error rate out of bounds
-        if (arguments.runtimeErrorMode != END_ON_ERR) break;
-        return 31;
-      } else if (newepochnumber < 1) { // epoch num out of bounds
-        if (arguments.runtimeErrorMode != END_ON_ERR) break;
-        return 32;
-      } else if (check_epochoverlap(*newEpoch, newepochnumber)) { // ensure start epoch & epoch num has not been used
-        if (arguments.runtimeErrorMode != END_ON_ERR) break;
-        return 33;
-      }
-
-      /* create new processblock */
-      if ((errorCode = pBlkMgmt_createProcessBlock(*newEpoch, newepochnumber, newesterror, bellValue))) {
-        if (arguments.runtimeErrorMode != END_ON_ERR) break;
-        return errorCode; /* error reading files */
-      }
-
-      printf("got a processblock and will send msg1\n");
-      #ifdef DEBUG
-      fflush(stdout);
-      #endif
-  }
-  return 0;
 }
 
 /**
@@ -455,7 +438,13 @@ int main(int argc, char *argv[]) {
           }
         }
         // Process cmdInput
-        errorCode = createProcessBlockAndStartQberWithCmd(dpnt, (char *) &cmdInput);
+        unsigned int newEpoch = 0;
+        errorCode = parseCmdAndInitProcessBlk(dpnt, (char *) &cmdInput, &newEpoch);
+        // Begin qber estimation and send bits over 
+        if (!errorCode) {
+          errorCode = qber_beginErrorEstimation(newEpoch);
+        }
+        // If an error occured on either step, sound off if needed
         if (errorCode && arguments.runtimeErrorMode == END_ON_ERR) {
           return -emsg(errorCode);
         }
@@ -477,8 +466,8 @@ int main(int argc, char *argv[]) {
       // If there is something to read from query pipeline (commented out query pipe)
       // if (FD_ISSET(arguments.handle[handleId_queryPipe], &readqueue)) { }
 
+      // If errorCode was set but ignored, then arguments.runtimeErrorMode must  not be END_ON_ERR
       if (errorCode) {
-        // If errorCode was set but ignored, then arguments.runtimeErrorMode must  not be END_ON_ERR
         emsg(errorCode); // print error but do nothing
         errorCode = 0;
       }
@@ -525,18 +514,19 @@ int main(int argc, char *argv[]) {
             switch (tmpBaseHeader->subtype) {
               case SUBTYPE_QBER_EST_REQ_MORE_BITS:
                 retval = qber_replyWithMoreBits(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // No follow up is expected from qber_replyWithMoreBits as communications is encapsulated in the code
+                // No follow up is expected from qber_replyWithMoreBits as communications 
+                // is encapsulated in this code
                 break;
 
-              case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
+              case SUBTYPE_QBER_EST_BITS_ACK: /* received error confirmation message */
                 retval = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
-              case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
+              case SUBTYPE_CASCADE_PARITY_LIST: /* received parity list message */
                 retval = cascade_startBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
-              case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
+              case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* receive a binarysearch message */
                 retval = cascade_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
