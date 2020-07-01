@@ -105,8 +105,9 @@ typedef struct ERRC_ERRDET_2 {
  */
 typedef struct ERRC_ERRDET_3 {
     EcPktHdr_Base base;
-    unsigned int tested_bits;       /**< number of bits tested */
-    unsigned int number_of_errors;  /**< number of mismatches found */
+    unsigned int testedBits;        /**< number of bits tested */
+    unsigned int numberOfErrors;    /**< number of mismatches found */
+    unsigned int algorithmEnum;    /**< if successful, this will be set to the enum of the algorithm to use for EC */
 } EcPktHdr_QberEstBitsAck;
 
 /**

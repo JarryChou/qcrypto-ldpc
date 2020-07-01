@@ -43,6 +43,7 @@
 #include <stdio.h>
 /// \endcond
 
+#include "../definitions/action_result.h"
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
 #include "../definitions/processblock.h"
@@ -74,9 +75,9 @@ int testBitsNeeded(float e);
 /// @name ERROR ESTIMATION MAIN FUNCTIONS
 /// @{
 int qber_beginErrorEstimation(unsigned int epoch);
-int qber_processReceivedQberEstBits(char *receivebuf);
+int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResultPtr);
 int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf);
-int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf);
+int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf, ActionResult *actionResultPtr);
 /// @}
 
 #endif /* ECD2_QBER_ESTIM */

@@ -189,8 +189,8 @@ For both possibilities, packets are defined:
        unsigned int subtype;
        unsigned int epoch;
        unsigned int numberOfEpochs;
-       unsigned int tested_bits;
-       unsigned int number_of_errors;
+       unsigned int testedBits;
+       unsigned int numberOfErrors;
         }
 ```
   element definition:
@@ -200,8 +200,8 @@ For both possibilities, packets are defined:
 * **subtype**:            3 for request of bit number packet
 * **epoch**:              defines epoch of first packet
 * **numberOfEpochs**:    defines implicitly the length of the block
-* **tested_bits**:        the number of bits tested
-* **number_of_errors**:   how many mismatches were found.
+* **testedBits**:        the number of bits tested
+* **numberOfErrors**:   how many mismatches were found.
 
 
 # 2. First round of parity bit generation

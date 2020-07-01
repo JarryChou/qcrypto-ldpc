@@ -115,7 +115,7 @@ int qber_beginErrorEstimation(unsigned int epoch) {
   if (!(processBlock = pBlkMgmt_getProcessBlock(epoch))) return 73; /* cannot find key block */
 
   /* set role in block to alice (initiating the seed) in keybloc struct */
-  processBlock->processorRole = INITIATOR;
+  processBlock->processorRole = QBER_EST_INITIATOR;
   processBlock->skipQberEstim = arguments.skipQberEstimation;
   /* seed the rng, (the state has to be kept with the processblock, use a lock system for the rng in case several ) */
   // processBlock->RNG_usage = 0; /* use simple RNG */
@@ -155,9 +155,10 @@ int qber_beginErrorEstimation(unsigned int epoch) {
  *  Currently, it assumes only PRNG-based bit selections.
  * 
  * @param receivebuf pointer to the receivebuffer with both the header and the data section.
+ * @param actionResultPtr ptr to action result which will contain meta info on the outcome of this function call
  * @return int 0 on success, otherwise error code
  */
-int qber_processReceivedQberEstBits(char *receivebuf) {
+int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResultPtr) {
   EcPktHdr_QberEstBits *in_head; /* holds header */
   ProcessBlock *processBlock;           /* points to processblock info */
   unsigned int *in_data;         /* holds input data bits */
@@ -197,7 +198,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     processBlock->leakageBits = 0;
     processBlock->estimatedSampleSize = 0;
     processBlock->estimatedError = 0;
-    processBlock->processorRole = FOLLOWER;
+    processBlock->processorRole = QBER_EST_FOLLOWER;
     processBlock->bellValue = in_head->bellValue;
   }
 
@@ -238,8 +239,8 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     // Prepare & send message
     i = comms_createEcHeader((char**)&h3, SUBTYPE_QBER_EST_BITS_ACK, 0, processBlock);
     if (i) return i;
-    h3->tested_bits = processBlock->leakageBits;
-    h3->number_of_errors = processBlock->estimatedError;
+    h3->testedBits = processBlock->leakageBits;
+    h3->numberOfErrors = processBlock->estimatedError;
 
     if (replymode == REPLYMODE_TERMINATE) {
       #ifdef DEBUG
@@ -248,10 +249,11 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
       #endif
       pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
     } else { // replymode == REPLYMODE_CONTINUE
+      // CASCADE SPECIFIC CODE
       setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
     }
 
-    comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
+    return comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
   } else if (replymode == REPLYMODE_MORE_BITS) {
     // Prepare & send message
     i = comms_createEcHeader((char**)&h2, SUBTYPE_QBER_EST_REQ_MORE_BITS, 0, processBlock);
@@ -261,12 +263,10 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
     processBlock->skipQberEstim = 1;
     processBlock->processingState = PSTATE_AWAIT_ERR_EST_MORE_BITS;
 
-    comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);
+    return comms_insertSendPacket((char *)h2, h2->base.totalLengthInBytes);
   } else { // logic error in code
     return 80;
   }
-
-  return 0; /* everything went well */
 }
 
 /**
@@ -312,9 +312,10 @@ int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf) {
  * 
  * @param processBlock pointer to non null processblock
  * @param receivebuf pointer to the receive buffer containing the message.
+ * @param actionResultPtr ptr to action result which will contain meta info on the outcome of this function call
  * @return int 0 on success, error code otherwise
  */
-int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
+int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf, ActionResult *actionResultPtr) {
   EcPktHdr_QberEstBitsAck *in_head; /* holds header */
   float localerror;
   enum REPLY_MODE replymode;
@@ -328,9 +329,9 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
   in_head = (EcPktHdr_QberEstBitsAck *)receivebuf;
 
   /* extract error information out of message */
-  if (in_head->tested_bits != processBlock->leakageBits) return 52;
-  processBlock->estimatedSampleSize = in_head->tested_bits;
-  processBlock->estimatedError = in_head->number_of_errors;
+  if (in_head->testedBits != processBlock->leakageBits) return 52;
+  processBlock->estimatedSampleSize = in_head->testedBits;
+  processBlock->estimatedError = in_head->numberOfErrors;
 
   localerror = calculateLocalError(processBlock, &replymode, &newbitsneeded);
 
@@ -346,6 +347,8 @@ int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf) {
     pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
     return 0;
   }
+
+  // else we are continuing to thhe next phase: error correction
 
   setStateKnowMyErrorAndCalculatek0andk1(processBlock, localerror);
 

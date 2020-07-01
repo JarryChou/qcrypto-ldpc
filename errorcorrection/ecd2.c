@@ -501,8 +501,11 @@ int main(int argc, char *argv[]) {
 
         // Separate the functions that do not require a non-null process block
         if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
-          errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet);
-          // No internal follow up is required as communications is encapsulated in the function above
+          errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet, &actionResult);
+          // Communicated follow up required: Error Correction choice as QBER_FOLLOWER
+          if (!errorCode && actionResult.nextActionEnum != AR_NONE) {
+            
+          }
         } else {    
           // Get the process block to process it on
           tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
@@ -518,8 +521,11 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SUBTYPE_QBER_EST_BITS_ACK: /* received error confirmation message */
-                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // Communicated follow up required: Error Correction choice
+                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet, &actionResult);
+                // Communicated follow up required: Error Correction choice as QBER_INITIATOR
+                if (!errorCode && actionResult.nextActionEnum != AR_NONE) {
+                  
+                }
                 break;
 
               case SUBTYPE_CASCADE_PARITY_LIST: /* received parity list message */
@@ -529,22 +535,22 @@ int main(int argc, char *argv[]) {
                 break;
 
               case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* receive a binarysearch message */
+                // Nice to have: Super & sub-class implementation
                 switch (tmpProcessBlock->processorRole) {
 
                   // Alice in old documentation
-                  case INITIATOR: 
-                    errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, 
+                  case QBER_EST_INITIATOR: 
+                    errorCode = cascade_QBER_EST_INITIATORAlice_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
                     // No internal follow up is required as communications is encapsulated in the function above
                     // Sends message of subtype SUBTYPE_CASCADE_BIN_SEARCH_MSG
                     break;
 
                   // Bob in old documentation
-                  case FOLLOWER: 
-                    errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, 
+                  case QBER_EST_FOLLOWER: 
+                    errorCode = cascade_QBER_EST_FOLLOWERBob_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
-                    // May send a variety of messages
-                    // Internal decision required for privacy amplification function
+                    // May send a variety of messages, triggers privacy amp if conditions are met
                     break;
 
                   // Illegal role
@@ -560,8 +566,7 @@ int main(int argc, char *argv[]) {
 
               case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
                 errorCode = cascade_receiveBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // May send a variety of messages
-                // Internal decision required for privacy amplification function
+                // May send a variety of messages, triggers privacy amp if conditions are met
                 break;
 
               case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */

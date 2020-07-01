@@ -450,7 +450,7 @@ int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
  * @param in_head header for incoming request
  * @return error code, 0 if success
  */
-int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_QBER_EST_INITIATORAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
@@ -614,7 +614,7 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBi
  * @param in_head header of incoming type-5 ec packet
  * @return error code, 0 if success 
  */
-int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_QBER_EST_FOLLOWERBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
   unsigned int *inh_data, *inh_idx;
   int i;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
