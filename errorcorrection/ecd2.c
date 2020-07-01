@@ -382,10 +382,12 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, ActionResult* ac
     case EC_ALG_CASCADE_FLIP_ROLES:
       // QBER_FOLLOWER will now be the one initiating the error correction procedure
       processBlock->processorRole = PROC_ROLE_EC_INITIATOR;
+      // Send the packet first
       errorCode = comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
       if (errorCode) 
         return errorCode;
-      return 81;
+      // Then send another packet that the EC_INITIATOR would send
+      return cascade_initiateAfterQber(processBlock);
     case EC_ALG_LDPC_CONTINUE_ROLES:
       return 81;
     case EC_ALG_LDPC_FLIP_ROLES:
