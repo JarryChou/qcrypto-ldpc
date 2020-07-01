@@ -593,7 +593,7 @@ int main(int argc, char *argv[]) {
                 switch (tmpProcessBlock->processorRole) {
 
                   // Alice in old documentation
-                  case PROC_ROLE_QBER_EST_INITIATOR: 
+                  case PROC_ROLE_EC_INITIATOR: 
                     errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
                     // No internal follow up is required as communications is encapsulated in the function above
@@ -601,7 +601,7 @@ int main(int argc, char *argv[]) {
                     break;
 
                   // Bob in old documentation
-                  case PROC_ROLE_QBER_EST_FOLLOWER: 
+                  case PROC_ROLE_EC_FOLLOWER: 
                     errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, 
                         (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
                     // May send a variety of messages, triggers privacy amp if conditions are met
