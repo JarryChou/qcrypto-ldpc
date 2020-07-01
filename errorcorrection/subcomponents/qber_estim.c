@@ -268,7 +268,7 @@ int qber_processReceivedQberEstBits(char *receivebuf) {
  * @param receivebuf pointer to the receive buffer containing the message.
  * @return int 0 on success, error code otherwise
  */
-int qber_processMoreEstBitsReq(ProcessBlock *processBlock, char *receivebuf) {
+int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf) {
   EcPktHdr_QberEstReqMoreBits *in_head; /* holds header */
   int bitsneeded;                /* number of bits needed to send */
   EcPktHdr_QberEstBits *msg1;    /* for header to be sent */
@@ -283,6 +283,7 @@ int qber_processMoreEstBitsReq(ProcessBlock *processBlock, char *receivebuf) {
   msg1 = comms_createQberEstBitsMsg(processBlock, bitsneeded, 0, processBlock->bellValue);
   if (!msg1) return 43; /* a malloc error occured */
   /* adjust message reply to hide the seed/indicate a second reply */
+
   msg1->seed = 0;
   /* send this structure to outgoing mailbox */
   comms_insertSendPacket((char *)msg1, msg1->base.totalLengthInBytes);

@@ -28,7 +28,10 @@
 #ifndef ECD2_DEFAULTS
 #define ECD2_DEFAULTS
 
+// Libraries
+/// \cond omit doxygen dependency diagram
 #include <math.h>
+/// \endcond
 
 /// @name DEFAULT DEFINITIONS
 /// @{

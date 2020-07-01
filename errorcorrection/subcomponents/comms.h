@@ -45,10 +45,10 @@
 /// \endcond
 
 // Definition files
+#include "../definitions/globalvars.h"
 #include "../definitions/proc_state.h"
 #include "../definitions/processblock.h"
 #include "../definitions/packets.h"
-#include "../definitions/globalvars.h"
 
 // Other components
 #include "debug.h"

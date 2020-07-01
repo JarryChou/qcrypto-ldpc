@@ -75,7 +75,7 @@ int testBitsNeeded(float e);
 /// @{
 int qber_beginErrorEstimation(unsigned int epoch);
 int qber_processReceivedQberEstBits(char *receivebuf);
-int qber_processMoreEstBitsReq(ProcessBlock *processBlock, char *receivebuf);
+int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf);
 int qber_prepareDualPass(ProcessBlock *processBlock, char *receivebuf);
 /// @}
 

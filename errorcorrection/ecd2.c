@@ -193,21 +193,21 @@ int write_into_sendpipe() {
 }
 
 /**
- * @brief read command from cmdpipe into cmd_input
+ * @brief read command from cmdpipe into cmdInput
  * 
  * Uses static variable: input_last_index
  * 
- * @param cmd_input 
+ * @param cmdInput 
  * @return -1 if clean exit requested (empty cmd sent), 0 if success, otherwise error code
  */
-int readFromCmdPipe(char* cmd_input) {
-  int retval = read(arguments.handle[handleId_commandPipe], &cmd_input[input_last_index], 
+int readFromCmdPipe(char* cmdInput) {
+  int retval = read(arguments.handle[handleId_commandPipe], &cmdInput[input_last_index], 
       CMD_INBUF_LEN - 1 - input_last_index);
   if (retval < 0) return -1;
   input_last_index += retval;
-  cmd_input[input_last_index] = '\0';
+  cmdInput[input_last_index] = '\0';
   #ifdef DEBUG
-  printf("Rd from cmd pipe. cmd_input: %s\n", cmd_input);
+  printf("Rd from cmd pipe. cmdInput: %s\n", cmdInput);
   fflush(stdout);
   #endif
   if (input_last_index >= CMD_INBUF_LEN) return 75; /* overflow, parse later... */
@@ -221,27 +221,31 @@ int readFromCmdPipe(char* cmd_input) {
  * Uses static variable: input_last_index
  * 
  * @param dpnt 
- * @param cmd_input 
+ * @param cmdInput 
  * @return 0 if success otherwise error code 
  */
-int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmd_input) {
-  int i, errorCode, sl;
+int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmdInput) {
+  int i, sl;
+  unsigned int newEpoch;
+  int errorCode = 0;
+
   /* parse command string */
-  dpnt = index(cmd_input, '\n');
+  dpnt = index(cmdInput, '\n');
   if (dpnt) { /* we got a newline */
     dpnt[0] = 0;
-    sl = strlen(cmd_input);
-    errorCode = process_command(cmd_input);
-    if (errorCode && (arguments.runtimeErrorMode == END_ON_ERR)) {
-      return errorCode; /* complain */
+    sl = strlen(cmdInput);
+    errorCode = processCmdAndCreateProcBlk(cmdInput, &newEpoch);
+    
+    if (!errorCode) {
+      errorCode = qber_beginErrorEstimation(newEpoch);
     }
-    /* move back rest */
-    for (i = 0; i < input_last_index - sl - 1; i++) cmd_input[i] = dpnt[i + 1];
+    /* cmdInput and dpnt (move back rest) */
+    for (i = 0; i < input_last_index - sl - 1; i++) cmdInput[i] = dpnt[i + 1];
     input_last_index -= sl + 1;
-    cmd_input[input_last_index] = '\0'; /* repair index */
+    cmdInput[input_last_index] = '\0'; /* repair index */
   }
 
-  return 0;
+  return errorCode;
 }
 
 /**
@@ -249,18 +253,18 @@ int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmd_input) {
  * 
  * When you process a command, you spawn a new processblock and also begin the QBER estimation process.
  * 
- * @param cmd_input buffer for command
+ * @param newEpoch ptr to return new epoch number to
+ * @param cmdInput buffer for command
  * @return 0 if success, otherwise return error code 
  */
-int process_command(char *cmd_input) {
+int processCmdAndCreateProcBlk(char *cmdInput, unsigned int *newEpoch) {
   int fieldsAssigned, errorCode;
-  unsigned int newepoch; /* command parser */
   int newepochnumber;
   float newesterror = 0; /* for initial parsing of a block */
   float bellValue;       /* for Ekert-type protocols */
 
-  fieldsAssigned = sscanf(cmd_input, "%x %i %f %f", &newepoch, &newepochnumber, &newesterror, &bellValue);
-  printf("got cmd: epoch: %08x, num: %d, esterr: %f fieldsAssigned: %d\n", newepoch, newepochnumber, newesterror, fieldsAssigned);
+  fieldsAssigned = sscanf(cmdInput, "%x %i %f %f", newEpoch, &newepochnumber, &newesterror, &bellValue);
+  printf("got cmd: epoch: %08x, num: %d, esterr: %f fieldsAssigned: %d\n", *newEpoch, newepochnumber, newesterror, fieldsAssigned);
   #ifdef DEBUG
   fflush(stdout);
   #endif
@@ -268,7 +272,7 @@ int process_command(char *cmd_input) {
   switch (fieldsAssigned) {
     case 0:                                     /* no conversion */
       if (arguments.runtimeErrorMode != END_ON_ERR) break;/* nocomplain */
-      return 30;                         /* not enough arguments */
+      return 30;                                /* not enough arguments */
     case 1: newepochnumber = 1;                 /* use default epoch number */
     case 2: newesterror = arguments.initialErrRate; // use default initial error rate, or error rate passed in
     case 3: bellValue = PERFECT_BELL;           /* assume perfect Bell */
@@ -280,21 +284,15 @@ int process_command(char *cmd_input) {
       } else if (newepochnumber < 1) { // epoch num out of bounds
         if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return 32;
-      } else if (check_epochoverlap(newepoch, newepochnumber)) { // ensure start epoch & epoch num has not been used
+      } else if (check_epochoverlap(*newEpoch, newepochnumber)) { // ensure start epoch & epoch num has not been used
         if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return 33;
       }
 
       /* create new processblock */
-      if ((errorCode = pBlkMgmt_createProcessBlock(newepoch, newepochnumber, newesterror, bellValue))) {
+      if ((errorCode = pBlkMgmt_createProcessBlock(*newEpoch, newepochnumber, newesterror, bellValue))) {
         if (arguments.runtimeErrorMode != END_ON_ERR) break;
         return errorCode; /* error reading files */
-      }
-
-      /* Initiate first step of error estimation */
-      if ((errorCode = qber_beginErrorEstimation(newepoch))) {
-        if (arguments.runtimeErrorMode != END_ON_ERR) break;
-        return errorCode; /* error initiating err est */
       }
 
       printf("got a processblock and will send msg1\n");
@@ -349,8 +347,7 @@ int readBodyFromReceivePipe() {
   if (retval == -1) return 36; /* can that be better? */
   receiveIndex += retval;
   if (receiveIndex == msgprotobuf.totalLengthInBytes) { /* got all */
-    ReceivedPacketNode *msgp = (ReceivedPacketNode *)malloc2(
-        sizeof(ReceivedPacketNode));
+    ReceivedPacketNode *msgp = (ReceivedPacketNode *)malloc2(sizeof(ReceivedPacketNode));
     if (!msgp) return 38;
     /* insert message in message chain */
     msgp->next = NULL;
@@ -381,7 +378,7 @@ int readBodyFromReceivePipe() {
  */
 int main(int argc, char *argv[]) {
   // Variables
-  int retval, errorCode;          // for checking if error occured in function, or return values in general
+  int retval, errorCode = 0;          // for checking if error occured in function, or return values in general
   int i;                        // Helper iterator value
   // For select syscall system 
   fd_set readqueue, writequeue;  /* for main event loop */
@@ -399,8 +396,8 @@ int main(int argc, char *argv[]) {
   EcPktHdr_Base *tmpBaseHeader = NULL;
   ProcessBlock *tmpProcessBlock = NULL;
   // Variables for command input
-  char cmd_input[CMD_INBUF_LEN];  /* For temporary storage of cmd input */
-  cmd_input[0] = '\0';    /* buffer for commands */
+  char cmdInput[CMD_INBUF_LEN];  /* For temporary storage of cmd input */
+  cmdInput[0] = '\0';    /* buffer for commands */
   input_last_index = 0;   /* input parsing */
 
 
@@ -429,10 +426,11 @@ int main(int argc, char *argv[]) {
     // -------------------------------------------------------------
     retval = has_pipe_event(&readqueue, &writequeue, selectmax, 
         nextPacketToSend || sendIndex, 
-        (cmd_input[0] || receivedPacketLinkedList) ? TENMILLISEC : HALFSECOND);
+        (cmdInput[0] || receivedPacketLinkedList) ? TENMILLISEC : HALFSECOND);
 
     // Part 2 of the loop: if an error happened, retval would be -1
     // -------------------------------------------------------------
+    // This is a pretty critical error, so runtimeErrorMode shouldn't apply here
     if (retval == -1) return -emsg(28);
 
     // If retval is not zero, there is something to read / write for the pipes
@@ -440,27 +438,27 @@ int main(int argc, char *argv[]) {
       // If there is something to write into send pipe
       if (FD_ISSET(arguments.handle[handleId_sendPipe], &writequeue)) {
         errorCode = write_into_sendpipe(&sendIndex);
-        if (errorCode) return errorCode;
+        if (errorCode && arguments.runtimeErrorMode == END_ON_ERR) {
+          return -emsg(errorCode);
+        }
       } 
 
       // If there is something to read from cmd pipeline
       if (FD_ISSET(arguments.handle[handleId_commandPipe], &readqueue)) {
-        // Read from cmd pipeline into cmd_input
-        errorCode = readFromCmdPipe((char *) &cmd_input);
+        // Read from cmd pipeline into cmdInput
+        errorCode = readFromCmdPipe((char *) &cmdInput);
         if (errorCode) {
           if (errorCode == -1) {
             break; // Clean exit program
-          }
-          else { // Otherwise an error really occurred
-            emsg(errorCode);  // Always print error
-            if (arguments.runtimeErrorMode == END_ON_ERR) {
-              return -errorCode;
-            }
+          } else if (arguments.runtimeErrorMode == END_ON_ERR) {
+            return -emsg(errorCode);
           }
         }
-        // Process cmd_input
-        errorCode = createProcessBlockAndStartQberWithCmd(dpnt, (char *) &cmd_input);
-        if (errorCode) return -emsg(errorCode);
+        // Process cmdInput
+        errorCode = createProcessBlockAndStartQberWithCmd(dpnt, (char *) &cmdInput);
+        if (errorCode && arguments.runtimeErrorMode == END_ON_ERR) {
+          return -emsg(errorCode);
+        }
       }
 
       // If there is something to read from receive pipeline
@@ -472,11 +470,18 @@ int main(int argc, char *argv[]) {
           // Read body (subtype & data)
           errorCode = readBodyFromReceivePipe();
         }
-        if (errorCode) return -emsg(errorCode);
+        if (errorCode && arguments.runtimeErrorMode == END_ON_ERR) {
+          return -emsg(errorCode);
+        }
       }
-
       // If there is something to read from query pipeline (commented out query pipe)
       // if (FD_ISSET(arguments.handle[handleId_queryPipe], &readqueue)) { }
+
+      if (errorCode) {
+        // If errorCode was set but ignored, then arguments.runtimeErrorMode must  not be END_ON_ERR
+        emsg(errorCode); // print error but do nothing
+        errorCode = 0;
+      }
     }
 
     // Part 3 of the loop: processing packets in the receivedPacketLinkedList
@@ -495,9 +500,21 @@ int main(int argc, char *argv[]) {
         fflush(stdout);
         #endif
 
+        /**
+         * The following section uses a rudimentary return value system so as to abstract out the linkages
+         * between sub-components. I'd rather use a design pattern here, but I don't want the code to become
+         * too complicated for people not acquainted with the design pattern.
+         * 
+         * Internally, the retval can come as a:
+         * Positive value: An error has occurred. The value tallies with the error message in errormessage. 
+         * Zero:           0 denotes no error / no further action required.
+         * Negative value: Follow up action is required. The value tallies with the enum in ecd2.h.
+         * 
+         */
+
         // Separate the functions that do not require a non-null process block
         if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
-          errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet);
+          retval = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet);
         } else {    
           // Get the process block to process it on
           tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
@@ -507,30 +524,32 @@ int main(int argc, char *argv[]) {
             // Process packet based on the subtype
             switch (tmpBaseHeader->subtype) {
               case SUBTYPE_QBER_EST_REQ_MORE_BITS:
-                errorCode = qber_processMoreEstBitsReq(tmpProcessBlock, tempReceivedPacketNode->packet);
+                retval = qber_replyWithMoreBits(tmpProcessBlock, tempReceivedPacketNode->packet);
+                // No follow up is expected from qber_replyWithMoreBits as communications is encapsulated in the code
                 break;
+
               case SUBTYPE_QBER_EST_BITS_ACK: /* reveived error confirmation message */
-                errorCode = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
+                retval = qber_prepareDualPass(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_PARITY_LIST: /* reveived parity list message */
-                errorCode = cascade_startBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
+                retval = cascade_startBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* reveive a binarysearch message */
-                errorCode = cascade_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
+                retval = cascade_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-                errorCode = cascade_generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                retval = cascade_generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
-                errorCode = cascade_receiveBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
+                retval = cascade_receiveBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
-                errorCode = privAmp_receivePrivAmpMsg(tmpProcessBlock, tempReceivedPacketNode->packet);
+                retval = privAmp_receivePrivAmpMsg(tmpProcessBlock, tempReceivedPacketNode->packet);
                 break;
 
               default: /* packet subtype not known */
@@ -541,7 +560,7 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      if (errorCode) { /* an error occured */
+      if (isError(retval)) { /* an error occured */
         emsg(errorCode); // Always print errors
         if (arguments.runtimeErrorMode == IGNORE_ERRS_ON_OTHER_END) {
           errorCode = 0; // reset

@@ -240,6 +240,26 @@ static int sendIndex;                /**< for sending out packets */
 static int receiveIndex;             /**< for receiving packets */
 static EcPktHdr_Base msgprotobuf; /**< for reading header of receive packet */
 
+
+/**
+ * @brief 
+ * 
+ */
+#define isError(RET_VAL) ((RET_VAL) > 0)
+
+/**
+ * @brief 
+ * 
+ */
+enum NextAction {
+    NO_ACTION_REQUIRED = 0
+    
+};
+
+/**
+ * @brief Error messages always have a positive index
+ * 
+ */
 static char *errormessage[] = {
     "No error.",
     "Error reading in verbosity argument.", /* 1 */
@@ -338,12 +358,12 @@ int parse_options(int argc, char *argv[]);
 int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax, Boolean hasContentToSend, struct timeval timeout);
 // for writing data into sendpipe
 int write_into_sendpipe();
-// for reading command from cmdpipe into cmd_input
-int readFromCmdPipe(char* cmd_input);
-// for processing command in cmd_input to create processblock & start qber estimation
-int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmd_input);
+// for reading command from cmdpipe into cmdInput
+int readFromCmdPipe(char* cmdInput);
+// for processing command in cmdInput to create processblock & start qber estimation
+int createProcessBlockAndStartQberWithCmd(char* dpnt, char* cmdInput);
 /* process a command (e.g. epoch epochNum), terminated with \0 */
-int process_command(char *in);      
+int processCmdAndCreateProcBlk(char *cmdInput, unsigned int *newEpoch);
 // Read header from receive pipe
 int readHeaderFromReceivePipe();
 // Read body from  receive  pipe
