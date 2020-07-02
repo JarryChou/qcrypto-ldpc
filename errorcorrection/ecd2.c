@@ -336,10 +336,10 @@ int readBodyFromReceivePipe() {
     msgp->next = NULL;
     msgp->length = receiveIndex;
     msgp->packet = readbuf;
-    ReceivedPacketNode *tempReceivedPacketNode = receivedPacketLinkedList;
-    if (tempReceivedPacketNode) {
-      while (tempReceivedPacketNode->next) tempReceivedPacketNode = tempReceivedPacketNode->next;
-      tempReceivedPacketNode->next = msgp;
+    ReceivedPacketNode *tmpRecvdPktNode = receivedPacketLinkedList;
+    if (tmpRecvdPktNode) {
+      while (tmpRecvdPktNode->next) tmpRecvdPktNode = tmpRecvdPktNode->next;
+      tmpRecvdPktNode->next = msgp;
     } else {
       receivedPacketLinkedList = msgp;
     }
@@ -369,15 +369,15 @@ int main(int argc, char *argv[]) {
   struct timeval HALFSECOND = {0, 500000};
   struct timeval TENMILLISEC = {0, 10000};
   /* Buffers or pointers for packet receive or send management */
-  ReceivedPacketNode *tempReceivedPacketNode = NULL;  /* index to go through the linked list */
+  ReceivedPacketNode *tmpRecvdPktNode = NULL;  /* index to go through the linked list */
   nextPacketToSend = NULL;                            /* no packets to be sent */
   lastPacketToSend = NULL;                   
   sendIndex = 0;                                      /* index of next packet to send */
   receiveIndex = 0;                                   /* index for reading in a longer packet */
   processBlockDeque = NULL;                           /* no active key blocks in memory */
   receivedPacketLinkedList = NULL;                    /* no receive packet s in queue */
-  EcPktHdr_Base *tmpBaseHeader = NULL;
-  ProcessBlock *tmpProcessBlock = NULL;
+  EcPktHdr_Base *tmpBaseHead = NULL;
+  ProcessBlock *tmpPrcBlk = NULL;
   // Variables for command input
   char cmdInput[CMD_INBUF_LEN];                       /* For temporary storage of cmd input */
   cmdInput[0] = '\0';                                 /* buffer for commands */
@@ -478,104 +478,49 @@ int main(int argc, char *argv[]) {
     // Part 3 of the loop: processing packets in the receivedPacketLinkedList
     // -------------------------------------------------------------
     // If there is something to process
-    if ((tempReceivedPacketNode = receivedPacketLinkedList)) {
+    if ((tmpRecvdPktNode = receivedPacketLinkedList)) {
       // If packet is not an error correction packet based on tag, then throw error
-      if (((unsigned int *)tempReceivedPacketNode->packet)[0] != EC_PACKET_TAG) { 
+      if (((unsigned int *)tmpRecvdPktNode->packet)[0] != EC_PACKET_TAG) { 
         errorCode = 44; 
       } else {
         // Set helper header
-        tmpBaseHeader = (EcPktHdr_Base *) tempReceivedPacketNode->packet;
+        tmpBaseHead = (EcPktHdr_Base *)tmpRecvdPktNode->packet;
         // Print debug message
         #ifdef DEBUG
-        printf("received message, subtype: %d, len: %d\n", tmpBaseHeader->subtype, tmpBaseHeader->totalLengthInBytes);
+        printf("received message, subtype: %d, len: %d\n", tmpBaseHead->subtype, tmpBaseHead->totalLengthInBytes);
         fflush(stdout);
         #endif
 
-        /**
-         * Food for thought: Extract communications? I thought about it but I figured it's:
-         *    1. Too much effort (out of my scope)
-         *    2. How do I make it easier for scientists to read?
-         *    A. Better to just put comments accordingly
-         * 
-         *    WARNING: THE CODE DOESN'T (always) VALIDATE THE DATA OF RECEIVED PACKETS. 
-         *             THIS IS A POTENTIAL RED FLAG... 
-         *             I don't have enough time to really dive into this, but this is vital w.r.t. malloc
-         */
-
-        // Separate the functions that do not require a non-null process block
-        if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
-          errorCode = qber_processReceivedQberEstBits(NULL, tempReceivedPacketNode->packet);
-          // Communicated follow up required: Error Correction choice as QBER_FOLLOWER
-        } else {    
-          // Get the process block to process it on
-          tmpProcessBlock = pBlkMgmt_getProcessBlk(tmpBaseHeader->epoch);
-          if (!tmpProcessBlock) {
+        // If it is the very first message that one would receive, thus no process block for it yet
+        if (tmpBaseHead->subtype == SUBTYPE_QBER_EST_BITS) {
+          errorCode = qber_processReceivedQberEstBits(NULL, tmpRecvdPktNode->packet);
+        } else {
+          // Extract the process block
+          tmpPrcBlk = pBlkMgmt_getProcessBlk(tmpBaseHead->epoch);
+          // If processblock is empty
+          if (!tmpPrcBlk) {
             errorCode = 48;
           } else {
-            // Process packet based on the subtype
-            switch (tmpBaseHeader->subtype) {
-              case SUBTYPE_QBER_EST_REQ_MORE_BITS:
-                errorCode = qber_replyWithMoreBits(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // No internal follow up is required as communications is encapsulated in the function above
-                // Sends message of subtype SUBTYPE_QBER_EST_BITS
-                break;
-
-              case SUBTYPE_QBER_EST_BITS_ACK: /* received error confirmation message */
-                errorCode = qber_prepareErrorCorrection(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // No internal follow up is required as communications is encapsulated in the function above
-                // message dependent on algorithm chosen by bob
-                break;
-
-              case SUBTYPE_CASCADE_PARITY_LIST: /* received parity list message */
-                errorCode = cascade_startBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // No internal follow up is required as communications is encapsulated in the function above
-                // Sends message of subtype SUBTYPE_CASCADE_BIN_SEARCH_MSG
-                break;
-
-              case SUBTYPE_CASCADE_BIN_SEARCH_MSG: /* receive a binarysearch message */
-                // Nice to have: Super & sub-class implementation
-                switch (tmpProcessBlock->processorRole) {
-
-                  // Alice in old documentation
-                  case PROC_ROLE_EC_INITIATOR: 
-                    errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet); 
-                    // No internal follow up is required as communications is encapsulated in the function above
-                    // Sends message of subtype SUBTYPE_CASCADE_BIN_SEARCH_MSG
-                    break;
-
-                  // Bob in old documentation
-                  case PROC_ROLE_EC_FOLLOWER: 
-                    errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet); 
-                    // May send a variety of messages, triggers privacy amp if conditions are met
-                    break;
-
-                  // Illegal role
-                  default: errorCode = 56; break;
-                }
-                break;
-
-              case SUBTYPE_CASCADE_BICONF_INIT_REQ: /* receive a BICONF initiating request */
-                errorCode = cascade_generateBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // No internal follow up is required as communications is encapsulated in the function above
-                // Sends message of subtype SUBTYPE_CASCADE_BICONF_PARITY_RESP
-                break;
-
-              case SUBTYPE_CASCADE_BICONF_PARITY_RESP: /* receive a BICONF parity response */
-                errorCode = cascade_receiveBiconfReply(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // May send a variety of messages, triggers privacy amp if conditions are met
-                break;
-
-              case SUBTYPE_START_PRIV_AMP: /* receive a privacy amplification start msg */
-                errorCode = privAmp_receivePrivAmpMsg(tmpProcessBlock, tempReceivedPacketNode->packet);
-                // No internal follow up is required as implementation is encapsulated in the function above
-                break;
-
-              default: /* packet subtype not known */
-                fprintf(stderr, "received subtype %d; ", tmpBaseHeader->subtype);
-                errorCode = 45;
+            // Validate the subtype number
+            if (tmpBaseHead->subtype < tmpPrcBlk->algorithmPktMngr->FIRST_SUBTYPE
+                || tmpBaseHead->subtype > tmpPrcBlk->algorithmPktMngr->LAST_SUBTYPE) {
+              // Subtype received for the processBlock is outside that of the subtypes supported by the
+              // algorithm in use
+              errorCode = 45;
+            } else {
+              // What's going on here:
+              // Pass it into the current packet function handler 
+              // (See definitions/algorithms/algorithms.c and algorithms/packet_manager.h)
+              // tmpPrcBlk->algorithmPktMngr points to a const algorithm packet manager defined in algorithms.c
+              // that pkt manager contains an array of pointers to functions which handle the incoming packet.
+              // They are sorted by subtype.
+              // So we use the subtype - the first subtype to get the index of the function handler in the array,
+              // then we pass in the processBlock & packet into that function handler.
+              (*(tmpPrcBlk->algorithmPktMngr->FUNC_HANDLERS))
+                  [tmpBaseHead->subtype - tmpPrcBlk->algorithmPktMngr->FIRST_SUBTYPE](tmpPrcBlk, tmpRecvdPktNode->packet);
             }
           }
-        }
+        }  
       }
 
       if (errorCode) { /* an error occured */
@@ -587,10 +532,10 @@ int main(int argc, char *argv[]) {
         }
       }
       
-      // Remove packet from receivedPacketLinkedList
-      receivedPacketLinkedList = tempReceivedPacketNode->next;  /* update packet pointer */
-      free2(tempReceivedPacketNode->packet);                    /* free data section... */
-      free2(tempReceivedPacketNode);                            /* ...and pointer entry */
+      // Remove packet from receivedPacketLinkedList after processing it
+      receivedPacketLinkedList = tmpRecvdPktNode->next;  /* update packet pointer */
+      free2(tmpRecvdPktNode->packet);                    /* free data section... */
+      free2(tmpRecvdPktNode);                            /* ...and pointer entry */
     }
   }
   

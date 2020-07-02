@@ -20,7 +20,9 @@ typedef struct ProcessBlk ProcessBlock;
  * A function pointer is basically a pointer to a function
  * Each packet handler returns an int (error code) and takes in a process block and a receivebuf.
  * 
- *  For more information on function pointers see:
+ * The subtypes covered by a packet manager is consecutive.
+ * 
+ * For more information on function pointers see:
  * https://stackoverflow.com/questions/252748/how-can-i-use-an-array-of-function-pointers
  * https://stackoverflow.com/questions/337449/how-does-one-declare-an-array-of-constant-function-pointers-in-c
  * 
@@ -32,11 +34,10 @@ typedef int (* PacketHandlerArray[])(ProcessBlock* processBlock, char* receivebu
  * 
  */
 typedef struct ALGORITHM_PKT_MNGR {
-    const PacketHandlerArray* FUNC_HANDLERS;              ///< Pointer to function pointers/handlers for current algorithm
-    /// Since array indexes start from 0, this is to align the array index with the subtype number
-    const int SUBTYPE_NUM_OFFSET;                         // Store offset from first function handler to its packet subtype number
-    const int FUNC_HANDLER_COUNT;                         ///< Number of function handlers
-    const int ALLOW_NULL_PRCBLKS;                         ///< Boolean. Function handlers take in process block as a param. This flag allows them to be null, otherwise error is thrown.
+    const PacketHandlerArray *FUNC_HANDLERS;         ///< Pointer to function pointers/handlers for current algorithm
+    const int FIRST_SUBTYPE;                         ///< The first subtype covered by the function handlers
+    const int LAST_SUBTYPE;                          ///< The last subtype covered by this algorithm pkt manager
+    const int ALLOW_NULL_PRCBLKS;                    ///< Boolean. Function handlers take in process block as a param. This flag allows them to be null, otherwise error is thrown.
 } ALGORITHM_PKT_MNGR;
 
 #endif

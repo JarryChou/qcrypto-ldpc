@@ -5,13 +5,14 @@
 // ALGORITHM STRUCT FOR PROCESS BLOCK
 // Contains information & functions on the algorithm w.r.t. packet handling
 // ********************************************************************************
+// I realize this will not be used, but I left this in to make it more clear what's going on
 const PacketHandlerArray ALG_PKTHNDLRS_QBER_FOLLOWER = {
     qber_processReceivedQberEstBits             ///< Subtype 0
 };
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_FOLLOWER = {
     &ALG_PKTHNDLRS_QBER_FOLLOWER,               // funcHandlers
-    0,                                          // subtypeNumOffset
-    sizeof(ALG_PKTHNDLRS_QBER_FOLLOWER)          // funcHandlerCount, automatically calculated
+    0,                                          // FIRST_SUBTYPE
+    sizeof(ALG_PKTHNDLRS_QBER_FOLLOWER)          // LAST_SUBTYPE, automatically calculated
         / sizeof(ALG_PKTHNDLRS_QBER_FOLLOWER[0]),
     True                                        // allowNullPrcBlks
 };
@@ -22,9 +23,9 @@ const PacketHandlerArray ALG_PKTHNDLRS_QBER_INITIATOR = {
 };
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_INITATOR = {
     &ALG_PKTHNDLRS_QBER_INITIATOR,              // funcHandlers
-    0,                                          // subtypeNumOffset
-    sizeof(ALG_PKTHNDLRS_QBER_INITIATOR)         // funcHandlerCount, automatically calculated
-        / sizeof(ALG_PKTHNDLRS_QBER_INITIATOR[0]),
+    0,                                          // FIRST_SUBTYPE
+    0 + sizeof(ALG_PKTHNDLRS_QBER_INITIATOR)         // LAST_SUBTYPE, automatically calculated
+        / sizeof(ALG_PKTHNDLRS_QBER_INITIATOR[0]) - 1,
     False                                       // allowNullPrcBlks
 };
 
@@ -37,9 +38,9 @@ const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_FOLLOWER = {
 };
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_INITIATOR = {
     &ALG_PKTHNDLRS_CASCADE_INITIATOR,           // funcHandlers
-    4,                                          // subtypeNumOffset
-    sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER)       // funcHandlerCount, automatically calculated
-        / sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER[0]),
+    4,                                          // FIRST_SUBTYPE
+    4 + sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER)       // LAST_SUBTYPE, automatically calculated
+        / sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER[0]) - 1,
     False                                       // allowNullPrcBlks
 };
 
@@ -52,9 +53,9 @@ const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_INITIATOR = {
 };
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_FOLLOWER = {
     &ALG_PKTHNDLRS_CASCADE_FOLLOWER,            // funcHandlers
-    4,                                          // subtypeNumOffset
-    sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR)      // funcHandlerCount, automatically calculated
-        / sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR[0]),
+    4,                                          // FIRST_SUBTYPE
+    4 + sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR)      // LAST_SUBTYPE, automatically calculated
+        / sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR[0]) - 1,
     False                                       // allowNullPrcBlks
 };
 
