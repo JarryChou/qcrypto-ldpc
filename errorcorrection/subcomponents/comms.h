@@ -45,6 +45,7 @@
 /// \endcond
 
 // Definition files
+#include "../definitions/algorithms/algorithms.h"
 #include "../definitions/globalvars.h"
 #include "../definitions/proc_state.h"
 #include "../definitions/processblock.h"

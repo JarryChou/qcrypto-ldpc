@@ -216,7 +216,7 @@ int readFromCmdPipe(char* cmdInput) {
 }
 
 /**
- * @brief Create a processblock based on command read into cmdInput (terminated with 0, from the command pipe)
+ * @brief Create a processBlock based on command read into cmdInput (terminated with 0, from the command pipe)
  * 
  * Uses static variable: input_last_index
  * 
@@ -265,13 +265,13 @@ int parseCmdAndInitProcessBlk(char* dpnt, char* cmdInput, unsigned int *newEpoch
           return 33;
         }
 
-        /* create new processblock */
-        if ((errorCode = pBlkMgmt_createProcessBlock(*newEpochPtr, consecutiveEpochs, newesterror, bellValue))) {
+        /* create new processBlock */
+        if ((errorCode = pBlkMgmt_createProcessBlk(*newEpochPtr, consecutiveEpochs, newesterror, bellValue, True))) {
           if (arguments.runtimeErrorMode != END_ON_ERR) break;
           return errorCode; /* error reading files */
         }
 
-        printf("got a processblock and will send msg1\n");
+        printf("got a processBlock and will send msg1\n");
         #ifdef DEBUG
         fflush(stdout);
         #endif
@@ -508,7 +508,7 @@ int main(int argc, char *argv[]) {
           // Communicated follow up required: Error Correction choice as QBER_FOLLOWER
         } else {    
           // Get the process block to process it on
-          tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
+          tmpProcessBlock = pBlkMgmt_getProcessBlk(tmpBaseHeader->epoch);
           if (!tmpProcessBlock) {
             errorCode = 48;
           } else {

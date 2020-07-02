@@ -1,14 +1,18 @@
 /**
  * @file algorithms.h  
  * @brief Definition file for error correction algorithms
- * 
- * All available algorithms have been put into this one file so that you can more easily see and 
- * understand what is going on
+ *
+ * File that defines implemented algorithms
  * 
  */
 
 #ifndef EC_ERRC_ALGORITHMS
 #define EC_ERRC_ALGORITHMS 1
+
+#include "../globalvars.h"
+
+#include "packet_manager.h"
+#include "data_manager.h"
 
 #include "../../subcomponents/cascade_biconf.h"
 #include "../../subcomponents/priv_amp.h"
@@ -16,7 +20,6 @@
 
 /// @name ALGORITHM DECISION BY QBER_FOLLOWER
 /// @{
-
 /**   
  * @brief What PROC_ROLE_QBER_EST_FOLLOWER sends in EcPktHdr_QberEstBitsAck
  * 
@@ -24,70 +27,40 @@
  * initiating the EC procedure.
  * 
  */
-enum EC_ALGORITHM {
-    // EC_ALG_LET_PROC_ROLE_QBER_EST_INITIATOR_DECIDE = 0,   ///< PROC_ROLE_QBER_EST_FOLLOWER makes no preparation whatsoever. Unimplemented.
-    EC_ALG_CASCADE_CONTINUE_ROLES = 1,          ///< Same as original code, PROC_ROLE_QBER_EST_FOLLOWER will continue to be the follower for EC
-    EC_ALG_CASCADE_FLIP_ROLES = 2,              ///< PROC_ROLE_QBER_EST_FOLLOWER initiates the cascade biconf process instead
-    EC_ALG_LDPC_CONTINUE_ROLES = 3,             ///< PROC_ROLE_QBER_EST_FOLLOWER ACKs without preparation and waits for checksum from PROC_ROLE_QBER_EST_INITIATOR.
-    EC_ALG_LDPC_FLIP_ROLES = 4                  ///< PROC_ROLE_QBER_EST_FOLLOWER initiates the LDPC process instead
+enum ALGORITHM_DECISION {
+    // ALG_LET_PROC_ROLE_QBER_EST_INITIATOR_DECIDE = 0,     ///< PROC_ROLE_QBER_EST_FOLLOWER makes no preparation whatsoever. Unimplemented.
+    ALG_CASCADE_CONTINUE_ROLES = 1,                         ///< Same as original code, PROC_ROLE_QBER_EST_FOLLOWER will continue to be the follower for EC
+    ALG_CASCADE_FLIP_ROLES = 2,                             ///< PROC_ROLE_QBER_EST_FOLLOWER initiates the cascade biconf process instead
+    ALG_LDPC_CONTINUE_ROLES = 3,                            ///< PROC_ROLE_QBER_EST_FOLLOWER ACKs without preparation and waits for checksum from PROC_ROLE_QBER_EST_INITIATOR.
+    ALG_LDPC_FLIP_ROLES = 4                                 ///< PROC_ROLE_QBER_EST_FOLLOWER initiates the LDPC process instead
 };
-typedef enum EC_ALGORITHM EC_ALGORITHM;
-
+typedef enum ALGORITHM_DECISION ALGORITHM_DECISION;
 /// @} 
 
-/// @name PACKET HANDLERS
+/// @name PACKET HANDLER ARRAYS
+/// @brief Contains information & functions on the algorithm w.r.t. packet handling
 /// @{
+// Type defined in packet_manager.h, variable declared in algorithms.c  
+extern const PacketHandlerArray ALG_PKTHNDLRS_QBER_FOLLOWER;
+extern const PacketHandlerArray ALG_PKTHNDLRS_QBER_INITIATOR;
+extern const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_FOLLOWER;
+extern const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_INITIATOR;
+/// @}
 
-/**
- * @brief Packet handlers for the QBER estimation algorithm (function pointers) on QBER follower side
- * 
- * All algorithms involve commmunications between the parties. This array contains pointers to functions
- * that process the incoming packets (hence termed "packet handlers").
- * 
- * For more information on function pointers see:
- * https://stackoverflow.com/questions/252748/how-can-i-use-an-array-of-function-pointers
- * https://stackoverflow.com/questions/337449/how-does-one-declare-an-array-of-constant-function-pointers-in-c
- * 
- */
+/// @name ALGORITHM PACKET MANAGER STRUCTS FOR PROCESS BLOCK
+/// @{
+// Type defined in packet_manager.h, variable declared in algorithms.c  
+extern const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_FOLLOWER;
+extern const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_INITATOR;
+extern const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_FOLLOWER;
+extern const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_INITIATOR;
+/// @}
 
-extern int (* const pktHandlers_qber_follower[])(ProcessBlock* processBlock, char* receivebuf);
-/// Since array indexes start from 0, this is to align the array index with the subtype number
-// #define ALG_QBER_FOLLOWER_SUBTYPE_NO_OFFSET 0
-
-/**
- * @brief Packet handlers for the QBER estimation algorithm (function pointers) on QBER initiator side
- * 
- * All algorithms involve commmunications between the parties. This array contains pointers to functions
- * that process the incoming packets (hence termed "packet handlers").
- * 
- */
-
-extern int (* const pktHandlers_qber_initiator[])(ProcessBlock* processBlock, char* receivebuf);
-/// Since array indexes start from 0, this is to align the array index with the subtype number
-// #define ALG_QBER_INITIATOR_SUBTYPE_NO_OFFSET 2
-
-/**
- * @brief Packet handlers for the CASCADE algorithm (function pointers) on EC initiator side
- * 
- * All algorithms involve commmunications between the parties. This array contains pointers to functions
- * that process the incoming packets (hence termed "packet handlers").
- * 
- */
-extern int (* pktHandlers_cascade_initiator[])(ProcessBlock* processBlock, char* receivebuf);
-/// Since array indexes start from 0, this is to align the array index with the subtype number
-// #define ALG_CASCADE_INITIATOR_SUBTYPE_NO_OFFSET 4
-
-/**
- * @brief Packet handlers for the CASCADE algorithm (function pointers) on EC initiator side
- * 
- * All algorithms involve commmunications between the parties. This array contains pointers to functions
- * that process the incoming packets (hence termed "packet handlers").
- * 
- */
-extern int (* pktHandlers_cascade_follower[])(ProcessBlock* processBlock, char* receivebuf);
-/// Since array indexes start from 0, this is to align the array index with the subtype number
-// #define ALG_CASCADE_FOLLOWER_SUBTYPE_NO_OFFSET 4
-
+/// @name ALGORITHM DATA MANAGER STRUCTS FOR PROCESS BLOCK
+/// @{
+// Type defined in data_manager.h, variable declared in algorithms.c 
+extern const ALGORITHM_DATA_MNGR ALG_DATA_MNGR_QBER; 
+extern const ALGORITHM_DATA_MNGR ALG_DATA_MNGR_CASCADE;
 /// @}
 
 #endif

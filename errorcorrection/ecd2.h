@@ -153,7 +153,7 @@
  *        24.10.08         fixed error estimation for BB84
  * 
  * 
- *        introduce rawbuf variable to clean buffer in processblock struct (status?)
+ *        introduce rawbuf variable to clean buffer in processBlock struct (status?)
  * 
  * modified version of errcd to take care of the followig problems:
  *    - initial key permutation
@@ -280,7 +280,7 @@ static char *errormessage[] = {
     "estimated error out of range",
     "wrong number of epochs specified.",
     "overlap with existing epochs",
-    "error creating new processblock",
+    "error creating new processBlock",
     "error initiating error estimation", /* 35 */
     "error reading message",
     "cannot malloc message buffer",
@@ -293,10 +293,10 @@ static char *errormessage[] = {
     "received wrong packet type",
     "received unrecognized message subtype", /* 45 */
     "epoch overlap error on bob side",
-    "error reading in epochs in a processblock on bob side",
-    "cannot get processblock for message 0",
-    "cannot find processblock in list",
-    "cannot find processblock for message 2", /* 50 */
+    "error reading in epochs in a processBlock on bob side",
+    "cannot get processBlock for message 0",
+    "cannot find processBlock in list",
+    "cannot find processBlock for message 2", /* 50 */
     "received invalid seed.",
     "inconsistent test-bit number received",
     "can't malloc parity buffer",
@@ -319,7 +319,7 @@ static char *errormessage[] = {
     "wrong bitnumber in rawkey (must be 1)", /* 70 */
     "bitcount too large in rawkey",
     "could not read enough bytes from rawkey",
-    "in errorest1: cannot get processblock",
+    "in errorest1: cannot get processBlock",
     "wrong pass index",
     "cmd input buffer overflow", /* 75 */
     "cannot parse biconf round argument",
@@ -328,7 +328,9 @@ static char *errormessage[] = {
     "BER argument out of range",
     "Reply mode out of bounds", // 80
     "Unsupported functionality (See logs for more input)",
-    "PRNG Generator couldn't generate enough bits"
+    "PRNG Generator couldn't generate enough bits",
+    "Malloc failed at algorithm data init",
+    "Algorithm specific data ptr not null"
 };
 /// @}
 
@@ -345,7 +347,7 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
 int write_into_sendpipe();
 // for reading command from cmdpipe into cmdInput
 int readFromCmdPipe(char* cmdInput);
-// for processing command in cmdInput to create processblock
+// for processing command in cmdInput to create processBlock
 int parseCmdAndInitProcessBlk(char* dpnt, char* cmdInput, unsigned int *newEpochPtr);
 // Read header from receive pipe
 int readHeaderFromReceivePipe();

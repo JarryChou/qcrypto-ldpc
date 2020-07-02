@@ -43,7 +43,7 @@
 #include <stdio.h>
 /// \endcond
 
-#include "../definitions/algorithms/algorithms.h"
+#include "../definitions/algorithms/data_manager.h"
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
 #include "../definitions/processblock.h"

@@ -1,6 +1,6 @@
 /**
  * @file ecd2_processblock_mgmt.h   
- * @brief processblock management portion of ecd2
+ * @brief processBlock management portion of ecd2
  *   
  * Part of the quantum key distribution software for error
  *  correction and privacy amplification. Description
@@ -32,12 +32,12 @@
  * 
  * This is a refactored version of Kurtsiefer's ecd2.c to modularize parts of the
  * code. This section modularizes the parts of the code that is predominantly
- * used for processblock management.
+ * used for processBlock management.
  * 
  */
 
-#ifndef ECD2_processblock_MGMT
-#define ECD2_processblock_MGMT
+#ifndef ECD2_processBlock_MGMT
+#define ECD2_processBlock_MGMT
 
 // Libraries
 /// \cond for doxygen annotation
@@ -58,17 +58,17 @@
 #include "debug.h"
 #include "helpers.h"
 
-/// @name processblock MANAGEMENT HELPER FUNCTIONS
+/// @name processBlock MANAGEMENT HELPER FUNCTIONS
 /// @{
 int check_epochoverlap(unsigned int epoch, int num);
 void pBlkMgmt_finishQberEst(ProcessBlock *processBlock);
 /// @}
 
-/// @name processblock MANAGEMENT MAIN FUNCTIONS
+/// @name processBlock MANAGEMENT MAIN FUNCTIONS
 /// @{
-int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float bellValue);
-ProcessBlock *pBlkMgmt_getProcessBlock(unsigned int epoch);
-int pBlkMgmt_removeProcessBlock(unsigned int epoch);
+int pBlkMgmt_createProcessBlk(unsigned int epoch, int num, float inierr, float bellValue, Boolean isQberInitiator);
+ProcessBlock *pBlkMgmt_getProcessBlk(unsigned int epoch);
+int pBlkMgmt_removeProcessBlk(unsigned int epoch);
 /// @}
 
-#endif /* ECD2_processblock_MGMT */
+#endif /* ECD2_processBlock_MGMT */

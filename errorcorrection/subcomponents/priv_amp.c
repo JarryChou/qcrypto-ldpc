@@ -32,7 +32,7 @@ float binentrop(float q) {
  *  Sends out a message with
    a PRNG seed (message 8), and hand over to the core routine for the PA.
  * 
- * @param pb processblock ptr
+ * @param pb processBlock ptr
  * @return int 0 if success, otherwise error code
  */
 int privAmp_sendPrivAmpMsgAndPrivAmp(ProcessBlock *pb) {
@@ -80,10 +80,10 @@ int privAmp_receivePrivAmpMsg(ProcessBlock *pb, char *receivebuf) {
  * @brief Do core part of the privacy amplification.
  * 
  * Calculates the compression ratio
-   based on the lost bits, saves the final key and removes the processblock from the
+   based on the lost bits, saves the final key and removes the processBlock from the
    list. 
  * 
- * @param pb processblock ptr
+ * @param pb processBlock ptr
  * @param seed 
  * @param lostbits 
  * @return int 0 if success, otherwise error code
@@ -214,7 +214,7 @@ int privAmp_doPrivAmp(ProcessBlock *pb, unsigned int seed, int lostbits) {
       m = 0;                                 /* initial word */
       for (j = 0; j < numwords; j++)
         m ^= (pb->mainBufPtr[j] & rnd_getPrngValue2_32(&pb->rngState));
-      if (parity(m)) finalkey[wordIndex(i)] |= uint32AllZeroExceptAtN(i);
+      if (calcParity(m)) finalkey[wordIndex(i)] |= uint32AllZeroExceptAtN(i);
     }
   }
 
@@ -274,10 +274,10 @@ int privAmp_doPrivAmp(ProcessBlock *pb, unsigned int seed, int lostbits) {
   /* cleanup outmessage buf */
   free2(outmsg);
 
-  /* destroy processblock */
-  printf("remove processblock\n");
+  /* destroy processBlock */
+  printf("remove processBlock\n");
   fflush(stdout);
-  return pBlkMgmt_removeProcessBlock(pb->startEpoch);
+  return pBlkMgmt_removeProcessBlk(pb->startEpoch);
 
   /* return benignly */
   return 0;

@@ -45,26 +45,10 @@
 #include <stdint.h>
 /// \endcond
 
+#include "../definitions/algorithms/algorithms.h"
 #include "../definitions/processblock.h"
 
 #include "rnd.h"
-
-// HELPER ENUMS
-/**
- * @brief File handle enums
- * 
- */
-enum HandleId {
-  handleId_commandPipe = 0,
-  handleId_sendPipe = 1,
-  handleId_receivePipe = 2,
-  handleId_rawKeyDir = 3,
-  handleId_finalKeyDir = 4,
-  handleId_notifyPipe = 5,
-  handleId_queryPipe = 6,
-  handleId_queryRespPipe = 7,
-  handleId_numberOfHandles = 8
-};
 
 // DEFINED FUNCTIONS
 /* ------------------------------------------------------------------------- */
@@ -76,14 +60,14 @@ enum HandleId {
 
 /// @name GENERAL HELPER FUNCTIONS
 /// @{
-#define log2Ceil(X) ((X) ? (32 - __builtin_clz(X)) : 0) ///< See https://stackoverflow.com/questions/671815/what-is-the-fastest-most-efficient-way-to-find-the-highest-set-bit-msb-in-an-i
-#define countSetBits __builtin_popcount                 ///< See https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
-#define wordIndex(BIT_INDEX) ((BIT_INDEX) / 32)         ///< Macro to get index of 32-bit word given the index of the bit
-#define wordCount(LAST_BIT_INDEX) (((LAST_BIT_INDEX) + 31) / 32) ///< Macro to get number of 32-bit words that used by buffer
-#define modulo32(X) ((X) & 31)                          ///< Can also be defined as "get least significant 5 bits", but this definition is more meaningful
-#define uint32AllZeroExceptAtN(N_FROM_RIGHT) (1 << (31 - (modulo32(N_FROM_RIGHT)))) ///< previously uint32AllZeroExceptAtN
-#define uint32AllOnesExceptFirstN(N_BITS) (0xffffffff >> (N_BITS))       ///< previously firstmask __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
-#define uint32AllOnesExceptLastN(N_BITS) (0xffffffff << (31 - (N_BITS))) ///< previously lastmask __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
+#define log2Ceil(X) ((X) ? (32 - __builtin_clz(X)) : 0)                                 ///< See https://stackoverflow.com/questions/671815/what-is-the-fastest-most-efficient-way-to-find-the-highest-set-bit-msb-in-an-i
+#define countSetBits __builtin_popcount                                                 ///< See https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
+#define wordIndex(BIT_INDEX) ((BIT_INDEX) / 32)                                         ///< Macro to get index of 32-bit word given the index of the bit
+#define wordCount(LAST_BIT_INDEX) (((LAST_BIT_INDEX) + 31) / 32)                        ///< Macro to get number of 32-bit words that used by buffer
+#define modulo32(X) ((X) & 31)                                                          ///< Can also be defined as "get least significant 5 bits", but this definition is more meaningful
+#define uint32AllZeroExceptAtN(N_FROM_RIGHT) (1 << (31 - (modulo32(N_FROM_RIGHT))))     ///< previously uint32AllZeroExceptAtN
+#define uint32AllOnesExceptFirstN(N_BITS) (0xffffffff >> (N_BITS))                      ///< previously firstmask __inline__ unsigned int firstmask(int i) { return 0xffffffff >> i; }
+#define uint32AllOnesExceptLastN(N_BITS) (0xffffffff << (31 - (N_BITS)))                ///< previously lastmask __inline__ unsigned int lastmask(int i) { return 0xffffffff << (31 - i); }
 void atohex(char *target, unsigned int v);
 /// @}
 

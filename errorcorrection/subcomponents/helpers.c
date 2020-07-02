@@ -74,9 +74,10 @@ void helper_cleanupRevealedBits(ProcessBlock *pb) {
  * oes also re-ordering (in future), and truncates the discussed key to a
    length of multiples of k1so there are noleftover bits in the two passes.
  * 
- * @param pb pointer to processblock
+ * @param pb pointer to processBlock
  */
 void helper_prepPermutationWrapper(ProcessBlock *pb) {
+  CascadeData *cscData = (CascadeData *)(pb->algorithmDataPtr);
   /* do bit compression */
   helper_cleanupRevealedBits(pb);
   int workbits = pb->workbits;
@@ -85,9 +86,9 @@ void helper_prepPermutationWrapper(ProcessBlock *pb) {
      also: take more care about the leakage_bits here */
 
   /* assume last k1 block is filled with good bits and zeros */
-  workbits = ((workbits / pb->k1) + 1) * pb->k1;
+  workbits = ((workbits / cscData->k1) + 1) * cscData->k1;
   /* forget the last bits if it is larger than the buffer */
-  if (workbits > pb->initialBits) workbits -= pb->k1;
+  if (workbits > pb->initialBits) workbits -= cscData->k1;
 
   pb->workbits = workbits;
 
@@ -107,7 +108,7 @@ void helper_prepPermutationWrapper(ProcessBlock *pb) {
 /**
  * @brief permutation core function; is used both for biconf and initial permutation
  * 
- * @param pb ptr to processblock
+ * @param pb ptr to processBlock
  */
 void helper_prepPermutationCore(ProcessBlock *pb) {
   int i, j, k;
@@ -201,7 +202,7 @@ int helper_singleLineParity(unsigned int *bitBuffer, int startBitIndex, int endB
     for (int wordIndex = firstWordIndex + 1; wordIndex < lastWordIndex; wordIndex++) 
       tmpXorValues ^= bitBuffer[wordIndex];
   } /* tmpXorValues holds now a combination of bits to be tested */
-  return parity(tmpXorValues);
+  return calcParity(tmpXorValues);
 }
 
 /** @brief Helper funtion to get a simple one-line parity from a large string, but
@@ -229,7 +230,7 @@ int helper_singleLineParityMasked(unsigned int *d, unsigned int *m, int start, i
     tmpParity = (d[fi] & fm & m[fi]) ^ (d[li] & lm & m[li]);
     for (ri = fi + 1; ri < li; ri++) tmpParity ^= (d[ri] & m[ri]);
   } // tmpParity holds now a combination of bits to be tested 
-  return parity(tmpParity);
+  return calcParity(tmpParity);
 }
 */
 

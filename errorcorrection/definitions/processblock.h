@@ -1,5 +1,5 @@
 /** @file processblock.h: 
- * @brief Header file containing the definitions of the processblock & block related data
+ * @brief Header file containing the definitions of the processBlock & block related data
    for the error correction procedure.
    
  Part of the quantum key distribution software. This 
@@ -25,6 +25,7 @@
  Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
   --
+  Old layout of struct
   Rough check of where the variables are used
   Legend:
   C: Used in Cascade Biconf
@@ -33,21 +34,21 @@
   !: Clearly identified as an important variable that should not be abstracted out
   In brackets: Coupled with, but not directly used by 
 
-  comms, processblock_mgmt, helpers & debug not logged
+  comms, processBlock_mgmt, helpers & debug not logged
 
   unsigned int startEpoch;          QP   !     
   unsigned int numberOfEpochs;      QP   !     
   unsigned int *rawMemPtr;          M    !     
-  unsigned int *mainBufPtr;         CQP  !     
-  unsigned int *permuteBufPtr;      C     
+  unsigned int *mainBufPtr;         CQP  !        
   unsigned int *testedBitsMarker;   CQ      
+  unsigned int *permuteBufPtr;      C   Cascade only but used for testedBitsMarker, kept in metadata
   unsigned short int *permuteIndex; C     
   unsigned short int *reverseIndex; C     
   PROCESSOR_ROLE processorRole;     CQ      
   int initialBits;                  QP      
   int leakageBits;                  CQP     
   int processingState;              CQ   !
-  int initialErrRate;               Q     
+  int initialErrRate;               Q    QBER only but part of the metadata for the block 
   Boolean skipQberEstim;            Q     
   int estimatedError;               Q     
   int estimatedSampleSize;          Q     
@@ -76,9 +77,15 @@
 #define EC_PROCESSBLOCK_H
 
 #include "defaultdefinitions.h"
+#include "algorithms/data_manager.h"
+#include "algorithms/packet_manager.h"
+
+// Forward define structs from algorithms/data_manager and packet_manager
+//typedef struct ALGORITHM_PKT_MNGR ALGORITHM_PKT_MNGR;
+//typedef struct ALGORITHM_DATA_MNGR ALGORITHM_DATA_MNGR;
 
 /**
- * @brief Processor roles to define what the current ecd2 does w.r.t how it processes the processblock.
+ * @brief Processor roles to define what the current ecd2 does w.r.t how it processes the processBlock.
  * 
  * These terms are used for clarity without the need of domain knowledge e.g. client/server.
  */
@@ -90,43 +97,35 @@ enum EC_PROCESSOR_ROLE {
 };
 typedef enum EC_PROCESSOR_ROLE PROCESSOR_ROLE;
 
-/** @struct processblock
+/** @ProcessBlock
  * @brief Definition of a structure containing all informations about a block */
-typedef struct processblock {
+typedef struct ProcessBlk {
+  // Block meta information
   unsigned int startEpoch;              /**< initial epoch of block */
   unsigned int numberOfEpochs;          /**< number of consecutive epochs being processed */
   unsigned int *rawMemPtr;              /**< buffer root for freeing block afterwards */
   unsigned int *mainBufPtr;             /**< points to main buffer for key */
   unsigned int *permuteBufPtr;          /**< keeps permuted bits */
   unsigned int *testedBitsMarker;       /**< marks tested bits */
-  unsigned short int *permuteIndex;     /**< keeps permutation */
-  unsigned short int *reverseIndex;     /**< reverse permutation */
+  unsigned int rngState;                /**< keeps the state of the PRNG for this processBlock */
   PROCESSOR_ROLE processorRole;         /**< defines which role to take on a block: 0: Alice, 1: Bob */
   int initialBits;                      /**< bits to start with */
+  int initialErrRate;                   /**< in multiples of 2^-16 */
   int leakageBits;                      /**< information which has gone public */
   int processingState;                  /**< determines processing status current block. See defines below for interpretation */
-  int initialErrRate;                   /**< in multiples of 2^-16 */
-  Boolean skipQberEstim;                /**< determines if error estimation has to be done */
-  int estimatedError;                   /**< number of estimated error bits */
-  int estimatedSampleSize;              /**< sample size for error  estimation  */
-  float localError;                     /**< local error after qber estimation */
-  unsigned int rngState;                /**< keeps the state of the PRNG for this processblock */
-  int k0, k1;                           /**< binary block search lengths */
+  // Post Error correction variables
   int workbits;                         /**< bits to work with for BICONF/parity check */
-  int partitions0, partitions1;         /**< number of partitions of k0,k1 length */
-  unsigned int *lp0, *lp1;              /**< pointer to local parity info 0 / 1 */
-  unsigned int *rp0, *rp1;              /**< pointer to remote parity info 0 / 1 */
-  unsigned int *pd0, *pd1;              /**< pointer to parity difference fileld */
-  int diffBlockCount;                   /**< number of different blocks in current round */
-  int diffBlockCountMax;                /**< number of malloced entries for diff indices */
-  unsigned int *diffidx;                /**< pointer to a list of parity mismatch blocks */
-  unsigned int *diffidxe;               /**< end of interval */
-  int binarySearchDepth;                /**< encodes state of the scan. Starts with 0, and contains the pass (0/1) in the MSB */
-  int biconfRound;                      /**< contains the biconf round number, starting with 0 */
-  int biconfLength;                     /**< current length of a biconf check range */
   int correctedErrors;                  /**< number of corrected bits */
+  // Privacy amplification variables
   int finalKeyBits;                     /**< how much is left */
   float bellValue;                      /**< for Ekert-type protocols */
+  struct ALGORITHM_PKT_MNGR *algorithmPktMngr;   ///< Metadata for the current error correction algorithm, defined in algorithms.h
+  struct ALGORITHM_DATA_MNGR *algorithmDataMngr; ///< Enum to identify type of struct that algorithmDataPtr points to
+  char* algorithmDataPtr;                  ///< Ptr to struct containing additional / working data for the current error correction algorithm, defined in algorithms.h
+  // Temporarily allowed to reduce impact of porting
+  unsigned short int *permuteIndex;     /**< keeps permutation */
+  unsigned short int *reverseIndex;     /**< reverse permutation */
+  float localError;                     // Used by qber and cascade, local error after qber estimation
 } ProcessBlock;
 
 /** @struct blockpointer

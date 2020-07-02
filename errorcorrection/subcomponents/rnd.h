@@ -45,8 +45,8 @@
 
 #define PRNG_FEEDBACK 0xe0000200
 
-// int parity(unsigned int a0);
-#define parity __builtin_parity	///< This should be ridiculously faster
+// int calcParity(unsigned int a0);
+#define calcParity __builtin_parity	///< This should be ridiculously faster
 void setPrngSeed(unsigned int); // Unused
 unsigned int rnd_getPrngValue(int);
 unsigned int rnd_getPrngValue2(int, unsigned int *);

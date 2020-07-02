@@ -44,6 +44,7 @@
 #include "defaultdefinitions.h"
 #include "../subcomponents/helpers.h"
 #include "packets.h"
+#include "processblock.h"
 
 //  STRUCTS
 /**
@@ -92,7 +93,7 @@ typedef struct arguments Arguments;
 // Defined in ecd2.h
 extern Arguments arguments; /**< contains arguments read in when initializing program */
 
-/// @name Global variables used by processblock_mgmt 
+/// @name Global variables used by processBlock_mgmt 
 /// @{
 extern ProcessBlockDequeNode *processBlockDeque;
 /// @}

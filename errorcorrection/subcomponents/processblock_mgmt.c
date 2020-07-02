@@ -1,10 +1,10 @@
 #include "processblock_mgmt.h"
 
-// processblock MANAGEMENT HELPER FUNCTIONS
+// processBlock MANAGEMENT HELPER FUNCTIONS
 /* ------------------------------------------------------------------------- */
 
 /**
- * @brief code to check if a requested bunch of epochs already exists in the processblock list.
+ * @brief code to check if a requested bunch of epochs already exists in the processBlock list.
  * 
  * @param epoch start epoch
  * @param num number of consecutive epochs
@@ -34,21 +34,25 @@ int check_epochoverlap(unsigned int epoch, int num) {
 void pBlkMgmt_finishQberEst(ProcessBlock *processBlock) {
   /* determine process variables */
   processBlock->processingState = PSTATE_ERR_KNOWN;
-  processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
+  // Is this needed? Should comment because it's not used
+  // processBlock->estimatedSampleSize = processBlock->leakageBits;
+  // Clear qber specific data
+  processBlock->algorithmDataMngr->freeData(processBlock);
 }
 
-// processblock MANAGEMENT MAIN FUNCTIONS
+// processBlock MANAGEMENT MAIN FUNCTIONS
 /* ------------------------------------------------------------------------- */
 /**
- * @brief code to prepare a new processblock from a series of raw key files. 
+ * @brief code to prepare a new processBlock from a series of raw key files. 
  * 
  * @param epoch start epoch
  * @param num number of consecutive epochs
  * @param inierr initially estimated error
  * @param bellValue 
+ * @param isQberInitiator
  * @return int 0 on success, otherwise error code
  */
-int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float bellValue) {
+int pBlkMgmt_createProcessBlk(unsigned int epoch, int num, float inierr, float bellValue, Boolean isQberInitiator) {
   static unsigned int temparray[TEMP_ARRAY_SIZE];
   static struct header_3 h3;           /* header for raw key file */
   unsigned int residue, residue2, tmp; /* leftover bits at end */
@@ -58,7 +62,7 @@ int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float
   unsigned int enu;
   int retval, i, bitcount;
   char ffnam[FNAME_LENGTH + 10]; /* to store filename */
-  ProcessBlockDequeNode *bp;      /* to hold new processblock */
+  ProcessBlockDequeNode *bp;      /* to hold new processBlock */
   int getbytes;                 /* how much memory to ask for */
   unsigned int *rawMemPtr;         /* to store raw key */
 
@@ -127,12 +131,12 @@ int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float
     newindex++;
   } /* now newindex contains the number of words for this key */
 
-  /* create processblock structure */
+  /* create processBlock structure */
   bp = (ProcessBlockDequeNode *)malloc2(sizeof(ProcessBlockDequeNode));
   if (!bp) return 34; /* malloc failed */
   bp->content = (ProcessBlock *)malloc2(sizeof(ProcessBlock));
   if (!(bp->content)) return 34; /* malloc failed */
-  /* zero all otherwise unset processblock entries */
+  /* zero all otherwise unset processBlock entries */
   bzero(bp->content, sizeof(ProcessBlock));
   /* how much memory is needed ?
      raw key, permuted key, test selection, two permutation indices */
@@ -146,22 +150,36 @@ int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float
   bp->content->mainBufPtr = rawMemPtr; /* main key; keep this in mind for free */
   bp->content->permuteBufPtr = &bp->content->mainBufPtr[newindex];
   bp->content->testedBitsMarker = &bp->content->permuteBufPtr[newindex];
-  bp->content->permuteIndex =
-      (unsigned short int *)&bp->content->testedBitsMarker[newindex];
-  bp->content->reverseIndex =
-      (unsigned short int *)&bp->content->permuteIndex[bitcount];
-  /* copy raw key into processblock and clear testbits, permutebits */
+  /* copy raw key into processBlock and clear testbits, permutebits */
+  bp->content->permuteIndex = (unsigned short int *)&bp->content->testedBitsMarker[newindex];
+  bp->content->reverseIndex = (unsigned short int *)&bp->content->permuteIndex[bitcount];
   for (i = 0; i < newindex; i++) {
     bp->content->mainBufPtr[i] = temparray[i];
     bp->content->permuteBufPtr[i] = 0;
     bp->content->testedBitsMarker[i] = 0;
   }
-  bp->content->initialBits = bitcount; /* number of bits in stream */
-  bp->content->leakageBits = 0;        /* start with no initially lost bits */
-  bp->content->processingState = PSTATE_JUST_LOADED; /* just read in */
+  /* number of bits in stream */
+  bp->content->initialBits = bitcount; 
+  /* start with no initially lost bits */
+  bp->content->leakageBits = 0;        
+  bp->content->processingState = PSTATE_JUST_LOADED; 
+  /* just read in */
   bp->content->initialErrRate = (int)(inierr * (1 << 16));
   bp->content->bellValue = bellValue;
-  /* insert processblock in processblock list */
+
+  // Processblock alway starts off with qber estimation even if it is skipped
+  //Initialize packet subtype management
+  if (isQberInitiator) {
+    bp->content->algorithmPktMngr = (ALGORITHM_PKT_MNGR *)&ALG_PKT_MNGR_QBER_INITATOR;
+  } else {
+    bp->content->algorithmPktMngr = (ALGORITHM_PKT_MNGR *)&ALG_PKT_MNGR_QBER_FOLLOWER;
+  }
+  // Init data used only during the QBER procedure
+  bp->content->algorithmDataPtr = NULL;
+  bp->content->algorithmDataMngr = (ALGORITHM_DATA_MNGR *)&ALG_DATA_MNGR_QBER;
+  bp->content->algorithmDataMngr->initData(bp->content);
+
+  /* insert processBlock in processBlock list */
   bp->epoch = epoch;
   bp->previous = NULL;
   bp->next = processBlockDeque;
@@ -171,12 +189,12 @@ int pBlkMgmt_createProcessBlock(unsigned int epoch, int num, float inierr, float
 }
 
 /**
- * @brief Function to obtain the pointer to the processblock for a given epoch index.
+ * @brief Function to obtain the pointer to the processBlock for a given epoch index.
  * 
  * @param epoch epoch 
- * @return ProcessBlock* pointer to a processblock, or NULL if none found
+ * @return ProcessBlock* pointer to a processBlock, or NULL if none found
  */
-ProcessBlock *pBlkMgmt_getProcessBlock(unsigned int epoch) {
+ProcessBlock *pBlkMgmt_getProcessBlk(unsigned int epoch) {
   ProcessBlockDequeNode *bp = processBlockDeque;
   while (bp) {
     if (bp->epoch == epoch) return bp->content;
@@ -186,15 +204,15 @@ ProcessBlock *pBlkMgmt_getProcessBlock(unsigned int epoch) {
 }
 
 /**
- * @brief Function to remove a processblock out of the list.
+ * @brief Function to remove a processBlock out of the list.
  * 
  *  This function is called if
-   there is no hope for error recovery or for a finished processblock.
+   there is no hope for error recovery or for a finished processBlock.
  * 
  * @param epoch epoch index
  * @return int 0 if success, 1 for error
  */
-int pBlkMgmt_removeProcessBlock(unsigned int epoch) {
+int pBlkMgmt_removeProcessBlk(unsigned int epoch) {
   ProcessBlockDequeNode *bp = processBlockDeque;
   while (bp) {
     if (bp->epoch == epoch) break;
@@ -202,12 +220,15 @@ int pBlkMgmt_removeProcessBlock(unsigned int epoch) {
   }
   if (!bp) return 49; /* no block there */
   /* remove all internal structures */
-  free2(bp->content->rawMemPtr); /* bit buffers, changed to rawMemPtr 11.6.06chk */
-  if (bp->content->lp0) free(bp->content->lp0); /* parity storage */
-  if (bp->content->diffidx) free2(bp->content->diffidx);
-  free2(bp->content); /* main processblock frame */
+  /* bit buffers, changed to rawMemPtr 11.6.06chk */
+  free2(bp->content->rawMemPtr); 
+  // Call the freeData function of the data manager to clear algorithm specific data
+  bp->content->algorithmDataMngr->freeData(bp->content);
+  
+  /* free main processBlock frame */
+  free2(bp->content);
 
-  /* unlink processblock out of list */
+  /* unlink processBlock out of list */
   if (bp->previous) {
     bp->previous->next = bp->next;
   } else {
@@ -215,9 +236,9 @@ int pBlkMgmt_removeProcessBlock(unsigned int epoch) {
   }
   if (bp->next) bp->next->previous = bp->previous;
 
-  printf("removed processblock %08x, new processBlockDeque: %p \n", epoch, processBlockDeque);
+  printf("removed processBlock %08x, new processBlockDeque: %p \n", epoch, processBlockDeque);
   fflush(stdout);
-  /* remove processblock list entry */
+  /* remove processBlock list entry */
   free2(bp);
   return 0;
 }

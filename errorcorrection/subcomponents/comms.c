@@ -43,7 +43,7 @@ int comms_insertSendPacket(char *message, int length) {
  * Modified to tell the other side about the Bell value for privacy amp in
  * the device indep mode
  * 
- * @param pb Pointer to the processblock
+ * @param pb Pointer to the processBlock
  * @param bitsneeded 
  * @param errormode 0 for normal error est, err*2^16 forskip
  * @param bellValue 
@@ -68,7 +68,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
   msg1_data = (unsigned int *)&msg1[1];
 
   /* determine random number order needed for given bitlength */
-  /* can this go into the processblock preparation ??? */
+  /* can this go into the processBlock preparation ??? */
   rn_order = log2Ceil(processBlock->initialBits);
   /* mark selected bits in this stream and fill this structure with bits */
   localdata = 0;                     /* storage for bits */
@@ -94,7 +94,7 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
     msg1_data[wordIndex(i)] = localdata;
   } /* there was something left */
 
-  /* update processblock structure with used bits */
+  /* update processBlock structure with used bits */
   processBlock->leakageBits += bitsneeded;
   processBlock->processingState = PSTATE_AWAIT_ERR_EST_RESP;
 
@@ -108,16 +108,17 @@ EcPktHdr_QberEstBits *comms_createQberEstBitsMsg(ProcessBlock *processBlock, int
  * @return EcPktHdr_CascadeBinSearchMsg* 
  */
 EcPktHdr_CascadeBinSearchMsg *comms_makeBinSrchMsgHead(ProcessBlock *processBlock, unsigned int indexPresent) {
+  CascadeData *cscData = (CascadeData *)(processBlock->algorithmDataPtr);
   unsigned int sizeOfMsgBody;
   int errorCode;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead;
   switch (indexPresent) {
     case 0: 
-      sizeOfMsgBody = wordCount(processBlock->diffBlockCount) * WORD_SIZE * 2; /* two bitfields */
+      sizeOfMsgBody = wordCount(cscData->diffBlockCount) * WORD_SIZE * 2; /* two bitfields */
       break;
     case 1:
-      sizeOfMsgBody = wordCount(processBlock->diffBlockCount) * WORD_SIZE     // parity data need
-          + processBlock->diffBlockCount * WORD_SIZE;                    // indexing need
+      sizeOfMsgBody = wordCount(cscData->diffBlockCount) * WORD_SIZE     // parity data need
+          + cscData->diffBlockCount * WORD_SIZE;                    // indexing need
       break;
     case 4:
       sizeOfMsgBody = 3 * WORD_SIZE;       /* parity data need and indexing need for selection and compl */
@@ -129,8 +130,8 @@ EcPktHdr_CascadeBinSearchMsg *comms_makeBinSrchMsgHead(ProcessBlock *processBloc
   errorCode = comms_createEcHeader((char **)&outgoingMsgHead, SUBTYPE_CASCADE_BIN_SEARCH_MSG, sizeOfMsgBody, processBlock);
   if (errorCode) 
     return NULL;
-  outgoingMsgHead->number_entries = processBlock->diffBlockCount;
-  outgoingMsgHead->runlevel = processBlock->binarySearchDepth; /* next round */
+  outgoingMsgHead->number_entries = cscData->diffBlockCount;
+  outgoingMsgHead->runlevel = cscData->binarySearchDepth; /* next round */
   outgoingMsgHead->indexPresent = indexPresent; // 0: ordinary reply, 1: first msg, 4: this round we have a start/stop table
   return outgoingMsgHead;
 }

@@ -75,4 +75,21 @@ typedef int Boolean;
 #define WORD_SIZE sizeof(unsigned int) ///< More readable than sizeof(unsigned int) everywhere
 /// @}
 
+// HELPER ENUMS
+/**
+ * @brief File handle enums
+ * 
+ */
+enum HandleId {
+  handleId_commandPipe = 0,
+  handleId_sendPipe = 1,
+  handleId_receivePipe = 2,
+  handleId_rawKeyDir = 3,
+  handleId_finalKeyDir = 4,
+  handleId_notifyPipe = 5,
+  handleId_queryPipe = 6,
+  handleId_queryRespPipe = 7,
+  handleId_numberOfHandles = 8
+};
+
 #endif

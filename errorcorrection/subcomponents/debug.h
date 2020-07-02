@@ -48,6 +48,7 @@
 /// \endcond
 
 // Definitions
+#include "../definitions/algorithms/algorithms.h"
 #include "../definitions/processblock.h"
 
 // Other inclusions
@@ -64,9 +65,9 @@
 /// @{
 char *malloc2(unsigned int s);
 void free2(void *p);
-void dumpmsg(ProcessBlock *pb, char *msg);
-void dumpstate(ProcessBlock *pb);
-void outputPermutation(ProcessBlock *pb);
+void dumpmsg(struct  ProcessBlk *pb, char *msg);
+void dumpstate(struct  ProcessBlk *pb);
+void outputPermutation(struct  ProcessBlk *pb);
 /// @}
 
 #endif /* ECD2_DEBUG */

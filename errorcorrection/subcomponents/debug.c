@@ -39,7 +39,7 @@ int mdmpidx = 0; /**< Debug value for printing */
 /**
  * @brief Helper to dump message into a file
  * 
- * @param pb processblock pointer
+ * @param pb processBlock pointer
  * @param msg message to dump to file
  */
 void dumpmsg(ProcessBlock *pb, char *msg) {
@@ -73,12 +73,13 @@ int dumpindex = 0; /**< Debug value for printing */
 /**
  * @brief Helper function to dump the state of the system to a disk file . 
  * 
- * Dumps the processblock structure, if present the buffer files, the parity files and the
+ * Dumps the processBlock structure, if present the buffer files, the parity files and the
    diffidx buffers as plain binaries
  * 
- * @param pb processblock pointer
+ * @param pb processBlock pointer
  */
 void dumpstate(ProcessBlock *pb) {
+  CascadeData *cscData = (CascadeData *)(pb->algorithmDataPtr);
   char dumpname[200];
   int dha; /* handle */
 
@@ -98,13 +99,13 @@ void dumpstate(ProcessBlock *pb) {
       fprintf(stderr, "dump fail (2)\n");
     }
 
-  if (pb->lp0)
-    if (-1 == write(dha, pb->lp0, WORD_SIZE * 6 * wordCount(pb->workbits))) {
+  if (cscData->lp0)
+    if (-1 == write(dha, cscData->lp0, WORD_SIZE * 6 * wordCount(pb->workbits))) {
       fprintf(stderr, "dump fail (4)\n");
     }
 
-  if (pb->diffidx)
-    if (-1 == write(dha, pb->diffidx, WORD_SIZE * 2 * pb->diffBlockCountMax)) {
+  if (cscData->diffidx)
+    if (-1 == write(dha, cscData->diffidx, WORD_SIZE * 2 * cscData->diffBlockCountMax)) {
       fprintf(stderr, "dump fail (5)\n");
     }
 
@@ -115,7 +116,7 @@ void dumpstate(ProcessBlock *pb) {
 /**
  * @brief for debug: output permutation
  * 
- * @param pb processblock pointer
+ * @param pb processBlock pointer
  */
 void outputPermutation(ProcessBlock *pb) {
   char name[200] = "permutlist_";

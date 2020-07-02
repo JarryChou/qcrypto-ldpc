@@ -41,7 +41,7 @@ int __RNG_calls = 0; /**< for test purposes */
  * @return int 
  */
 /*
-int parity(unsigned int a) {
+int calcParity(unsigned int a) {
   int b;
   int c, d0;
   asm("movl $0,%2\n"
@@ -84,7 +84,7 @@ void setPrngSeed(unsigned int seed) { __PrngState = seed; }
 unsigned int rnd_getPrngValue(int k) {
   int b;
   for (int k0 = k; k0; k0--) {
-    b = parity(__PrngState & PRNG_FEEDBACK);
+    b = calcParity(__PrngState & PRNG_FEEDBACK);
     __PrngState <<= 1;
     __PrngState += b;
   }
@@ -101,7 +101,7 @@ unsigned int rnd_getPrngValue(int k) {
 unsigned int rnd_getPrngValue2(int k, unsigned int *state) {
   int b;
   for (int k0 = k; k0; k0--) {
-    b = parity(*state & PRNG_FEEDBACK);
+    b = calcParity(*state & PRNG_FEEDBACK);
     *state <<= 1;
     *state += b;
   }
@@ -118,7 +118,7 @@ unsigned int rnd_getPrngValue2(int k, unsigned int *state) {
 unsigned int rnd_getPrngValue2_32(unsigned int *state) {
   int b;
   for (int k0 = 32; k0; k0--) {
-    b = parity(*state & PRNG_FEEDBACK);
+    b = calcParity(*state & PRNG_FEEDBACK);
     *state <<= 1;
     *state += b;
   }
