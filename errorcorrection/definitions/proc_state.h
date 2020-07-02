@@ -38,7 +38,7 @@
 /// @name Definitions of the processing state
 /// @{
 #define PSTATE_JUST_LOADED 0                    /**< no processing yet (passive role) */
-#define PSTATE_NEGOTIATING_ROLE 1               /**< in role negotiation with other side (UNUSED) */
+// #define PSTATE_NEGOTIATING_ROLE 1               /**< in role negotiation with other side (UNUSED) */
 #define PSTATE_AWAIT_ERR_EST_RESP 2             /**< waiting for error est response from bob */
 #define PSTATE_AWAIT_ERR_EST_MORE_BITS 3        /**< waiting for more error est bits from Alice */
 #define PSTATE_ERR_KNOWN 4                      /**< know my error estimation */

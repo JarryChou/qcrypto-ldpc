@@ -349,55 +349,6 @@ int readBodyFromReceivePipe() {
   return 0;
 }
 
-/**
- * @brief Contains body for code to decide what algorithm to use after QBER estimation as the QBER follower
- * 
- * @param pb 
- * @param actionResultPtr 
- * @return int error code
- */
-int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, ActionResult* actionResultPtr) {
-  EC_ALGORITHM chosenAlgorithm;
-  int errorCode = 0;
-  // Assertion check to make sure code is correct
-  if (actionResultPtr->nextActionEnum != AR_DECISION_INVOLVING_PREFILLED_DATA) {
-    fprintf(stderr, "err 81 @ chooseEcAlgorithmAsQberFollower");
-    return 81;
-  }
-
-  // The chosenAlgorithm by the QBER_FOLLOWER is hardcoded (originally is EC_ALG_CASCADE_CONTINUE_ROLES)
-  // chosenAlgorithm = EC_ALG_CASCADE_CONTINUE_ROLES;
-  chosenAlgorithm = EC_ALG_CASCADE_FLIP_ROLES;
-
-  // Fill in the algorithm for the message
-  ((EcPktHdr_QberEstBitsAck *)(actionResultPtr->bufferToSend))->algorithmEnum = chosenAlgorithm;
-
-  // Perform whatever preparation work we need to do for the chosenAlgorithm
-  switch (chosenAlgorithm) {
-    case EC_ALG_CASCADE_CONTINUE_ROLES:
-      processBlock->processorRole = PROC_ROLE_EC_FOLLOWER;
-      cascade_setStateKnowMyErrorThenCalck0k1(processBlock);
-      // Insert the packet
-      return comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
-    case EC_ALG_CASCADE_FLIP_ROLES:
-      // QBER_FOLLOWER will now be the one initiating the error correction procedure
-      processBlock->processorRole = PROC_ROLE_EC_INITIATOR;
-      // Send the packet first
-      errorCode = comms_insertSendPacket((char *)(actionResultPtr->bufferToSend), actionResultPtr->bufferLengthInBytes);
-      if (errorCode) 
-        return errorCode;
-      // Then send another packet that the EC_INITIATOR would send
-      return cascade_initiateAfterQber(processBlock);
-    case EC_ALG_LDPC_CONTINUE_ROLES:
-      return 81;
-    case EC_ALG_LDPC_FLIP_ROLES:
-      return 81;
-    default:
-      fprintf(stderr, "Err 81 at chooseEcAlgorithmAsQberFollower\n");
-      return 81;
-  }
-}
-
 // MAIN FUNCTION
 /* ------------------------------------------------------------------------- */
 
@@ -427,7 +378,6 @@ int main(int argc, char *argv[]) {
   receivedPacketLinkedList = NULL;                    /* no receive packet s in queue */
   EcPktHdr_Base *tmpBaseHeader = NULL;
   ProcessBlock *tmpProcessBlock = NULL;
-  ActionResult actionResult = {AR_NONE, NULL, 0};     // For functions to extract higher level decisions up to ecd2.c
   // Variables for command input
   char cmdInput[CMD_INBUF_LEN];                       /* For temporary storage of cmd input */
   cmdInput[0] = '\0';                                 /* buffer for commands */
@@ -554,21 +504,8 @@ int main(int argc, char *argv[]) {
 
         // Separate the functions that do not require a non-null process block
         if (tmpBaseHeader->subtype == SUBTYPE_QBER_EST_BITS) {
-          // Reset actionResult
-          actionResult.nextActionEnum = AR_NONE;
-          
-          errorCode = qber_processReceivedQberEstBits(tempReceivedPacketNode->packet, &actionResult);
+          errorCode = qber_processReceivedQberEstBits(NULL, tempReceivedPacketNode->packet);
           // Communicated follow up required: Error Correction choice as QBER_FOLLOWER
-          
-          if (!errorCode && actionResult.nextActionEnum != AR_NONE) {
-            // Make sure to set tmpProcessBlock first
-            tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
-            if (!tmpProcessBlock) {
-              errorCode = 48;
-            } else {
-              errorCode = chooseEcAlgorithmAsQberFollower(tmpProcessBlock, &actionResult);
-            }
-          }
         } else {    
           // Get the process block to process it on
           tmpProcessBlock = pBlkMgmt_getProcessBlock(tmpBaseHeader->epoch);
@@ -601,16 +538,14 @@ int main(int argc, char *argv[]) {
 
                   // Alice in old documentation
                   case PROC_ROLE_EC_INITIATOR: 
-                    errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, 
-                        (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
+                    errorCode = cascade_initiatorAlice_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet); 
                     // No internal follow up is required as communications is encapsulated in the function above
                     // Sends message of subtype SUBTYPE_CASCADE_BIN_SEARCH_MSG
                     break;
 
                   // Bob in old documentation
                   case PROC_ROLE_EC_FOLLOWER: 
-                    errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, 
-                        (EcPktHdr_CascadeBinSearchMsg *)(tempReceivedPacketNode->packet)); 
+                    errorCode = cascade_followerBob_processBinSearch(tmpProcessBlock, tempReceivedPacketNode->packet); 
                     // May send a variety of messages, triggers privacy amp if conditions are met
                     break;
 

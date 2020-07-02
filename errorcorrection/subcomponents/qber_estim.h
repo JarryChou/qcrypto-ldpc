@@ -43,7 +43,6 @@
 #include <stdio.h>
 /// \endcond
 
-#include "../definitions/action_result.h"
 #include "../definitions/algorithms/algorithms.h"
 #include "../definitions/defaultdefinitions.h"
 #include "../definitions/globalvars.h"
@@ -70,15 +69,16 @@ enum REPLY_MODE {
 
 /// @name ERROR ESTIMATION HELPER FUNCTIONS
 /// @{
-  float calculateLocalError(ProcessBlock *processBlock, enum REPLY_MODE* replyModeResult, int *newBitsNeededResult);
+float calculateLocalError(ProcessBlock *processBlock, enum REPLY_MODE* replyModeResult, int *newBitsNeededResult);
 int testBitsNeeded(float e);
 /// @}
 
 /// @name ERROR ESTIMATION MAIN FUNCTIONS
 /// @{
 int qber_beginErrorEstimation(unsigned int epoch);
-int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResultPtr);
+int qber_processReceivedQberEstBits(ProcessBlock *processBlock, char *receivebuf);
 int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf);
+int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, char *bufferToSend, unsigned int bufferLengthInBytes);
 int qber_prepareErrorCorrection(ProcessBlock *processBlock, char *receivebuf);
 /// @}
 

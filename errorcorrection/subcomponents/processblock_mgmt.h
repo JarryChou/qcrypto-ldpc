@@ -61,6 +61,7 @@
 /// @name processblock MANAGEMENT HELPER FUNCTIONS
 /// @{
 int check_epochoverlap(unsigned int epoch, int num);
+void pBlkMgmt_finishQberEst(ProcessBlock *processBlock);
 /// @}
 
 /// @name processblock MANAGEMENT MAIN FUNCTIONS

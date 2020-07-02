@@ -39,6 +39,10 @@
 #ifndef EC_PACKET_DEF
 #define EC_PACKET_DEF
 
+/**
+ * @brief Subtypes for incoming and outgoing EC packets.
+ * 
+ */
 enum EC_SUBTYPES {
     SUBTYPE_QBER_EST_BITS = 0,
     SUBTYPE_QBER_EST_REQ_MORE_BITS = 2,
@@ -47,9 +51,9 @@ enum EC_SUBTYPES {
     SUBTYPE_CASCADE_BIN_SEARCH_MSG = 5,
     SUBTYPE_CASCADE_BICONF_INIT_REQ = 6,
     SUBTYPE_CASCADE_BICONF_PARITY_RESP = 7,
-    SUBTYPE_START_PRIV_AMP = 8
+    SUBTYPE_START_PRIV_AMP = 8,
 };
-
+#define EC_SUBTYPE_COUNT 8 ///< Keep this updated 
 #define EC_PACKET_TAG 6
 
 /**

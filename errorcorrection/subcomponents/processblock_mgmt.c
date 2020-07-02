@@ -26,6 +26,17 @@ int check_epochoverlap(unsigned int epoch, int num) {
   return 0;
 }
 
+/**
+ * @brief Helper function that marks the end of the QBER process
+ * 
+ * @param processBlock 
+ */
+void pBlkMgmt_finishQberEst(ProcessBlock *processBlock) {
+  /* determine process variables */
+  processBlock->processingState = PSTATE_ERR_KNOWN;
+  processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
+}
+
 // processblock MANAGEMENT MAIN FUNCTIONS
 /* ------------------------------------------------------------------------- */
 /**

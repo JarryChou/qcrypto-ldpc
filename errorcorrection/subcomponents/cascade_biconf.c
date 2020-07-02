@@ -379,10 +379,7 @@ int cascade_prepFirstBinSearchMsg(ProcessBlock *processBlock, int pass) {
  * 
  * @param processBlock 
  */
-void cascade_setStateKnowMyErrorThenCalck0k1(ProcessBlock *processBlock) {
-  /* determine process variables */
-  processBlock->processingState = PSTATE_ERR_KNOWN;
-  processBlock->estimatedSampleSize = processBlock->leakageBits; /* is this needed? */
+void cascade_calck0k1(ProcessBlock *processBlock) {
   /****** more to do here *************/
   /* calculate k0 and k1 for further uses */
   if (processBlock->localError < 0.01444) { /* min bitnumber */
@@ -424,7 +421,7 @@ int cascade_initiateAfterQber(ProcessBlock *processBlock) {
   EcPktHdr_CascadeParityList *h4;   // header pointer 
   unsigned int *h4_d0, *h4_d1;      /* pointer to data tracks  */
 
-  cascade_setStateKnowMyErrorThenCalck0k1(processBlock);
+  cascade_calck0k1(processBlock);
 
   /* install new seed */
   if (rnd_generateRngSeed(&newseed)) {
@@ -544,9 +541,10 @@ int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
  * @param in_head header for incoming request
  * @return error code, 0 if success
  */
-int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, char *receivebuf) {
   unsigned int *inh_data, *inh_idx;
   int i;
+  EcPktHdr_CascadeBinSearchMsg *in_head;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
   unsigned int *outParity;       /* pointer to outgoing parity result info */
   unsigned int *outMatch;        /* pointer to outgoing matching info */
@@ -557,6 +555,7 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBi
   int lostBitsCount; /* number of key bits revealed in this round */
   int tmpSingleLineParity = 0;
 
+  in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf;
   inh_data = (unsigned int *)&in_head[1]; /* parity pattern */
 
   /* find out if difference index should be installed */
@@ -708,9 +707,10 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBi
  * @param in_head header of incoming type-5 ec packet
  * @return error code, 0 if success 
  */
-int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSearchMsg *in_head) {
+int cascade_followerBob_processBinSearch(ProcessBlock *pb, char *receivebuf) {
   unsigned int *inh_data, *inh_idx;
   int i;
+  EcPktHdr_CascadeBinSearchMsg *in_head;
   EcPktHdr_CascadeBinSearchMsg *outgoingMsgHead; /* for reply message */
   unsigned int *outParity;       /* pointer to outgoing parity result info */
   unsigned int *outMatch;        /* pointer to outgoing matching info */
@@ -723,6 +723,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, EcPktHdr_CascadeBinSe
   int biconfmark; /* indicates if this is a biconf round */
   int tmpSingleLineParity = 0;
 
+  in_head = (EcPktHdr_CascadeBinSearchMsg *)receivebuf;
   inh_data = (unsigned int *)&in_head[1];          /* parity pattern */
   inh_idx = &inh_data[wordCount(pb->diffBlockCount)]; /* index or matching part */
 

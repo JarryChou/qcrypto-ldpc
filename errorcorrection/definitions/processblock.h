@@ -24,6 +24,53 @@
  this source code; if not, write to:
  Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+  --
+  Rough check of where the variables are used
+  Legend:
+  C: Used in Cascade Biconf
+  Q: Used in QBER est
+  P: Used in Privacy amp
+  !: Clearly identified as an important variable that should not be abstracted out
+  In brackets: Coupled with, but not directly used by 
+
+  comms, processblock_mgmt, helpers & debug not logged
+
+  unsigned int startEpoch;          QP   !     
+  unsigned int numberOfEpochs;      QP   !     
+  unsigned int *rawMemPtr;          M    !     
+  unsigned int *mainBufPtr;         CQP  !     
+  unsigned int *permuteBufPtr;      C     
+  unsigned int *testedBitsMarker;   CQ      
+  unsigned short int *permuteIndex; C     
+  unsigned short int *reverseIndex; C     
+  PROCESSOR_ROLE processorRole;     CQ      
+  int initialBits;                  QP      
+  int leakageBits;                  CQP     
+  int processingState;              CQ   !
+  int initialErrRate;               Q     
+  Boolean skipQberEstim;            Q     
+  int estimatedError;               Q     
+  int estimatedSampleSize;          Q     
+  float localError;                 Q     
+  unsigned int rngState;            CPQ      
+  int k0, k1;                       C     
+  int workbits;                     CP     
+  int partitions0, partitions1;     C     
+  unsigned int *lp0, *lp1;          C     
+  unsigned int *rp0, *rp1;          C     
+  unsigned int *pd0, *pd1;          C     
+  int diffBlockCount;               C     
+  int diffBlockCountMax;            C     
+  unsigned int *diffidx;            C     
+  unsigned int *diffidxe;           C     
+  int binarySearchDepth;            C     
+  int biconfRound;                  C     
+  int biconfLength;                 C     
+  int correctedErrors;              CP      
+  int finalKeyBits;                 P     
+  float bellValue;                  QP   
+
+
 */
 #ifndef EC_PROCESSBLOCK_H
 #define EC_PROCESSBLOCK_H
@@ -57,7 +104,7 @@ typedef struct processblock {
   PROCESSOR_ROLE processorRole;         /**< defines which role to take on a block: 0: Alice, 1: Bob */
   int initialBits;                      /**< bits to start with */
   int leakageBits;                      /**< information which has gone public */
-  int processingState;                  /**< determines processing status  current block. See defines below for interpretation */
+  int processingState;                  /**< determines processing status current block. See defines below for interpretation */
   int initialErrRate;                   /**< in multiples of 2^-16 */
   Boolean skipQberEstim;                /**< determines if error estimation has to be done */
   int estimatedError;                   /**< number of estimated error bits */

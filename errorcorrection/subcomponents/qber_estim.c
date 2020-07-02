@@ -119,13 +119,13 @@ int qber_beginErrorEstimation(unsigned int epoch) {
  * Initiates the error estimation, and prepares the next  package for transmission.
  *  Currently, it assumes only PRNG-based bit selections.
  * 
+ * @param processBlock pointer to the processBlock. Note that as this variable may be null, the function currently doesn't use the passed in value.
  * @param receivebuf pointer to the receivebuffer with both the header and the data section.
- * @param actionResultPtr ptr to action result which will contain meta info on the outcome of this function call
  * @return int 0 on success, otherwise error code
  */
-int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResultPtr) {
+int qber_processReceivedQberEstBits(ProcessBlock *processBlock, char *receivebuf) {
   EcPktHdr_QberEstBits *in_head; /* holds header */
-  ProcessBlock *processBlock;           /* points to processblock info */
+  // ProcessBlock *processBlock;           /* points to processblock info */
   unsigned int *in_data;         /* holds input data bits */
   /* int retval; */
   int i, rn_order, bipo;
@@ -208,18 +208,17 @@ int qber_processReceivedQberEstBits(char *receivebuf, ActionResult *actionResult
     h3->numberOfErrors = processBlock->estimatedError;
 
     if (replymode == REPLYMODE_TERMINATE) {
+      // If not enough bits, so terminating
       #ifdef DEBUG
       printf("Kill the processblock due to excessive errors\n");
       fflush(stdout);
       #endif
       pBlkMgmt_removeProcessBlock(processBlock->startEpoch);
       return comms_insertSendPacket((char *)h3, h3->base.totalLengthInBytes); /* error trap? */
-    } else { // replymode == REPLYMODE_CONTINUE
+    } else { 
+      // Else if we have successfully estimated QBER and continuing 
       processBlock->localError = localerror;
-      actionResultPtr->nextActionEnum = AR_DECISION_INVOLVING_PREFILLED_DATA;
-      actionResultPtr->bufferToSend = (char *)h3;
-      actionResultPtr->bufferLengthInBytes = h3->base.totalLengthInBytes;
-      return 0;
+      return chooseEcAlgorithmAsQberFollower(processBlock, (char *)h3, h3->base.totalLengthInBytes);
     }
   } else if (replymode == REPLYMODE_MORE_BITS) {
     // Prepare & send message
@@ -271,6 +270,55 @@ int qber_replyWithMoreBits(ProcessBlock *processBlock, char *receivebuf) {
 }
 
 /**
+ * @brief Contains body for code to decide what algorithm to use after QBER estimation as the QBER follower
+ * 
+ * @param processBlock 
+ * @param bufferToSend 
+ * @param bufferLengthInBytes 
+ * @return int error code
+ */
+int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, char *bufferToSend, unsigned int bufferLengthInBytes) {
+  EC_ALGORITHM chosenAlgorithm;
+  int errorCode = 0;
+
+  // If we've reached this stage QBER is complete, so wrap up
+  pBlkMgmt_finishQberEst(processBlock);
+
+  // The chosenAlgorithm by the QBER_FOLLOWER is hardcoded (originally is EC_ALG_CASCADE_CONTINUE_ROLES)
+  // chosenAlgorithm = EC_ALG_CASCADE_CONTINUE_ROLES;
+  chosenAlgorithm = EC_ALG_CASCADE_FLIP_ROLES;
+
+  // Fill in the algorithm for the message
+  ((EcPktHdr_QberEstBitsAck *)(bufferToSend))->algorithmEnum = chosenAlgorithm;
+
+  // Perform whatever preparation work we need to do for the chosenAlgorithm
+  switch (chosenAlgorithm) {
+    case EC_ALG_CASCADE_CONTINUE_ROLES:
+      processBlock->processorRole = PROC_ROLE_EC_FOLLOWER;
+    
+      cascade_calck0k1(processBlock);
+      // Insert the packet
+      return comms_insertSendPacket((char *)(bufferToSend), bufferLengthInBytes);
+    case EC_ALG_CASCADE_FLIP_ROLES:
+      // QBER_FOLLOWER will now be the one initiating the error correction procedure
+      processBlock->processorRole = PROC_ROLE_EC_INITIATOR;
+      // Send the packet first
+      errorCode = comms_insertSendPacket((char *)(bufferToSend), bufferLengthInBytes);
+      if (errorCode) 
+        return errorCode;
+      // Then send another packet that the EC_INITIATOR would send
+      return cascade_initiateAfterQber(processBlock);
+    case EC_ALG_LDPC_CONTINUE_ROLES:
+      return 81;
+    case EC_ALG_LDPC_FLIP_ROLES:
+      return 81;
+    default:
+      fprintf(stderr, "Err 81 at chooseEcAlgorithmAsQberFollower\n");
+      return 81;
+  }
+}
+
+/**
  * @brief function to proceed with the error estimation reply.
  * 
  * Estimates if the
@@ -310,6 +358,7 @@ int qber_prepareErrorCorrection(ProcessBlock *processBlock, char *receivebuf) {
   }
 
   // else we are continuing to the next phase: error correction
+  pBlkMgmt_finishQberEst(processBlock);
 
   // NICE TO HAVE: Abstract this section out to reduce linkages to other subcomponents
   switch (in_head->algorithmEnum) {
@@ -319,7 +368,7 @@ int qber_prepareErrorCorrection(ProcessBlock *processBlock, char *receivebuf) {
     case EC_ALG_CASCADE_FLIP_ROLES:
       // QBER_INITIATOR is now the EC_FOLLOWER
       processBlock->processorRole = PROC_ROLE_EC_FOLLOWER;
-      cascade_setStateKnowMyErrorThenCalck0k1(processBlock);
+      cascade_calck0k1(processBlock);
       // Do nothing, await the cascade message from the now EC_INITIATOR
       return 0;
     case EC_ALG_LDPC_CONTINUE_ROLES:

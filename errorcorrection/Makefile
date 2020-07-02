@@ -26,15 +26,19 @@ qber_estim.o: subcomponents/qber_estim.c
 processblock_mgmt.o: subcomponents/processblock_mgmt.c
 	gcc -Wall -O3 -c subcomponents/processblock_mgmt.c
 
+algorithms.o: definitions/algorithms/algorithms.c
+	gcc -Wall -O3 -c definitions/algorithms/algorithms.c
+
 # ecd2
 ecd2.o: ecd2.c
 	gcc -Wall -O3 -c ecd2.c
 
 ecd2: rnd.o cascade_biconf.o comms.o debug.o helpers.o \
-		priv_amp.o qber_estim.o processblock_mgmt.o ecd2.o
+		priv_amp.o qber_estim.o processblock_mgmt.o algorithms.o ecd2.o
+		
 	gcc -Wall -O3 -o ecd2 rnd.o cascade_biconf.o comms.o \
-		debug.o helpers.o priv_amp.o qber_estim.o \
-		processblock_mgmt.o ecd2.o -lm
+		debug.o helpers.o priv_amp.o qber_estim.o\
+		processblock_mgmt.o algorithms.o ecd2.o -lm
 
 clean:
 	rm -f *.o
