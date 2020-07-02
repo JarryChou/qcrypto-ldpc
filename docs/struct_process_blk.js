@@ -1,0 +1,25 @@
+var struct_process_blk =
+[
+    [ "algorithmDataMngr", "struct_process_blk.html#aac0fdbdc56788888bb7d8bab533efb26", null ],
+    [ "algorithmDataPtr", "struct_process_blk.html#afc1571d61dea067efbbaa65942b9ce82", null ],
+    [ "algorithmPktMngr", "struct_process_blk.html#af1b814267f681e8a0a76e91a77765899", null ],
+    [ "bellValue", "struct_process_blk.html#a1997687e76df9219b2baef75fb3e13b4", null ],
+    [ "correctedErrors", "struct_process_blk.html#a898ec0cfdc185bd10dfb14b83c8ba380", null ],
+    [ "finalKeyBits", "struct_process_blk.html#a91bdb0727e24efac48637a4c96e408a1", null ],
+    [ "initialBits", "struct_process_blk.html#a00d64b570e9257f36870db25eb4cbfa9", null ],
+    [ "initialErrRate", "struct_process_blk.html#a36ffe94b5cbf447b095af55f21581360", null ],
+    [ "leakageBits", "struct_process_blk.html#a8850ed5670798e8cef4e05769dbe0faf", null ],
+    [ "localError", "struct_process_blk.html#a1631891973cd580690a335e81f44b630", null ],
+    [ "mainBufPtr", "struct_process_blk.html#a71512748b2ec9f702475209ae8f8b880", null ],
+    [ "numberOfEpochs", "struct_process_blk.html#a63d7547cdbe9adcf0fd4f978b60d450e", null ],
+    [ "permuteBufPtr", "struct_process_blk.html#a8deddf65e317791c9cfd1552aa403029", null ],
+    [ "permuteIndex", "struct_process_blk.html#a927ea9f4ea21607ad49bc4ad3bbd94ab", null ],
+    [ "processingState", "struct_process_blk.html#a6b46ec73e29138699b0c6622b74d675b", null ],
+    [ "processorRole", "struct_process_blk.html#a357a04df5abb4070b6f34ffd4e6b6c46", null ],
+    [ "rawMemPtr", "struct_process_blk.html#a9a8519028299f13a1e877f4d5376c1ac", null ],
+    [ "reverseIndex", "struct_process_blk.html#a74e71427356c991017c7d59eebc4c587", null ],
+    [ "rngState", "struct_process_blk.html#a6dabf9f2d34fb0aaa09e814078f1e757", null ],
+    [ "startEpoch", "struct_process_blk.html#a088e5bd90f2269b8d49e78c9ef57f416", null ],
+    [ "testedBitsMarker", "struct_process_blk.html#a1b197c2757893afc19fcc4e6a2e2e854", null ],
+    [ "workbits", "struct_process_blk.html#a362004851d12dc70281465703a51b9f3", null ]
+];

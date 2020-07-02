@@ -13,6 +13,7 @@ var packets_8h =
     [ "packet_to_send", "structpacket__to__send.html", "structpacket__to__send" ],
     [ "packet_received", "structpacket__received.html", "structpacket__received" ],
     [ "EC_PACKET_TAG", "packets_8h.html#a6e81e34179c30daac3108db067832ebd", null ],
+    [ "EC_SUBTYPE_COUNT", "packets_8h.html#a0d273beac365f2474bc4f2c8f52defa0", null ],
     [ "RUNLEVEL_BICONF", "packets_8h.html#ab2189550344e2b319f9fcaab1c407560", null ],
     [ "RUNLEVEL_FIRSTPASS", "packets_8h.html#a808615e67d1e011f3e19fef7c4a08d58", null ],
     [ "RUNLEVEL_LEVELMASK", "packets_8h.html#a734de21b5c94a6878ccf92b53adcb1b4", null ],
@@ -30,14 +31,14 @@ var packets_8h =
     [ "errc_ed_1__", "packets_8h.html#a5b50d13daf3bac6b1e99283e5e6831b2", null ],
     [ "PacketToSendNode", "packets_8h.html#a4f52e8d71736203acf96383bf60b6c38", null ],
     [ "ReceivedPacketNode", "packets_8h.html#a06aa43bb96b2dfab49406817650d543a", null ],
-    [ "EcSubtypes", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473", [
-      [ "SUBTYPE_QBER_EST_BITS", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473aa0f55dc3a65fdb8923680589862a3032", null ],
-      [ "SUBTYPE_QBER_EST_REQ_MORE_BITS", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a850d8a4af3f7753355949517ff74c362", null ],
-      [ "SUBTYPE_QBER_EST_BITS_ACK", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a63fae0313ef3c68c2b5c2bcb8b1c3b27", null ],
-      [ "SUBTYPE_CASCADE_PARITY_LIST", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473ace9b05f26a9d017da1aa94ab264b3e54", null ],
-      [ "SUBTYPE_CASCADE_BIN_SEARCH_MSG", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473adb9a11791d800de7b6f4eceac5a87b19", null ],
-      [ "SUBTYPE_CASCADE_BICONF_INIT_REQ", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a0cd36c9364a3e0096ae8fc9864c42256", null ],
-      [ "SUBTYPE_CASCADE_BICONF_PARITY_RESP", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a380292092f2fa7462f2d0ac084d86ab5", null ],
-      [ "SUBTYPE_START_PRIV_AMP", "packets_8h.html#aa9c8552878a1ed9945cbf0edef5e0473a910eac00d12d4ce4c61172cfe48c0bd0", null ]
+    [ "EC_SUBTYPES", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147ae", [
+      [ "SUBTYPE_QBER_EST_BITS", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aeaa0f55dc3a65fdb8923680589862a3032", null ],
+      [ "SUBTYPE_QBER_EST_REQ_MORE_BITS", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aea850d8a4af3f7753355949517ff74c362", null ],
+      [ "SUBTYPE_QBER_EST_BITS_ACK", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aea63fae0313ef3c68c2b5c2bcb8b1c3b27", null ],
+      [ "SUBTYPE_CASCADE_PARITY_LIST", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aeace9b05f26a9d017da1aa94ab264b3e54", null ],
+      [ "SUBTYPE_CASCADE_BIN_SEARCH_MSG", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aeadb9a11791d800de7b6f4eceac5a87b19", null ],
+      [ "SUBTYPE_CASCADE_BICONF_INIT_REQ", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aea0cd36c9364a3e0096ae8fc9864c42256", null ],
+      [ "SUBTYPE_CASCADE_BICONF_PARITY_RESP", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aea380292092f2fa7462f2d0ac084d86ab5", null ],
+      [ "SUBTYPE_START_PRIV_AMP", "packets_8h.html#a8d7b5505e1e2c97c051c0423356147aea910eac00d12d4ce4c61172cfe48c0bd0", null ]
     ] ]
 ];

@@ -171,8 +171,8 @@ $(document).ready(function(){initNavTree('ec_formats.html',''); initResizable();
 <div class="line">    unsigned int subtype;</div>
 <div class="line">    unsigned int epoch;</div>
 <div class="line">    unsigned int numberOfEpochs;</div>
-<div class="line">    unsigned int tested_bits;</div>
-<div class="line">    unsigned int number_of_errors;</div>
+<div class="line">    unsigned int testedBits;</div>
+<div class="line">    unsigned int numberOfErrors;</div>
 <div class="line">     }</div>
 </div><!-- fragment --><p>element definition:</p><ul>
 <li><b>tag</b>: 6 for an error correction packet</li>
@@ -180,8 +180,8 @@ $(document).ready(function(){initNavTree('ec_formats.html',''); initResizable();
 <li><b>subtype</b>: 3 for request of bit number packet</li>
 <li><b>epoch</b>: defines epoch of first packet</li>
 <li><b>numberOfEpochs</b>: defines implicitly the length of the block</li>
-<li><b>tested_bits</b>: the number of bits tested</li>
-<li><b>number_of_errors</b>: how many mismatches were found.</li>
+<li><b>testedBits</b>: the number of bits tested</li>
+<li><b>numberOfErrors</b>: how many mismatches were found.</li>
 </ul>
 <h1>2. First round of parity bit generation</h1>
 <p>In this section, two versions of the bitstream are considered: The unpermutated version (0), and a second permutated copy (1). Both strings are partitioned in subblocks with a length of k0 and k1 bits, respectively, and a comparison of their parities is performed.</p>

@@ -1,4 +1,6 @@
 <map id="blockpointer" name="blockpointer">
-<area shape="rect" id="node1" title="Structure to hold list of blocks." alt="" coords="9,96,101,123"/>
-<area shape="rect" id="node2" href="$structprocessblock.html" title="Definition of a structure containing all informations about a block." alt="" coords="5,5,104,32"/>
+<area shape="rect" id="node1" title="Structure to hold list of blocks." alt="" coords="156,185,248,212"/>
+<area shape="rect" id="node2" href="$struct_process_blk.html" title="@ProcessBlock" alt="" coords="157,95,247,121"/>
+<area shape="rect" id="node3" href="$struct_a_l_g_o_r_i_t_h_m___p_k_t___m_n_g_r.html" title="Algorithm packet manager struct." alt="" coords="5,5,188,32"/>
+<area shape="rect" id="node4" href="$struct_a_l_g_o_r_i_t_h_m___d_a_t_a___m_n_g_r.html" title="Metadata containing information on the data, as well as function pointers to initializing and freeing..." alt="" coords="213,5,405,32"/>
 </map>

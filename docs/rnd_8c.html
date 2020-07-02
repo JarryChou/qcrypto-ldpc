@@ -233,7 +233,7 @@ Variables</h2></td></tr>
 <div class="fragment"><div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                                     {</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keywordtype">int</span> b;</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k0 = k; k0; k0--) {</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    b = <a class="code" href="rnd_8h.html#acd4cab02c31bf9470a13568409db79d7">parity</a>(<a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a> &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    b = <a class="code" href="rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548">calcParity</a>(<a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a> &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a> &lt;&lt;= 1;</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a> += b;</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  }</div>
@@ -282,7 +282,7 @@ Variables</h2></td></tr>
 <div class="fragment"><div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                                                           {</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">int</span> b;</div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k0 = k; k0; k0--) {</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    b = <a class="code" href="rnd_8h.html#acd4cab02c31bf9470a13568409db79d7">parity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    b = <a class="code" href="rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548">calcParity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    *state &lt;&lt;= 1;</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    *state += b;</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  }</div>
@@ -319,7 +319,7 @@ Variables</h2></td></tr>
 <div class="fragment"><div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                                                       {</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="keywordtype">int</span> b;</div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k0 = 32; k0; k0--) {</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    b = <a class="code" href="rnd_8h.html#acd4cab02c31bf9470a13568409db79d7">parity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    b = <a class="code" href="rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548">calcParity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    *state &lt;&lt;= 1;</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    *state += b;</div>
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  }</div>
@@ -432,8 +432,8 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="arnd_8c_html_ac82ca5abb4100fd09c76034d004912d5"><div class="ttname"><a href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a></div><div class="ttdeci">unsigned int __PrngState</div><div class="ttdoc">this is an implementation of an m-sequence</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00068">rnd.c:68</a></div></div>
-<div class="ttc" id="arnd_8h_html_acd4cab02c31bf9470a13568409db79d7"><div class="ttname"><a href="rnd_8h.html#acd4cab02c31bf9470a13568409db79d7">parity</a></div><div class="ttdeci">#define parity</div><div class="ttdoc">This should be ridiculously faster.</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00050">rnd.h:49</a></div></div>
 <div class="ttc" id="arnd_8c_html_ad8756d06439571bd71f80c6d4f564682"><div class="ttname"><a href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a></div><div class="ttdeci">int __RNG_calls</div><div class="ttdoc">for test purposes</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00033">rnd.c:33</a></div></div>
+<div class="ttc" id="arnd_8h_html_aaf02c22d1eaba1246f132d148dd3d548"><div class="ttname"><a href="rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548">calcParity</a></div><div class="ttdeci">#define calcParity</div><div class="ttdoc">This should be ridiculously faster.</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00050">rnd.h:49</a></div></div>
 <div class="ttc" id="arnd_8h_html_ad2620c817b87013a6bae795ee428d8f2"><div class="ttname"><a href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a></div><div class="ttdeci">#define PRNG_FEEDBACK</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00047">rnd.h:46</a></div></div>
 <div class="ttc" id="arnd_8h_html_aaea73438572cc3794c335c6ed21b7584"><div class="ttname"><a href="rnd_8h.html#aaea73438572cc3794c335c6ed21b7584">RANDOMGENERATOR</a></div><div class="ttdeci">#define RANDOMGENERATOR</div><div class="ttdoc">typical file names</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00063">rnd.h:62</a></div></div>
 <!-- start footer part -->

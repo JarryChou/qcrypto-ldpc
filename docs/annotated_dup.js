@@ -1,5 +1,9 @@
 var annotated_dup =
 [
+    [ "ALGORITHM_CASCADE_DATA", "struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html", "struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a" ],
+    [ "ALGORITHM_DATA_MNGR", "struct_a_l_g_o_r_i_t_h_m___d_a_t_a___m_n_g_r.html", "struct_a_l_g_o_r_i_t_h_m___d_a_t_a___m_n_g_r" ],
+    [ "ALGORITHM_PKT_MNGR", "struct_a_l_g_o_r_i_t_h_m___p_k_t___m_n_g_r.html", "struct_a_l_g_o_r_i_t_h_m___p_k_t___m_n_g_r" ],
+    [ "ALGORITHM_QBER_DATA", "struct_a_l_g_o_r_i_t_h_m___q_b_e_r___d_a_t_a.html", "struct_a_l_g_o_r_i_t_h_m___q_b_e_r___d_a_t_a" ],
     [ "arguments", "structarguments.html", "structarguments" ],
     [ "blockpointer", "structblockpointer.html", "structblockpointer" ],
     [ "cardinfo", "structcardinfo.html", "structcardinfo" ],
@@ -23,7 +27,7 @@ var annotated_dup =
     [ "otto", "structotto.html", "structotto" ],
     [ "packet_received", "structpacket__received.html", "structpacket__received" ],
     [ "packet_to_send", "structpacket__to__send.html", "structpacket__to__send" ],
-    [ "processblock", "structprocessblock.html", "structprocessblock" ],
+    [ "ProcessBlk", "struct_process_blk.html", "struct_process_blk" ],
     [ "processedtime", "structprocessedtime.html", "structprocessedtime" ],
     [ "protocol_details", "structprotocol__details.html", "structprotocol__details" ],
     [ "protocol_details_B", "structprotocol__details___b.html", "structprotocol__details___b" ],

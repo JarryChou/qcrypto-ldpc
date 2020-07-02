@@ -1,7 +1,8 @@
 var processblock__mgmt_8h =
 [
     [ "check_epochoverlap", "processblock__mgmt_8h.html#ae85a944ce8e93c3604cef0771bb4cf1d", null ],
-    [ "pBlkMgmt_createProcessBlock", "processblock__mgmt_8h.html#aadd1bf1140637f78ffa54b2c4e8f44b5", null ],
-    [ "pBlkMgmt_getProcessBlock", "processblock__mgmt_8h.html#afc82e2ee85b494b141ab4a9aaa273656", null ],
-    [ "pBlkMgmt_removeProcessBlock", "processblock__mgmt_8h.html#a4d6dc413364e8379f540ee118534404d", null ]
+    [ "pBlkMgmt_createProcessBlk", "processblock__mgmt_8h.html#a42ddeea0f475d41e1040aa0423fc8b19", null ],
+    [ "pBlkMgmt_finishQberEst", "processblock__mgmt_8h.html#a8a5a977b623e8b2aec706738fea41561", null ],
+    [ "pBlkMgmt_getProcessBlk", "processblock__mgmt_8h.html#ae6f848c0917e6348423a58c4dc0801c7", null ],
+    [ "pBlkMgmt_removeProcessBlk", "processblock__mgmt_8h.html#ad73d89425bfa5a819b138512f90f67b2", null ]
 ];

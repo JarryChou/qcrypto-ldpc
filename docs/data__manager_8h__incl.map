@@ -1,0 +1,6 @@
+<map id="errorcorrection/definitions/algorithms/data_manager.h" name="errorcorrection/definitions/algorithms/data_manager.h">
+<area shape="rect" id="node1" title="Definition file for structure involving data management of algorithm specific data and its metadata i..." alt="" coords="166,5,349,47"/>
+<area shape="rect" id="node2" href="$processblock_8h.html" title="Header file containing the definitions of the processBlock &amp; block related data for the error correct..." alt="" coords="196,95,319,121"/>
+<area shape="rect" id="node3" href="$defaultdefinitions_8h.html" title="Definition file for default variables in ecd2." alt="" coords="5,169,136,196"/>
+<area shape="rect" id="node4" href="$packet__manager_8h.html" title="Definition file for structure involving packet management of algorithm and its metadata in the proces..." alt="" coords="161,169,354,196"/>
+</map>

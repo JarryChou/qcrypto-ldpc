@@ -108,18 +108,39 @@ Collaboration diagram for ERRC_ERRDET_3:</div>
 Data Fields</h2></td></tr>
 <tr class="memitem:af286c7e38b7dad820246dea77ba0de17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="packets_8h.html#af8ec0a42968d72a8660c9c8d4e29abd8">EcPktHdr_Base</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html#af286c7e38b7dad820246dea77ba0de17">base</a></td></tr>
 <tr class="separator:af286c7e38b7dad820246dea77ba0de17"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a15f91e13a2b5976020d295ab7b465d"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a8a15f91e13a2b5976020d295ab7b465d">tested_bits</a></td></tr>
-<tr class="memdesc:a8a15f91e13a2b5976020d295ab7b465d"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of bits tested  <a href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a8a15f91e13a2b5976020d295ab7b465d">More...</a><br /></td></tr>
-<tr class="separator:a8a15f91e13a2b5976020d295ab7b465d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a509d384ced79a4bd67d4d7fc3fad6c07"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a509d384ced79a4bd67d4d7fc3fad6c07">number_of_errors</a></td></tr>
-<tr class="memdesc:a509d384ced79a4bd67d4d7fc3fad6c07"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of mismatches found  <a href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a509d384ced79a4bd67d4d7fc3fad6c07">More...</a><br /></td></tr>
-<tr class="separator:a509d384ced79a4bd67d4d7fc3fad6c07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b4deff70f351d8083385a870190dc6d"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a3b4deff70f351d8083385a870190dc6d">testedBits</a></td></tr>
+<tr class="memdesc:a3b4deff70f351d8083385a870190dc6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of bits tested  <a href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a3b4deff70f351d8083385a870190dc6d">More...</a><br /></td></tr>
+<tr class="separator:a3b4deff70f351d8083385a870190dc6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a1497933023387afe3e1e6895bbaf2f"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a0a1497933023387afe3e1e6895bbaf2f">numberOfErrors</a></td></tr>
+<tr class="memdesc:a0a1497933023387afe3e1e6895bbaf2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of mismatches found  <a href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a0a1497933023387afe3e1e6895bbaf2f">More...</a><br /></td></tr>
+<tr class="separator:a0a1497933023387afe3e1e6895bbaf2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b67138aa7ebf7cf7fd56cf72c63fb18"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a0b67138aa7ebf7cf7fd56cf72c63fb18">algorithmEnum</a></td></tr>
+<tr class="memdesc:a0b67138aa7ebf7cf7fd56cf72c63fb18"><td class="mdescLeft">&#160;</td><td class="mdescRight">if successful, this will be set to the enum of the algorithm to use for EC  <a href="struct_e_r_r_c___e_r_r_d_e_t__3.html#a0b67138aa7ebf7cf7fd56cf72c63fb18">More...</a><br /></td></tr>
+<tr class="separator:a0b67138aa7ebf7cf7fd56cf72c63fb18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Acknowledgment packet for communicating the error rate. </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00106">106</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00110">110</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a0b67138aa7ebf7cf7fd56cf72c63fb18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b67138aa7ebf7cf7fd56cf72c63fb18">&#9670;&nbsp;</a></span>algorithmEnum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int ERRC_ERRDET_3::algorithmEnum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>if successful, this will be set to the enum of the algorithm to use for EC </p>
+
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00114">114</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+
+</div>
+</div>
 <a id="af286c7e38b7dad820246dea77ba0de17"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af286c7e38b7dad820246dea77ba0de17">&#9670;&nbsp;</a></span>base</h2>
 
@@ -132,43 +153,43 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00107">107</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00111">111</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
-<a id="a509d384ced79a4bd67d4d7fc3fad6c07"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a509d384ced79a4bd67d4d7fc3fad6c07">&#9670;&nbsp;</a></span>number_of_errors</h2>
+<a id="a0a1497933023387afe3e1e6895bbaf2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a1497933023387afe3e1e6895bbaf2f">&#9670;&nbsp;</a></span>numberOfErrors</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned int ERRC_ERRDET_3::number_of_errors</td>
+          <td class="memname">unsigned int ERRC_ERRDET_3::numberOfErrors</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>number of mismatches found </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00109">109</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00113">113</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>
-<a id="a8a15f91e13a2b5976020d295ab7b465d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a15f91e13a2b5976020d295ab7b465d">&#9670;&nbsp;</a></span>tested_bits</h2>
+<a id="a3b4deff70f351d8083385a870190dc6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b4deff70f351d8083385a870190dc6d">&#9670;&nbsp;</a></span>testedBits</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned int ERRC_ERRDET_3::tested_bits</td>
+          <td class="memname">unsigned int ERRC_ERRDET_3::testedBits</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>number of bits tested </p>
 
-<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00108">108</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="packets_8h_source.html#l00112">112</a> of file <a class="el" href="packets_8h_source.html">packets.h</a>.</p>
 
 </div>
 </div>

@@ -1,6 +1,6 @@
 var rnd_8h =
 [
-    [ "parity", "rnd_8h.html#acd4cab02c31bf9470a13568409db79d7", null ],
+    [ "calcParity", "rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548", null ],
     [ "PRNG_FEEDBACK", "rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2", null ],
     [ "RANDOMGENERATOR", "rnd_8h.html#aaea73438572cc3794c335c6ed21b7584", null ],
     [ "rnd_generateRngSeed", "rnd_8h.html#ad3885c717fed4ff30e80ed4c3d331260", null ],

@@ -36,5 +36,16 @@ var defaultdefinitions_8h =
     [ "Boolean", "defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13", [
       [ "False", "defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13af9d46b7804d93a4fcde88489a1b68c24", null ],
       [ "True", "defaultdefinitions_8h.html#ae7d38601dfbd73adbe5c1b3ec34e0e13a6d32c34708a0a3507c4bdb89219d650b", null ]
+    ] ],
+    [ "HandleId", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3e", [
+      [ "handleId_commandPipe", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3ea9902f55cc4b636c1f2501e7892ffdf80", null ],
+      [ "handleId_sendPipe", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3ea359a6ff399089b29328c9e6dc731c354", null ],
+      [ "handleId_receivePipe", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3eab6c38e60aebca3ab02e49e8cb9e9a055", null ],
+      [ "handleId_rawKeyDir", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3eac3244455b484f4e77363dc4e5577e7a7", null ],
+      [ "handleId_finalKeyDir", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3ea7a2d9b621d426a7b283d249f78abea59", null ],
+      [ "handleId_notifyPipe", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3ea61d4048a034b1debc9e694bcbb6ef95c", null ],
+      [ "handleId_queryPipe", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3eaf69c035701e4f7512ccf7ccd393057cc", null ],
+      [ "handleId_queryRespPipe", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3ead4e3e7fcb78a7102c557c39aa1f200a5", null ],
+      [ "handleId_numberOfHandles", "defaultdefinitions_8h.html#a60dccdec5aced9500d5f728bce5b9b3eabe5df9279ffaaaf0127ed51063932c1e", null ]
     ] ]
 ];
