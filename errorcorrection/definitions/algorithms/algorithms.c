@@ -29,7 +29,7 @@ const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_INITATOR = {
     False                                       // allowNullPrcBlks
 };
 
-const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_FOLLOWER = {
+const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_INITIATOR = {
     cascade_startBinSearch,                     ///< Subtype 4
     cascade_initiatorAlice_processBinSearch,    ///< Subtype 5
     cascade_generateBiconfReply,                ///< Subtype 6   
@@ -39,12 +39,12 @@ const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_FOLLOWER = {
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_INITIATOR = {
     &ALG_PKTHNDLRS_CASCADE_INITIATOR,           // funcHandlers
     4,                                          // FIRST_SUBTYPE
-    4 + sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER)       // LAST_SUBTYPE, automatically calculated
-        / sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER[0]) - 1,
+    4 + sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR) // LAST_SUBTYPE, automatically calculated
+        / sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR[0]) - 1,
     False                                       // allowNullPrcBlks
 };
 
-const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_INITIATOR = {
+const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_FOLLOWER = {
     cascade_startBinSearch,                     ///< Subtype 4
     cascade_followerBob_processBinSearch,       ///< Subtype 5
     cascade_generateBiconfReply,                ///< Subtype 6   
@@ -54,8 +54,8 @@ const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_INITIATOR = {
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_FOLLOWER = {
     &ALG_PKTHNDLRS_CASCADE_FOLLOWER,            // funcHandlers
     4,                                          // FIRST_SUBTYPE
-    4 + sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR)      // LAST_SUBTYPE, automatically calculated
-        / sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR[0]) - 1,
+    4 + sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER)  // LAST_SUBTYPE, automatically calculated
+        / sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER[0]) - 1,
     False                                       // allowNullPrcBlks
 };
 

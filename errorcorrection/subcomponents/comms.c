@@ -179,7 +179,7 @@ int comms_createEcHeader(char** resultingBufferPtr, enum EC_SUBTYPES subtype, un
   tmpBaseHdr->numberOfEpochs = processBlock->numberOfEpochs;
 
   #ifdef DEBUG
-  printf("Prep packet subtype %d\n", subtype);
+  printf("Prep to send pkt subtype %d\n", subtype);
   fflush(stdout);
   #endif
   // Return success

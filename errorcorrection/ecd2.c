@@ -509,7 +509,7 @@ int main(int argc, char *argv[]) {
               errorCode = 45;
             } else {
               #ifdef DEBUG
-              printf("pkt handler min: %d max: %d\n", 
+              printf("Pkt handler min: %d max: %d\n", 
                   tmpPrcBlk->algorithmPktMngr->FIRST_SUBTYPE, 
                   tmpPrcBlk->algorithmPktMngr->LAST_SUBTYPE);
               fflush(stdout);
@@ -525,7 +525,7 @@ int main(int argc, char *argv[]) {
               (*(tmpPrcBlk->algorithmPktMngr->FUNC_HANDLERS))
                   [tmpBaseHead->subtype - tmpPrcBlk->algorithmPktMngr->FIRST_SUBTYPE](tmpPrcBlk, tmpRecvdPktNode->packet);
               #ifdef DEBUG
-              printf("Pkt handler exec");
+              printf("Pkt handler exec\n");
               fflush(stdout);
               #endif
             }
