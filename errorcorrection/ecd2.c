@@ -170,10 +170,10 @@ int has_pipe_event(fd_set* readqueue_ptr, fd_set* writequeue_ptr, int selectmax,
  * @return 0 if success, otherwise error code
  */
 int write_into_sendpipe() {
-  #ifdef DEBUG
-  printf("Writing packet to sendpipe\n");
-  fflush(stdout);
-  #endif
+  // #ifdef DEBUG
+  // printf("Writing packet to sendpipe\n");
+  // fflush(stdout);
+  // #endif
   int i = nextPacketToSend->length - sendIndex;
   int retval = write(arguments.handle[handleId_sendPipe], &nextPacketToSend->packet[sendIndex], i);
   if (retval == -1) return -emsg(29);
@@ -206,10 +206,10 @@ int readFromCmdPipe(char* cmdInput) {
   if (retval < 0) return -1;
   input_last_index += retval;
   cmdInput[input_last_index] = '\0';
-  #ifdef DEBUG
-  printf("Rd from cmd pipe. cmdInput: %s\n", cmdInput);
-  fflush(stdout);
-  #endif
+  // #ifdef DEBUG
+  // printf("Rd from cmd pipe. cmdInput: %s\n", cmdInput);
+  // fflush(stdout);
+  // #endif
   if (input_last_index >= CMD_INBUF_LEN) return 75; /* overflow, parse later... */
 
   return 0;
@@ -487,7 +487,7 @@ int main(int argc, char *argv[]) {
         tmpBaseHead = (EcPktHdr_Base *)tmpRecvdPktNode->packet;
         // Print debug message
         #ifdef DEBUG
-        printf("received message, subtype: %d, len: %d\n", tmpBaseHead->subtype, tmpBaseHead->totalLengthInBytes);
+        printf("rcv msg subtype: %d, len: %d\n", tmpBaseHead->subtype, tmpBaseHead->totalLengthInBytes);
         fflush(stdout);
         #endif
 
@@ -508,6 +508,12 @@ int main(int argc, char *argv[]) {
               // algorithm in use
               errorCode = 45;
             } else {
+              #ifdef DEBUG
+              printf("pkt handler min: %d max: %d\n", 
+                  tmpPrcBlk->algorithmPktMngr->FIRST_SUBTYPE, 
+                  tmpPrcBlk->algorithmPktMngr->LAST_SUBTYPE);
+              fflush(stdout);
+              #endif
               // What's going on here:
               // Pass it into the current packet function handler 
               // (See definitions/algorithms/algorithms.c and algorithms/packet_manager.h)
@@ -518,6 +524,10 @@ int main(int argc, char *argv[]) {
               // then we pass in the processBlock & packet into that function handler.
               (*(tmpPrcBlk->algorithmPktMngr->FUNC_HANDLERS))
                   [tmpBaseHead->subtype - tmpPrcBlk->algorithmPktMngr->FIRST_SUBTYPE](tmpPrcBlk, tmpRecvdPktNode->packet);
+              #ifdef DEBUG
+              printf("Pkt handler exec");
+              fflush(stdout);
+              #endif
             }
           }
         }  

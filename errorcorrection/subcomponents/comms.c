@@ -177,6 +177,11 @@ int comms_createEcHeader(char** resultingBufferPtr, enum EC_SUBTYPES subtype, un
   tmpBaseHdr->totalLengthInBytes = size;
   tmpBaseHdr->epoch = processBlock->startEpoch;
   tmpBaseHdr->numberOfEpochs = processBlock->numberOfEpochs;
+
+  #ifdef DEBUG
+  printf("Prep packet subtype %d\n", subtype);
+  fflush(stdout);
+  #endif
   // Return success
   return 0;
 }
