@@ -298,8 +298,8 @@ int chooseEcAlgorithmAsQberFollower(ProcessBlock *processBlock, char *bufferToSe
   pBlkMgmt_finishQberEst(processBlock);
 
   // The chosenAlgorithm by the QBER_FOLLOWER is hardcoded (originally is ALG_CASCADE_CONTINUE_ROLES)
-  // chosenAlgorithm = ALG_CASCADE_CONTINUE_ROLES;
-  chosenAlgorithm = ALG_CASCADE_FLIP_ROLES;
+  chosenAlgorithm = ALG_CASCADE_CONTINUE_ROLES;
+  // chosenAlgorithm = ALG_CASCADE_FLIP_ROLES;
 
   // Fill in the algorithm for the message
   ((EcPktHdr_QberEstBitsAck *)(bufferToSend))->algorithmEnum = chosenAlgorithm;
