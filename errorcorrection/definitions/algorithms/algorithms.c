@@ -23,8 +23,8 @@ const PacketHandlerArray ALG_PKTHNDLRS_QBER_INITIATOR = {
 };
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_INITATOR = {
     &ALG_PKTHNDLRS_QBER_INITIATOR,              // funcHandlers
-    0,                                          // FIRST_SUBTYPE
-    0 + sizeof(ALG_PKTHNDLRS_QBER_INITIATOR)         // LAST_SUBTYPE, automatically calculated
+    2,                                          // FIRST_SUBTYPE
+    2 + sizeof(ALG_PKTHNDLRS_QBER_INITIATOR)         // LAST_SUBTYPE, automatically calculated
         / sizeof(ALG_PKTHNDLRS_QBER_INITIATOR[0]) - 1,
     False                                       // allowNullPrcBlks
 };
