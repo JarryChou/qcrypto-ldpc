@@ -31,14 +31,20 @@ typedef struct ALGORITHM_DATA_MNGR {
     const int (* freeData)(ProcessBlock* processBlock);         ///< Function to call to free the data
 } ALGORITHM_DATA_MNGR;
 
-/// @brief container for additional variables required only for QBER estimation
+/**
+ * @brief struct for additional variables required only for QBER estimation
+ * 
+ */
 typedef struct ALGORITHM_QBER_DATA {
     int skipQberEstim;                    /**< Boolean. determines if error estimation has to be done */
     int estimatedError;                   /**< number of estimated error bits */
     int estimatedSampleSize;              /**< sample size for error estimation  */
 } QberData;
 
-/// @brief container for additional variables required only for cascade algorithm
+/**
+ * @brief struct for additional variables required only for cascade algorithm
+ * 
+ */
 typedef struct ALGORITHM_CASCADE_DATA {
     int k0, k1;                           /**< binary block search lengths */
     int partitions0, partitions1;         /**< number of partitions of k0,k1 length */

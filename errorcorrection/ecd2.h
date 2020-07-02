@@ -176,6 +176,9 @@
  *    still very chatty on debug information
  *    query/response mechanism not implemented yet
  * 
+ * TODO: Use valgrind to verify lack of memory leaks
+ *  https://valgrind.org/docs/manual/quick-start.html#quick-start.prepare
+ * 
  */
 
 #ifndef ECD2_H

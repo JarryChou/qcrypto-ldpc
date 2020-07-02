@@ -14,13 +14,16 @@ typedef struct ProcessBlk ProcessBlock;
  * @brief Type definition for an array of packet handlers
  * 
  * All algorithms involve commmunications between the parties. This array contains pointers to functions
- * that process the incoming packets (hence termed "packet handlers").
+ * that process the incoming packets (hence termed "packet handlers"). Think of it as the errormessage array,
+ * but it contains functions that you call instead.
  * 
  * A packet handler is a function pointer that handles the corresponding subtype of an incoming packet.
  * A function pointer is basically a pointer to a function
  * Each packet handler returns an int (error code) and takes in a process block and a receivebuf.
  * 
  * The subtypes covered by a packet manager is consecutive.
+ * 
+ * While the term used is "manager", "routing" could also be used to describe this if it is easier to understand.
  * 
  * For more information on function pointers see:
  * https://stackoverflow.com/questions/252748/how-can-i-use-an-array-of-function-pointers
@@ -30,7 +33,9 @@ typedef struct ProcessBlk ProcessBlock;
 typedef int (* PacketHandlerArray[])(ProcessBlock* processBlock, char* receivebuf);
 
 /**
- * @brief 
+ * @brief Algorithm packet manager struct. Contains pointers to the packet handlers and metadata.
+ * 
+ * Stored in process block
  * 
  */
 typedef struct ALGORITHM_PKT_MNGR {

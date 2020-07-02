@@ -5,10 +5,24 @@
 // ALGORITHM STRUCT FOR PROCESS BLOCK
 // Contains information & functions on the algorithm w.r.t. packet handling
 // ********************************************************************************
-// I realize this will not be used, but I left this in to make it more clear what's going on
+
+/// @name QBER_FOLLOWER PACKET MANAGER
+/// @brief Contains information & functions on the algorithm w.r.t. packet handling
+/// @{
+/**
+ * @brief Pointers to packet handler functions for QBER_FOLLOWER
+ * 
+ * (this specific array and manager won't get used in the current implementation)
+ * I realize this will not be used, but I left this in to make it more clear what's going on
+ * 
+ */
 const PacketHandlerArray ALG_PKTHNDLRS_QBER_FOLLOWER = {
     qber_processReceivedQberEstBits             ///< Subtype 0
 };
+/**
+ * @brief Metadata to be stored in process block w.r.t. packet handling
+ * 
+ */
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_FOLLOWER = {
     &ALG_PKTHNDLRS_QBER_FOLLOWER,               // funcHandlers
     0,                                          // FIRST_SUBTYPE
@@ -16,11 +30,23 @@ const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_FOLLOWER = {
         / sizeof(ALG_PKTHNDLRS_QBER_FOLLOWER[0]),
     True                                        // allowNullPrcBlks
 };
+/// @} 
 
+/// @name QBER_INITIATOR PACKET MANAGER
+/// @brief Contains information & functions on the algorithm w.r.t. packet handling
+/// @{
+/**
+ * @brief Pointers to packet handler functions for QBER_INITIATOR
+ * 
+ */
 const PacketHandlerArray ALG_PKTHNDLRS_QBER_INITIATOR = {
     qber_replyWithMoreBits,                     ///< Subtype 2
     qber_prepareErrorCorrection                 ///< Subtype 3
 };
+/**
+ * @brief Metadata to be stored in process block w.r.t. packet handling
+ * 
+ */
 const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_INITATOR = {
     &ALG_PKTHNDLRS_QBER_INITIATOR,              // funcHandlers
     2,                                          // FIRST_SUBTYPE
@@ -28,7 +54,11 @@ const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_QBER_INITATOR = {
         / sizeof(ALG_PKTHNDLRS_QBER_INITIATOR[0]) - 1,
     False                                       // allowNullPrcBlks
 };
+/// @} 
 
+/// @name CASCADE_INITIATOR PACKET MANAGER
+/// @brief Contains information & functions on the algorithm w.r.t. packet handling
+/// @{
 const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_INITIATOR = {
     cascade_startBinSearch,                     ///< Subtype 4
     cascade_initiatorAlice_processBinSearch,    ///< Subtype 5
@@ -43,7 +73,11 @@ const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_INITIATOR = {
         / sizeof(ALG_PKTHNDLRS_CASCADE_INITIATOR[0]) - 1,
     False                                       // allowNullPrcBlks
 };
+/// @} 
 
+/// @name CASCADE_FOLLOWER PACKET MANAGER
+/// @brief Contains information & functions on the algorithm w.r.t. packet handling
+/// @{
 const PacketHandlerArray ALG_PKTHNDLRS_CASCADE_FOLLOWER = {
     cascade_startBinSearch,                     ///< Subtype 4
     cascade_followerBob_processBinSearch,       ///< Subtype 5
@@ -58,6 +92,7 @@ const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_FOLLOWER = {
         / sizeof(ALG_PKTHNDLRS_CASCADE_FOLLOWER[0]) - 1,
     False                                       // allowNullPrcBlks
 };
+/// @} 
 
 
 
@@ -66,10 +101,21 @@ const ALGORITHM_PKT_MNGR ALG_PKT_MNGR_CASCADE_FOLLOWER = {
 // ALGORITHM DATA STRUCT FOR PROCESS BLOCK
 // Contains information & functions on the algorithm w.r.t. the data stored
 // ********************************************************************************
-/** @brief Init struct containing data */
+
+/// @name CASCADE_FOLLOWER PACKET MANAGER
+/// @brief Contains information & functions on the algorithm w.r.t. packet handling
+/// @{
+/**
+ * @brief General function for mallocing the struct containing data without initializing it's internal variables
+ * 
+ * Update this if you want to add a new algorithm
+ * 
+ * @param processBlock 
+ * @return int error code
+ */
 int initDataStruct(ProcessBlock* processBlock) {
     if (processBlock->algorithmDataPtr) {
-        // Should be null
+        // the data ptr should be null or else a logic err occurred
         return 84;
     }
     switch (processBlock->algorithmDataMngr->DATA_TYPE) {
@@ -80,7 +126,8 @@ int initDataStruct(ProcessBlock* processBlock) {
             processBlock->algorithmDataPtr = malloc2(sizeof(CascadeData));
             break;
         default:
-            fprintf(stderr, "Unsupported datatype initDataStruct");
+            fprintf(stderr, "Unsupported data type %d @ initDataStruct\n", 
+                    processBlock->algorithmDataMngr->DATA_TYPE);
             return 81;
     }
     /* if malloc failed */
@@ -88,7 +135,14 @@ int initDataStruct(ProcessBlock* processBlock) {
         return 34;
     return 0;
 }
-/** @brief Free struct containing data */
+/**
+ * @brief General function for freeing the struct containing data without freeing it's internal variables
+ * 
+ * Make sure to free the variables inside before calling this
+ * 
+ * @param processBlock 
+ * @return int error code
+ */
 int freeDataStruct(ProcessBlock* processBlock) {
     // Free the struct itself
     free2(processBlock->algorithmDataPtr);
@@ -97,22 +151,33 @@ int freeDataStruct(ProcessBlock* processBlock) {
     processBlock->algorithmDataMngr = NULL;
     return 0;
 }
+/// @} 
 
+/// @name QBER ESTIMATION DATA MANAGER
+/// @{
+/// @brief function to initialize QBER specific data
 int initQberData(ProcessBlock* processBlock) {
     return initDataStruct(processBlock);
 }
+/// @brief function to free QBER specific data
 int freeQberData(ProcessBlock* processBlock) {
     return freeDataStruct(processBlock);
 }
+/// @brief Contains information & functions on the qber est. algorithm w.r.t. data handling
 const ALGORITHM_DATA_MNGR ALG_DATA_MNGR_QBER = {
     ALG_DATATYPE_QBER,      // Enum which identifies the data type of the data
     &initQberData,          // Function to call to initialize the data
     &freeQberData           // Function to call to free the data
 };
+/// @} 
 
+/// @name CASCADE DATA MANAGER
+/// @{
+/// @brief function to initialize CASCADE BICONF specific data
 int initCascadeData(ProcessBlock* processBlock) {
     return initDataStruct(processBlock);
 }
+/// @brief function to free CASCADE BICONF specific data
 int freeCascadeData(ProcessBlock* processBlock) {
     CascadeData *data = (CascadeData *)processBlock->algorithmDataPtr;
     // Free cascade data items
@@ -124,8 +189,10 @@ int freeCascadeData(ProcessBlock* processBlock) {
     // Free the struct itself
     return freeDataStruct(processBlock);
 }
+/// @brief Contains information & functions on the cascade algorithm w.r.t. data handling
 const ALGORITHM_DATA_MNGR ALG_DATA_MNGR_CASCADE = {
     ALG_DATATYPE_CASCADE,   // Enum which identifies the data type of the data
     &initCascadeData,       // Function to call to initialize the data
     &freeCascadeData        // Function to call to free the data
 };
+/// @} 

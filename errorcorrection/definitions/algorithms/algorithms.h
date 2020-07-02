@@ -23,7 +23,13 @@
 /**   
  * @brief What PROC_ROLE_QBER_EST_FOLLOWER sends in EcPktHdr_QberEstBitsAck
  * 
- *  If this is not "LET_PROC_ROLE_QBER_EST_INITIATOR_DECIDE", the PROC_ROLE_QBER_EST_FOLLOWER (bob) will be the one
+ * In the current application, you can configure (in code) the one who initiates QBER estimation to be different from the one who initiates
+ * the error correction procedure. In this case, the QBER_FOLLOWER (the one who didn't initiate QBER est.) 
+ * is the one who tells the QBER_INITIATOR via the acknowledgement packet:
+ *  1. What algorithm to use for error correction
+ *  2. Who should initiate the error correction (i.e. who should be Alice)
+ * 
+ * Unimplemented: If this is not "LET_PROC_ROLE_QBER_EST_INITIATOR_DECIDE", the PROC_ROLE_QBER_EST_FOLLOWER (bob) will be the one
  * initiating the EC procedure.
  * 
  */
