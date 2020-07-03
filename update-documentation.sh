@@ -3,6 +3,7 @@
 git checkout gh-pages
 # Make sure to modify the branch name here if you use a different branch
 git rebase branch-ecd2-enhancements3
+git pull
 git push gh-pages
 ./run_doxygen.sh
 git add .
