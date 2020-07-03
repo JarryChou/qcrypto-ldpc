@@ -175,11 +175,23 @@ const ALGORITHM_DATA_MNGR ALG_DATA_MNGR_QBER = {
 /// @{
 /// @brief function to initialize CASCADE BICONF specific data
 int initCascadeData(ProcessBlock* processBlock) {
-    return initDataStruct(processBlock);
+    int errorCode = initDataStruct(processBlock);
+    if (errorCode) return errorCode;
+    // Make sure every pointer variable is properly initialized before use
+    CascadeData *cscData = (CascadeData *)(processBlock->algorithmDataPtr);
+    cscData->diffidx = NULL;
+    cscData->diffidxe = NULL;
+    cscData->lp0 = NULL;
+    cscData->lp1 = NULL;
+    cscData->pd0 = NULL;
+    cscData->pd1 = NULL;
+    cscData->rp0 = NULL;
+    cscData->rp1 = NULL;
+    return 0;
 }
 /// @brief function to free CASCADE BICONF specific data
 int freeCascadeData(ProcessBlock* processBlock) {
-    CascadeData *data = (CascadeData *)processBlock->algorithmDataPtr;
+    CascadeData *data = (CascadeData *)(processBlock->algorithmDataPtr);
     // Free cascade data items
     /* parity storage */
     if (data->lp0) 

@@ -508,11 +508,11 @@ int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
   l1 = wordCount(cscData->partitions1); /* size in words */
   cscData->lp0 = (unsigned int *)malloc2((l0 + l1) * WORD_SIZE * 3);
   if (!cscData->lp0) return 53; /* can't malloc */
-  cscData->lp1 = &cscData->lp0[l0];  /* ptr to permuted parities */
-  cscData->rp0 = &cscData->lp1[l1];  /* prt to rmt parities 0 */
-  cscData->rp1 = &cscData->rp0[l0];  /* prt to rmt parities 1 */
-  cscData->pd0 = &cscData->rp1[l1];  /* prt to rmt parities 0 */
-  cscData->pd1 = &cscData->pd0[l0];  /* prt to rmt parities 1 */
+  cscData->lp1 = &(cscData->lp0[l0]);  /* ptr to permuted parities */
+  cscData->rp0 = &(cscData->lp1[l1]);  /* prt to rmt parities 0 */
+  cscData->rp1 = &(cscData->rp0[l0]);  /* prt to rmt parities 1 */
+  cscData->pd0 = &(cscData->rp1[l1]);  /* prt to rmt parities 0 */
+  cscData->pd1 = &(cscData->pd0[l0]);  /* prt to rmt parities 1 */
 
   /* store received parity lists as a direct copy into the rp structure */
   memcpy(cscData->rp0, &in_head[1], /* this is the start of the data section */
@@ -528,7 +528,7 @@ int cascade_startBinSearch(ProcessBlock *pb, char *receivebuf) {
   cscData->diffidx = (unsigned int *)malloc2(cscData->diffBlockCount * WORD_SIZE * 2);
   if (!cscData->diffidx) /* can't malloc */
     return 54;
-  cscData->diffidxe = &cscData->diffidx[cscData->diffBlockCount]; /* end of interval */
+  cscData->diffidxe = &(cscData->diffidx[cscData->diffBlockCount]); /* end of interval */
 
   /* now hand over to the procedure preoaring the first binsearch msg
      for the first pass 0 */
@@ -587,7 +587,7 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, char *receivebuf) 
     cscData->diffBlockCountMax = cscData->diffBlockCount;
     cscData->diffidx = (unsigned int *)malloc2(cscData->diffBlockCount * WORD_SIZE * 2);
     if (!cscData->diffidx) return 54;                 /* can't malloc */
-    cscData->diffidxe = &cscData->diffidx[cscData->diffBlockCount]; /* end of interval */
+    cscData->diffidxe = &(cscData->diffidx[cscData->diffBlockCount]); /* end of interval */
     break;
   }
 
@@ -609,7 +609,6 @@ int cascade_initiatorAlice_processBinSearch(ProcessBlock *pb, char *receivebuf) 
     d = pb->testedBitsMarker;
     k = cscData->biconfLength;
   }
-
   /* fix index list according to parity info or initial run */
   switch (in_head->indexPresent) { /* different encodings */
     case 0: /* repair index according to previous basis match */
@@ -870,7 +869,7 @@ int cascade_followerBob_processBinSearch(ProcessBlock *pb, char *receivebuf) {
       if (!cscData->diffidx) 
         return 54; 
       // end of interval
-      cscData->diffidxe = &cscData->diffidx[cscData->diffBlockCount];
+      cscData->diffidxe = &(cscData->diffidx[cscData->diffBlockCount]);
     }
 
     /* do basically a cascade_startBinSearch for next round */
