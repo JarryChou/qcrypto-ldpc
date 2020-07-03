@@ -6,6 +6,8 @@ git rebase branch-ecd2-enhancements3
 git pull
 git push gh-pages
 ./run_doxygen.sh
+# mv files from docs dir because gh-pages need to read from root dir
+mv ./docs/* ./docs/.* ./
 git add .
 git commit -m "Update documentation"
 # You may need auth here
