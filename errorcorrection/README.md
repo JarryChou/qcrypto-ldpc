@@ -28,7 +28,7 @@ DEFINITION FILES
 * proc_state.h
 * globalvars.h
 
-Internals Procedure
+Example UML
 @startuml
     Test->Test2  : Command()
     Test<--Test2 : Ack()

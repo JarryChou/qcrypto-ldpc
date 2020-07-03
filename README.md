@@ -4,6 +4,7 @@ README {#mainpage}
 # SUBDIRECTORIES
 * errorcorrection (@subpage ec_readme)
     * error correction packet formats (@subpage ec_formats)
+    * Thoughts on LDPC (@subpage ldpc_readme)
 * hardware (@subpage hardware)
 * packetheaders (@subpage filespec)
 * remotecrypto (@subpage remotecrypto)
@@ -65,10 +66,14 @@ If you are new to documenting projects, [here](https://nus-cs2103-ay1920s2.githu
     * The cool thing about this website that doxygen generates is that it can be automatically hosted using [GitHub pages](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site). In this current setup, so long as changes were made to the the docs folder in the master branch (i.e. main branch) you should see the changes reflected.
 3. Once all this is done, you'll want to commit and push the code to your repository; what message should you include with the commit? [This](https://chris.beams.io/posts/git-commit/) can help.
 
+# GOOGLE TEST SUITE
+This project uses Google Test Suite (or at least aspires to!) to test its components. You'll have to download,
+install and compile GTS locally on your computer (this can be done with `setup_gtests.sh`). Usage tutorial can be found
+[here](https://notes.eatonphil.com/unit-testing-c-code-with-gtest.html) and [here](https://github.com/google/googletest/blob/master/googletest/docs/primer.md).
+
 # LICENSE
  Copyright (C) 2020 Matthew Lee, National University
                          of Singapore <crazoter@gmail.com>
-
 
  Copyright (C) 2005-2015 Christian Kurtsiefer, National University
                          of Singapore <christian.kurtsiefer@gmail.com>
