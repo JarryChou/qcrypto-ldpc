@@ -1,10 +1,12 @@
 #!/bin/bash 
 
+# Use these variables to perform checks if necessary
 branch=$(git rev-parse --abbrev-ref HEAD)
+diff=$(git diff --exit-code)
 
-if [ "$branch" != "gh-pages" ]; then
-	printf "Current branch is not gh-pages. Please checkout the gh-pages branch.\n"
-	printf "Alternatively, use ./update_documentation.sh.\n"
+if [ "$diff" != "" ]; then
+	printf "There are changes in the repository that are not yet committed.\
+		\nPlease commit changes before updating the documentation.\n"
 	exit 0
 fi
 
