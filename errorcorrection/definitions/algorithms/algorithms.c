@@ -173,7 +173,7 @@ const ALGORITHM_DATA_MNGR ALG_DATA_MNGR_QBER = {
 
 /// @name CASCADE DATA MANAGER
 /// @{
-/// @brief function to initialize CASCADE BICONF specific data
+/// @brief Function to initialize CASCADE BICONF specific data
 int initCascadeData(ProcessBlock* processBlock) {
     int errorCode = initDataStruct(processBlock);
     if (errorCode) return errorCode;
