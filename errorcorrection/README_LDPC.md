@@ -72,5 +72,130 @@ Notes:
 * Follower (Bob)
 
 ## References
-1. LDPC for dummies	https://arxiv.org/ftp/arxiv/papers/1205/1205.4977.pdf
-2. LDPC dissert.		https://escholarship.org/uc/item/3862381k
+| I  | Name  | URL |
+|---|---|---|
+1 | LDPC for dummies	| https://arxiv.org/ftp/arxiv/papers/1205/1205.4977.pdf
+2 |  LDPC dissert.		| https://escholarship.org/uc/item/3862381k
+3 | Efficient reconciliation protocol for discrete-variable quantum key distribution | - 
+4 | Rate Compatible Protocol for Information Reconciliation: An application to QKD
+
+5 |
+6 |
+7 |
+8 |
+9 |
+10 | 
+
+# How LDPC works (Lesson 1)
+src: https://www.youtube.com/watch?v=ymn87tfwX60
+
+LDPC: Low-Density Parity-Check Codes
+- Block codes, every block code has a parity check matrix
+[n, k, d] code
+H = parity check matrix (n-k x n)
+- Rows of H don't have to be linearly independent.
+	- However still require the rows of H generate the dual code. This can be used to show that once again thiis implies that the nullspace of H is precisely the original code.
+		- A (dv,dc) - regular LDPC code is one in which each row of H has dc 1s and each column of H contains dv 1s.
+			- .: m*dc = n*dv
+			- .: (m/n) = (dv/dc) (eqn 2)
+		- H in this case now is now defined as a m x n matrix.
+		- Since the rows don't have to be linearly independent, rank(H) <= m, 
+			- .: dim(rank(H)) >= n - m
+			- .: dim(code) >= n - m 
+			- .: k >= n - m
+			- .: Rate of code (k/n) >= 1 - (m/n) (eqn 1)
+			- .: (k/n) >= 1 - (dv/dc) (eqn 3)
+
+- total number of entries: Theta(n^2)
+	- random parity check matrix: ~equal number of 0s and 1s
+	- normal matrix: number of 1s in the order of n^2 as well
+	- For LDPC codes: number of 1s of Theta(n)
+
+- An example representation of LDPC codes (in the form of a tanner graph):
+![](./readme_imgs/tanner_graph.png)
+- This is just another representation of the parity check matrix, as illustrated below:
+![](./readme_imgs/tanner_graph_2.png)
+- Bipartite graph (nodes on either side can only be directly connected to nodes on thhe other side)
+- Graph uniquely defines the code
+- Nodes on *left* side are called **variable nodes** and they correspond to the **columns** of the parity check matrix (n of them)
+	- The number of edges that each check node has on the left side represents the number of 1s in that column
+- Nodes on *right* side are called **check nodes** and they correspond to the **rows** of the parity check matrix (m of them)
+	- The number of edges that each check node has on the right side represents the number of 1s in that row
+	- Each node represents a parity condition that must be satisfied (5 in example)
+		- e.g. For node 'B', symbols 3,4,5,6,7,8 together must have even parity.
+- Each edge represents a '1' in the parity check matrix
+	- Number of 1s is the nuumber of edges
+	- No. of edges = No. of left nodes * dv = No. of right nodes * dc
+	- Typically for LDPC the block len. can be very large but we fix these degrees. So the number of 1s is automatically some multiple of n and thus Theta(n).
+- In this instance, (dv=3, dc=6) - regular code
+	- i.e. each node on left has degree dv=3, each node on right have degree dc=6
+	- .: Rate of code = (k/n) >= 1 - (dv/dc) = 1 - (3/6) = 1/2
+	- .: Rate of code >= 1/2 (Designed rate of the code)
+		- Not exact because the rows are not linearly independent
+	
+## Why low density?
+- Decode code by passing messages on the tanner graph edges.
+- Start with messages from left to right, then bounce back and forth.
+	- A round of messages passing from right to left followed by left to right is one iteration.
+		- Fixed number of iterations (20 or 50 depending on accuracy required)
+	- There is an initial phase where the messages go from left to right (which is not counted as an iteration)
+	- Every time you pass a message you do some operation @ each of the nodes. 
+		- Total number of operations proportionate to:
+			- number of nodes
+			- degree of nodes
+			- number of iterations
+				- if you fixed the no. of iterations, then the number of operations is linear to the nodes on the left
+				- .: it is linear to the length of the code
+				- .: you can decode the code in linear compexity
+				- does it come at a price?
+					- Performance is predictable and fast
+					- ubuqitious error correction code (becoming very popular)
+					- There are various possible message passing algorithms that are adapted on the Tanner graph for the LDPC codes, but there is one which goes by the name belief propagation, which goes by the name "belief propagation" which mimics more or less the messages that are passed in a junction tree. 
+
+## LDPC Code Terminology (Lesson 2)
+src: https://www.youtube.com/watch?v=3vof6zX20SI
+- (dv,dc) regular code
+- rate
+- Tanner graph
+- decoding complexity being linear
+
+Computational Tree (another representation of the tanner graph, but it's not the same graph as the example above, but any tanner graph can be represnted as a computational tree):
+![](./readme_imgs/comp-tree.png)
+- For example starting with variable node 21, and they are connected to various other nodes 
+- **Edges** are directed from a variable to check node e.g. 1 to A 
+	- A **path** is a sequence of contiguous directed edges
+		- length of path = # of directed edges in path
+	- Given 2 nodes in he path, the 2 nodes are at distance d if they are connected by a path of length d but not by a path of length < d.
+- An undirected **Neighborhood** of a given node *n* to depth *x* includes all the nodes that are reachable by a path length of *x* from *n*, as well as all the edges used in said paths. Notation is N^x_n.
+	- For example, N^1_18 would contain nodes I, C and D and the corresponding edges between the nodes.
+	- A directed neighborhood can only include nodes that are reachable by directed edges.
+	- If a node a is in an undirected neighborhood of another node b, b is also in the undirected neighborhood of a to the same depth.
+
+## LDPC Channel Models
+BSC: Binary Symmetric Channel
+- 2 inputs and 2 outputs
+	- Inputs: xt = 1 and xt = -1
+	- Output: yt = 1 and yt = -1
+![](./readme_imgs/channel-model-bsc.png)
+![](./readme_imgs/channel-model-bsc-2.png)
+- Representing the channel multiplicatively
+- Probability of flip is epsilon (error rate)
+- Probability of it being correct is 1 - epsilon
+- If this is confusing, -1 just stands for '1' in bit and 1 stands for '0' in bit.
+
+Prof talks about additive White Gaussian noise model but it's not relevant to our discrete model
+
+## Message passing terminology
+- (Decoding) Passing messages between variable & check nodes
+- **Iteration**:
+	- Initial / zero iteration: Flow of info from variable to check node
+	- Iteration 1: Flow from check to variable, then variable to check
+	- Subsequent iterations follow the same process as iteration 1 
+	- Variable nodes init message passing
+		- They are the ones that get the information from the channel input
+		- The variable nodes compute the first message they pass out
+		- **Messages** are real numbers, or subset of real numbers
+![](./readme_imgs/msg-pass-1.png)
+- Theta / O: output alphabet of the channel 
+- M: common alphabet employed to pass messages from var node to check nodes or vice versa
+- They are both subsets of real numbers.
