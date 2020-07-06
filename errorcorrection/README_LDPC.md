@@ -185,7 +185,8 @@ BSC: Binary Symmetric Channel
 
 Prof talks about additive White Gaussian noise model but it's not relevant to our discrete model
 
-## Message passing terminology
+## Message passing terminology (Lesson 3)
+src: https://www.youtube.com/watch?v=_45M-dO99-M&t=634s
 - (Decoding) Passing messages between variable & check nodes
 - **Iteration**:
 	- Initial / zero iteration: Flow of info from variable to check node
@@ -199,3 +200,57 @@ Prof talks about additive White Gaussian noise model but it's not relevant to ou
 - Theta / O: output alphabet of the channel 
 - M: common alphabet employed to pass messages from var node to check nodes or vice versa
 - They are both subsets of real numbers.
+
+psi^0_v : O -> M (initial msg map)
+- psi^0_v is a map from O to M
+	- it is the initial message map
+psi^(l)_c : m^(dc-1) -> m
+- c: check node
+- l: iteration number
+psi^(l)_c : O x m^(dv-1) -> m
+
+Assumptions concerning msg passing at a var/check node:
+Mapping of the variable node:
+- psi^(0)_v (bm) = psi^(0)_v (m) * b, b in {1, -1}, m in M
+- psi^(0)_v (bm_0, bm_1, ... , bm_{dv-1}) = b * psi^(0)_v (m_0,m_1, ... , m_{dv-1})
+![](./readme_imgs/msg-pass-2.png)
+- Basically, the outgoing value of the variable node must have the same sign as the incoming value
+
+Then the mapping at the check node I'm lazy to type out:
+![](./readme_imgs/msg-pass-3.png)
+- check node has degree dc in a dv,dc regular code
+- dc - 1 incoming edges and one otgoing edge
+- basically the check node will receive multiiple incoming messages, it will multiply the signs of all the values it gets and that is the sign of the outgoing value.
+	- equivalent to a parity check
+
+- An edge is considered an error if a sign disagrees with the sign of the corresponding code symbol.
+![](./readme_imgs/msg-pass-4.png)
+- Estimation of whether it is correct
+- A message along an edge is said to be in error if its sign is not the true sign of the associated code symbol.
+	- In this case you compare the message you're sending along the edge with the value stored in the node you are sending it to.
+	- e.g. a message going from A to 6 is an indication of the value of 6, so if that sign differs from the true value of 6 then that message is an error.
+	- The number of incorrect messages passed along the edges of the Tanner graph during each iteration is independent of the transmitted codeword.
+		- Proof at 21:55, using a codeword of all 1s
+
+## Gallager Decoding Algorithm A
+![](./gallager-a-1.png)
+- Specified specific variable and check node maps
+- **Variable nodes**: 
+	- Messages are all +1 -1
+	- Iteration 0: The var nodes just forward what they get from the channel input
+	- Iteration 1 and beyond: Messages are all +1 or -1, so it will send out the channel input *unless* there is overriding evidence from *all* its other inputs (e.g. all the other inputs say the different sign).
+- **Check nodes**:
+	- Messages are all +1 -1
+	- Send product of incoming messages
+
+### Evaluating performance of Gallager Decoding Algorithm A
+- Do this carrying out something referred to nowadays as **density evolution**:
+	- Estimate the # of incoming messgaes passed during each iteration iteratively
+	- To do that we assume that the all 1s codeword was transmitted
+	- Probabilities that a message passed is either -1 or 1 (34:51):
+![](./gallager-a-2.png)	
+![](./gallager-a-3.png)	
+![](./gallager-a-4.png)	
+![](./gallager-a-5.png)	
+- Messsages are independent
+![](./gallager-a-6.png)	

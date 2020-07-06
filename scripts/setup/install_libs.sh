@@ -10,8 +10,7 @@ tar zxvf "./fftw-3.3.8.tar.gz"
 cd "fftw-3.3.8"
 ./configure --enable-threads --enable-openmp --enable-avx 
 make
-su
-make install
+sudo make install
 cd ../
 
 # We can verify the installation with this code:
