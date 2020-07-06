@@ -1,11 +1,32 @@
 LDPC Protocol write-up {#ldpc_readme}
 ====
 
+Table of Contents
+- [LDPC Protocol write-up {#ldpc_readme}](#ldpc-protocol-write-up-ldpc_readme)
+	- [Initial understanding write-up (this may become outdated / irrelevant as research progresses)](#initial-understanding-write-up-this-may-become-outdated--irrelevant-as-research-progresses)
+	- [Procedure](#procedure)
+	- [Variables needed](#variables-needed)
+	- [References](#references)
+- [Readings 1: Mod-09, Error Correcting Codes by Dr. P. Vijay Kumar, Department of Electrical Communication Engineering, IISC Bangalore](#readings-1-mod-09-error-correcting-codes-by-dr-p-vijay-kumar-department-of-electrical-communication-engineering-iisc-bangalore)
+	- [How LDPC works (Lesson 1)](#how-ldpc-works-lesson-1)
+	- [Why low density?](#why-low-density)
+	- [LDPC Code Terminology (Lesson 2)](#ldpc-code-terminology-lesson-2)
+	- [LDPC Channel Models](#ldpc-channel-models)
+	- [Message passing terminology (Lesson 3)](#message-passing-terminology-lesson-3)
+	- [Gallager Decoding Algorithm A (Decoding)](#gallager-decoding-algorithm-a-decoding)
+		- [Evaluating performance of Gallager Decoding Algorithm A](#evaluating-performance-of-gallager-decoding-algorithm-a)
+		- [(Density Evo Lesson 4 21:00)](#density-evo-lesson-4-2100)
+	- [Belief Propagation (Decoding) (Lesson 5)](#belief-propagation-decoding-lesson-5)
+- [Readings 2: LDPC AND POLAR CODES IN 5G STANDARD by PROF. ANDREW THANGARAJ. IIT MADRAS](#readings-2-ldpc-and-polar-codes-in-5g-standard-by-prof-andrew-thangaraj-iit-madras)
+	- [LDPC Encoding & Decoding (5G)](#ldpc-encoding--decoding-5g)
+	- [How protographs work (GENERATING THE PARITY CHECK MATRIX)](#how-protographs-work-generating-the-parity-check-matrix)
+	- [5G STANDARDS OF PROTOGRAPHS](#5g-standards-of-protographs)
+
 This README is located in `qcrypto/errorcorrection/`.
 
-The purpose of this readme is to pen down thoughts, notes & implementation on the LDPC error correction algorithm.
+The purpose of this readme is to pen down thoughts, notes & implementation on the LDPC error correction algorithm. 
 
-## Theory
+## Initial understanding write-up (this may become outdated / irrelevant as research progresses)
 
 Definitions:
 | Symbol  | Size  | Name  | Equivalent to  |
@@ -86,7 +107,18 @@ Notes:
 9 |
 10 | 
 
-# How LDPC works (Lesson 1)
+# Readings 1: Mod-09, Error Correcting Codes by Dr. P. Vijay Kumar, Department of Electrical Communication Engineering, IISC Bangalore
+* Lesson 1	https://www.youtube.com/watch?v=3lgX9Zjbgu4
+* Lesson 2	https://www.youtube.com/watch?v=3vof6zX20SI
+* Lesson 3	https://www.youtube.com/watch?v=_45M-dO99-M
+* Lesson 4	https://www.youtube.com/watch?v=bGup-R--bEU
+* Lesson 5	https://www.youtube.com/watch?v=HL2QKKrPsKw
+* Lesson 6	https://www.youtube.com/watch?v=AhYI_i9jIx4
+* Lesson 7	https://www.youtube.com/watch?v=WZTAPx308mQ
+
+Review: Quite theoretical (which is good if you want proofs) and quite rigorous in explaining how it works. Very good as an introduction on how the parity check matrix can be used for decoding LDPC codes, but does not discuss how the code or matrix themselvees can be created. I have no regrets starting with this, although you may be able to save some time starting with the 2nd reading below. I stopped at lesson 6 when he started to dive into function trees and I didn't want to invest the time to learn about them.
+
+## How LDPC works (Lesson 1)
 src: https://www.youtube.com/watch?v=ymn87tfwX60
 
 LDPC: Low-Density Parity-Check Codes
@@ -160,6 +192,7 @@ src: https://www.youtube.com/watch?v=3vof6zX20SI
 - decoding complexity being linear
 
 Computational Tree (another representation of the tanner graph, but it's not the same graph as the example above, but any tanner graph can be represnted as a computational tree):
+- Assumed there are no cycles (Lesson 4, 18:00)
 ![](./readme_imgs/comp-tree.png)
 - For example starting with variable node 21, and they are connected to various other nodes 
 - **Edges** are directed from a variable to check node e.g. 1 to A 
@@ -231,9 +264,12 @@ Then the mapping at the check node I'm lazy to type out:
 	- e.g. a message going from A to 6 is an indication of the value of 6, so if that sign differs from the true value of 6 then that message is an error.
 	- The number of incorrect messages passed along the edges of the Tanner graph during each iteration is independent of the transmitted codeword.
 		- Proof at 21:55, using a codeword of all 1s
+		- Second proof at Lesson 4, 40:24:
+			- Let's say channel realization is fixed and we allow the code words to vary and we want to show the number of incorrect messages edge by edge, iteration by iteration remains the same.
+			- proof by showing/assuming check node, variable node and channel output symmetry (same probabilities regrrdless of which check node / variable node is looked at), = Basically the output of the channel is purely taking something from the channel and multiplying by a certain value that is independent of the value from the channel
 
-## Gallager Decoding Algorithm A
-![](./gallager-a-1.png)
+## Gallager Decoding Algorithm A (Decoding)
+![](./readme_imgs/gallager-a-1.png)
 - Specified specific variable and check node maps
 - **Variable nodes**: 
 	- Messages are all +1 -1
@@ -242,15 +278,180 @@ Then the mapping at the check node I'm lazy to type out:
 - **Check nodes**:
 	- Messages are all +1 -1
 	- Send product of incoming messages
-
+- Stop the algorithm after a prescribed number of iterations (e.g. 20 times), then check the sign of the outgoing messages from the variable nodes
+	- Outgoing messages from variable nodes -> what the node believes the value should be
 ### Evaluating performance of Gallager Decoding Algorithm A
 - Do this carrying out something referred to nowadays as **density evolution**:
-	- Estimate the # of incoming messgaes passed during each iteration iteratively
+	- Estimate the # of incoming messages passed during each iteration iteratively
 	- To do that we assume that the all 1s codeword was transmitted
-	- Probabilities that a message passed is either -1 or 1 (34:51):
-![](./gallager-a-2.png)	
-![](./gallager-a-3.png)	
-![](./gallager-a-4.png)	
-![](./gallager-a-5.png)	
+	- Probabilities that a message passed is either -1 or 1 (Lesson 3, 34:51):
+	- We assume that number of errors made (by channel) is independent of the actual transmitted code, so assume all '1's
+	- Probability of an incorrect message from the channel is epsilon
+	- Probability of initial message being wrong is epsilon
+		- Probability of it being correct is (1 - epsilon)
+	- Every node is operating in identical in this case
+![](./readme_imgs/gallager-a-2.png)	
+![](./readme_imgs/gallager-a-3.png)	
+![](./readme_imgs/gallager-a-4.png)	
+![](./readme_imgs/gallager-a-5.png)	
 - Messsages are independent
-![](./gallager-a-6.png)	
+![](./readme_imgs/gallager-a-6.png)
+- Here we can estimate the probability that a node is correct after L iterations, based on the assumption that every message that the variable node receives (to evaluate its current state) is independent (Lesson 4, 14:23)
+	- Because they are deterministic (they can be represented as purely a function applied to the initial message from the channel based on the computational tree)
+### (Density Evo Lesson 4 21:00)
+![](./readme_imgs/density-evo-1.png)
+Expected value of mu_dc is the prod_{j=1}^{dc-1} E{mu_j} 
+Probability (mu_j = 1) = ...
+Probability (mu_j = -1) = ...
+![](./readme_imgs/density-evo-2.png)
+![](./readme_imgs/density-evo-3.png)
+![](./readme_imgs/density-evo-4.png)
+- plugging in the equations you'll get the desired density evolution expression
+	- this expression is a recursive expression for the number of incorrect messages passed along each edge
+	- probability that a message on a certain Lth iteration is incorrect, because -1 is an incorrect message (given an all '1's message)
+		- With this you can show:
+			- These probabilities at any iteration increase monotonically with anincrease in the channelc ross probability
+			- as long as the channel probability is below a certain threshold, the probabiliy of an incorrect message with increasing number of iterations goes to 0.
+				- The caveat is that we do assume that the neighborhood is tree-like.
+
+E.g. (Lesson 4, 34:49)
+- When (dv,dc) = (3,6)
+- designed rate satisfies: R/n >= 1 - 3/6 = 1/2
+and the threshold exhibited by Gallager's decoding algorithm A is epsilon = 0.04
+	- if error rate less than 0.04 then we shoulde xpect error free decisions
+	- In comparison, channel capacity dictates that we should be able to operate provided epsilon <= 0.11
+
+## Belief Propagation (Decoding) (Lesson 5)
+- Generalized Distributive Law (GDL) (https://www.youtube.com/watch?v=9AITpR3XNiU)
+	- e.g. a(b + c) = ab + ac
+	- 1 multiplication and 1 addition instead of 2 mult.
+- Marginalize the Product Function (MPF) problem (https://www.youtube.com/watch?v=t9KwGhdDXB4 20:00)
+- Junction Trees (https://www.youtube.com/watch?v=IsZxUWrrX5E)
+- You can just briefly look through the stuff to get a rough sensing of what he's saying in this lesson
+	- 13:08: there's an overall junction tree and it comprises of smaller junction trees
+![](./readme_imgs/bp-1.png)
+- e.g. bottom left: 346 symbols satisfy parity as do the 457 symbols and you can interpret that as a belief 
+![](./readme_imgs/bp-2.png)
+![](./readme_imgs/bp-3.png)
+- X_B: 346 satisfy parity check
+- In the context of LDPC we assume the neighborhood of every edeg is tree like to depth 2L
+- Collecting evidence from various segments, put out the conditional probability given the union of the evidence.
+![](./readme_imgs/bp-4.png)
+- The computational tree can be represented as a junction tree and reduced to a MPF problem
+![](./readme_imgs/bp-5.png)
+- Hence if we pass messages along the edges of the Tanner graph in exaclty the same manner as in the case of messages passed along the edges of the junction tree associated with the example [7 4 2 ] block code, then when edge neighborhoods are tree-like, the messages passed along the edges of the Tanner graph can be interpreted as conditional beliefs
+	- Red one: you're passing a vector of probabilities but since the probabilities sum up to one you could get away with it by just passing in the likelihood ratio.
+![](./readme_imgs/bp-6.png)
+![](./readme_imgs/bp-7.png)
+- That alpha symbol = proportionality symbol, calculate the ratio to convert proportionality to equals
+![](./readme_imgs/bp-8.png)
+- Then change symbol from x to u and calculate the log of the ratio
+![](./readme_imgs/bp-9.png)
+- Equation 1
+- basically we can recover the probabilities even if we only have the ratio because the sum of probabilities is equal to one.
+	- So you can make do by sending a single real number as opposed to a pair of real numbers
+	- Slight increase of complexity of the operations at the check node
+- So how do yo represent the image below in terms of the log likelihood domain (Lesson 5, 49:10)
+![](./readme_imgs/bp-10.png)
+![](./readme_imgs/bp-11.png)
+- Because they beliefs (of what the actual value) instead of passing the messages themselves, the variable nodes pass the log likelihood ratios.
+
+# Readings 2: LDPC AND POLAR CODES IN 5G STANDARD by PROF. ANDREW THANGARAJ. IIT MADRAS
+
+Review: Very clear and to the point and also uses implementations which are quite recent and relevant! I absolutely love this course. I started at Week 1 since they seemed the most relevant, but you may want to start with Week 0 if you don't have the background knowledge..? (your mileage may vary with those though).
+
+## LDPC Encoding & Decoding (5G)
+Parity Check Matrix:
+- Every row must have an even number of '1's (Single Parity Check, SPC code must XOR to 0)
+![](./readme_imgs/5g/ldpc-1.png)
+- Every check node enforces a single parity check constraint on the bits it is connected to (called **local constraints**)
+- Protograph: smaller graph used to make a bigger graph (Wk 1,Lesson 1, 16:30)
+	- Protograph construction: A way of constructing your parity check matrix (which is a big binary matrix)
+	- **Base graph / Base matrix / Proto-matrix**: Expanded / blown up to get the actual parity check matrix
+		- This expansion is called right shift permutation matrices 
+			- Take a small base matrix and blow it up; replace each base matrix entry with a larger matrix to get the overall parity check matrix.
+			- To optimize performance & complexity
+			- All standards have such codes
+				- Sometimes not by a permutation matrix
+				- In 5G standard they are NR LDPC codes (New Radio LDPC codes)
+				- Many expansions (can be 2x2 or 384x384)
+				- To achieve a lot of rates they do shortening and puncturing (covered in later lectures) for multiple rates
+
+## How protographs work (GENERATING THE PARITY CHECK MATRIX)
+
+Week 1 Lesson 1	https://nptel.ac.in/courses/108/106/108106137/
+![](./readme_imgs/5g/ldpc-2.png)
+- So you have an exammple of the base matrix, expansion factor: 5
+	- w/ an expansion factor of 5, the base matrix will have possible entries {-1, 0, 1, 2, 3, 4}
+	- That's why the base matrix is not the parity check matrix
+	- It's just an example base matrix, it's not a particularly amazing one
+	- From the base matrix you can generate a binary matrix (and it *can* be a parity check matrix)
+	- How it is expanded (**expansion method**):
+		- Each entry in the base matrix gets replaced by a 5x5 binary matrix
+		- Entry == -1: 5x5 all 0
+		- Entry == 0: 5x5 identity matrix
+		- Entry == 1: 5x5 identity matrix shifted right by 1 position, circular shift.
+![](./readme_imgs/5g/ldpc-3.png)
+
+## 5G STANDARDS OF PROTOGRAPHS
+
+Week 1 Lesson 2	https://nptel.ac.in/courses/108/106/108106137/
+
+**Base Matrices**
+- 2 base matrices
+	- Even though large they have an easy block structure (below), each alphebet representing a matrix
+		- A E O
+		- B C I
+	- BG1: 46x68 base matrix 1
+		- A: 4x22, E: 4x4, O: 4x42 all zero
+		- B: 42x22, C:42x4, I: 42x42 identity
+	- BG2: 42x52 base matrix 2
+		- A: 4x10, E: 4x4, O: 4x38 all zero
+		- B: 38x10, C: 38x4, I: 38x38 identity
+	- Each row (AEO, BCI) is dealt with separately in the encoding part
+	- Even if you have a very big matrix, you can for example cut a portion of the matrix (from the top left)
+![](./readme_imgs/5g/protograph-1.png)
+- that is called rate matching
+- In fact the first two message blocks are not transmitted in 5G they are always punctured.
+	- Rate matching in future lectures
+
+**Expansion**
+![](./readme_imgs/5g/protograph-2.png)
+- Expansion factor (Zc) = a * 2^j, where a is a value, and j is a value from 0 to J_a
+	- There are 8 options (specified by the expansion factor index):
+	- Index / iLS: (a,J_a)
+		- Index: Option 
+		- a: Value paired with index
+		- J_a: maximum possible value of j (inclusive).
+		- j is determined by the users themselves to calculate Zc
+	- 0: (2,7)
+	- 1: (3,7)
+	- 2: (5,6)
+	- 3: (7,5)
+	- 4: (9,5)
+	- 5: (11,5)
+	- 6: (13,4)
+	- 7: (15,4)
+- tl;dr: select an index which gives you an 'a', and choose a 'j' which is less than or equal to the 'J_a' given. You can then calculate the expansion factor Zc = a * 2^j. 
+- For each Zc (expansion factor), the entries in the base matrix can have values from -1 to (Zc-1)
+- The way it is expanded is exactly the same as mentioned above in Week 1 lesson 1, expansion method.
+![](./readme_imgs/5g/protograph-3.png)
+
+**Encoding**
+
+Week 1 Lesson 3 https://nptel.ac.in/courses/108/106/108106137/
+
+![](./readme_imgs/5g/encoding-1.png)
+- Encoding done with the parity check matrix H
+- Shown is a (6,3) code i.e. message is 3, codeword is 6, the extra bits are parity bits to ensure that H * c^T = 0 
+- So how to compute the codeword? The idea is to calculate the parity check bits and add them to the back of the message (in the QKD application you only send these parity check bits)
+![](./readme_imgs/5g/encoding-2.png)
+- You can also write H = [P I] (where I is a 3x3 identity matrix)
+![](./readme_imgs/5g/encoding-3.png)
+- Parity check matrix: columns correspond to the bits of the codeword (imagine the tanner graph)
+![](./readme_imgs/5g/encoding-4.png)
+- But the matrices are in protograph format not in systematic form, so 
+- Matrix multiplication libraries?
+	- https://github.com/flame/blis#key-features
+src:
+https://nptel.ac.in/courses/108/106/108106137/
