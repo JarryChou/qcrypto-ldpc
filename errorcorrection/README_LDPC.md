@@ -21,6 +21,9 @@ Table of Contents
 	- [LDPC Encoding & Decoding (5G)](#ldpc-encoding--decoding-5g)
 	- [How protographs work (GENERATING THE PARITY CHECK MATRIX)](#how-protographs-work-generating-the-parity-check-matrix)
 	- [5G STANDARDS OF PROTOGRAPHS](#5g-standards-of-protographs)
+		- [**Base Matrices**](#base-matrices)
+		- [**Expansion**](#expansion)
+		- [**Encoding** (calculating parity bits)](#encoding-calculating-parity-bits)
 
 This README is located in `qcrypto/errorcorrection/`.
 
@@ -144,9 +147,13 @@ H = parity check matrix (n-k x n)
 	- For LDPC codes: number of 1s of Theta(n)
 
 - An example representation of LDPC codes (in the form of a tanner graph):
+
 ![](./readme_imgs/tanner_graph.png)
+
 - This is just another representation of the parity check matrix, as illustrated below:
+
 ![](./readme_imgs/tanner_graph_2.png)
+
 - Bipartite graph (nodes on either side can only be directly connected to nodes on thhe other side)
 - Graph uniquely defines the code
 - Nodes on *left* side are called **variable nodes** and they correspond to the **columns** of the parity check matrix (n of them)
@@ -193,7 +200,9 @@ src: https://www.youtube.com/watch?v=3vof6zX20SI
 
 Computational Tree (another representation of the tanner graph, but it's not the same graph as the example above, but any tanner graph can be represnted as a computational tree):
 - Assumed there are no cycles (Lesson 4, 18:00)
+
 ![](./readme_imgs/comp-tree.png)
+
 - For example starting with variable node 21, and they are connected to various other nodes 
 - **Edges** are directed from a variable to check node e.g. 1 to A 
 	- A **path** is a sequence of contiguous directed edges
@@ -209,8 +218,12 @@ BSC: Binary Symmetric Channel
 - 2 inputs and 2 outputs
 	- Inputs: xt = 1 and xt = -1
 	- Output: yt = 1 and yt = -1
+
 ![](./readme_imgs/channel-model-bsc.png)
+
+
 ![](./readme_imgs/channel-model-bsc-2.png)
+
 - Representing the channel multiplicatively
 - Probability of flip is epsilon (error rate)
 - Probability of it being correct is 1 - epsilon
@@ -229,7 +242,9 @@ src: https://www.youtube.com/watch?v=_45M-dO99-M&t=634s
 		- They are the ones that get the information from the channel input
 		- The variable nodes compute the first message they pass out
 		- **Messages** are real numbers, or subset of real numbers
+
 ![](./readme_imgs/msg-pass-1.png)
+
 - Theta / O: output alphabet of the channel 
 - M: common alphabet employed to pass messages from var node to check nodes or vice versa
 - They are both subsets of real numbers.
@@ -246,18 +261,24 @@ Assumptions concerning msg passing at a var/check node:
 Mapping of the variable node:
 - psi^(0)_v (bm) = psi^(0)_v (m) * b, b in {1, -1}, m in M
 - psi^(0)_v (bm_0, bm_1, ... , bm_{dv-1}) = b * psi^(0)_v (m_0,m_1, ... , m_{dv-1})
+
 ![](./readme_imgs/msg-pass-2.png)
+
 - Basically, the outgoing value of the variable node must have the same sign as the incoming value
 
 Then the mapping at the check node I'm lazy to type out:
+
 ![](./readme_imgs/msg-pass-3.png)
+
 - check node has degree dc in a dv,dc regular code
 - dc - 1 incoming edges and one otgoing edge
 - basically the check node will receive multiiple incoming messages, it will multiply the signs of all the values it gets and that is the sign of the outgoing value.
 	- equivalent to a parity check
 
 - An edge is considered an error if a sign disagrees with the sign of the corresponding code symbol.
+
 ![](./readme_imgs/msg-pass-4.png)
+
 - Estimation of whether it is correct
 - A message along an edge is said to be in error if its sign is not the true sign of the associated code symbol.
 	- In this case you compare the message you're sending along the edge with the value stored in the node you are sending it to.
@@ -269,7 +290,9 @@ Then the mapping at the check node I'm lazy to type out:
 			- proof by showing/assuming check node, variable node and channel output symmetry (same probabilities regrrdless of which check node / variable node is looked at), = Basically the output of the channel is purely taking something from the channel and multiplying by a certain value that is independent of the value from the channel
 
 ## Gallager Decoding Algorithm A (Decoding)
+
 ![](./readme_imgs/gallager-a-1.png)
+
 - Specified specific variable and check node maps
 - **Variable nodes**: 
 	- Messages are all +1 -1
@@ -290,22 +313,40 @@ Then the mapping at the check node I'm lazy to type out:
 	- Probability of initial message being wrong is epsilon
 		- Probability of it being correct is (1 - epsilon)
 	- Every node is operating in identical in this case
+
 ![](./readme_imgs/gallager-a-2.png)	
+
+
 ![](./readme_imgs/gallager-a-3.png)	
+
+
 ![](./readme_imgs/gallager-a-4.png)	
+
+
 ![](./readme_imgs/gallager-a-5.png)	
+
 - Messsages are independent
+
 ![](./readme_imgs/gallager-a-6.png)
+
 - Here we can estimate the probability that a node is correct after L iterations, based on the assumption that every message that the variable node receives (to evaluate its current state) is independent (Lesson 4, 14:23)
 	- Because they are deterministic (they can be represented as purely a function applied to the initial message from the channel based on the computational tree)
 ### (Density Evo Lesson 4 21:00)
+
 ![](./readme_imgs/density-evo-1.png)
+
 Expected value of mu_dc is the prod_{j=1}^{dc-1} E{mu_j} 
 Probability (mu_j = 1) = ...
 Probability (mu_j = -1) = ...
+
 ![](./readme_imgs/density-evo-2.png)
+
+
 ![](./readme_imgs/density-evo-3.png)
+
+
 ![](./readme_imgs/density-evo-4.png)
+
 - plugging in the equations you'll get the desired density evolution expression
 	- this expression is a recursive expression for the number of incorrect messages passed along each edge
 	- probability that a message on a certain Lth iteration is incorrect, because -1 is an incorrect message (given an all '1's message)
@@ -329,31 +370,53 @@ and the threshold exhibited by Gallager's decoding algorithm A is epsilon = 0.04
 - Junction Trees (https://www.youtube.com/watch?v=IsZxUWrrX5E)
 - You can just briefly look through the stuff to get a rough sensing of what he's saying in this lesson
 	- 13:08: there's an overall junction tree and it comprises of smaller junction trees
+
 ![](./readme_imgs/bp-1.png)
+
 - e.g. bottom left: 346 symbols satisfy parity as do the 457 symbols and you can interpret that as a belief 
+
 ![](./readme_imgs/bp-2.png)
+
+
 ![](./readme_imgs/bp-3.png)
+
 - X_B: 346 satisfy parity check
 - In the context of LDPC we assume the neighborhood of every edeg is tree like to depth 2L
 - Collecting evidence from various segments, put out the conditional probability given the union of the evidence.
+
 ![](./readme_imgs/bp-4.png)
+
 - The computational tree can be represented as a junction tree and reduced to a MPF problem
+
 ![](./readme_imgs/bp-5.png)
+
 - Hence if we pass messages along the edges of the Tanner graph in exaclty the same manner as in the case of messages passed along the edges of the junction tree associated with the example [7 4 2 ] block code, then when edge neighborhoods are tree-like, the messages passed along the edges of the Tanner graph can be interpreted as conditional beliefs
 	- Red one: you're passing a vector of probabilities but since the probabilities sum up to one you could get away with it by just passing in the likelihood ratio.
+
 ![](./readme_imgs/bp-6.png)
+
+
 ![](./readme_imgs/bp-7.png)
+
 - That alpha symbol = proportionality symbol, calculate the ratio to convert proportionality to equals
+
 ![](./readme_imgs/bp-8.png)
+
 - Then change symbol from x to u and calculate the log of the ratio
+
 ![](./readme_imgs/bp-9.png)
+
 - Equation 1
 - basically we can recover the probabilities even if we only have the ratio because the sum of probabilities is equal to one.
 	- So you can make do by sending a single real number as opposed to a pair of real numbers
 	- Slight increase of complexity of the operations at the check node
 - So how do yo represent the image below in terms of the log likelihood domain (Lesson 5, 49:10)
+
 ![](./readme_imgs/bp-10.png)
+
+
 ![](./readme_imgs/bp-11.png)
+
 - Because they beliefs (of what the actual value) instead of passing the messages themselves, the variable nodes pass the log likelihood ratios.
 
 # Readings 2: LDPC AND POLAR CODES IN 5G STANDARD by PROF. ANDREW THANGARAJ. IIT MADRAS
@@ -363,7 +426,9 @@ Review: Very clear and to the point and also uses implementations which are quit
 ## LDPC Encoding & Decoding (5G)
 Parity Check Matrix:
 - Every row must have an even number of '1's (Single Parity Check, SPC code must XOR to 0)
+
 ![](./readme_imgs/5g/ldpc-1.png)
+
 - Every check node enforces a single parity check constraint on the bits it is connected to (called **local constraints**)
 - Protograph: smaller graph used to make a bigger graph (Wk 1,Lesson 1, 16:30)
 	- Protograph construction: A way of constructing your parity check matrix (which is a big binary matrix)
@@ -380,7 +445,9 @@ Parity Check Matrix:
 ## How protographs work (GENERATING THE PARITY CHECK MATRIX)
 
 Week 1 Lesson 1	https://nptel.ac.in/courses/108/106/108106137/
+
 ![](./readme_imgs/5g/ldpc-2.png)
+
 - So you have an exammple of the base matrix, expansion factor: 5
 	- w/ an expansion factor of 5, the base matrix will have possible entries {-1, 0, 1, 2, 3, 4}
 	- That's why the base matrix is not the parity check matrix
@@ -391,13 +458,15 @@ Week 1 Lesson 1	https://nptel.ac.in/courses/108/106/108106137/
 		- Entry == -1: 5x5 all 0
 		- Entry == 0: 5x5 identity matrix
 		- Entry == 1: 5x5 identity matrix shifted right by 1 position, circular shift.
+
 ![](./readme_imgs/5g/ldpc-3.png)
+
 
 ## 5G STANDARDS OF PROTOGRAPHS
 
 Week 1 Lesson 2	https://nptel.ac.in/courses/108/106/108106137/
 
-**Base Matrices**
+### **Base Matrices**
 - 2 base matrices
 	- Even though large they have an easy block structure (below), each alphebet representing a matrix
 		- A E O
@@ -410,13 +479,18 @@ Week 1 Lesson 2	https://nptel.ac.in/courses/108/106/108106137/
 		- B: 38x10, C: 38x4, I: 38x38 identity
 	- Each row (AEO, BCI) is dealt with separately in the encoding part
 	- Even if you have a very big matrix, you can for example cut a portion of the matrix (from the top left)
+
 ![](./readme_imgs/5g/protograph-1.png)
+
 - that is called rate matching
-- In fact the first two message blocks are not transmitted in 5G they are always punctured.
+- **The first two message blocks are not transmitted in 5G: they are always punctured.**
+- **They also won't send all the parity bits (only the ones they need)**
 	- Rate matching in future lectures
 
-**Expansion**
+### **Expansion**
+
 ![](./readme_imgs/5g/protograph-2.png)
+- The matrices are in protograph format not in systematic form, so need to expand
 - Expansion factor (Zc) = a * 2^j, where a is a value, and j is a value from 0 to J_a
 	- There are 8 options (specified by the expansion factor index):
 	- Index / iLS: (a,J_a)
@@ -435,22 +509,54 @@ Week 1 Lesson 2	https://nptel.ac.in/courses/108/106/108106137/
 - tl;dr: select an index which gives you an 'a', and choose a 'j' which is less than or equal to the 'J_a' given. You can then calculate the expansion factor Zc = a * 2^j. 
 - For each Zc (expansion factor), the entries in the base matrix can have values from -1 to (Zc-1)
 - The way it is expanded is exactly the same as mentioned above in Week 1 lesson 1, expansion method.
+- The expansion factor Zc **determines the size of the matrix that the base matrix expands to (Zc x Zc per block).** 
+
 ![](./readme_imgs/5g/protograph-3.png)
 
-**Encoding**
+
+### **Encoding** (calculating parity bits)
 
 Week 1 Lesson 3 https://nptel.ac.in/courses/108/106/108106137/
 
+
 ![](./readme_imgs/5g/encoding-1.png)
+
 - Encoding done with the parity check matrix H
 - Shown is a (6,3) code i.e. message is 3, codeword is 6, the extra bits are parity bits to ensure that H * c^T = 0 
 - So how to compute the codeword? The idea is to calculate the parity check bits and add them to the back of the message (in the QKD application you only send these parity check bits)
+
 ![](./readme_imgs/5g/encoding-2.png)
+
 - You can also write H = [P I] (where I is a 3x3 identity matrix)
+
 ![](./readme_imgs/5g/encoding-3.png)
+
 - Parity check matrix: columns correspond to the bits of the codeword (imagine the tanner graph)
+
 ![](./readme_imgs/5g/encoding-4.png)
-- But the matrices are in protograph format not in systematic form, so 
+
+![](./readme_imgs/5g/encoding-5.png)
+- The expansion factor Zc determines the size of the matrix that the base matrix expands to (Zc x Zc per block). 
+- Message part has 10 blocks in BG2, each block is 48 bits
+- Double diagonal structure: Gives you good performance, but makes encoding a little more complicated
+  
+Toy example (**Calculating the parity bits**):
+
+![](./readme_imgs/5g/encoding-6.png)
+![](./readme_imgs/5g/encoding-7.png)
+
+- One block row (underlined) is a matrix equation (5x5 matrices since the expansion factor in this example is 5)
+- Transposition is implicit
+
+![](./readme_imgs/5g/encoding-8.png)
+- The double diagonal matrix helps to simplify the matrix calculation 
+- If you add all 4 equations together, you'll arrive at the 5th equation
+- i.e. parity block 1 (p1) can be calculated by addition
+- Once that is done you can just sub p1 into the next eqn to get p2, then sub them into the next eqn etc.
+
+![](./readme_imgs/5g/encoding-9.png)
+- You can find p5, p6 directly etc from individual blocks
+
 - Matrix multiplication libraries?
 	- https://github.com/flame/blis#key-features
 src:
