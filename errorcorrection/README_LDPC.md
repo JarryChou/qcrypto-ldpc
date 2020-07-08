@@ -8,6 +8,8 @@ Table of Contents
 	- [Variables needed](#variables-needed)
 	- [References](#references)
 - [Readings 1: Mod-09, Error Correcting Codes by Dr. P. Vijay Kumar, Department of Electrical Communication Engineering, IISC Bangalore](#readings-1-mod-09-error-correcting-codes-by-dr-p-vijay-kumar-department-of-electrical-communication-engineering-iisc-bangalore)
+	- [Source(s)](#sources)
+	- [Review:](#review)
 	- [How LDPC works (Lesson 1)](#how-ldpc-works-lesson-1)
 	- [Why low density?](#why-low-density)
 	- [LDPC Code Terminology (Lesson 2)](#ldpc-code-terminology-lesson-2)
@@ -18,16 +20,28 @@ Table of Contents
 		- [(Density Evo Lesson 4 21:00)](#density-evo-lesson-4-2100)
 	- [Belief Propagation (Decoding) (Lesson 5)](#belief-propagation-decoding-lesson-5)
 - [Readings 2: LDPC AND POLAR CODES IN 5G STANDARD by PROF. ANDREW THANGARAJ. IIT MADRAS](#readings-2-ldpc-and-polar-codes-in-5g-standard-by-prof-andrew-thangaraj-iit-madras)
+	- [Source(s)](#sources-1)
+	- [Review](#review-1)
 	- [LDPC Encoding & Decoding (5G)](#ldpc-encoding--decoding-5g)
 	- [How protographs work (GENERATING THE PARITY CHECK MATRIX)](#how-protographs-work-generating-the-parity-check-matrix)
 	- [5G STANDARDS OF PROTOGRAPHS](#5g-standards-of-protographs)
 		- [**Base Matrices**](#base-matrices)
 		- [**Expansion**](#expansion)
 		- [**Encoding** (calculating parity bits)](#encoding-calculating-parity-bits)
+	- [Decoding](#decoding)
+		- [**Repetition code example:** (3,1) (not for QKD for sure)](#repetition-code-example-31-not-for-qkd-for-sure)
+		- [Single Parity Check code (Theory)](#single-parity-check-code-theory)
+		- [Single Parity Check code SISO decoder (Impl.)](#single-parity-check-code-siso-decoder-impl)
+		- [Message Passing (Basic)](#message-passing-basic)
+	- [Rate Matching & Puncturing](#rate-matching--puncturing)
+	- [Base graph selection](#base-graph-selection)
+- [Other notes](#other-notes)
+- [C Matrix multiplication library:](#c-matrix-multiplication-library)
+- [C++ library for Forward Error Correction (FEC or channel coding):](#c-library-for-forward-error-correction-fec-or-channel-coding)
 
 This README is located in `qcrypto/errorcorrection/`.
 
-The purpose of this readme is to pen down thoughts, notes & implementation on the LDPC error correction algorithm. 
+The purpose of this readme is to pen down thoughts, notes & implementation on the LDPC error correction algorithm. They also detail my progress in terms of learning about LDPC.
 
 ## Initial understanding write-up (this may become outdated / irrelevant as research progresses)
 
@@ -111,6 +125,8 @@ Notes:
 10 | 
 
 # Readings 1: Mod-09, Error Correcting Codes by Dr. P. Vijay Kumar, Department of Electrical Communication Engineering, IISC Bangalore
+
+## Source(s)
 * Lesson 1	https://www.youtube.com/watch?v=3lgX9Zjbgu4
 * Lesson 2	https://www.youtube.com/watch?v=3vof6zX20SI
 * Lesson 3	https://www.youtube.com/watch?v=_45M-dO99-M
@@ -119,7 +135,8 @@ Notes:
 * Lesson 6	https://www.youtube.com/watch?v=AhYI_i9jIx4
 * Lesson 7	https://www.youtube.com/watch?v=WZTAPx308mQ
 
-Review: Quite theoretical (which is good if you want proofs) and quite rigorous in explaining how it works. Very good as an introduction on how the parity check matrix can be used for decoding LDPC codes, but does not discuss how the code or matrix themselvees can be created. I have no regrets starting with this, although you may be able to save some time starting with the 2nd reading below. I stopped at lesson 6 when he started to dive into function trees and I didn't want to invest the time to learn about them.
+## Review:
+Quite theoretical (which is good if you want proofs) and quite rigorous in explaining how it works. Very good as an introduction on how the parity check matrix can be used for decoding LDPC codes, but does not discuss how the code or matrix themselvees can be created. I have no regrets starting with this, although you may be able to save some time starting with the 2nd reading below. I stopped at lesson 6 when he started to dive into function trees and I didn't want to invest the time to learn about them.
 
 ## How LDPC works (Lesson 1)
 src: https://www.youtube.com/watch?v=ymn87tfwX60
@@ -421,7 +438,24 @@ and the threshold exhibited by Gallager's decoding algorithm A is epsilon = 0.04
 
 # Readings 2: LDPC AND POLAR CODES IN 5G STANDARD by PROF. ANDREW THANGARAJ. IIT MADRAS
 
-Review: Very clear and to the point and also uses implementations which are quite recent and relevant! I absolutely love this course. I started at Week 1 since they seemed the most relevant, but you may want to start with Week 0 if you don't have the background knowledge..? (your mileage may vary with those though).
+## Source(s)
+- Online course: https://nptel.ac.in/courses/108/106/108106137/
+- 5G standard: https://www.etsi.org/deliver/etsi_ts/138200_138299/138212/15.02.00_60/ts_138212v150200p.pdf
+  - Base graph & parity check matrices pg 20
+  - Base graph selection 6.2.2 pg 33 or 7.2.2 pg 70, both are identical (uplink/downlink)
+- 5G standard with visuals: https://www.sharetechnote.com/html/5G/5G_PDSCH.html#LDPC_base_graph_selection
+
+## Review
+Very clear and to the point and also uses implementations which are quite recent and relevant! I absolutely love this course. I started at Week 1 since they seemed the most relevant, but you may want to start with Week 0 if you don't have the background knowledge..? (your mileage may vary with those though).
+- Covers encoding
+- Covers decoding (albeit not as theoretically detailed as reading 1 but covers industry used concepts)
+- Covers Quasi-cyclic base / H matrix
+- Covers rate matching
+- Covers Polar codes
+
+Caveats: Assumes channel is BPSK which is contiguous. However the output is still binary-ish (-1 or 1, but with varying weight). So far I don't think this doesn't invalidate its use for BSC, but some portions don't have to be calculated because they won't be in real numbers (e.g. sigma multiplication, min multiplication etc for SPC decoding). In addition, because it's continuous, the implementation is obviously not the same as that of BSC (which is covered in reading 1) as it involves a lot of additional stuff.
+
+Added bonus: Covers Polar Codes.
 
 ## LDPC Encoding & Decoding (5G)
 Parity Check Matrix:
@@ -461,6 +495,7 @@ Week 1 Lesson 1	https://nptel.ac.in/courses/108/106/108106137/
 
 ![](./readme_imgs/5g/ldpc-3.png)
 
+![](./readme_imgs/5g/encoding-10.png)
 
 ## 5G STANDARDS OF PROTOGRAPHS
 
@@ -483,21 +518,21 @@ Week 1 Lesson 2	https://nptel.ac.in/courses/108/106/108106137/
 ![](./readme_imgs/5g/protograph-1.png)
 
 - that is called rate matching
-- **The first two message blocks are not transmitted in 5G: they are always punctured.**
+- **The first two message blocks (per row) are not transmitted in 5G: they are always punctured.**
 - **They also won't send all the parity bits (only the ones they need)**
 	- Rate matching in future lectures
 
 ### **Expansion**
 
 ![](./readme_imgs/5g/protograph-2.png)
-- The matrices are in protograph format not in systematic form, so need to expand
+- The matrices are in protograph format not in systematic form, so need to expand. There are many configs for expanding the same base arrays though
 - Expansion factor (Zc) = a * 2^j, where a is a value, and j is a value from 0 to J_a
 	- There are 8 options (specified by the expansion factor index):
-	- Index / iLS: (a,J_a)
+	- Index / iLS: (a, J_a)
 		- Index: Option 
 		- a: Value paired with index
 		- J_a: maximum possible value of j (inclusive).
-		- j is determined by the users themselves to calculate Zc
+		- j is determined by the users themselves to calculate Zc (ranged from 0 to J_a)
 	- 0: (2,7)
 	- 1: (3,7)
 	- 2: (5,6)
@@ -506,10 +541,15 @@ Week 1 Lesson 2	https://nptel.ac.in/courses/108/106/108106137/
 	- 5: (11,5)
 	- 6: (13,4)
 	- 7: (15,4)
+- In the actual standard, the **expansion factor Zc** is defined as **lifting size Z** in table 5.3.2-1 (image below) and is explicitly stated instead of laid out in formula format above.
+
+![](./readme_imgs/5g/lifting-size-1.png)
+
 - tl;dr: select an index which gives you an 'a', and choose a 'j' which is less than or equal to the 'J_a' given. You can then calculate the expansion factor Zc = a * 2^j. 
 - For each Zc (expansion factor), the entries in the base matrix can have values from -1 to (Zc-1)
 - The way it is expanded is exactly the same as mentioned above in Week 1 lesson 1, expansion method.
-- The expansion factor Zc **determines the size of the matrix that the base matrix expands to (Zc x Zc per block).** 
+- The expansion factor Zc **determines the size of the matrix that the base matrix expands to (Zc x Zc per block).**
+- While this is not important to understanding the basics of how encoding & decoding works, it is important when you want to do rate matching.
 
 ![](./readme_imgs/5g/protograph-3.png)
 
@@ -517,7 +557,6 @@ Week 1 Lesson 2	https://nptel.ac.in/courses/108/106/108106137/
 ### **Encoding** (calculating parity bits)
 
 Week 1 Lesson 3 https://nptel.ac.in/courses/108/106/108106137/
-
 
 ![](./readme_imgs/5g/encoding-1.png)
 
@@ -557,7 +596,197 @@ Toy example (**Calculating the parity bits**):
 ![](./readme_imgs/5g/encoding-9.png)
 - You can find p5, p6 directly etc from individual blocks
 
-- Matrix multiplication libraries?
-	- https://github.com/flame/blis#key-features
-src:
-https://nptel.ac.in/courses/108/106/108106137/
+## Decoding
+- 2 main codes: Repetition & Parity Check codes
+- Basic idea: using their relationships with each other, evaluate the probability (in the form of a likelihood ratio which can be represented as a log likelihood ratio) of the actual value. These probabilities are "soft" outputs.
+- Caveat: BPSK is a continuous variable channel, gaussian distributed noise.
+### **Repetition code example:** (3,1) (not for QKD for sure)
+	- Same message sent multiple times (in this case 3 times)
+	- Pretty sure we can't use this for QKD because it sends the key out in the open
+
+![](./readme_imgs/5g/decoding-1.png)
+- Soft output: some probability of the output (L1 calculated by r1 r2 and r3 which are all beliefs on the same code)
+	- In practice they just add the values together (r1 = intrinsic, r2+r3... = extrinsic)
+
+![](./readme_imgs/5g/decoding-2.png)
+
+![](./readme_imgs/5g/decoding-3.png)
+
+![](./readme_imgs/5g/llr-3.png)
+
+![](./readme_imgs/5g/llr-4.png)
+- (19:10)
+- Sigma: channel noise variance
+- Channel LLR / Input LLR / Intrinsic LLR = (2/sigma^2) * r1
+- How to get sigma is discussed in Week 0 Lesson 1:
+  - N: Number of bits used for testing
+  - n_e: Number of errors in tested bits
+  - QBER: n_e / N
+  - sigma: but our bits are not distributed by gaussian distribution, so use bernoulli??? p(1-p)?
+  - Do you even need to calculate sigma
+- 
+
+![](./readme_imgs/5g/llr-5.png)
+
+![](./readme_imgs/5g/llr-6.png)
+
+![](./readme_imgs/5g/llr-7.png)
+
+### Single Parity Check code (Theory)
+- (n, n-1) linear binary code
+
+![](./readme_imgs/5g/spc-1.png)
+- Append a parity bit at the end of the message and that's your codeword
+
+![](./readme_imgs/5g/spc-2.png)
+
+![](./readme_imgs/5g/spc-3.png)
+- Need to compute extrinsic LLR (log (p1/(1-p1)))
+
+![](./readme_imgs/5g/spc-4.png)
+
+![](./readme_imgs/5g/spc-5.png)
+- tanh is an odd f(x), so need to deal with special cases
+
+![](./readme_imgs/5g/spc-6.png)
+
+![](./readme_imgs/5g/spc-7.png)
+
+![](./readme_imgs/5g/spc-8.png)
+
+This can be further optimized to compute all 3 values
+
+![](./readme_imgs/5g/spc-9.png)
+
+Below is a nice summary on spc
+
+![](./readme_imgs/5g/spc-10.png)
+- The function can be approximated using **min sum approximation** (See the 3rd video in week 2)
+- 
+![](./readme_imgs/5g/spc-11.png)
+
+### Single Parity Check code SISO decoder (Impl.)
+- So how to do SISO decoder:
+1. Calculate channel log likelihood ratio: (i don't think this is necessary for a binary symmetric channel?)
+2. Calculate lexts: lext1 = sign(l2)*sign(l3)
+   - BPSK: -1: 1 in bit value, +1: 0 in bit value
+   - lext1: sign(l2) * sign(l3) * min(abs(l2),abs(l3))
+     - BSK: sign(l2) * sign(l3) = bit(l2) XOR bit(l3)
+   - Do the other lexts (See summary above)
+  
+![](./readme_imgs/5g/spc-12.png)
+- Extending it to (n, n-1) SPC code: calculate lext like before but this time XOR all the bits except that particular bit, then add it to the original bit
+  - Honestly to simplify it:
+    - In QKD you'd likely only send the parity bit
+    - XOR everything including the parity bit (let this be called check_bit)
+    - belief_i = bit_i + bit_i XOR check_bit
+    - May want to convert 0 to -1 etc to keep the strength of belief (e.g. 1 would increase to 2 but 0 + 0 is still 0 which is wrong)
+3. Total LLR: original values + their lext
+
+### Message Passing (Basic)
+- L matrix: same size as the parity check matrix H
+  - Can only have values at entries where H[i,j] = 1
+  - Initial values: Each column set as variable node value
+![](./readme_imgs/5g/msg-pass-1.png)
+- Row operation:
+  - Parity = product of signs of entries in row
+  - new sign of an entry = (Old Sign)*(Parity)
+  - Just repeat iterations (5-8)
+  - Storage and efficient retrieval is the important consideration
+  - I think this is equivalent to Gallager Decoding Algorithm A
+- Column operation:
+  - Sum_j = r_j + sum of all entries
+    - r_j is an incoming entry (assuming repetition code, but here there is no repetition code.. so drop it most likely)
+  - New entry = Sum - (Old entry)
+  - the Sum array would represent the decision 
+    - negative: Bit j = 0
+    - positive: Bit j = 1
+
+**Layered Decoding**
+- Split matrix rows into layers (like splitting the LDPC code into 2)
+  - This would depend on the block layout specified by the base matrix
+
+![](./readme_imgs/5g/msg-pass-2.png)
+- Immediately calculate and apply sum after a layer iteration
+
+![](./readme_imgs/5g/msg-pass-3.png)
+
+![](./readme_imgs/5g/msg-pass-4.png)
+- next iteration: sum used as initial value for layer 2
+
+![](./readme_imgs/5g/msg-pass-5.png)
+- After that you use the sum for its original use (sum - original value)
+- procedure: subtract -> minsum (row op) -> update sum value (col op)
+
+How to write, read, store LDPC code parallel etc optimally 
+
+## Rate Matching & Puncturing
+- Code rate is the (rate : 1) ratio of actual message bits to the actual bits transmitted (if I understand it correctly)
+  - The additional bits transferred would refer to your parity bits
+  - e.g. if your rate is 1/2, you'll be sending # of parity bits equal to the # of message bits sent
+  - The impact of the code rate on *performance* (time taken), *efficiency* (likelihood / number of iterations to convergence) and *secrecy* (likelihood that eve can obtain a substantial amt of information from the parity bits) is not detailed anywhere
+  - Implications of a higher code rate: less overhead in parity bits
+    - But also heavily implied that a higher code rate is less likely to catch errors 
+- First two message blocks (per row) not transmitted (always punctured)
+  - i.e. first two columns in terms of msg blocks are punctured
+  - But the decoder expected to recover them
+  - QKD: on decoder end, include the bits as 0
+    - But I think the main reason why you want to omit them is to reduce code rate in classical LDPC. May be a better idea to just include them for QKD purposes.
+
+![](./readme_imgs/5g/rate-1.png)
+- Using the above example
+  - base graph 1 (per row):
+  - number of message blocks = 22
+  - number of transmitted blocks = 66 (68 - 2)
+  - lowest rate is 1/3 if you transmit all the blocks (22/66)
+  - Further ways of rate matching can be done (aside from puncturing the first 2 columns of message blocks)
+- 2 ways to do rate matching
+  - **shortening** (setting sections which are not in use to 0, see below)
+    - 22z = number of message bits (z is the expansion factor)
+    - You may only have A bits available to send
+    - 22z - A bits are set to 0 (this is the shortening)
+    - Number of msg bits may not exactly what is offered
+      - The way the standard picks Zc is to make sure it doesn't have too much of the shortfall
+      - The shortfall should be within 1 block and that block is shortened 
+    - The idea is to choose a z s.t. it's not too large and thus you don't have to do too much shortening (clearly specified in the standard)
+  - **Puncturing** of bits (sending bits with data to 0, usually by column)
+    - Still used in encoding but not transmitted
+    - 46z = number of parity bits created
+    - but you won't transmitting all the parity bits
+    - if only E bits are to be transmitted,
+    - (E - (A - 2z)) of the 46z parity bits are transmitted, the rest are punctured
+    - punctured positions set r to 0
+
+![](./readme_imgs/5g/rate-2.png)
+- Compare this image with the one above; see the extra line cutting the message portion? The right side are the shortened bits (because your message is not large enough to fit the entire row for the message block). They are just set to 0 and that is called shortening.
+- There are message and parity puncturing / shortening
+- **Definitions:** (these are per block row)
+- **A:** total number of message bits
+- **z**: Expansion factor / lifting size
+- **2z:** bits you puncture from message bits (2 message blocks, highlighted in the circled area top left)
+- **A - 2z:** number of message bits you'll be sending
+- **E:** total number of bits you'll be sending
+- **E - (A-2z):** parity bits you'll be sending
+
+## Base graph selection
+
+![](./readme_imgs/5g/base-graph-selection.png)
+- Transport Size: Total amount of information you can send 
+  - In terms of QKD, the max transport size is infinite, since you can split the information across TCP/IP packets
+  - However, would likely be a good idea to instead calculate the max size based on the size of the message & code rate and choose a base graph based on that
+  - Code rate is chosen by user, I'm thinking of 1/2
+    - Unfortunately this means based on the standard we'll need to perform a check
+
+# Other notes
+Don't even need to estimate QBER; can be done post error correction
+
+# C Matrix multiplication library:
+- https://github.com/flame/blis#key-features
+- Not planned to be used
+# C++ library for Forward Error Correction (FEC or channel coding):
+- https://aff3ct.readthedocs.io/en/latest/user/introduction/introduction.html
+- Don't think it supports the diagonal matrix optimization part for encoding
+- Supports DVB without extra setup
+- Also supports Polar codes etc for future devs
+- QC file format: https://aff3ct.readthedocs.io/en/latest/user/simulation/parameters/codec/ldpc/decoder.html?highlight=QC
+- Use the search feature

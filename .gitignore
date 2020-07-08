@@ -25,3 +25,5 @@ scripts/execution/shared/notif_handler
 scripts/setup/fftw-3.3.8.tar.gz
 scripts/setup/fftw-3.3.8/
 scripts/setup/fftw-3.3.8/*
+
+errorcorrection/ldpc_examples/with_aff3ct/lib/*
