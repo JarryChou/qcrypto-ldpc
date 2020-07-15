@@ -72,7 +72,7 @@ for example in ${EXAMPLES[*]}; do
 	cp ../../lib/aff3ct/${BUILD}/lib/cmake/aff3ct-$AFF3CT_GIT_VERSION/* cmake/Modules
 	mkdir $BUILD
 	cd $BUILD
-	cmake .. -DCMAKE_BUILD_TYPE="Release" # -DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
+	cmake .. -DCMAKE_BUILD_TYPE="Debug" # -DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
 	make -j $THREADS
 	cd ../..
 done
