@@ -1,3 +1,0 @@
-/media/matthew/DATA/Study/Y2_Summer/SpeQtral/stack/qcrypto/errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/openmp/build_linux_macos/CMakeFiles/rebuild_cache.dir
-/media/matthew/DATA/Study/Y2_Summer/SpeQtral/stack/qcrypto/errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/openmp/build_linux_macos/CMakeFiles/my_project.dir
-/media/matthew/DATA/Study/Y2_Summer/SpeQtral/stack/qcrypto/errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/openmp/build_linux_macos/CMakeFiles/edit_cache.dir

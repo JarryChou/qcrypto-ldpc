@@ -11,11 +11,7 @@
 #include <aff3ct.hpp>
 using namespace aff3ct;
 
-// Correction values to test for LLR
-// float parity_llr_magnitude[] = { 1, 1.05, 1.10, 1.15, 1.20, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5 };
-float parity_llr_magnitude[] = { 1 };
-int PARITY_LLR_MAGNITUDES = sizeof(parity_llr_magnitude) / sizeof(parity_llr_magnitude[0]);
-
+#define CONFIRMED_BIT_LLR -log(1e-10 / (1 - 1e-10))
 
 struct params
 {
@@ -27,10 +23,11 @@ struct params
 	float ber_min = 0.00f;		// Probability of error for each individual bit
 	float ber_max = 0.15f;
 	float ber_step = 0.01f;
-	int iterations_per_BER = 50;
+	int iterations_per_BER = 100;
 	// std::string G_method = "LU_DEC";
 	std::string G_method = "IDENTITY";
 	std::string G_save_path;
+	bool terminate_on_all_fail = true;
 
 	// Optional params for the decoder
 	std::string H_reorder       = "NONE";
@@ -128,7 +125,7 @@ void init_modules(const params &p, modules &m, utils &u, int decoderIndex,
 
 	const auto max_CN_degree = (unsigned int)(H.get_cols_max_degree());
 
-	std::cout << max_CN_degree << std::endl;
+	// std::cout << max_CN_degree << std::endl;
 
 	m.source  = std::unique_ptr<module::Source_random<>>(new module::Source_random<>(p.K));
 	// Building the encoder
@@ -141,23 +138,26 @@ void init_modules(const params &p, modules &m, utils &u, int decoderIndex,
 	// if (this->type == "LDPC_QC" ) return new module::Encoder_LDPC_from_QC <B>(this->K, this->N_cw, H, this->n_frames);
 	// if (this->type == "LDPC_IRA") return new module::Encoder_LDPC_from_IRA<B>(this->K, this->N_cw, H, this->n_frames);
 
+	// It is more performant to just generate G first using Encoder_LDPC_from_H, then switch to LDPC
 	m.encoder = std::unique_ptr<module::Encoder_LDPC<>>((module::Encoder_LDPC<>*)(	
-			new module::Encoder_LDPC<B>(p.K, p.N, G, p.n_frames)		
-			// new module::Encoder_LDPC_from_H<B>(p.K, p.N, H, p.G_method, p.G_save_path, true, p.n_frames)
+			// new module::Encoder_LDPC<B>(p.K, p.N, G, p.n_frames)	// Use this line if G is not generated
+			// new module::Encoder_LDPC_from_H<B>(p.K, p.N, H, p.G_method, p.G_save_path, true, p.n_frames) // Use this otherwise
+			new module::Encoder_LDPC_from_QC <B>(p.K, p.N, H, p.n_frames)
 	));
 
-	/*
-	try
+	if (info_bits_pos.empty()) 
 	{
-		info_bits_pos = m.encoder->get_info_bits_pos();
+		try
+		{
+			info_bits_pos = m.encoder->get_info_bits_pos();
+		}
+		catch(tools::unimplemented_error const&)
+		{
+			// generate a default vector [0, 1, 2, 3, ..., K-1]
+			info_bits_pos.resize(p.K);
+			std::iota(info_bits_pos.begin(), info_bits_pos.end(), 0);
+		}
 	}
-	catch(tools::unimplemented_error const&)
-	{
-		// generate a default vector [0, 1, 2, 3, ..., K-1]
-		info_bits_pos.resize(p.K);
-		std::iota(info_bits_pos.begin(), info_bits_pos.end(), 0);
-	}
-	*/
 
 	/*
 	std::cout << info_bits_pos.size() << std::endl;
@@ -207,7 +207,6 @@ void init_modules(const params &p, modules &m, utils &u, int decoderIndex,
 			// break;
 		// case 8: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_NMS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_NMS <Q>(p.norm_factor), p.enable_syndrome, p.syndrome_depth, p.n_frames);
 			// break;
-		// These don't work for DVB S2
 		case 9: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_SPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_SPA <Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
 			break;
 		// case 10: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_LSPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_LSPA<Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
@@ -215,8 +214,6 @@ void init_modules(const params &p, modules &m, utils &u, int decoderIndex,
 
 		// case 11: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_AMS<Q,tools::min<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
 			// break;
-
-		// These don't work for DVB S2
 		// case 12: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_AMS<Q,tools::min_star_linear2<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star_linear2<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
 			// break;
 		// case 13: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_AMS<Q,tools::min_star<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
@@ -315,9 +312,9 @@ void init_utils(const modules &m, utils &u)
 int main(int argc, char** argv)
 {
 	std::string algorithm_name = "mackey_test";
-	std::string filename = "PEGReg504x1008.alist"; // filename of matrix
+	std::string filename = argv[1]; //"NR_1_7_30.qc"; // filename of matrix
 	std::string path_to_h_matrix = "./matrices/H/" + filename;
-	std::string path_to_g_matrix = "./matrices/G/" + filename;
+	//std::string path_to_g_matrix = "./matrices/G/" + filename;
 	// This scenario assumes generation
 
 	// Reading a .qc or .alist file
@@ -332,20 +329,17 @@ int main(int argc, char** argv)
 
 	// Read into G
 	tools::Sparse_matrix G;
-	G = tools::LDPC_matrix_handler::read(path_to_g_matrix, &info_bits_pos);
+	//G = tools::LDPC_matrix_handler::read(path_to_g_matrix, &info_bits_pos);
 
-	std::cout << info_bits_pos.size() << std::endl;
+	// std::cout << info_bits_pos.size() << std::endl;
 
-	// Read the file into H
-	// See /lib/aff3ct/src/Module/Codec/LDPC/Codec_LDPC.cpp line 73
+	// Read the file into H, See /lib/aff3ct/src/Module/Codec/LDPC/Codec_LDPC.cpp line 73
 	tools::Sparse_matrix H;
-	tools::LDPC_matrix_handler::Positions_vector* ibp = nullptr;
-	if (info_bits_pos.empty())
-		ibp = &info_bits_pos;
 	std::vector<bool>* pct = nullptr;
-	H = tools::LDPC_matrix_handler::read(path_to_h_matrix, ibp, pct);
+	H = tools::LDPC_matrix_handler::read(path_to_h_matrix, nullptr, pct);
 
-	std::cout << H.get_n_connections() << std::endl;
+	// std::cout << H.get_n_connections() << std::endl;
+	// std::cout << info_bits_pos.size() << std::endl;
 
 	// Make sure rate is higher than 1/2 for our use case
 	float rate = K / (1.0 * N);
@@ -396,96 +390,96 @@ int main(int argc, char** argv)
 		std::cout << "#" << decoderTypeNames[decoderIndex] << std::endl; 
 		std::cout << "#" << std::endl;
 
-		for (size_t mag = 0; mag < PARITY_LLR_MAGNITUDES; mag++)
+		// loop over the various BERS
+		for (float ber = p.ber_min; ber <= p.ber_max; ber += p.ber_step)
 		{
-			std::cout << "# LLR magnitude " << parity_llr_magnitude[mag] << std::endl;
-			// loop over the various BERS
-			for (float ber = p.ber_min; ber <= p.ber_max; ber += p.ber_step)
+			// Set the simulated BER for the channel
+			// std::cout << ber << std::endl;
+			u.noise->set_noise(ber);
+			m.modem  ->set_noise(*u.noise);
+			m.channel->set_noise(*u.noise);
+
+			// display the performance (BER and FER) in real time (in a separate thread)
+			u.terminal->start_temp_report();
+
+			// run the simulation chain
+			// while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
+			auto iter = 0;
+			auto errors = 0;
+			while (iter < p.iterations_per_BER)
 			{
-				// Set the simulated BER for the channel
-				// std::cout << ber << std::endl;
-				u.noise->set_noise(ber);
-				m.modem  ->set_noise(*u.noise);
-				m.channel->set_noise(*u.noise);
-
-				// display the performance (BER and FER) in real time (in a separate thread)
-				u.terminal->start_temp_report();
-
-				// run the simulation chain
-				// while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
-				auto iter = 0;
-				auto errors = 0;
-				while (iter < p.iterations_per_BER)
+				// Internally the code can be further optimized
+				iter++;
+				m.source ->generate    	(b.ref_bits);
+				m.encoder->encode      	(b.ref_bits, b.enc_bits);
+				m.modem->modulate		(b.enc_bits, b.symbols);
+				m.channel->add_noise	(b.symbols, b.noisy_symbols);
+				// Demodulate f(x) currently uses multiplication
+				// But you don't need to use multiplication (see inside and modify the library as needed)
+				// See Modem_OOK_BSC.cpp
+				m.modem->demodulate		(b.noisy_symbols, b.LLRs);
+				// QKD: Parity bits are sent over.
+				// QKD: Bob corrects the parity bits & increases their LLR because he is 100% confident they are correct
+				// Increase by setting probability to 0, then calculating its LLR using said probability
+				// Here we assume that Alice sent Bob the parity bits and the info bits pos (can be further optimized)
+				// O(n)
+				
+				int tmp = 0;
+				for (size_t i = 0; i < p.N; i++)
 				{
-					// Internally the code can be further optimized
-					iter++;
-					m.source ->generate    	(b.ref_bits);
-					m.encoder->encode      	(b.ref_bits, b.enc_bits);
-					m.modem->modulate		(b.enc_bits, b.symbols);
-					m.channel->add_noise	(b.symbols, b.noisy_symbols);
-					/*
-					auto noiseCount = 0;
-					for (size_t i = 0; i < p.N; i++)
+					// Make sure the bit we are correcting is not an info_bit
+					if (i == info_bits_pos[tmp]) 
 					{
-						if (b.symbols[i] != b.noisy_symbols[i])
-							noiseCount++;
+						tmp++;
+						continue;
 					}
-					//std::cout << "noise:" << noiseCount << std::endl;
-					*/
-					// Demodulate f(x) doesn't need to use multiplication (see inside and modify library as needed)
-					m.modem->demodulate		(b.noisy_symbols, b.LLRs);
-					// QKD: Parity bits are sent over.
-					// QKD: Bob corrects the parity bits & increases their LLR because he is 100% confident they are correct
-					// Increase by how much?
-					// for (size_t i = p.K; i < p.N; i++)
-					// {
-					// 	b.LLRs[i] = (b.enc_bits[i] == 1) ? -parity_llr_magnitude[mag] : parity_llr_magnitude[mag];
-					// }
-					m.decoder->decode_siho 	(b.LLRs, b.dec_bits);
-					int err = m.monitor->check_errors(b.dec_bits, b.ref_bits);
-					if (err > 0) { errors++; }
-					(*(m.decoder)).reset();
-					
-					// Test encoder
-					/*
-					std::vector<int> data {    0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1};
-					m.encoder->encode(data, b.enc_bits);
-					std::vector<int> encoded { 1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     1,     1,     1,     0,     0,     0,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,    0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1 };
-					std::cout << "E" << std::endl;
-					for (size_t i = 0; i < encoded.size(); i++) { if (b.enc_bits[i] != encoded[i]) { std::cout << i << ','; } }
-					std::cout << std::endl;
-
-					std::cout << b.dec_bits.size() << std::endl;
-								
-					// Test decoder (BP flooding SPA)
-					// Run standalone or it will cause errors..?
-					std::vector<float> llrs { 2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59 };
-					m.decoder->decode_siho (b.LLRs, b.dec_bits);
-					(*(m.decoder)).reset();
-					m.decoder->decode_siho (llrs, b.dec_bits);
-					std::vector<int> decoded {  1,     0,     1,     1,     1,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     1,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1 };
-					std::cout << "D" << std::endl;
-					for (size_t i = 0; i < p.K; i++) { if (b.dec_bits[i] != decoded[i]) { std::cout << i << ','; } }
-					std::cout << std::endl;
-					*/
+					b.LLRs[i] = ((b.enc_bits[i] == 1) ? -CONFIRMED_BIT_LLR : CONFIRMED_BIT_LLR);
 				}
+				
+				m.decoder->decode_siho 	(b.LLRs, b.dec_bits);
+				int err = m.monitor->check_errors(b.dec_bits, b.ref_bits);
+				if (err > 0) { errors++; }
+				(*(m.decoder)).reset();
+				
+				// Test encoder
+				/*
+				std::vector<int> data {    0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1};
+				m.encoder->encode(data, b.enc_bits);
+				std::vector<int> encoded { 1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     1,     1,     1,     0,     0,     0,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,    0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1 };
+				std::cout << "E" << std::endl;
+				for (size_t i = 0; i < encoded.size(); i++) { if (b.enc_bits[i] != encoded[i]) { std::cout << i << ','; } }
+				std::cout << std::endl;
 
-				// display the performance (BER and FER) in the terminal
-				// https://aff3ct.readthedocs.io/en/latest/user/simulation/overview/overview.html#output
-				u.terminal->final_report();
-
-				// reset the monitor for the next SNR
-				m.monitor->reset();
-				u.terminal->reset();
-
-				// if user pressed Ctrl+c twice, exit the SNRs loop
-				if (u.terminal->is_over()) break;
-				// If 100% error rate, then just break
-				// if (errors == iter) break;
+				// std::cout << b.dec_bits.size() << std::endl;
+							
+				// Test decoder (BP flooding SPA)
+				// Run standalone or it will cause errors..?
+				std::vector<float> llrs { 2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59 };
+				m.decoder->decode_siho (b.LLRs, b.dec_bits);
+				(*(m.decoder)).reset();
+				m.decoder->decode_siho (llrs, b.dec_bits);
+				std::vector<int> decoded {  1,     0,     1,     1,     1,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     1,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1 };
+				std::cout << "D" << std::endl;
+				for (size_t i = 0; i < p.K; i++) { if (b.dec_bits[i] != decoded[i]) { std::cout << i << ','; } }
+				std::cout << std::endl;
+				*/
 			}
-			// Close file and open another file for another N and K
-			// out.close();
+
+			// display the performance (BER and FER) in the terminal
+			// https://aff3ct.readthedocs.io/en/latest/user/simulation/overview/overview.html#output
+			u.terminal->final_report();
+
+			// reset the monitor for the next SNR
+			m.monitor->reset();
+			u.terminal->reset();
+
+			// if user pressed Ctrl+c twice, exit the SNRs loop
+			if (u.terminal->is_over()) break;
+			// If 100% error rate, then just break
+			if (p.terminate_on_all_fail && errors == iter) break;
 		}
+		// Close file and open another file for another N and K
+		// out.close();
 	}
 
 	return 0;

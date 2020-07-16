@@ -3,7 +3,7 @@ LDPC Protocol write-up {#ldpc_readme}
 
 Table of Contents
 - [LDPC Protocol write-up {#ldpc_readme}](#ldpc-protocol-write-up-ldpc_readme)
-	- [Initial understanding write-up (this may become outdated / irrelevant as research progresses)](#initial-understanding-write-up-this-may-become-outdated--irrelevant-as-research-progresses)
+	- [Initial understanding write-up (outdated / irrelevant as research progresses)](#initial-understanding-write-up-this-may-become-outdated--irrelevant-as-research-progresses)
 	- [Procedure](#procedure)
 	- [Variables needed](#variables-needed)
 	- [References](#references)
@@ -43,7 +43,11 @@ This README is located in `qcrypto/errorcorrection/`.
 
 The purpose of this readme is to pen down thoughts, notes & implementation on the LDPC error correction algorithm. They also detail my progress in terms of learning about LDPC.
 
-## Initial understanding write-up (this may become outdated / irrelevant as research progresses)
+## High level overview of LDPC
+A high-level description of the LDPC procedure for QKD: take a message, calculate it's parity bits using parity check matrix H and append those bits to the mmessage to form codeword (that's the main idea for encoding). message bits / codeword bits = code rate. classical send the whole thing over, but QKD just send the parity bits. for QKD you receive the parity bits and append it behind your own sifted key, then perform decoding (various belief propagation algorithms). then reply accept / deny if successful (on top of the hash to verify).
+from that perspective classical and QKD LDPC are identical. only difference is that classical the parity bits can also get affected. It is possible to also dirty some of the parity bits to make it even harder for Eve, but the implications of this on  privacy amplification is unknown, and also it will reduce the algorithm's ability to error correct. We will also not be able to amplify the LLRs of the parity bits to improve performance.
+
+## Initial understanding write-up (possibly outdated / irrelevant as research progresses)
 
 Definitions:
 | Symbol  | Size  | Name  | Equivalent to  |
@@ -102,12 +106,6 @@ Notes:
 	c. How does the belief propagation work?
 		We already have this in pseudo-code lmao but I don't really recall how it works
 
-## Procedure
-
-## Variables needed
-
-* Initiator (Alice)
-* Follower (Bob)
 
 ## References
 | I  | Name  | URL |
@@ -116,13 +114,6 @@ Notes:
 2 |  LDPC dissert.		| https://escholarship.org/uc/item/3862381k
 3 | Efficient reconciliation protocol for discrete-variable quantum key distribution | - 
 4 | Rate Compatible Protocol for Information Reconciliation: An application to QKD
-
-5 |
-6 |
-7 |
-8 |
-9 |
-10 | 
 
 # Readings 1: Mod-09, Error Correcting Codes by Dr. P. Vijay Kumar, Department of Electrical Communication Engineering, IISC Bangalore
 
@@ -777,8 +768,12 @@ How to write, read, store LDPC code parallel etc optimally
   - Code rate is chosen by user, I'm thinking of 1/2
     - Unfortunately this means based on the standard we'll need to perform a check
 
-# Other notes
-Don't even need to estimate QBER; can be done post error correction
+# LDPC & Privacy Amplification
+![](./readme_imgs/dr-alex-priv-amp/1.png)
+
+![](./readme_imgs/dr-alex-priv-amp/2.png)
+
+![](./readme_imgs/dr-alex-priv-amp/3.png)
 
 # C Matrix multiplication library:
 - https://github.com/flame/blis#key-features
@@ -790,3 +785,4 @@ Don't even need to estimate QBER; can be done post error correction
 - Also supports Polar codes etc for future devs
 - QC file format: https://aff3ct.readthedocs.io/en/latest/user/simulation/parameters/codec/ldpc/decoder.html?highlight=QC
 - Use the search feature
+- For more info read the readme on aff3ct (README_AFF3CT) (@subpage ldpc_aff3ct)

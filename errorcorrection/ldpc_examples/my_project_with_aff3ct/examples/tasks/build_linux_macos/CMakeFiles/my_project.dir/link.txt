@@ -1,1 +1,0 @@
-/usr/bin/c++  -O3 -DNDEBUG  -rdynamic CMakeFiles/my_project.dir/src/main.cpp.o  -o bin/my_project /media/matthew/DATA/Study/Y2_Summer/SpeQtral/stack/qcrypto/errorcorrection/ldpc_examples/my_project_with_aff3ct/lib/aff3ct/build_linux_macos/lib/libaff3ct-2.3.5.a -pthread 
