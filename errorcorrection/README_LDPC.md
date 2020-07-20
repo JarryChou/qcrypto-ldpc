@@ -3,9 +3,9 @@ LDPC Protocol write-up {#ldpc_readme}
 
 Table of Contents
 - [LDPC Protocol write-up {#ldpc_readme}](#ldpc-protocol-write-up-ldpc_readme)
-	- [Initial understanding write-up (outdated / irrelevant as research progresses)](#initial-understanding-write-up-this-may-become-outdated--irrelevant-as-research-progresses)
-	- [Procedure](#procedure)
-	- [Variables needed](#variables-needed)
+	- [Summary](#summary)
+	- [High level overview of LDPC](#high-level-overview-of-ldpc)
+	- [Initial understanding write-up (possibly outdated / irrelevant as research progresses)](#initial-understanding-write-up-possibly-outdated--irrelevant-as-research-progresses)
 	- [References](#references)
 - [Readings 1: Mod-09, Error Correcting Codes by Dr. P. Vijay Kumar, Department of Electrical Communication Engineering, IISC Bangalore](#readings-1-mod-09-error-correcting-codes-by-dr-p-vijay-kumar-department-of-electrical-communication-engineering-iisc-bangalore)
 	- [Source(s)](#sources)
@@ -35,13 +35,22 @@ Table of Contents
 		- [Message Passing (Basic)](#message-passing-basic)
 	- [Rate Matching & Puncturing](#rate-matching--puncturing)
 	- [Base graph selection](#base-graph-selection)
-- [Other notes](#other-notes)
+- [LDPC Post Processing](#ldpc-post-processing)
+- [LDPC & Privacy Amplification](#ldpc--privacy-amplification)
+- [Source dump](#source-dump)
 - [C Matrix multiplication library:](#c-matrix-multiplication-library)
 - [C++ library for Forward Error Correction (FEC or channel coding):](#c-library-for-forward-error-correction-fec-or-channel-coding)
+- [C++ library for linear algebra & scientific computing](#c-library-for-linear-algebra--scientific-computing)
 
 This README is located in `qcrypto/errorcorrection/`.
 
 The purpose of this readme is to pen down thoughts, notes & implementation on the LDPC error correction algorithm. They also detail my progress in terms of learning about LDPC.
+
+## Summary
+* High level overview of LDPC describes the protocol at a high level.
+* Readings 1 and 2 provide the background knowledge on how LDPC works. Most of the content come from the source itself (the links are attached).
+* LDPC Post Processing & Privacy Amplification section covers 
+* Other notes: other useful readings
 
 ## High level overview of LDPC
 A high-level description of the LDPC procedure for QKD: take a message, calculate it's parity bits using parity check matrix H and append those bits to the mmessage to form codeword (that's the main idea for encoding). message bits / codeword bits = code rate. classical send the whole thing over, but QKD just send the parity bits. for QKD you receive the parity bits and append it behind your own sifted key, then perform decoding (various belief propagation algorithms). then reply accept / deny if successful (on top of the hash to verify).
@@ -89,12 +98,12 @@ QKD high-level conceptual procedure (See: LDPC for dummies [1])
 2. Both Alice & Bob have a raw key after sifting.
 3. Alice takes a block of her key as the information vector u1 and computes a codeword c1 = u1G.
 	However in this case, c1 is used as a checksum.
-4. Alice sends c1, as well as a hash of her key to Bob
+4. Alice sends c1, as well as a checksum of her key to Bob (CRC)
 5. Bob computes his own codeword c2 using a block of his own key and compares c1 and c2. 
-6. Bob iteratively corrects his key s.t. c1 == c2 using the same procedure as above until he gets it or he reaches maximum # of iterations
-7. Using the hash of the key sent by Alice, Bob verifies his key is likely equal to Alice's
+6. Bob iteratively corrects his key s.t. c1 == c2 using LDPC decoding procedure as above until he gets it or he reaches maximum # of iterations
+7. Using the CRC of the key sent by Alice, Bob "double confirms" that his key is likely equal to Alice's
 
-Notes:
+Pre-research notes:
 1. LDPC requires that a sufficiently large amount of sifted raw data is acquired beforehand or the hash can be potentially bruteforced
 2. What should the matrices be s.t. they are useful as checksums? 
 	a. How are we assured that Eve cannot obtain any information from c1?
@@ -105,7 +114,6 @@ Notes:
 		3. Use existing sparse matrices we have access to
 	c. How does the belief propagation work?
 		We already have this in pseudo-code lmao but I don't really recall how it works
-
 
 ## References
 | I  | Name  | URL |
@@ -768,6 +776,10 @@ How to write, read, store LDPC code parallel etc optimally
   - Code rate is chosen by user, I'm thinking of 1/2
     - Unfortunately this means based on the standard we'll need to perform a check
 
+# LDPC Post Processing
+
+Using CRC to check correctness: https://github.com/d-bahr/CRCpp
+
 # LDPC & Privacy Amplification
 ![](./readme_imgs/dr-alex-priv-amp/1.png)
 
@@ -775,14 +787,167 @@ How to write, read, store LDPC code parallel etc optimally
 
 ![](./readme_imgs/dr-alex-priv-amp/3.png)
 
+```
+# python:
+T = toeplitz(numpy.random.randint(2, size=(len(self.basisAlice)),),numpy.random.randint(2, size=max([0,int(len(self.basisAlice)-self.s)]),))
+            
+self.basisAlice = numpy.matmul(numpy.transpose(T) ,numpy.transpose(numpy.matrix(self.basisAlice)))%2
+self.basisBob = numpy.matmul(numpy.transpose(T),numpy.transpose(numpy.matrix(self.basisBob)))  %2
+```
+
+For the C or C++ version u can just use the one in priv_amp.c (a random matrix is a universal family, See https://www.i-programmer.info/programming/theory/2664-universal-hashing.html and https://crypto.stackexchange.com/questions/18310/universal-hashing-techniques-based-on-matrix-multiplication)
+
+https://arxiv.org/pdf/0901.2140.pdf
+expression:
+- X: 		n-bit string belonging to Alice
+- Y: 		n-bit string belonging to Bob
+- Z:		Random variable Z owned by Eve, possibly correlated to X and Y
+- H(X|Y) (Theory):	shannon entrophy of X given Y
+- Privacy Amplification: Alice and Bob apply a randomly chosen compression function to their mutual string. If the compression function is well chosen, the result is uncorrelated with Z and constitutes a secret key.
+- K_th: 	Theoretical secret capacity
+  - K_th = H(X|Z) - H(X|Y)
+- H(X|Y) (real): Minimum amount of classical information that Alice needs to send to Bob to help him correct his string Y
+- f:		Parameter greater than 1 that characterizes the reconciliation efficiency
+- K_real:	realistic secret key rate (appears that author uses "capacity" and "key rate" synonymously?)
+  - K_real = H(X|Z) - f * H(X|Y)
+- p:		crossover probability of the binary symmetric channel (i.e. event probability of a bit flip)
+- For BB84, conditional entrophies can be expressed as a function of p
+- h(p):		Binary entrophy function
+  - h(p) = -p * log2(p) - (1 - p) * log2(1 - p);
+    - Quick javascript impl: `h = (p) => { return (-p)*Math.log2(p) - (1-p)*Math.log2(1-p); }`
+      - I just open a console and run this code for a quick verification e.g. `h(0.5);`
+- H(X|Y) (real): Binary entrophy	
+  - H(X|Y) = h(p)
+- H(X|Z) (real): what's left from H(X|Y)
+  - H(X|Z) = 1 - h(p)
+- K_real = 1 - (1 + f(p)) * h(p)
+  - f(p) is a function that characterizes the reconciliation efficiency.
+  - How to calculate f(p)? Paper thinks you should already know (sigh...)
+  - See https://arxiv.org/pdf/1407.3257.pdf page 5, we want the first definition:
+    - f_EC = (1 - R) / h(e)
+    - e:	crossover probability (See p above)
+    - h(e):	binary Shannon entrophy −e log2(e) − (1 − e) log2(1 − e)
+    - R:	Ratio of information transmitted, R = 1 − m/n.
+      - m:	length of the message exchanged for reconciling the discrepancies between x and y
+      - n:	Length of raw sifted key (i.e. length of x or y)
+      - Javascript: `R = (m, n) => { return 1 - m/n; }`
+    - nH(X|Y): minimum length of the message transmitted to reconcile the frames x and y
+    - Javascript: `f = (r, p) => { return (1 - r) / h(p); }`
+      - Uses h(p) above
+- The final secret key rate just multiply by the success rate of the decoding algorithm (1 - frame error rate)
+  - K_real = (1 - (1 + f(p)) * h(p)) * (1 - FER)
+  - All JS formulae:
+```
+// Javascript code, drop this in your console for a quick check
+// qber: 		bit error rate / crossover probability
+// fer: 		frame error rate (failure rate of LDPC code)
+// code_rate:	code rate of LDPC code; (info bits) / (total bits)
+run_sim = ((qber, fer, code_rate) => {
+	// functions 
+	h = (p) => { return (-p)*Math.log2(p) - (1-p)*Math.log2(1-p); }; 		// Binary Shannon Entrophy
+	R = (m, n) => { return 1 - m/n; }; 		  						 		// ratio, 1 - parity bits / info bits
+	R_from_cr = (code_rate) => { return 1 - (1 - code_rate) / code_rate ; }	// ratio, 1 - (m/(m+n)) / (n/(m+n))
+	f = (r, p) => { return (1 - r) / h(p); }; 						 		// Reconciliation efficiency of a BSC
+	k = (r, p, FER) => { return (1 - ((1 + f(r, p)) * h(p))) * (1 - FER); } // Secret key rate. FER = frame error rate
+	k_with_f = (_f, p, FER) => { return (1 - ((1 + _f) * h(p))) * (1 - FER); }
+	min_cr = (qber, f) => { return 1 / (1 + f * h(qber)); }					// Theoretical code rate maximum for f given QBER
+	secret_key_rate = (r, ber, FER) => { return k(r, ber, FER); }
+	secret_key_length = (n, key_rate) => { return n * key_rate; }
+
+	// Params
+	ratio = R_from_cr(code_rate);
+	final_key_rate = secret_key_rate(ratio, qber, fer); 					// Actual key rate
+
+	// Print values
+	// toFixed(n) is not always accurate but sufficient for this use case
+	console.log("Actual value:");
+	console.log("f:", f(ratio, qber).toFixed(4), '|', "CR:", code_rate.toFixed(4), '|', "K:", final_key_rate.toFixed(4) + (final_key_rate > 0 ? "" : " (Fail)"), '|');
+	console.log("Theoretical values:");
+	possible_f_vals = [1.0, 1.05, 1.1, 1.15, 1.2, 1.25];
+	for (i = 0; i < possible_f_vals.length; i++) {
+		tmp_f = possible_f_vals[i];
+		tmp_cr = min_cr(qber, tmp_f);
+		resultant_kr = k_with_f(tmp_f, qber, 0);
+		console.log("f:", tmp_f.toFixed(4), '|', "CR:", tmp_cr.toFixed(4), '|', "K:", resultant_kr.toFixed(4) + (resultant_kr > 0 ? "" : " (Fail)"), '|');
+	}
+});
+run_sim(0.10, 0.0, 3/5);
+```
+
+DVB S2 results
+- BER 0.01:
+	- Shannon Limit: f: 1.0000 | CR: 0.9252 | K: 0.8384 |
+	- DVB 37/45: 	 f: 1.5287 | CR: 0.8222 | K: 0.6423 | 
+	- DVB 8/9: 		 f: 1.5472 | CR: 0.8889 | K: 0.5559 | FER: ~9/30
+- BER 0.02:
+	- Shannon Limit: f: 1.0000 | CR: 0.8761 | K: 0.7171 |
+	- DVB 37/45: 	 f: 1.5287 | CR: 0.8222 | K: 0.6423 |
+- BER 0.03:
+	- Shannon Limit: f: 1.0000 | CR: 0.8372 | K: 0.6112 |
+	- DVB 7/9:	 	 f: 1.4698 | CR: 0.7778 | K: 0.5199 |
+- BER 0.04:
+	- Shannon Limit: f: 1.0000 | CR: 0.8050 | K: 0.5154 |
+	- DVB 59/81: 	 f: 1.5390 | CR: 0.7284 | K: 0.3848 |
+	- BER 0.05:
+	- Shannon Limit: f: 1.0000 | CR: 0.7774 | K: 0.4272 |
+	- DVB 59/81: 	 f: 1.3020 | CR: 0.7284 | K: 0.2271 | FER: ~10/30
+	- DVB 2/3:	 	 f: 1.7458 | CR: 0.6667 | K: 0.2136 |
+- BER 0.06:
+	- Shannon Limit: f: 1.0000 | CR: 0.7533 | K: 0.3451 |
+	- DVB 2/3:	 	 f: 1.5270 | CR: 0.6667 | K: 0.1726 |
+- BER 0.07:
+	- Shannon Limit: f: 1.0000 | CR: 0.7321 | K: 0.2682 |
+	- DVB 2/3:	 	 f: 1.3664 | CR: 0.6667 | K: 0.1341 |
+- BER 0.08:
+	- Shannon Limit: f: 1.0000 | CR: 0.7132 | K: 0.1956 |
+	- DVB 2/3:	 	 f: 1.2432 | CR: 0.6667 | K: 0.0978 |
+- BER 0.09:
+	- Shannon Limit: f: 1.0000 | CR: 0.6962 | K: 0.1271 |
+	- DVB 2/3:	 	 f: 1.1456 | CR: 0.6667 | K: 0.0233 | FER: ~19/30
+	- DVB 3/5:		 f: 1.5274 | CR: 0.6000 | K: -0.1031( Fail) |
+- BER 0.10:
+	- Shannon Limit: f: 1.0000 | CR: 0.6807 | K: 0.0620 |
+	- DVB 3/5:		 f: 1.4215 | CR: 0.6000 | K: -0.1357 (Fail) | FER: ~5/30
+- BER 0.11:
+	- Shannon Limit: f: 1.0000 | CR: 0.6667 | K: 0.0002 |
+
+# Source dump
+- LDPC for dummies: https://arxiv.org/ftp/arxiv/papers/1205/1205.4977.pdf
+- LDPC DVB S2 standard number of degrees (pg23): https://www.diva-portal.org/smash/get/diva2:504435/FULLTEXT01.pdf
+- Encyclopedia of sparse matrices (matrices outdated and those sampled are poor): http://www.inference.org.uk/mackay/codes/data.html
+- Thesis on QKD (but for continuous channel, so moderate usability. Introduces idea of CRC): https://tspace.library.utoronto.ca/bitstream/1807/80646/3/Milicevic_Mario_201711_PhD_thesis.pdf
+- LDPC privacy amplification: https://arxiv.org/pdf/0901.2140.pdf
+- Understanding reconciliation efficiency and calculating secret key rate:
+  - page 4: https://arxiv.org/pdf/1006.2660.pdf
+  - page 5: https://arxiv.org/pdf/1407.3257.pdf
+- Promising research avenues:
+  - Simple tutorial on PEG: https://www.researchgate.net/publication/268423671_A_REVIEW_OF_CONSTRUCTION_METHODS_FOR_REGULAR_LDPC_CODES/fulltext/54b889a70cf269d8cbf6e222/A-REVIEW-OF-CONSTRUCTION-METHODS-FOR-REGULAR-LDPC-CODES.pdf
+  - Construction of High-Rate Regular Quasi-Cyclic LDPC Codes Based on Cyclic Difference Families: https://ieeexplore.ieee.org/document/6560065
+  - Construction of QC Protograph LDPC codes:
+    - https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7893750
+    - Results (on continuous channel): https://ieeexplore.ieee.org/document/8409951
+- A more comprehensive (but much messier) set of sources can be found here: 1. [My Google Spreadsheet](https://docs.google.com/spreadsheets/d/1m2Bf-hwC6Oz_ubFuvZZWasFeZyWmpT89niwxD49291o/edit?usp=sharing) 
+- PEG: https://github.com/uzum/ldpc-peg
+- 5G LDPC description (w.r.t rate matching etc)
+  - https://www.cambridge.org/core/services/aop-cambridge-core/content/view/CF52C26874AF5E00883E00B6E1F907C7/S2048770319000106a.pdf/an_overview_of_channel_coding_for_5g_nr_cellular_communications.pdf
+  - https://www.mdpi.com/2079-9292/8/6/668/pdf
+- DVB S2 rate compatible
+  - https://ieeexplore.ieee.org/document/5286434
+
 # C Matrix multiplication library:
 - https://github.com/flame/blis#key-features
 - Not planned to be used
+- But good to know
 # C++ library for Forward Error Correction (FEC or channel coding):
 - https://aff3ct.readthedocs.io/en/latest/user/introduction/introduction.html
-- Don't think it supports the diagonal matrix optimization part for encoding
+- Don't think it supports the diagonal matrix optimization part for encoding 5G
+- It works with 5G matrices though!
 - Supports DVB without extra setup
 - Also supports Polar codes etc for future devs
 - QC file format: https://aff3ct.readthedocs.io/en/latest/user/simulation/parameters/codec/ldpc/decoder.html?highlight=QC
 - Use the search feature
 - For more info read the readme on aff3ct (README_AFF3CT) (@subpage ldpc_aff3ct)
+
+# C++ library for linear algebra & scientific computing
+- Armadillo (Open source). See http://arma.sourceforge.net/download.html
+- Again, not planned to be used but good to know

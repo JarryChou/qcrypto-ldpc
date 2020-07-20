@@ -24,10 +24,8 @@ If you're reading the sentence then you can infer that I am not able to finish i
 
 Yes, I know, this probably sounds very obvious. I have collated a few resources for your perusal:
 
-1. [My Google Spreadsheet](https://docs.google.com/spreadsheets/d/1m2Bf-hwC6Oz_ubFuvZZWasFeZyWmpT89niwxD49291o/edit?usp=sharing) 
-	* This spreadsheet contains a lot of  information, including resources (videos, papers, etc) on LDPC.
-3. README_LDPC.md (@subpage ldpc_readme)
-	* This readme is quite messy but contains my notes on two video series which I believe are very informative on how LDPC and the channels LDPC is designed to work on, work.
+1. README_LDPC.md (@subpage ldpc_readme)
+	* This readme is quite messy but contains my notes on two video series which I believe are very informative on how LDPC and the channels LDPC is designed to work on, work. It also contains a lot of information I've gathered on LDPC.
 
 My personal opinion is that LDPC in the QKD sense works very, very similarly to that of classical LDPC. The only difference is that Alice only sends the parity bits in QKD, whereas in classical LDPC the entire codeword is sent. Getting an understanding on LDPC and its original purpose is essential to using the library.
 

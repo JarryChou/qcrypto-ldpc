@@ -26,4 +26,13 @@ scripts/setup/fftw-3.3.8.tar.gz
 scripts/setup/fftw-3.3.8/
 scripts/setup/fftw-3.3.8/*
 
+# AFF3CT simulation section
+# Ignore AFF3CT library
 errorcorrection/ldpc_examples/my_project_with_aff3ct/lib/*
+# Ignore cmake config files except bin
+# errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/bootstrap/build_linux_macos/*
+# !errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/bootstrap/build_linux_macos/bin/*
+# Ignore cmake modules (in bootstrap)
+# errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/bootstrap/cmake/Modules/*
+# Ignore CMakeFiles (in bootstrap)
+# errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/bootstrap/CMakeFiles/*
