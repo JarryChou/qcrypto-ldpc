@@ -839,24 +839,31 @@ expression:
   - All JS formulae:
 ```
 // Javascript code, drop this in your console for a quick check
+// To open your console go to a browser and press Shift + Ctrl + C (or just right click open console)
 // qber: 		bit error rate / crossover probability
 // fer: 		frame error rate (failure rate of LDPC code)
 // code_rate:	code rate of LDPC code; (info bits) / (total bits)
 run_sim = ((qber, fer, code_rate) => {
-	// functions 
+	// functions (copy this section out to the console to use them directly) 
 	h = (p) => { return (-p)*Math.log2(p) - (1-p)*Math.log2(1-p); }; 		// Binary Shannon Entrophy
 	R = (m, n) => { return 1 - m/n; }; 		  						 		// ratio, 1 - parity bits / info bits
 	R_from_cr = (code_rate) => { return 1 - (1 - code_rate) / code_rate ; }	// ratio, 1 - (m/(m+n)) / (n/(m+n))
 	f = (r, p) => { return (1 - r) / h(p); }; 						 		// Reconciliation efficiency of a BSC
 	k = (r, p, FER) => { return (1 - ((1 + f(r, p)) * h(p))) * (1 - FER); } // Secret key rate. FER = frame error rate
-	k_with_f = (_f, p, FER) => { return (1 - ((1 + _f) * h(p))) * (1 - FER); }
+	k_using_f = (_f, p, FER) => { return (1 - ((1 + _f) * h(p))) * (1 - FER); }
 	min_cr = (qber, f) => { return 1 / (1 + f * h(qber)); }					// Theoretical code rate maximum for f given QBER
+	parities_given_f = (_f, n, ber) => { return _f * h(ber) * n; }				// Number of parities needed to achieve _f efficiency at n info bits and ber QBER
 	secret_key_rate = (r, ber, FER) => { return k(r, ber, FER); }
 	secret_key_length = (n, key_rate) => { return n * key_rate; }
+
+	// Function Tests
+	// f(R(parities_given_f(1, 100, 0.1), 100), 0.1) == 1 		// test parities_given_f
+	// f(R((1 - min_cr(0.1, 1)), min_cr(0.1, 1)), 0.1) == 1 // test min_cr
 
 	// Params
 	ratio = R_from_cr(code_rate);
 	final_key_rate = secret_key_rate(ratio, qber, fer); 					// Actual key rate
+	console.log(parities_given_f(1, 100, 1));
 
 	// Print values
 	// toFixed(n) is not always accurate but sufficient for this use case
@@ -867,7 +874,7 @@ run_sim = ((qber, fer, code_rate) => {
 	for (i = 0; i < possible_f_vals.length; i++) {
 		tmp_f = possible_f_vals[i];
 		tmp_cr = min_cr(qber, tmp_f);
-		resultant_kr = k_with_f(tmp_f, qber, 0);
+		resultant_kr = k_using_f(tmp_f, qber, 0);
 		console.log("f:", tmp_f.toFixed(4), '|', "CR:", tmp_cr.toFixed(4), '|', "K:", resultant_kr.toFixed(4) + (resultant_kr > 0 ? "" : " (Fail)"), '|');
 	}
 });
@@ -910,6 +917,45 @@ DVB S2 results
 	- DVB 3/5:		 f: 1.4215 | CR: 0.6000 | K: -0.1357 (Fail) | FER: ~5/30
 - BER 0.11:
 	- Shannon Limit: f: 1.0000 | CR: 0.6667 | K: 0.0002 |
+
+5G Standard (NR_1_0_2.qc, smallest expansion factor offers best performance. FER doesn't drop much with efficiency):
+
+- Punct. Bits (Round down): 92| Reconcil. Effic.: 0| Key Rate (at 0% FER): 1| Final key len: 44| Code rate: 1
+-			  QBER   ||     Iter | Bit Errs |Frame Err | BER      | FER      ||  SIM_THR | ET/RT   
+-             0.0000 ||      100 |        7 |        1 | 1.59e-03 | 1.00e-02 ||    0.053 | 00h00'00   
+- 
+- Punct. Bits (Round down): 88| Reconcil. Effic.: 1.12521| Key Rate (at 0% FER): 0.828298| Final key len: 36.4451| Code rate: 0.916667
+-             0.0100 ||      100 |       40 |       32 | 9.09e-03 | 3.20e-01 ||    0.137 | 00h00'00   
+- 
+- Punct. Bits (Round down): 85| Reconcil. Effic.: 1.12479| Key Rate (at 0% FER): 0.699469| Final key len: 30.7766| Code rate: 0.862745
+-             0.0200 ||      100 |       86 |       64 | 1.95e-02 | 6.40e-01 ||    0.103 | 00h00'00   
+- 
+- Punct. Bits (Round down): 83| Reconcil. Effic.: 1.05223| Key Rate (at 0% FER): 0.601063| Final key len: 26.4468| Code rate: 0.830189
+-             0.0300 ||      100 |      114 |       58 | 2.59e-02 | 5.80e-01 ||    0.106 | 00h00'00   
+- 
+- Punct. Bits (Round down): 81| Reconcil. Effic.: 1.03181| Key Rate (at 0% FER): 0.507708| Final key len: 22.3391| Code rate: 0.8
+-             0.0400 ||      100 |      164 |       71 | 3.73e-02 | 7.10e-01 ||    0.102 | 00h00'00   
+- 
+- Punct. Bits (Round down): 79| Reconcil. Effic.: 1.03163| Key Rate (at 0% FER): 0.418149| Final key len: 18.3985| Code rate: 0.77193
+-             0.0500 ||      100 |      195 |       69 | 4.43e-02 | 6.90e-01 ||    0.099 | 00h00'00   
+- 
+- Punct. Bits (Round down): 77| Reconcil. Effic.: 1.04112| Key Rate (at 0% FER): 0.331646| Final key len: 14.5924| Code rate: 0.745763
+-             0.0600 ||      100 |      257 |       87 | 5.84e-02 | 8.70e-01 ||    0.085 | 00h00'00   
+- 
+- Punct. Bits (Round down): 75| Reconcil. Effic.: 1.05586| Key Rate (at 0% FER): 0.247713| Final key len: 10.8994| Code rate: 0.721311
+-             0.0700 ||      100 |      249 |       79 | 5.66e-02 | 7.90e-01 ||    0.091 | 00h00'00   
+- 
+- Punct. Bits (Round down): 74| Reconcil. Effic.: 1.01719| Key Rate (at 0% FER): 0.18873| Final key len: 8.30412| Code rate: 0.709677
+-             0.0800 ||      100 |      332 |       85 | 7.55e-02 | 8.50e-01 ||    0.084 | 00h00'00   
+- 
+- Punct. Bits (Round down): 72| Reconcil. Effic.: 1.04141| Key Rate (at 0% FER): 0.108985| Final key len: 4.79533| Code rate: 0.6875
+-             0.0900 ||      100 |      326 |       87 | 7.41e-02 | 8.70e-01 ||    0.080 | 00h00'00   
+- 
+- Punct. Bits (Round down): 71| Reconcil. Effic.: 1.01765| Key Rate (at 0% FER): 0.0537318| Final key len: 2.3642| Code rate: 0.676923
+-             0.1000 ||      100 |      380 |       86 | 8.64e-02 | 8.60e-01 ||    0.080 | 00h00'00   
+- 
+- Punct. Bits (Round down): 70| Reconcil. Effic.: 1.00017| Key Rate (at 0% FER): 8.40425e-05| Final key len: 0.00369787| Code rate: 0.666667
+-             0.1100 ||      100 |      466 |       94 | 1.06e-01 | 9.40e-01 ||    0.077 | 00h00'00
 
 # Source dump
 - LDPC for dummies: https://arxiv.org/ftp/arxiv/papers/1205/1205.4977.pdf
