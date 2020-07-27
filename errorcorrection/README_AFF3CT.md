@@ -97,3 +97,11 @@ I've laid down the groundwork on how to use Aff3ct for LDPC (as I'm typing this 
 * main.cpp.alist-backup: Used for simulating matrices that come in alist format.
 	* There's a great list of such matrices [here](http://www.inference.org.uk/mackay/codes/data.html). However some matrices can cause problems (Try to run them with the simulator executable first to ensure it works properly), see [issue #73](https://github.com/aff3ct/aff3ct/issues/73).
 * main.cpp.dvb: Used for simulating dvb matrices and decoder algorithms. 
+
+# Improving the parity-check matrix
+1.	Puncture DVB S2 matrices
+	1.	This is an immediate improvement to our current implementation, but I think in terms of optimality it won’t be the best solution. I may or may not investigate this during my last week of the internship
+1.	Continue investigating LDPC codes with large n, and impl. In such a way that it is fast with Aff3ct
+	1.	May not be suitable, but has the most literature 
+1.	Non-binary LDPC codes (I don’t think supported by Aff3ct as of now) will likely be a good avenue of research for their supposedly better performance in small to moderate sized LDPC codes
+	1.	Probably the best way to go but I don’t have enough time to look into this

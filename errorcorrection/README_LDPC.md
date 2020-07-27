@@ -4,6 +4,7 @@ LDPC Protocol write-up {#ldpc_readme}
 Table of Contents
 - [LDPC Protocol write-up {#ldpc_readme}](#ldpc-protocol-write-up-ldpc_readme)
 	- [Summary](#summary)
+	- [What to read if you don't know nuts about LDPC](#what-to-read-if-you-dont-know-nuts-about-ldpc)
 	- [High level overview of LDPC](#high-level-overview-of-ldpc)
 	- [Initial understanding write-up (possibly outdated / irrelevant as research progresses)](#initial-understanding-write-up-possibly-outdated--irrelevant-as-research-progresses)
 	- [References](#references)
@@ -38,6 +39,7 @@ Table of Contents
 - [LDPC Post Processing](#ldpc-post-processing)
 - [LDPC & Privacy Amplification](#ldpc--privacy-amplification)
 - [Source dump](#source-dump)
+- [PSD-PEG matrix construction](#psd-peg-matrix-construction)
 - [C Matrix multiplication library:](#c-matrix-multiplication-library)
 - [C++ library for Forward Error Correction (FEC or channel coding):](#c-library-for-forward-error-correction-fec-or-channel-coding)
 - [C++ library for linear algebra & scientific computing](#c-library-for-linear-algebra--scientific-computing)
@@ -52,8 +54,11 @@ The purpose of this readme is to pen down thoughts, notes & implementation on th
 * LDPC Post Processing & Privacy Amplification section covers 
 * Other notes: other useful readings
 
+## What to read if you don't know nuts about LDPC
+I didn't understand the literature so I had to refer to videos. Watch Readings 1 (see below) which is quite useful for understanding the theoretical stuff behind LDPC (mainly decoding). Readings 2 explains LDPC encoding (the idea of it; optimized 5G encoding is not implemented in AFF3CT, so i don't think the triangular matrix thing applies), QC LDPCs and also explains puncturing and shortening. Then you can play around with Aff3ct to see how it works in the QKD sense. If you want to understand the significance of "girth" and degree distributions try to implement improved PEG, then look into density evolution. If you want to understand the significance of code rates, you'll want to look into privacy amplification.
+
 ## High level overview of LDPC
-A high-level description of the LDPC procedure for QKD: take a message, calculate it's parity bits using parity check matrix H and append those bits to the mmessage to form codeword (that's the main idea for encoding). message bits / codeword bits = code rate. classical send the whole thing over, but QKD just send the parity bits. for QKD you receive the parity bits and append it behind your own sifted key, then perform decoding (various belief propagation algorithms). then reply accept / deny if successful (on top of the hash to verify).
+A high-level description of the LDPC procedure for QKD: take a message, calculate it's parity bits using parity check matrix H and append those bits to the message to form codeword (that's the main idea for encoding). message bits / codeword bits = code rate. classical send the whole thing over, but QKD just send the parity bits. for QKD you receive the parity bits and append it behind your own sifted key, then perform decoding (various belief propagation algorithms). then reply accept / deny if successful (on top of the hash to verify).
 from that perspective classical and QKD LDPC are identical. only difference is that classical the parity bits can also get affected. It is possible to also dirty some of the parity bits to make it even harder for Eve, but the implications of this on  privacy amplification is unknown, and also it will reduce the algorithm's ability to error correct. We will also not be able to amplify the LLRs of the parity bits to improve performance.
 
 ## Initial understanding write-up (possibly outdated / irrelevant as research progresses)
@@ -780,12 +785,18 @@ How to write, read, store LDPC code parallel etc optimally
 
 Using CRC to check correctness: https://github.com/d-bahr/CRCpp
 
+Currently not implemented, but I think Aff3ct has this module. Also can just use the code in the GitHub above for efficient CRC
+
 # LDPC & Privacy Amplification
 ![](./readme_imgs/dr-alex-priv-amp/1.png)
 
 ![](./readme_imgs/dr-alex-priv-amp/2.png)
 
 ![](./readme_imgs/dr-alex-priv-amp/3.png)
+
+For the theoretical concept: Google "leftover hash lemma".
+
+Below are some helper code on how to hash, calculate the secret key length etc
 
 ```
 # python:
@@ -895,7 +906,7 @@ DVB S2 results
 - BER 0.04:
 	- Shannon Limit: f: 1.0000 | CR: 0.8050 | K: 0.5154 |
 	- DVB 59/81: 	 f: 1.5390 | CR: 0.7284 | K: 0.3848 |
-	- BER 0.05:
+- BER 0.05:
 	- Shannon Limit: f: 1.0000 | CR: 0.7774 | K: 0.4272 |
 	- DVB 59/81: 	 f: 1.3020 | CR: 0.7284 | K: 0.2271 | FER: ~10/30
 	- DVB 2/3:	 	 f: 1.7458 | CR: 0.6667 | K: 0.2136 |
@@ -967,9 +978,11 @@ DVB S2 results
   - page 4: https://arxiv.org/pdf/1006.2660.pdf
   - page 5: https://arxiv.org/pdf/1407.3257.pdf
 - Promising research avenues:
-  - Simple tutorial on PEG: https://www.researchgate.net/publication/268423671_A_REVIEW_OF_CONSTRUCTION_METHODS_FOR_REGULAR_LDPC_CODES/fulltext/54b889a70cf269d8cbf6e222/A-REVIEW-OF-CONSTRUCTION-METHODS-FOR-REGULAR-LDPC-CODES.pdf
-  - Construction of High-Rate Regular Quasi-Cyclic LDPC Codes Based on Cyclic Difference Families: https://ieeexplore.ieee.org/document/6560065
-  - Construction of QC Protograph LDPC codes:
+  - Paper that describes good efficiency for LDPC which may link to construction algorithm: 
+    - https://arxiv.org/pdf/0901.2140.pdf
+    - https://arxiv.org/pdf/1006.2660.pdf (very good efficiencies but construction "to be published elsewhere"..)
+  - Construction of High-Rate Regular Quasi-Cyclic LDPC Codes Based on Cyclic Difference Families (may or may not be useful): https://ieeexplore.ieee.org/document/6560065
+  - Construction of QC Protograph LDPC codes (untested on BSC):
     - https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7893750
     - Results (on continuous channel): https://ieeexplore.ieee.org/document/8409951
 - A more comprehensive (but much messier) set of sources can be found here: 1. [My Google Spreadsheet](https://docs.google.com/spreadsheets/d/1m2Bf-hwC6Oz_ubFuvZZWasFeZyWmpT89niwxD49291o/edit?usp=sharing) 
@@ -979,6 +992,27 @@ DVB S2 results
   - https://www.mdpi.com/2079-9292/8/6/668/pdf
 - DVB S2 rate compatible
   - https://ieeexplore.ieee.org/document/5286434
+  - https://patents.google.com/patent/EP2239854A1/en See 0062
+- Tutorials:
+  - Simple tutorial on PEG: https://www.researchgate.net/publication/268423671_A_REVIEW_OF_CONSTRUCTION_METHODS_FOR_REGULAR_LDPC_CODES/fulltext/54b889a70cf269d8cbf6e222/A-REVIEW-OF-CONSTRUCTION-METHODS-FOR-REGULAR-LDPC-CODES.pdf
+  - https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-451-principles-of-digital-communication-ii-spring-2005/video-lectures/chap13.pdf ?
+  - https://www.researchgate.net/profile/A_Banihashemi/publication/4115700_Improved_Progressive-Edge-Growth_PEG_Construction_of_Irregular_LDPC_Codes/links/00b7d517191cc7f30f000000/Improved-Progressive-Edge-Growth-PEG-Construction-of-Irregular-LDPC-Codes.pdf
+  - Non binary LDPC codes (good for small to moderate code lengths)
+    - https://tel.archives-ouvertes.fr/tel-01769283/document
+    - https://ieeexplore.ieee.org/document/7431839
+    - https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7893750
+  - Other
+    - https://www.hindawi.com/journals/jece/2008/324503/
+    - https://ieeexplore.ieee.org/document/910578	
+    - Design of Capacity-Approaching Irregular
+Low-Density Parity-Check Codes:
+- Design of Capacity-Approaching Irregular Low-Density Parity-Check Codes
+  - pg624
+
+# PSD-PEG matrix construction
+- based on https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7893750
+- "Then, motivated by the cycle searching and girth maximizing features of the progressive edge-growth (PEG) algorithm, we introduce the permutation shifts determining (PSD) PEG algorithm, which can construct large girth base graph and determine the optimal permutation shifts, simultaneously."
+- For python implementation see psd-peg.py in the ldpc-examples folder.
 
 # C Matrix multiplication library:
 - https://github.com/flame/blis#key-features
