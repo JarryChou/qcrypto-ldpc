@@ -1,4 +1,4 @@
-AFF3CT examples (main.cpps) {#bootstrap_example}
+AFF3CT examples (main.cpps) {#bootstrap_example_src}
 ====
 
 This readme is located in `./errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/bootstrap/src/README.md`.

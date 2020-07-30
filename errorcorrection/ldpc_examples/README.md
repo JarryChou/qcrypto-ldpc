@@ -1,4 +1,4 @@
-Readme: ldpc_examples
+Readme: ldpc_examples {#ldpc_examples_readme}
 ====
 
 This readme is located in `./errorcorrection/ldpc_examples/README.md`.

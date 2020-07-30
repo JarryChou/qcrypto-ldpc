@@ -1,4 +1,4 @@
-Readme: my_project_with_aff3ct
+Readme: my_project_with_aff3ct {#my_project_with_aff3ct_readme}
 ====
 
 This readme is located in `./errorcorrection/ldpc_examples/my_project_with_aff3ct/README.md`.
