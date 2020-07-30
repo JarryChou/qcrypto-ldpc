@@ -6,6 +6,7 @@ var annotated_dup =
     [ "ALGORITHM_QBER_DATA", "struct_a_l_g_o_r_i_t_h_m___q_b_e_r___d_a_t_a.html", "struct_a_l_g_o_r_i_t_h_m___q_b_e_r___d_a_t_a" ],
     [ "arguments", "structarguments.html", "structarguments" ],
     [ "blockpointer", "structblockpointer.html", "structblockpointer" ],
+    [ "buffers", "structbuffers.html", "structbuffers" ],
     [ "cardinfo", "structcardinfo.html", "structcardinfo" ],
     [ "dma_page_pointer", "structdma__page__pointer.html", "structdma__page__pointer" ],
     [ "ERRC_ERRDET_0", "struct_e_r_r_c___e_r_r_d_e_t__0.html", "struct_e_r_r_c___e_r_r_d_e_t__0" ],
@@ -24,14 +25,18 @@ var annotated_dup =
     [ "header_3", "structheader__3.html", "structheader__3" ],
     [ "header_4", "structheader__4.html", "structheader__4" ],
     [ "header_7", "structheader__7.html", "structheader__7" ],
+    [ "modules", "structmodules.html", "structmodules" ],
+    [ "Node_Degree", "struct_node___degree.html", "struct_node___degree" ],
     [ "otto", "structotto.html", "structotto" ],
     [ "packet_received", "structpacket__received.html", "structpacket__received" ],
     [ "packet_to_send", "structpacket__to__send.html", "structpacket__to__send" ],
+    [ "params", "structparams.html", "structparams" ],
     [ "ProcessBlk", "struct_process_blk.html", "struct_process_blk" ],
     [ "processedtime", "structprocessedtime.html", "structprocessedtime" ],
     [ "protocol_details", "structprotocol__details.html", "structprotocol__details" ],
     [ "protocol_details_B", "structprotocol__details___b.html", "structprotocol__details___b" ],
     [ "protocol_details_C", "structprotocol__details___c.html", "structprotocol__details___c" ],
     [ "rawevent", "structrawevent.html", "structrawevent" ],
-    [ "stream_header", "structstream__header.html", "structstream__header" ]
+    [ "stream_header", "structstream__header.html", "structstream__header" ],
+    [ "utils", "structutils.html", "structutils" ]
 ];

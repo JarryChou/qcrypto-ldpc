@@ -93,8 +93,8 @@ $(document).ready(function(){initNavTree('hardware.html',''); initResizable(); }
 <p>The files in this directory are:</p>
 <ul>
 <li><b>Makefile</b> used to generate the firmware file in various formats, and also to generate all the memory map and direct assembler files. Generates hexcode which can be uploaded into the FX2 chip with the upload script.</li>
-<li><b><a class="el" href="fifobithelpers_8h.html">fifobithelpers.h</a></b> Some definitions which lines of the core timestamp unit are connected to the fx2 chip</li>
-<li><b><a class="el" href="fx2regs__c_8h.html">fx2regs_c.h</a></b> external file for fx2 register definitions from Christer Weinigel, Nordnav Technologies A</li>
+<li><b>fifobithelpers.h</b> Some definitions which lines of the core timestamp unit are connected to the fx2 chip</li>
+<li><b>fx2regs_c.h</b> external file for fx2 register definitions from Christer Weinigel, Nordnav Technologies A</li>
 <li><b><a class="el" href="tp8_8c.html">tp8.c</a></b> The firmware code itself</li>
 <li><b>upload</b> A loader script to get the firmware into an unprogrammed FX2 chip. A modified code can be used to flash an EEPROM but this requires the Vend_Ax.hex file from the FX2 development kit and I have no idea about the license</li>
 <li><b>usbtimetagio.h</b> Header file, mainly for ioctl definitions for a higher level usb driver on a host machine, but reused here for command parsing in the EP1 interpreter function.</li>

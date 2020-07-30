@@ -110,7 +110,7 @@ $(document).ready(function(){initNavTree('readevents3_8c.html',''); initResizabl
 Include dependency graph for readevents3.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="readevents3_8c__incl.png" border="0" usemap="#atimestamp3_2readevents3_8c" alt=""/></div>
-<map name="timestamp3_2readevents3_8c" id="atimestamp3_2readevents3_8c">
+<map name="timestamp3_2readevents3_8c" id="timestamp3_2readevents3_8c">
 <area shape="rect" title=" " alt="" coords="500,5,676,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,67,107"/>
 <area shape="rect" title=" " alt="" coords="91,80,149,107"/>
@@ -156,7 +156,7 @@ Macros</h2></td></tr>
 <tr class="separator:aeb409105091f9b64cd6f1346a6a8335a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaafdb2460083a7e42496b66ab1decd0b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#aaafdb2460083a7e42496b66ab1decd0b">DEFAULT_MAXEVENTS</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:aaafdb2460083a7e42496b66ab1decd0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a212e3d35991daa2f435de62bfb1201ff"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#a212e3d35991daa2f435de62bfb1201ff">DEFAULT_BEGINFLAG</a>&#160;&#160;&#160;0 /* for -r/-R option */</td></tr>
+<tr class="memitem:a212e3d35991daa2f435de62bfb1201ff"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#a212e3d35991daa2f435de62bfb1201ff">DEFAULT_BEGINFLAG</a>&#160;&#160;&#160;0 /* for -r/-<a class="el" href="main_8cpp.html#adfa80cc99404e29b156e04a15c21d260">R</a> option */</td></tr>
 <tr class="separator:a212e3d35991daa2f435de62bfb1201ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f4db073602364207aa4e6afb59281d6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#a4f4db073602364207aa4e6afb59281d6">DEFAULT_SKEW</a>&#160;&#160;&#160;2000  /* for  -s option */</td></tr>
 <tr class="separator:a4f4db073602364207aa4e6afb59281d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,7 +186,7 @@ Macros</h2></td></tr>
 <tr class="separator:a6db0b14a580e8f668ab6e48f0b0efbf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5031a381aff48fb17cba1d0047725409"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#a5031a381aff48fb17cba1d0047725409">default_usbtimetag_devicename</a>&#160;&#160;&#160;&quot;/dev/ioboards/timestamp0&quot;</td></tr>
 <tr class="separator:a5031a381aff48fb17cba1d0047725409"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac598d9863fabf7caf21d9652945743b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#aac598d9863fabf7caf21d9652945743b">size_dma</a>&#160;&#160;&#160;(1&lt;&lt;23) /* kernel buffer size, should be multiple of 4k */</td></tr>
+<tr class="memitem:aac598d9863fabf7caf21d9652945743b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#aac598d9863fabf7caf21d9652945743b">size_dma</a>&#160;&#160;&#160;(1&lt;&lt;23) /* kernel buffer size, should be multiple of 4<a class="el" href="main_8cpp.html#ae7d19df0eeafd8b5a23e90933f812e9a">k</a> */</td></tr>
 <tr class="separator:aac598d9863fabf7caf21d9652945743b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac795f4b0b418df8853d2554303d5c7f9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="readevents3_8c.html#ac795f4b0b418df8853d2554303d5c7f9">dmasize_in_longints</a>&#160;&#160;&#160;(<a class="el" href="readevents3_8c.html#aac598d9863fabf7caf21d9652945743b">size_dma</a> / sizeof(int))</td></tr>
 <tr class="separator:ac795f4b0b418df8853d2554303d5c7f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -318,7 +318,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define DEFAULT_BEGINFLAG&#160;&#160;&#160;0 /* for -r/-R option */</td>
+          <td class="memname">#define DEFAULT_BEGINFLAG&#160;&#160;&#160;0 /* for -r/-<a class="el" href="main_8cpp.html#adfa80cc99404e29b156e04a15c21d260">R</a> option */</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -766,7 +766,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define size_dma&#160;&#160;&#160;(1&lt;&lt;23) /* kernel buffer size, should be multiple of 4k */</td>
+          <td class="memname">#define size_dma&#160;&#160;&#160;(1&lt;&lt;23) /* kernel buffer size, should be multiple of 4<a class="el" href="main_8cpp.html#ae7d19df0eeafd8b5a23e90933f812e9a">k</a> */</td>
         </tr>
       </table>
 </div><div class="memdoc">

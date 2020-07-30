@@ -89,14 +89,25 @@ $(document).ready(function(){initNavTree('run__doxygen_8sh_source.html',''); ini
 <div class="contents">
 <a href="run__doxygen_8sh.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;#!/bin/bash </div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;# This script runs doxygen to generate documentation to docs</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;doxygen Doxyfile</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;# mv files to docs dir</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;mv ./docs/html/* ./docs/html/.* ./docs/</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;# remove html dir</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;rm -r ./docs/html</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;# Use these variables to perform checks if necessary</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;branch=$(git rev-parse --abbrev-ref HEAD)</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;diff=$(git diff --exit-code)</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;if [ &quot;$diff&quot; != &quot;&quot; ]; then</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    printf &quot;There are changes in the repository that are not yet committed.\</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;        \nPlease commit changes before updating the documentation.\n\</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;        \nIf you are sure you want to document before updating, open this script and run it manually.&quot;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    exit 0</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;fi</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;# This script runs doxygen to generate documentation to docs</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;doxygen Doxyfile</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;# mv files to docs dir</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;mv ./docs/html/* ./docs/html/.* ./docs/</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;# remove html dir</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;rm -r ./docs/html</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

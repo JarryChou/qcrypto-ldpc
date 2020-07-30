@@ -7,5 +7,7 @@ var files_dup =
     [ "scripts", "dir_53e6fa9553ac22a5646d2a2b2d7b97a1.html", "dir_53e6fa9553ac22a5646d2a2b2d7b97a1" ],
     [ "timestamp3", "dir_1ac5cbee5d162588734eeefedec2df85.html", "dir_1ac5cbee5d162588734eeefedec2df85" ],
     [ "usbtimetagdriver", "dir_062364db408d9fecac5110e0da6f82f8.html", "dir_062364db408d9fecac5110e0da6f82f8" ],
-    [ "run_doxygen.sh", "run__doxygen_8sh.html", null ]
+    [ "add_commit_push.sh", "add__commit__push_8sh.html", null ],
+    [ "run_doxygen.sh", "run__doxygen_8sh.html", null ],
+    [ "setup_gtests.sh", "setup__gtests_8sh.html", null ]
 ];

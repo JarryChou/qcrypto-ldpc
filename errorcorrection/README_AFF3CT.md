@@ -1,7 +1,7 @@
 LDPC using Aff3ct {#ldpc_aff3ct}
 ====
 
-- [LDPC using Aff3ct {#ldpc_aff3ct}](#ldpc-using-aff3ct-ldpc_aff3ct)
+- [LDPC using Aff3ct](#ldpc-using-aff3ct-ldpc_aff3ct)
 - [What is Aff3ct?](#what-is-aff3ct)
 - [Why should we use Aff3ct?](#why-should-we-use-aff3ct)
 - [What needs to be done to incorporate it into qCyrpto?](#what-needs-to-be-done-to-incorporate-it-into-qcyrpto)

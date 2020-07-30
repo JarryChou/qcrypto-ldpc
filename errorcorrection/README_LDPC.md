@@ -2,7 +2,7 @@ LDPC Protocol write-up {#ldpc_readme}
 ====
 
 Table of Contents
-- [LDPC Protocol write-up {#ldpc_readme}](#ldpc-protocol-write-up-ldpc_readme)
+- [LDPC Protocol write-up](#ldpc-protocol-write-up-ldpc_readme)
 	- [Summary](#summary)
 	- [What to read if you don't know nuts about LDPC](#what-to-read-if-you-dont-know-nuts-about-ldpc)
 	- [High level overview of LDPC](#high-level-overview-of-ldpc)
@@ -866,6 +866,7 @@ run_sim = ((qber, fer, code_rate) => {
 	parities_given_f = (_f, n, ber) => { return _f * h(ber) * n; }			// Number of parities needed to achieve _f efficiency at n info bits and ber QBER
 	secret_key_rate = (r, ber, FER) => { return k(r, ber, FER); }
 	secret_key_length = (n, key_rate) => { return n * key_rate; }
+	
 	info_bits_to_punct = (infob, ttlb, goal_cr) => { return (infob-goal_cr*(ttlb))/(1-goal_cr); } // If opting to puncture info bits, # of bits to puncture to obtain goal code rate (from original # of infobits and # of total bits).
 	parity_bits_to_punct = (infob, ttlb, goal_cr) => { return -(infob-goal_cr*(ttlb))/goal_cr; } // If opting to puncture parity bits, # of parity bits to puncture to obtain goal code rate (from original # of parityb and # of total bits).
 
@@ -1030,7 +1031,7 @@ Low-Density Parity-Check Codes:
 - Also supports Polar codes etc for future devs
 - QC file format: https://aff3ct.readthedocs.io/en/latest/user/simulation/parameters/codec/ldpc/decoder.html?highlight=QC
 - Use the search feature
-- For more info read the readme on aff3ct (README_AFF3CT) (@subpage ldpc_aff3ct)
+- For more info read LDPC using Aff3ct
 
 # C++ library for linear algebra & scientific computing
 - Armadillo (Open source). See http://arma.sourceforge.net/download.html

@@ -26,12 +26,17 @@ var NAVTREE =
 [
   [ "qCrypto", "index.html", [
     [ "README", "index.html", "index" ],
+    [ "README", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct_ci__r_e_a_d_m_e.html", null ],
+    [ "How to compile this example", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct_examples_bootstrap__r_e_a_d_m_e.html", null ],
+    [ "README", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct_examples_bootstrap_src__r_e_a_d_m_e.html", null ],
+    [ "LDPC using Aff3ct", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct__r_e_a_d_m_e.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
       [ "Data Fields", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
-        [ "Variables", "functions_vars.html", null ],
+        [ "Functions", "functions_func.html", null ],
+        [ "Variables", "functions_vars.html", "functions_vars" ],
         [ "Enumerator", "functions_eval.html", null ]
       ] ]
     ] ],
@@ -52,17 +57,17 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"algorithms_8c.html",
-"costream_8c.html#a067667fd8edea6ea0d20ab6feb459bc7",
-"diagnosis_8c.html#aee040705f2f293e14e96b6184d9a90db",
-"fx2regs__c_8h.html#a2c830c83a522385b587ce2f4197f598f",
-"fx2regs__c_8h.html#a80eb52ebf6791fb6996985fbc575df66",
-"fx2regs__c_8h.html#ad82398221ff21b9578ead6e3551e52c8",
-"helpers_8c.html#a9e1a87974d8c015ddb41f248076f09e0",
-"readevents3_8c.html#a22c19ab4ab18ba0a2a381dbc17569acf",
-"struct_process_blk.html#a8deddf65e317791c9cfd1552aa403029",
-"tp8_8c.html#a60b3f738eefe0bb002a0616efe43cfce",
-"usbtimetagdriver_2driver_2usbtimetagio_8h.html#a8cd49aeab3b9ce1e37c4a34378b187d8"
+"add__commit__push_8sh.html",
+"comms_8h.html",
+"diagnosis_8c.html#a58b99e7a3e2f42387024de1d77d0c1ce",
+"fx2regs__c_8h.html#a1d8ba03756727a969cd3cb7d3ad853fa",
+"fx2regs__c_8h.html#a75c3856d10e5603b4d296e97c399a832",
+"fx2regs__c_8h.html#ac9234869276604deb34b9352439d8204",
+"globals_vars.html",
+"priv__amp_8c.html#a6191b118553d1fbe518e4cb9dc10c3cd",
+"struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html#ad2381f69f33164d20db22052ddd25f4e",
+"structprotocol__details___b.html#a9e95522c68991b9bcf11aaafe2491e3c",
+"transferd_8h.html#a793e00c69f03d75e8f9362d20a40d30e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

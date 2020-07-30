@@ -97,7 +97,7 @@ $(document).ready(function(){initNavTree('rnd_8h.html',''); initResizable(); });
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="rnd_8h__dep__incl.png" border="0" usemap="#aerrorcorrection_2subcomponents_2rnd_8hdep" alt=""/></div>
-<map name="errorcorrection_2subcomponents_2rnd_8hdep" id="aerrorcorrection_2subcomponents_2rnd_8hdep">
+<map name="errorcorrection_2subcomponents_2rnd_8hdep" id="errorcorrection_2subcomponents_2rnd_8hdep">
 <area shape="rect" title="Random number sources." alt="" coords="629,5,830,47"/>
 <area shape="rect" href="helpers_8h.html" title="helper functions or helper enums for ecd2" alt="" coords="629,95,830,136"/>
 <area shape="rect" href="cascade__biconf_8h.html" title="Cascade biconf algorithm implementation." alt="" coords="183,631,385,672"/>
@@ -305,12 +305,12 @@ Functions</h2></td></tr>
 <p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00084">84</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                                     {</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keywordtype">int</span> b;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k0 = k; k0; k0--) {</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k0 = <a class="code" href="main_8cpp.html#ae7d19df0eeafd8b5a23e90933f812e9a">k</a>; k0; k0--) {</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    b = <a class="code" href="rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548">calcParity</a>(<a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a> &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a> &lt;&lt;= 1;</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a> += b;</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  }</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; k) - 1) &amp; <a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a>;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; <a class="code" href="main_8cpp.html#ae7d19df0eeafd8b5a23e90933f812e9a">k</a>) - 1) &amp; <a class="code" href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a>;</div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
@@ -354,13 +354,13 @@ Functions</h2></td></tr>
 <p class="definition">Definition at line <a class="el" href="rnd_8c_source.html#l00101">101</a> of file <a class="el" href="rnd_8c_source.html">rnd.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                                                           {</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">int</span> b;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k0 = k; k0; k0--) {</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k0 = <a class="code" href="main_8cpp.html#ae7d19df0eeafd8b5a23e90933f812e9a">k</a>; k0; k0--) {</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    b = <a class="code" href="rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548">calcParity</a>(*state &amp; <a class="code" href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a>);</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    *state &lt;&lt;= 1;</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    *state += b;</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  }</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <a class="code" href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a>++;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; k) - 1) &amp; *state;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="keywordflow">return</span> ((1 &lt;&lt; <a class="code" href="main_8cpp.html#ae7d19df0eeafd8b5a23e90933f812e9a">k</a>) - 1) &amp; *state;</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
@@ -459,6 +459,7 @@ Functions</h2></td></tr>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="arnd_8c_html_ac82ca5abb4100fd09c76034d004912d5"><div class="ttname"><a href="rnd_8c.html#ac82ca5abb4100fd09c76034d004912d5">__PrngState</a></div><div class="ttdeci">unsigned int __PrngState</div><div class="ttdoc">this is an implementation of an m-sequence</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00068">rnd.c:68</a></div></div>
+<div class="ttc" id="amain_8cpp_html_ae7d19df0eeafd8b5a23e90933f812e9a"><div class="ttname"><a href="main_8cpp.html#ae7d19df0eeafd8b5a23e90933f812e9a">k</a></div><div class="ttdeci">#define k(RATIO, QBER, FER)</div><div class="ttdef"><b>Definition:</b> <a href="main_8cpp_source.html#l00027">main.cpp:26</a></div></div>
 <div class="ttc" id="arnd_8c_html_ad8756d06439571bd71f80c6d4f564682"><div class="ttname"><a href="rnd_8c.html#ad8756d06439571bd71f80c6d4f564682">__RNG_calls</a></div><div class="ttdeci">int __RNG_calls</div><div class="ttdoc">for test purposes</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8c_source.html#l00033">rnd.c:33</a></div></div>
 <div class="ttc" id="arnd_8h_html_aaf02c22d1eaba1246f132d148dd3d548"><div class="ttname"><a href="rnd_8h.html#aaf02c22d1eaba1246f132d148dd3d548">calcParity</a></div><div class="ttdeci">#define calcParity</div><div class="ttdoc">This should be ridiculously faster.</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00050">rnd.h:49</a></div></div>
 <div class="ttc" id="arnd_8h_html_ad2620c817b87013a6bae795ee428d8f2"><div class="ttname"><a href="rnd_8h.html#ad2620c817b87013a6bae795ee428d8f2">PRNG_FEEDBACK</a></div><div class="ttdeci">#define PRNG_FEEDBACK</div><div class="ttdef"><b>Definition:</b> <a href="rnd_8h_source.html#l00047">rnd.h:46</a></div></div>
