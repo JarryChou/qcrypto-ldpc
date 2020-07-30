@@ -26,10 +26,6 @@ var NAVTREE =
 [
   [ "qCrypto", "index.html", [
     [ "README", "index.html", "index" ],
-    [ "my_project_with_aff3ct: ci scripts", "bootstrap_ci.html", null ],
-    [ "How to compile the LDPC Bootstrap AFF3CT Example", "bootstrap_example.html", null ],
-    [ "Readme: my_project_with_aff3ct", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct__r_e_a_d_m_e.html", null ],
-    [ "Readme: ldpc_examples", "md_errorcorrection_ldpc_examples__r_e_a_d_m_e.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -58,16 +54,16 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "add__commit__push_8sh.html",
-"comms_8c.html#a9c21a57f48650550e9b2f8c78c2a7dfe",
-"diagnosis_8c.html#a4f33114b553b628e239aec2724cde8cf",
-"fx2regs__c_8h.html#a1d0166684e5d96d32419d133c1c3732e",
-"fx2regs__c_8h.html#a7560166c65854371db737d3b5a0069c7",
-"fx2regs__c_8h.html#ac8b008a17cc08fa2f96cc9937eef7949",
-"globals_u.html",
-"priv__amp_8c.html#a6191b118553d1fbe518e4cb9dc10c3cd",
-"struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html#ad2381f69f33164d20db22052ddd25f4e",
-"structprotocol__details___b.html#a9e95522c68991b9bcf11aaafe2491e3c",
-"transferd_8h.html#a793e00c69f03d75e8f9362d20a40d30e"
+"comms_8c.html#a99751954eb9a67eda8036bd488a5412b",
+"diagnosis_8c.html#a31365eb193968fcd91983e8a6c81f64a",
+"fx2regs__c_8h.html#a1cd453908afc89fe5a65a90b3ed7b69f",
+"fx2regs__c_8h.html#a7511140e5870e24b123ec683d5ae94db",
+"fx2regs__c_8h.html#ac7e469f77e8819a2c3fd38ab07503a08",
+"globals_type.html",
+"priv__amp_8c.html#a542068c2130f42502e1e4c743251f08b",
+"struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html#abb1cd98f0ebd3ddaafced8e0e8c6abae",
+"structprotocol__details___b.html#a95f9a88403bab19c81c8893dc0a94273",
+"transferd_8h.html#a7521ee3ac65a2a9885f4fb535bfbe06a"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

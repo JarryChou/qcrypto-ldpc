@@ -95,6 +95,17 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <li>error correction packet formats (<a class="el" href="ec_formats.html">EC Packet Formats</a>)</li>
 <li>Thoughts on LDPC (<a class="el" href="ldpc_readme.html">LDPC Protocol write-up</a>)</li>
 <li>Thoughts on Aff3ct (<a class="el" href="ldpc_aff3ct.html">LDPC using Aff3ct</a>)</li>
+<li>ldpc_examples (<a class="el" href="ldpc_examples_readme.html">Readme: ldpc_examples</a>)<ul>
+<li>my_project_aff3ct (<a class="el" href="my_project_with_aff3ct_readme.html">Readme: my_project_with_aff3ct</a>)<ul>
+<li>ci (<a class="el" href="bootstrap_ci.html">my_project_with_aff3ct: ci scripts</a>)</li>
+<li>examples/bootstrap (<a class="el" href="bootstrap_example.html">How to compile the LDPC Bootstrap AFF3CT Example</a>)<ul>
+<li>src (<a class="el" href="bootstrap_example_src.html">AFF3CT examples (main.cpps)</a>)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>hardware (<a class="el" href="hardware.html">Hardware</a>)</li>
@@ -103,6 +114,10 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <li>scripts (<a class="el" href="scripts.html">Setup &amp; Integration scripts</a>)</li>
 <li>timestamp3 (<a class="el" href="timestamp3.html">timestamp3</a>)</li>
 <li>usbtimetagdriver (<a class="el" href="usbtimetagdriver.html">usbtimetagdriver</a>)</li>
+<li>misc_documentation<ul>
+<li>additional documentation/files that is not generated from the code</li>
+</ul>
+</li>
 <li>tools<ul>
 <li>Miscellaneous tools that are useful, but unrelated to the execution of the stack and do not have a GitHub repository</li>
 </ul>
@@ -175,7 +190,9 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <li>Once all this is done, you'll want to commit and push the code to your repository; what message should you include with the commit? <a href="https://chris.beams.io/posts/git-commit/">This</a> can help.</li>
 </ol>
 <h1>GOOGLE TEST SUITE</h1>
-<p>This project uses Google Test Suite (or at least aspires to!) to test its components. You'll have to download, install and compile GTS locally on your computer (this can be done with <code>setup_gtests.sh</code>). Usage tutorial can be found <a href="https://notes.eatonphil.com/unit-testing-c-code-with-gtest.html">here</a> and <a href="https://github.com/google/googletest/blob/master/googletest/docs/primer.md">here</a>.</p>
+<p>This project aspires to test its components with GTS (unfortunately I didn't have time to write test cases). You'll have to download, install and compile GTS locally on your computer (this can be done with <code>setup_gtests.sh</code>). Usage tutorial can be found <a href="https://notes.eatonphil.com/unit-testing-c-code-with-gtest.html">here</a> and <a href="https://github.com/google/googletest/blob/master/googletest/docs/primer.md">here</a>.</p>
+<h2>Other testing solutions?</h2>
+<p>You may want to look into behavior-driven development.</p>
 <h1>LICENSE</h1>
 <p>Copyright (C) 2020 Matthew Lee, National University of Singapore <a href="#" onclick="location.href='mai'+'lto:'+'cra'+'zo'+'ter'+'@g'+'mai'+'l.'+'com'; return false;">crazo<span style="display: none;">.nosp@m.</span>ter@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a></p>
 <p>Copyright (C) 2005-2015 Christian Kurtsiefer, National University of Singapore <a href="#" onclick="location.href='mai'+'lto:'+'chr'+'is'+'tia'+'n.'+'kur'+'ts'+'ief'+'er'+'@gm'+'ai'+'l.c'+'om'; return false;">chris<span style="display: none;">.nosp@m.</span>tian<span style="display: none;">.nosp@m.</span>.kurt<span style="display: none;">.nosp@m.</span>sief<span style="display: none;">.nosp@m.</span>er@gm<span style="display: none;">.nosp@m.</span>ail.<span style="display: none;">.nosp@m.</span>com</a></p>
