@@ -1,4 +1,5 @@
-# How to compile this example
+How to compile the LDPC Bootstrap AFF3CT Example {#bootstrap_example}
+====
 
 Note: this readme was copied wholesale from the original repository. It may be of use, but may also be limited in its use. Refer to README_AFF3CT.md.
 

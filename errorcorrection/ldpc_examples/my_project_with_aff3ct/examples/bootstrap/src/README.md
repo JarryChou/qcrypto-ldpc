@@ -1,1 +1,4 @@
+AFF3CT examples (main.cpps) {#bootstrap_example}
+====
+
 I have developed a few variants of main.cpp to test different types of matrices, decoders etc. Copy the file out from variants into src and rename as main.cpp to use them.
