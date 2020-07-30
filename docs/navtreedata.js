@@ -26,9 +26,8 @@ var NAVTREE =
 [
   [ "qCrypto", "index.html", [
     [ "README", "index.html", "index" ],
-    [ "README", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct_ci__r_e_a_d_m_e.html", null ],
-    [ "How to compile this example", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct_examples_bootstrap__r_e_a_d_m_e.html", null ],
-    [ "README", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct_examples_bootstrap_src__r_e_a_d_m_e.html", null ],
+    [ "my_project_with_aff3ct: ci scripts", "bootstrap_ci.html", null ],
+    [ "How to compile the LDPC Bootstrap AFF3CT Example", "bootstrap_example.html", null ],
     [ "LDPC using Aff3ct", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct__r_e_a_d_m_e.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -58,16 +57,16 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "add__commit__push_8sh.html",
-"comms_8h.html",
-"diagnosis_8c.html#a58b99e7a3e2f42387024de1d77d0c1ce",
-"fx2regs__c_8h.html#a1d8ba03756727a969cd3cb7d3ad853fa",
-"fx2regs__c_8h.html#a75c3856d10e5603b4d296e97c399a832",
-"fx2regs__c_8h.html#ac9234869276604deb34b9352439d8204",
-"globals_vars.html",
-"priv__amp_8c.html#a6191b118553d1fbe518e4cb9dc10c3cd",
-"struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html#ad2381f69f33164d20db22052ddd25f4e",
-"structprotocol__details___b.html#a9e95522c68991b9bcf11aaafe2491e3c",
-"transferd_8h.html#a793e00c69f03d75e8f9362d20a40d30e"
+"comms_8c.html#a9c21a57f48650550e9b2f8c78c2a7dfe",
+"diagnosis_8c.html#a4f33114b553b628e239aec2724cde8cf",
+"fx2regs__c_8h.html#a1d0166684e5d96d32419d133c1c3732e",
+"fx2regs__c_8h.html#a7560166c65854371db737d3b5a0069c7",
+"fx2regs__c_8h.html#ac8b008a17cc08fa2f96cc9937eef7949",
+"globals_u.html",
+"priv__amp_8c.html#a7908e2233e4f07dbb3da7bfa6fcc409b",
+"struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html#aef7f0a8d44e2a3b828ae57b17ba601fe",
+"structprotocol__details___b.html#ab0914da8df4f3ce99a2353644a0b0488",
+"transferd_8h.html#a7a2b70bb2aa20efeed5070314b7e765e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
