@@ -1,7 +1,17 @@
 How to compile the LDPC Bootstrap AFF3CT Example {#bootstrap_example}
 ====
 
-Note: this readme was copied wholesale from the original repository. It may be of use, but may also be limited in its use. Refer to README_AFF3CT.md.
+Location: `./errorcorrection/ldpc_examples/my_project_with_aff3ct/examples/bootstrap/`
+
+File directories:
+1. build_linux_macos: contains build files after u build your project
+2. cmake: cmake files for building the project
+3. data_dvb: collected data from simulations. Some of it isn't cleaned up, just remove all the [1m and [0m and it'll look fine.
+4. matrices: directory used by the program to read in LDPC matrices. DVB S2 matrices are in-built in AFF3CT; I stored some matrices in here.
+
+Note: the readme below was copied wholesale from the original repository. It may be of use, but may also be limited in its use. Refer to README_AFF3CT.md on how to build this.
+
+---
 
 Make sure to have done the instructions from the `README.md` file at the root of this repository before doing this.
 

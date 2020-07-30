@@ -1,6 +1,18 @@
-# LDPC using Aff3ct
+Readme: my_project_with_aff3ct
+====
 
-Run build-linux-macos.sh. I have modified it so that it runs properly.
+This readme is located in `./errorcorrection/ldpc_examples/my_project_with_aff3ct/README.md`.
+
+This is a subcomponent that is written in C++ and uses the AFF3CT library to implement LDPC error correction.
+
+File directories:
+1. ci: scripts to download and build aff3ct, then build the program
+2. examples/bootstrap: src for the program
+3. lib: directory to store the aff3ct library
+
+Run build-linux-macos.sh. I have modified it so that it runs properly. 
+
+For more information, refer to README_AFF3CT.md.
 
 Below is the unmodified excerpt from the repository itself.
 

@@ -149,7 +149,7 @@ m.decoder->decode_siho 	(b.LLRs, b.dec_bits);      // Decoding
                      1. Density evolution: Probably plenty of implementations online, but you gotta be technically advanced
                      2. hybrid-DE: I've only seen a paper mention this, i doubt there's a readily available impl. for this
                      3. GA has the worst optimality but I've found implementations for it
-               1. Using the optimized symbol & check node degree distributions, use PEG to construct the binary matrix
+               1. Using the optimized symbol & check node degree distributions, use PEG to construct the binary matrix. For an implementation of PEG see https://github.com/crazoter/classic-PEG- or its parent https://github.com/Lcrypto/classic-PEG-
                   1. Considerations: 
                      1. Nonbinary LDPC codes?
                         1. Unresearched, but supposedly good for small-moderate LDPC codes
