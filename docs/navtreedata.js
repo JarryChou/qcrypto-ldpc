@@ -28,7 +28,8 @@ var NAVTREE =
     [ "README", "index.html", "index" ],
     [ "my_project_with_aff3ct: ci scripts", "bootstrap_ci.html", null ],
     [ "How to compile the LDPC Bootstrap AFF3CT Example", "bootstrap_example.html", null ],
-    [ "LDPC using Aff3ct", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct__r_e_a_d_m_e.html", null ],
+    [ "Readme: my_project_with_aff3ct", "md_errorcorrection_ldpc_examples_my_project_with_aff3ct__r_e_a_d_m_e.html", null ],
+    [ "Readme: ldpc_examples", "md_errorcorrection_ldpc_examples__r_e_a_d_m_e.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -63,10 +64,10 @@ var NAVTREEINDEX =
 "fx2regs__c_8h.html#a7560166c65854371db737d3b5a0069c7",
 "fx2regs__c_8h.html#ac8b008a17cc08fa2f96cc9937eef7949",
 "globals_u.html",
-"priv__amp_8c.html#a7908e2233e4f07dbb3da7bfa6fcc409b",
-"struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html#aef7f0a8d44e2a3b828ae57b17ba601fe",
-"structprotocol__details___b.html#ab0914da8df4f3ce99a2353644a0b0488",
-"transferd_8h.html#a7a2b70bb2aa20efeed5070314b7e765e"
+"priv__amp_8c.html#a6191b118553d1fbe518e4cb9dc10c3cd",
+"struct_a_l_g_o_r_i_t_h_m___c_a_s_c_a_d_e___d_a_t_a.html#ad2381f69f33164d20db22052ddd25f4e",
+"structprotocol__details___b.html#a9e95522c68991b9bcf11aaafe2491e3c",
+"transferd_8h.html#a793e00c69f03d75e8f9362d20a40d30e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
