@@ -863,13 +863,17 @@ run_sim = ((qber, fer, code_rate) => {
 	k = (r, p, FER) => { return (1 - ((1 + f(r, p)) * h(p))) * (1 - FER); } // Secret key rate. FER = frame error rate
 	k_using_f = (_f, p, FER) => { return (1 - ((1 + _f) * h(p))) * (1 - FER); }
 	min_cr = (qber, f) => { return 1 / (1 + f * h(qber)); }					// Theoretical code rate maximum for f given QBER
-	parities_given_f = (_f, n, ber) => { return _f * h(ber) * n; }				// Number of parities needed to achieve _f efficiency at n info bits and ber QBER
+	parities_given_f = (_f, n, ber) => { return _f * h(ber) * n; }			// Number of parities needed to achieve _f efficiency at n info bits and ber QBER
 	secret_key_rate = (r, ber, FER) => { return k(r, ber, FER); }
 	secret_key_length = (n, key_rate) => { return n * key_rate; }
+	info_bits_to_punct = (infob, ttlb, goal_cr) => { return (infob-goal_cr*(ttlb))/(1-goal_cr); } // If opting to puncture info bits, # of bits to puncture to obtain goal code rate (from original # of infobits and # of total bits).
+	parity_bits_to_punct = (infob, ttlb, goal_cr) => { return -(infob-goal_cr*(ttlb))/goal_cr; } // If opting to puncture parity bits, # of parity bits to puncture to obtain goal code rate (from original # of parityb and # of total bits).
 
 	// Function Tests
 	// f(R(parities_given_f(1, 100, 0.1), 100), 0.1) == 1 		// test parities_given_f
-	// f(R((1 - min_cr(0.1, 1)), min_cr(0.1, 1)), 0.1) == 1 // test min_cr
+	// f(R((1 - min_cr(0.1, 1)), min_cr(0.1, 1)), 0.1) == 1 	// test min_cr
+	// parity_bits_to_punct(16200 - 4320, 16200, 0.8) == 1350	// Increase code rate of 0.733
+	// info_bits_to_punct(16200 - 4320, 16200, 0.5) == 7560		// Decrease code rate of 0.733
 
 	// Params
 	ratio = R_from_cr(code_rate);

@@ -1,5 +1,7 @@
 # How to compile this example
 
+Note: this readme was copied wholesale from the original repository. It may be of use, but may also be limited in its use. Refer to README_AFF3CT.md.
+
 Make sure to have done the instructions from the `README.md` file at the root of this repository before doing this.
 
 Copy the cmake configuration files from the AFF3CT build

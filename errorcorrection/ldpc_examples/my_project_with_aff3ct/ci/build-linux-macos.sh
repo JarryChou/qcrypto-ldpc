@@ -54,12 +54,14 @@ then
 
 	# Ensure the version remains constant until developer wants to change it. Now using Aff3ct 2.3.5
 	git checkout 1ceddfc
+	git submodule update --init --recursive
 
 	mkdir $BUILD
 	cd $BUILD
-	cmake .. -DCMAKE_BUILD_TYPE="Release" -DAFF3CT_COMPILE_EXE="OFF" -DAFF3CT_COMPILE_STATIC_LIB="ON" #-DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
-	# Debug mode
-	# cmake .. -DCMAKE_BUILD_TYPE="Debug" -DAFF3CT_COMPILE_EXE="ON" -DAFF3CT_COMPILE_STATIC_LIB="ON" #-DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
+	# Release mode
+	# cmake .. -DCMAKE_BUILD_TYPE="Release" -DAFF3CT_COMPILE_EXE="OFF" -DAFF3CT_COMPILE_STATIC_LIB="ON" #-DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
+	# Debug mode, compile with debug symbols for GDB
+	cmake .. -DCMAKE_BUILD_TYPE="Debug" -DAFF3CT_COMPILE_EXE="ON" -DAFF3CT_COMPILE_STATIC_LIB="ON" #-DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
 	# Use 4 threads to compile
 	make -j4
 	cd ..
@@ -75,9 +77,10 @@ for example in ${EXAMPLES[*]}; do
 	cp ../../lib/aff3ct/${BUILD}/lib/cmake/aff3ct-$AFF3CT_GIT_VERSION/* cmake/Modules
 	mkdir $BUILD
 	cd $BUILD
-	cmake .. -DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
-	# Debug mode:
-	# cmake .. -DCMAKE_BUILD_TYPE="Debug" # -DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
+	# Release mode
+	# cmake .. -DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
+	# Debug mode, compile with debug symbols for GDB. So if you run "gdb ./my_project" and then "run" if the program crashes u'll see where it crashed
+	cmake .. -DCMAKE_BUILD_TYPE="Debug" # -DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -G"Unix Makefiles"
 	make -j $THREADS
 	cd ../..
 done

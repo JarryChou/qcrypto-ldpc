@@ -1,35 +1,97 @@
 // Modified main.cpp from https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/bootstrap/src/main.cpp
-// This version will iterate through every DVB S2 N and K combination of rate higher than 1/2
-// and also iterate through every available decoder (currently commented out in the code) in the library.
+// This version is intended to obtain puncturing patterns s.t. the matrices can perform at the reconciliation efficiency.
+// Change the params at line 77 - 93.
+// A good idea to extend this is to make it start at a higher eff. and inch down to get a better eff, but i don't have the time haha..
+// 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <memory>
 #include <vector>
 #include <string>
+#include <cstdlib>
 
 #include <aff3ct.hpp>
 using namespace aff3ct;
 
+// Specify the LLR for confirmed parity bits by setting the probability (that it is wrong) to 1e-10
+// Apply negative sign to it because this result is negative and I don't want to mix up the mappings
 #define CONFIRMED_BIT_LLR -log(1e-10 / (1 - 1e-10))
+#define LLR(BER) (-log((BER) / (1 - (BER))))
+
+// These formulae can be found on the README_LDPC.md
+#define h(QBER) 							((-(QBER))*std::log2(QBER) - (1-(QBER))*std::log2(1-(QBER)))// Binary Shannon Entrophy, replace std::log2 with something more performant if needed
+#define R(PAR_BITS, INFO_BITS) 				(1 - (PAR_BITS)/(INFO_BITS)) 								// Ratio, 1 - parity bits / info bits
+#define f(RATIO, QBER) 						((1 - (RATIO)) / h(QBER))						 			// Reconciliation efficiency of a BSC
+#define k(RATIO, QBER, FER) 				((1 - ((1 + f(RATIO, QBER)) * h(QBER))) * (1 - (FER)))		// Secret key rate. FER = frame error rate
+#define k_using_f(EFF, QBER, FER) 			((1 - ((1 + (EFF)) * h(QBER))) * (1 - (FER)))				// Same but takes efficiency as a param
+#define parities_given_f(EFF, INFO_BITS, QBER) ((EFF) * h(QBER) * (INFO_BITS))							// Number of parities needed to achieve _f efficiency at n info bits at qber
+#define min_cr(QBER, EFF) 					(1 / (1 + (EFF) * h(QBER)))									// Theoretical code rate maximum for f given QBER
+#define secret_key_rate(RATIO, QBER, FER) 	(k(RATIO, QBER, FER))
+#define secret_key_length(N, KEY_RATE) 		((N) * (KEY_RATE))
+
+#define info_bits_to_punct(INFO_B, TTL_B, GOAL_CR) (((INFO_B)-(GOAL_CR)*(TTL_B))/(1-(GOAL_CR))) 			// If opting to puncture info bits, # of bits to puncture to obtain goal code rate (from original # of infobits and # of total bits).
+#define parity_bits_to_punct(INFO_B, TTL_B, GOAL_CR) (-((INFO_B)-(GOAL_CR)*(TTL_B))/(GOAL_CR)) 				// If opting to puncture parity bits, # of parity bits to puncture to obtain goal code rate (from original # of parityb and # of total bits).
+
+// N here refers to the total length of the code, K refers to the # of info bits
+int dvbN[2] = {16200, 64800};
+// Information obtained from DVBS2_constants.cpp
+int DVB_N_COUNT = 1;
+std::vector<std::vector<int>> dvbNmK = { // N - K, i.e. number of parity bits
+	{ // N= 16200, 9 elements
+		1800 , // Rate too high to be useful
+		2880 ,
+		3600 ,
+		4320 ,
+		5400 ,
+		6480 ,
+		9000 ,
+		9720 ,
+		10800,
+		12960,
+		// -1
+	},
+	{ // N = 64800, 10 elements
+		6480 , // Rate too high to be useful
+		7200 ,
+		// 10800, // There is an error in the impl. w.r.t. p matrix
+		12960,
+		16200,
+		21600,
+		25920,
+		32400,
+		38880,
+		43200,
+		48600
+	}
+};
+
+enum PUNCTURE_STRATEGY
+{
+	PARITY_BITS_SIMULATED_RANDOM
+};
+
+/**
+ * CHANGE THE PARAMS HERE
+ * 
+ */
+float ber_min = 0.04f;		// Probability of error for each individual bit
+float ber_max = 0.09f;
+float ber_step = 0.01f;
+float target_efficiency = 1.3;
+PUNCTURE_STRATEGY puncture_strategy = PARITY_BITS_SIMULATED_RANDOM;
 
 struct params
 {
-	int   K;     	// number of information bits, defined at a later stage
-	int   N;     	// codeword size, defined at a later stage
-	int   fe        =  0;    	// number of frame errors
-	int   seed      =  0;     	// PRNG seed for the channel simulator
-	float R;                   	// code rate (R=K/N)
-	float ber_min = 0.00f;		// Probability of error for each individual bit
-	float ber_max = 0.15f;
-	float ber_step = 0.01f;
+	int   K         = -1;     // number of information bits
+	int   N         = -1;     // codeword size
+	int   fe        = 100;     // number of frame errors
+	int   seed      =   1;     // PRNG seed for the channel simulator
+	float R;                   // code rate (R=K/N)
 	int iterations_per_BER = 30;
-	// std::string G_method = "LU_DEC";
-	std::string G_method = "IDENTITY";
-	std::string G_save_path;
-	bool terminate_on_all_fail = true;
+	int simulation_iters = 150;
 
-	// Optional params for the decoder
+	// Optional params
 	std::string H_reorder       = "NONE";
 	std::string min             = "MINL";
 	std::string simd_strategy   = "";
@@ -38,15 +100,15 @@ struct params
 	float       mwbf_factor     = 1.f;
 	bool        enable_syndrome = true;
 	int         syndrome_depth  = 1;
-	int         n_ite           = 10;
+	int         n_ite           = 100;
 	int			n_frames		= 1;
 };
 
 struct modules
 {
 	std::unique_ptr<module::Source_random<>>          	source;
-	std::unique_ptr<module::Encoder_LDPC<>>				encoder;
-	std::unique_ptr<module::Modem_OOK_BSC<>>			modem;
+	std::unique_ptr<module::Encoder_LDPC_DVBS2<>> 		encoder;
+	std::unique_ptr<module::Modem_OOK_BSC<>>            modem;
 	std::unique_ptr<module::Channel_binary_symmetric<>> channel;
 	std::unique_ptr<module::Decoder_SISO_SIHO<>> 		decoder;
 	std::unique_ptr<module::Monitor_BFER<>>           	monitor;
@@ -62,227 +124,74 @@ struct buffers
 	std::vector<int  > dec_bits;
 };
 
+struct Node_Degree
+{
+	int node_index;
+	int degree;
+
+	// https://stackoverflow.com/questions/1380463/sorting-a-vector-of-custom-objects
+	Node_Degree(int i, int d) 
+	{
+		node_index = i;
+		degree = d;
+	}
+
+	bool operator<(const Node_Degree& a) const { 
+        return node_index < a.node_index; 
+    }
+
+    bool operator>(const Node_Degree& a) const
+    {
+        return (node_index > a.node_index);
+    }
+};
+
+
 struct utils
 {
 	std::unique_ptr<tools::Event_probability<>>   noise;     // a sigma noise type
-	std::vector<std::unique_ptr<tools::Reporter>> reporters; // list of reporters dispayed in the terminal
-	std::unique_ptr<tools::Terminal_std>          terminal;  // manage the output text in the terminal
+	std::unique_ptr<tools::dvbs2_values>		  dvbs2_vals;
+	tools::Sparse_matrix						  H;
+	tools::LDPC_matrix_handler::Positions_vector  info_bits_pos;
+	std::vector<Node_Degree> 				  	  symbol_node_degrees;					// Sorted list of symbol node indexes by their degrees
+	std::vector<int>		 				  	  symbol_node_degrees_cutoff_indexes;	// first index of every set of symbol nodes (each set distinguished by their degree)
+	std::vector<int>		 				  	  parity_bits_puncture_pattern;			// Sorted list of parity bit indexes if puncture strategy uses it
 };
 
 void init_params(params &p);
-void init_modules(const params &p, modules &m, utils &u, int decoderIndex, 
-		tools::Sparse_matrix& H, tools::Sparse_matrix& G, tools::LDPC_matrix_handler::Positions_vector& info_bits_pos);
+void init_modules(const params &p, modules &m, utils &u);
 void init_buffers(const params &p, buffers &b);
-void init_utils(const modules &m, utils &u);
-void init_params(params &p, int N, int K, std::string filename)
+void init_utils(utils &u);
+void init_params(params &p, int N, int K)
 {
 	p.K = K;     // number of information bits
 	p.N = N;     // codeword size
 	p.R = (float)p.K / (float)p.N;
-	p.G_save_path = "../../matrices/G/" + filename;
 }
 
-std::string decoderTypeNames[] = {
-	"Decoder_LDPC_BP_flooding_SPA",
-	"Decoder_LDPC_BP_flooding_Gallager_A",
-	"Decoder_LDPC_BP_flooding_Gallager_B",
-	"Decoder_LDPC_BP_flooding_Gallager_E",
-	"Decoder_LDPC_BP_peeling",
-	"Decoder_LDPC_bit_flipping_OMWBF",
-	"Decoder_LDPC_BP_flooding_Update_rule_MS_Q",
-	"Decoder_LDPC_BP_flooding_Update_rule_OMS_Q",
-	"Decoder_LDPC_BP_flooding_Update_rule_NMS_Q",
-	"Decoder_LDPC_BP_flooding_Update_rule_SPA_Q",
-	"Decoder_LDPC_BP_flooding_Update_rule_LSPA_Q",
-	"Decoder_LDPC_BP_flooding_Update_rule_AMS_min_Q",
-	"Decoder_LDPC_BP_flooding_Update_rule_AMS_min_star_linear2_Q",
-	"Decoder_LDPC_BP_flooding_Update_rule_AMS_min_star_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_MS_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_OMS_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_NMS_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_SPA_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_LSPA_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_AMS_min_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_AMS_min_star_linear2_Q",
-	"Decoder_LDPC_BP_horizontal_layered_Update_rule_AMS_min_star_Q",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_MS_Q",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_OMS_Q",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_NMS_Q",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_SPA_Q",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_LSPA_Q",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_AMS_min_Q_",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_AMS_min_star_linear2_Q",
-	"Decoder_LDPC_BP_vertical_layered_Update_rule_AMS_min_star_Q"
-}; 
-int DECODER_MODULE_COUNT = sizeof(decoderTypeNames) / sizeof(decoderTypeNames[0]);
-
-void init_modules(const params &p, modules &m, utils &u, int decoderIndex, 
-		tools::Sparse_matrix& H, tools::Sparse_matrix& G, tools::LDPC_matrix_handler::Positions_vector& info_bits_pos)
+void init_modules(const params &p, modules &m, utils &u)
 {
 	// DVBS2 stuff
-	// u.dvbs2_vals = tools::build_dvbs2(p.K, p.N);
-	// H 			= tools::build_H(*u.dvbs2_vals);
+	u.dvbs2_vals 	= tools::build_dvbs2(p.K, p.N);
+	u.H 			= tools::build_H(*u.dvbs2_vals);
 
-	const auto max_CN_degree = (unsigned int)(H.get_cols_max_degree());
+	const auto max_CN_degree = (unsigned int)(u.H.get_cols_max_degree());
 
-	// std::cout << max_CN_degree << std::endl;
+	// generate a default vector [0, 1, 2, 3, ..., K-1]
+	u.info_bits_pos.resize(p.K);
+	// std::iota(u.info_bits_pos.begin(), u.info_bits_pos.end(), 0);
+	for (int i = 0; i < u.info_bits_pos.size(); i++)
+	{
+		u.info_bits_pos[i] = i;
+	}
 
+	// Prepare the other modules
 	m.source  = std::unique_ptr<module::Source_random<>>(new module::Source_random<>(p.K));
-	// Building the encoder
-	// Build the G file if necessary (for .alist matrices)
-	// See lib/aff3ct/src/Factory/Module/Encoder/LDPC/Encoder_LDPC.cpp line 117 "...::build(const tools::Sparse_matrix &G, const tools::Sparse_matrix &H) const"
-
-	// Note that G_method is either "IDENTITY" or "LU_DEC". See documentation.
-	// if (this->type == "LDPC"    ) return new module::Encoder_LDPC         <B>(this->K, this->N_cw, G, this->n_frames);
-	// if (this->type == "LDPC_H"  ) return new module::Encoder_LDPC_from_H  <B>(this->K, this->N_cw, H, this->G_method, this->G_save_path, true, this->n_frames);
-	// if (this->type == "LDPC_QC" ) return new module::Encoder_LDPC_from_QC <B>(this->K, this->N_cw, H, this->n_frames);
-	// if (this->type == "LDPC_IRA") return new module::Encoder_LDPC_from_IRA<B>(this->K, this->N_cw, H, this->n_frames);
-
-	// It is more performant to just generate G first using Encoder_LDPC_from_H, then switch to LDPC
-	m.encoder = std::unique_ptr<module::Encoder_LDPC<>>((module::Encoder_LDPC<>*)(	
-			// new module::Encoder_LDPC<B>(p.K, p.N, G, p.n_frames)	// Use this line if G is not generated
-			// new module::Encoder_LDPC_from_H<B>(p.K, p.N, H, p.G_method, p.G_save_path, true, p.n_frames) // Use this otherwise
-			new module::Encoder_LDPC_from_QC <B>(p.K, p.N, H, p.n_frames)
-	));
-
-	if (info_bits_pos.empty()) 
-	{
-		try
-		{
-			info_bits_pos = m.encoder->get_info_bits_pos();
-		}
-		catch(tools::unimplemented_error const&)
-		{
-			// generate a default vector [0, 1, 2, 3, ..., K-1]
-			info_bits_pos.resize(p.K);
-			std::iota(info_bits_pos.begin(), info_bits_pos.end(), 0);
-		}
-	}
-
-	/*
-	std::cout << info_bits_pos.size() << std::endl;
-	for (int i : info_bits_pos)
-		std::cout << i << ",";
-	std::cout << std::endl;
-	*/
-	m.modem = std::unique_ptr<module::Modem_OOK_BSC<>>(new module::Modem_OOK_BSC<>(p.N));
+	m.encoder = std::unique_ptr<module::Encoder_LDPC_DVBS2<>>(new module::Encoder_LDPC_DVBS2<>(*u.dvbs2_vals, 1));
+	m.modem   = std::unique_ptr<module::Modem_OOK_BSC<>>(new module::Modem_OOK_BSC<>(p.N, tools::EP<R>()));
 	m.channel = std::unique_ptr<module::Channel_binary_symmetric<>>(new module::Channel_binary_symmetric<>(p.N, p.seed));
-
-	// Choosing a decoder
-	// Decoder tests
-	// For variants see /Factory/Module/Decoder/LDPC/Decoder_LDPC.cpp
-	module::Decoder_SISO_SIHO<B,Q>* modulePtr = NULL;
-
-	switch (decoderIndex)
-	{
-		// General decoders
-		// Doesn't work for high rate DVB S2
-		// case 0: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding_SPA<>(p.K, p.N, p.n_ite, H, info_bits_pos, p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// Gallager E will always be better than A and B
-		// case 1: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding_Gallager_A<>(p.K, p.N, p.n_ite, H, info_bits_pos, p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// case 2: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding_Gallager_B<>(p.K, p.N, p.n_ite, H, info_bits_pos, p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// Not as good as OMS etc in its ability to handle higher BERs
-		// case 3: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding_Gallager_E<>(p.K, p.N, p.n_ite, H, info_bits_pos, p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// Takes forever and sucks
-		// case 4: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_peeling<>(p.K, p.N, p.n_ite, H, info_bits_pos, p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-
-		// Bit flipping
-		// Doesn't work for DVB S2
-		// case 5: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_bit_flipping_OMWBF<>(p.K, p.N, p.n_ite, H, info_bits_pos, p.mwbf_factor, p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-
-		// Flooding with modified update rules
-		// MS, OMS, NMS, AMS_Min are the most promising (better than Gallager E)
-		// However with the exception of Gallager E these are almost identical in key rate
-		// AMS_Min is slower than the rest by ~25%
-		// OMS is the most performant (by a small margin)
-		// case 6: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_MS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_MS<Q>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// case 7: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_OMS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_OMS <Q>((Q)p.offset), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// case 8: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_NMS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_NMS <Q>(p.norm_factor), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		case 9: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_SPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_SPA <Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		// case 10: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_LSPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_LSPA<Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-
-		// case 11: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_AMS<Q,tools::min<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// case 12: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_AMS<Q,tools::min_star_linear2<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star_linear2<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		// case 13: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_AMS<Q,tools::min_star<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			// break;
-		/*
-		// Horizontal Layered
-		// These take forever and they do not work, at least not with DVB S2
-		case 14: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_MS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_MS<Q>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 15: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_OMS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_OMS <Q>((Q)p.offset), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 16: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_NMS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_NMS <Q>(p.norm_factor), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 17: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_SPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_SPA <Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 18: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_LSPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_LSPA<Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 19: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_AMS<Q,tools::min<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 20: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_AMS<Q,tools::min_star_linear2<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star_linear2<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 21: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_horizontal_layered<B,Q,tools::Update_rule_AMS<Q,tools::min_star<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-
-		// Vertical Layered 
-		// These take forever and they do not work, at least not with DVB S2
-		case 22: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_MS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_MS<Q>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 23: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_OMS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_OMS <Q>((Q)p.offset), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 24: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_NMS<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_NMS <Q>(p.norm_factor), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 25: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_SPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_SPA <Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 26: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_LSPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_LSPA<Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 27: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_AMS<Q,tools::min<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 28: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_AMS<Q,tools::min_star_linear2<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star_linear2<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-		case 29: modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_vertical_layered<B,Q,tools::Update_rule_AMS<Q,tools::min_star<Q>> >(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_AMS <Q,tools::min_star<Q>>(), p.enable_syndrome, p.syndrome_depth, p.n_frames);
-			break;
-			*/
-		default: modulePtr = NULL; break;
-	}
-	
-	if (modulePtr)
-	{
-		m.decoder = std::unique_ptr<module::Decoder_SISO_SIHO<>>(modulePtr);
-	} else {
-		m.decoder = NULL;
-	}
-	
-			
-	//m.decoder = std::unique_ptr<module::Decoder_LDPC_BP_flooding<>>(new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_SPA<Q>>(p.K, p.N, p.n_ite, H, info_bits_pos, tools::Update_rule_SPA <>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames));
-	m.monitor = std::unique_ptr<module::Monitor_BFER<>>(new module::Monitor_BFER<>(p.K, p.fe));
-
-	/*
-	std::cout << ((module::Decoder)*(m.decoder)).get_simd_inter_frame_level();
-
-	for (auto v : H.get_row_to_cols())
-	{
-		for (auto vv : v) 
-		{
-			std::cout << vv << ",";
-		}
-		std::cout << std::endl;
-	}
-	*/
+	module::Decoder_SISO_SIHO<B,Q>* modulePtr = (module::Decoder_SISO_SIHO<>*) new module::Decoder_LDPC_BP_flooding<B,Q,tools::Update_rule_SPA<Q>>(p.K, p.N, p.n_ite, u.H, u.info_bits_pos, tools::Update_rule_SPA <Q>(max_CN_degree), p.enable_syndrome, p.syndrome_depth, p.n_frames);
+	m.decoder = std::unique_ptr<module::Decoder_SISO_SIHO<>>(modulePtr);		
 };
 
 void init_buffers(const params &p, buffers &b)
@@ -295,191 +204,211 @@ void init_buffers(const params &p, buffers &b)
 	b.dec_bits      = std::vector<int  >(p.K);
 }
 
-void init_utils(const modules &m, utils &u)
+void init_utils(utils &u)
 {
 	// create an event probability noise type
 	u.noise = std::unique_ptr<tools::Event_probability<>>(new tools::Event_probability<>());
-	// report the noise values (Es/N0 and Eb/N0)
-	u.reporters.push_back(std::unique_ptr<tools::Reporter>(new tools::Reporter_noise<>(*u.noise)));
-	// report the bit/frame error rates
-	u.reporters.push_back(std::unique_ptr<tools::Reporter>(new tools::Reporter_BFER<>(*m.monitor)));
-	// report the simulation throughputs
-	u.reporters.push_back(std::unique_ptr<tools::Reporter>(new tools::Reporter_throughput<>(*m.monitor)));
-	// create a terminal that will display the collected data from the reporters
-	u.terminal = std::unique_ptr<tools::Terminal_std>(new tools::Terminal_std(u.reporters));
 }
 
 int main(int argc, char** argv)
 {
-	std::string algorithm_name = "mackey_test";
-	std::string filename = argv[1]; //"NR_1_7_30.qc"; // filename of matrix
-	std::string path_to_h_matrix = "../../matrices/H/" + filename;
-	//std::string path_to_g_matrix = "../../matrices/G/" + filename;
-	// This scenario assumes generation
+	// get the AFF3CT version
+	const std::string v = "v" + std::to_string(tools::version_major()) + "." +
+	                            std::to_string(tools::version_minor()) + "." +
+	                            std::to_string(tools::version_release());
 
-	// Reading a .qc or .alist file
-	// See lib/aff3ct/src/Factory/Module/Decoder/LDPC/Decoder_LDPC.cpp line 141
-	// Which calls lib/aff3ct/src/Tools/Code/LDPC/Matrix_handler/LDPC_matrix_handler.cpp line 111
-	// Get sizes (optional if you already know the sizes)
-	int N, K, matrHeight;
-	tools::LDPC_matrix_handler::read_matrix_size(path_to_h_matrix, matrHeight, N);
-	K = N - matrHeight; // considered as regular so M = N - K
+	std::cout << std::endl << "#" << std::endl;
+	std::cout << "#" << " * AFF3CT version: " << v << std::endl; 
+	std::cout << "#" << " * Decoder_LDPC_BP_flooding_Update_rule_SPA_Q" << std::endl; 
 
-	tools::LDPC_matrix_handler::Positions_vector info_bits_pos;
+	if (puncture_strategy == PARITY_BITS_SIMULATED_RANDOM) {
+		std::cout << "# * Puncturing strategy: Puncture parity bits only, simulate until goal is reached" << std::endl;
+		std::cout << "# * In terms of DVB S2: start with lower code rate." << std::endl;
+	}
 
-	// Read into G
-	tools::Sparse_matrix G;
-	//G = tools::LDPC_matrix_handler::read(path_to_g_matrix, &info_bits_pos);
-
-	// std::cout << info_bits_pos.size() << std::endl;
-
-	// Read the file into H, See /lib/aff3ct/src/Module/Codec/LDPC/Codec_LDPC.cpp line 73
-	tools::Sparse_matrix H;
-	std::vector<bool>* pct = nullptr;
-	H = tools::LDPC_matrix_handler::read(path_to_h_matrix, nullptr, pct);
-
-	// std::cout << H.get_n_connections() << std::endl;
-	// std::cout << info_bits_pos.size() << std::endl;
-
-	// Make sure rate is higher than 1/2 for our use case
-	float rate = K / (1.0 * N);
-
-	// Prepare to print data for a specific N and K
-	/*
-	// Concat strings and ints together
-	std::stringstream filenameStream;
-	filenameStream << algorithm_name << "_N_" << N << "_K_" << K << "_CR_" << rate << ".txt";
-	// Open a new file stream for that code rate
-	std::ofstream out(filenameStream.str());
-	// redirect std::cout to my file
-	std::cout.rdbuf(out.rdbuf());
-	*/
-
-	bool legend_printed = false;
-	// Loop through every decoding algorithm
-	for (size_t decoderIndex = 0; decoderIndex < DECODER_MODULE_COUNT; decoderIndex++)
+	// Naive loop through all possible sizes of DVB S2 (N here refers to codeword size)
+	for (size_t i = 0; i < DVB_N_COUNT; i++)
 	{
-		params p;
-		modules m;
-		buffers b;
-		utils u;
-		init_params (p, N, K, filename); // create and initialize the parameters defined by the user
-		init_modules(p, m, u, decoderIndex, H, G, info_bits_pos); // create and initialize the modules
-		init_buffers(p, b); // create and initialize the buffers required by the modules
-		init_utils  (m, u); // create and initialize the utils
-
-		if (m.decoder == NULL)
-			continue;
-
-		if (!legend_printed)
-		{
-			// display the legend in the terminal
-			float estimatedKeyRate = (p.K - (p.N - p.K)) / (1.0 * p.K);
-			std::cout << "# * Simulation parameters: "              << std::endl;
-			std::cout << "#    ** Frame errors   = " << p.fe        << std::endl;
-			std::cout << "#    ** Noise seed     = " << p.seed      << std::endl;
-			std::cout << "#    ** Info. bits (K) = " << p.K         << std::endl;
-			std::cout << "#    ** Frame size (N) = " << p.N         << std::endl;
-			std::cout << "#    ** Code rate  (R) = " << p.R         << std::endl;
-			std::cout << "#    ** Est. QKD Key Rate After Priv Amp = " << estimatedKeyRate << std::endl;
-			u.terminal->legend();
-			legend_printed = true;
-		}
-
-		std::cout << std::endl << "#" << std::endl;
-		std::cout << "#" << decoderTypeNames[decoderIndex] << std::endl; 
-		std::cout << "#" << std::endl;
-
 		// loop over the various BERS
-		for (float ber = p.ber_min; ber <= p.ber_max; ber += p.ber_step)
+		for (float ber = ber_min; ber <= ber_max; ber += ber_step)
 		{
-			// Set the simulated BER for the channel
-			// std::cout << ber << std::endl;
-			u.noise->set_noise(ber);
-			m.modem  ->set_noise(*u.noise);
-			m.channel->set_noise(*u.noise);
-
-			// display the performance (BER and FER) in real time (in a separate thread)
-			u.terminal->start_temp_report();
-
-			// run the simulation chain
-			// while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
-			auto iter = 0;
-			auto errors = 0;
-			while (iter < p.iterations_per_BER)
+			float required_code_rate = min_cr(ber, target_efficiency);
+			std::cout << std::endl;
+			std::cout << "===" << std::endl;
+			std::cout << "BER: " << ber << std::endl;
+			std::cout << "Req code rate for efficiency=" << target_efficiency <<  " : " << required_code_rate << std::endl;
+			
+			int index_NmK = -1;
+			if (puncture_strategy == PARITY_BITS_SIMULATED_RANDOM)
 			{
-				// Internally the code can be further optimized
-				iter++;
-				m.source ->generate    	(b.ref_bits);
-				m.encoder->encode      	(b.ref_bits, b.enc_bits);
-				m.modem->modulate		(b.enc_bits, b.symbols);
-				m.channel->add_noise	(b.symbols, b.noisy_symbols);
-				// Demodulate f(x) currently uses multiplication
-				// But you don't need to use multiplication (see inside and modify the library as needed)
-				// See Modem_OOK_BSC.cpp
-				m.modem->demodulate		(b.noisy_symbols, b.LLRs);
-				// QKD: Parity bits are sent over.
-				// QKD: Bob corrects the parity bits & increases their LLR because he is 100% confident they are correct
-				// Increase by setting probability to 0, then calculating its LLR using said probability
-				// Here we assume that Alice sent Bob the parity bits and the info bits pos (can be further optimized)
-				// O(n)
-				
-				int tmp = 0;
-				for (size_t i = 0; i < p.N; i++)
+				float previousCodeRate = 1.0;
+				// Search for code rate that is lower
+				for (size_t j = 0; j < dvbNmK[i].size(); j++)
 				{
-					// Make sure the bit we are correcting is not an info_bit
-					if (i == info_bits_pos[tmp]) 
-					{
-						tmp++;
+					int K = -(dvbNmK[i][j] - dvbN[i]);
+					float rate = K / (1.0 * dvbN[i]);
+					if (rate > required_code_rate) {
 						continue;
 					}
-					b.LLRs[i] = ((b.enc_bits[i] == 1) ? -CONFIRMED_BIT_LLR : CONFIRMED_BIT_LLR);
+					// Since list is sorted in descending order of code rate, there won't be any more code rates that are higher
+					index_NmK = j;
+					previousCodeRate = rate;
+					break;
 				}
-				
-				m.decoder->decode_siho 	(b.LLRs, b.dec_bits);
-				int err = m.monitor->check_errors(b.dec_bits, b.ref_bits);
-				if (err > 0) { errors++; }
-				(*(m.decoder)).reset();
-				
-				// Test encoder
-				/*
-				std::vector<int> data {    0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1};
-				m.encoder->encode(data, b.enc_bits);
-				std::vector<int> encoded { 1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     1,     1,     1,     0,     0,     0,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,    0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     1,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     1,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     0,     0,     1,     1,     0,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     0,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     1,     1 };
-				std::cout << "E" << std::endl;
-				for (size_t i = 0; i < encoded.size(); i++) { if (b.enc_bits[i] != encoded[i]) { std::cout << i << ','; } }
-				std::cout << std::endl;
 
-				// std::cout << b.dec_bits.size() << std::endl;
-							
-				// Test decoder (BP flooding SPA)
-				// Run standalone or it will cause errors..?
-				std::vector<float> llrs { 2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59, -2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59,  2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59, -2.59, -2.59,  2.59, -2.59, -2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59, -2.59,  2.59,  2.59,  2.59,  2.59, -2.59,  2.59, -2.59, -2.59,  2.59, -2.59, -2.59,  2.59,  2.59,  2.59,  2.59,  2.59, -2.59 };
-				m.decoder->decode_siho (b.LLRs, b.dec_bits);
-				(*(m.decoder)).reset();
-				m.decoder->decode_siho (llrs, b.dec_bits);
-				std::vector<int> decoded {  1,     0,     1,     1,     1,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     1,     0,     1,     1,     1,     0,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     0,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     0,     0,     1,     1,     0,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     1,     1,     1,     0,     0,     1,     0,     0,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     1,     0,     0,     0,     1,     0,     1,     0,     1,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     0,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     0,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     0,     0,     1,     1,     1,     0,     0,     0,     0,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     0,     0,     0,     1,     0,     1,     1,     1,     1,     1,     0,     1,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     1,     0,     1,     1,     1,     0,     1,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     1,     0,     1,     0,     1,     0,     1,     0,     1,     0,     0,     1,     0,     1,     1,     1,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     1,     0,     1,     0,     1,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     0,     0,     0,     1,     0,     1,     1,     1,     0,     1,     0,     0,     1,     0,     0,     0,     0,     1,     1,     0,     1,     0,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     0,     1,     1,     1,     1,     0,     0,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     0,     0,     0,     0,     1,     1,     1,     0,     1,     1,     1,     0,     0,     1,     0,     0,     0,     1,     1,     1,     1,     1,     0,     1,     1,     0,     0,     1,     0,     1,     0,     1,     0,     0,     1,     1,     1,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     1,     1,     1,     1,     1,     1,     0,     1,     1,     1,     0,     1,     1,     1,     1,     0,     1,     1,     1,     1,     0,     0,     0,     0,     0,     0,     1,     0,     1,     0,     1,     1,     1,     0,     0,     0,     1,     0,     1,     1,     0,     0,     0,     0,     1,     0,     0,     0,     0,     0,     1,     0,     0,     0,     1,     0,     0,     0,     0,     1,     0,     1,     1,     0,     1,     1,     0,     0,     0,     0,     0,     1 };
-				std::cout << "D" << std::endl;
-				for (size_t i = 0; i < p.K; i++) { if (b.dec_bits[i] != decoded[i]) { std::cout << i << ','; } }
-				std::cout << std::endl;
-				*/
+				if (index_NmK == -1)
+				{
+					std::cout << "Cannot find suitable matrix to puncture with current strategy, proceeding with best option." << std::endl;
+					index_NmK = 0;
+				}
 			}
 
-			// display the performance (BER and FER) in the terminal
-			// https://aff3ct.readthedocs.io/en/latest/user/simulation/overview/overview.html#output
-			u.terminal->final_report();
+			int info_bit_len = -(dvbNmK[i][index_NmK] - dvbN[i]);	// # of info bits
 
-			// reset the monitor for the next SNR
-			m.monitor->reset();
-			u.terminal->reset();
+			// Calculate # of bits to puncture
+			int bits_to_puncture = 0;
+			if (puncture_strategy == PARITY_BITS_SIMULATED_RANDOM) 
+			{
+				bits_to_puncture = parity_bits_to_punct(info_bit_len, dvbN[i], required_code_rate);
+			}
 
-			// if user pressed Ctrl+c twice, exit the SNRs loop
-			if (u.terminal->is_over()) break;
-			// If 100% error rate, then just break
-			if (p.terminate_on_all_fail && errors == iter) break;
+			// If invalid, abort 
+			if (bits_to_puncture < 0) {
+				std::cout << "Puncture strategy not suitable for this BER, skipping." << std::endl;
+				continue;
+			}
+
+			int new_parity_bit_count = 0, new_info_bit_count = 0;
+			if (puncture_strategy == PARITY_BITS_SIMULATED_RANDOM) 
+			{
+				// With DVB we can run with the assumption that there will only be 1 or 2 degree nodes for the parity bits
+				new_parity_bit_count = dvbNmK[i][index_NmK] - bits_to_puncture;
+				new_info_bit_count = info_bit_len;
+			}
+
+			// Report current efficiency with this puncturing number
+			std::cout << "Original Matrix: Codeword Size (N): " << dvbN[i] << " | Info bits Length (K): " << info_bit_len << std::endl;
+			std::cout << "Bits to puncture for required efficiency: " << bits_to_puncture << std::endl;
+			float ratio = R((float) new_parity_bit_count, (float) new_info_bit_count);
+			float current_efficiency = f(ratio, ber);
+			std::cout << "Efficiency: " << current_efficiency << std::endl;
+
+			params p;
+			modules m;
+			utils u;
+			buffers b;
+			init_params (p, dvbN[i], info_bit_len); // create and initialize the parameters defined by the user
+			init_buffers(p, b); // create and initialize the buffers required by the modules
+			init_modules(p, m, u); // create and initialize the modules
+			init_utils  (u); // create and initialize the utils
+
+			if (puncture_strategy == PARITY_BITS_SIMULATED_RANDOM)
+			{
+				for (int a = p.K; a < p.N; a++)
+				{
+					u.parity_bits_puncture_pattern.push_back(a);
+				}
+			}
+
+			// Set the simulated BER
+			u.noise->set_noise(ber);
+
+			// update the modem and the channel
+			m.modem  ->set_noise(*u.noise);
+			m.channel->set_noise(*u.noise);
+			
+			int iter_to_fer = 0;
+			for (int sim_iter = 0; sim_iter < p.simulation_iters; sim_iter++)
+			{
+				// init the simulation chain
+				auto iter = 0;
+				auto frame_errors = 0;
+				int bit_errors = 0;
+
+				if (puncture_strategy == PARITY_BITS_SIMULATED_RANDOM)
+				{
+					std::shuffle (u.parity_bits_puncture_pattern.begin(), 
+									u.parity_bits_puncture_pattern.end(),
+									std::default_random_engine(static_cast <unsigned> (time(0))));
+				}
+
+				while (iter < p.iterations_per_BER)
+				{
+					iter++;
+
+					// Generate bits that won't change to save time
+					m.source->generate		(b.ref_bits);
+					m.encoder->encode      	(b.ref_bits, b.enc_bits);
+					m.modem->modulate		(b.enc_bits, b.symbols);
+
+					m.channel->add_noise	(b.symbols, b.noisy_symbols);
+					// Demodulate f(x) currently uses multiplication
+					// But you don't need to use multiplication (see inside and modify the library as needed)
+					// See Modem_OOK_BSC_BSC.cpp
+					m.modem->demodulate		(b.noisy_symbols, b.LLRs);
+					// Bob's side
+					// QKD: Parity bits are sent over, so set their LLR to high since we assume classical channel has 0% BER in this simulation
+					for (size_t pI = p.K + 1; pI < p.N; pI++)
+					{
+						b.LLRs[pI] = ((b.enc_bits[pI] == 1) ? -CONFIRMED_BIT_LLR : CONFIRMED_BIT_LLR);
+					}
+					// Puncture parities
+					if (puncture_strategy == PARITY_BITS_SIMULATED_RANDOM)
+					{
+						// Fix the punctured info bits points as 1
+						for (int pI = 0; pI < bits_to_puncture; pI++)
+						{
+							b.LLRs[u.parity_bits_puncture_pattern[pI]] = 0;
+						}
+					}
+
+					m.decoder->decode_siho 	(b.LLRs, b.dec_bits);
+					for (int pI = 0; pI < p.K; pI++)
+					{
+						if (b.ref_bits[pI] != b.dec_bits[pI])
+						{
+							frame_errors++;
+							std::cout << sim_iter << ": err @ " << pI << " ";
+							break;
+							/*
+							std::cout << "err @ " << pI << std::endl;
+							// Quick frame error check
+							for (int pJ = pI; pJ < pI + 100; pJ++)
+							{
+								std::cout << b.ref_bits[pJ];
+							}
+							std::cout << std::endl;
+							for (int pJ = pI; pJ < pI + 100; pJ++)
+							{
+								std::cout << b.dec_bits[pJ];
+							}
+							break;
+							*/
+						}
+					}
+					(*(m.decoder)).reset();
+					// Early terminate
+					if (frame_errors > 0)
+						break;
+				}
+				
+
+				// Reached goal of doing all iterations without meeting a single FER
+				// std::cout << sim_iter << ": " << frame_errors << std::endl;
+				std::cout << "FER " << frame_errors << "/" << iter << " | ";
+				if (frame_errors <= 0)
+				{	
+					std::cout << "FER = 0/" << p.iterations_per_BER << ", Goal puncture pattern reached after " << sim_iter << " simulations." << std::endl;
+					std::cout << "Puncture Pattern (indexes): " << std::endl;
+					for (int pI = 0; pI < bits_to_puncture; pI++)
+					{
+						std::cout << u.parity_bits_puncture_pattern[pI] << ',';
+					}
+					std::cout << std::endl;
+					break;
+				}
+			}
 		}
-		// Close file and open another file for another N and K
-		// out.close();
 	}
 
 	return 0;

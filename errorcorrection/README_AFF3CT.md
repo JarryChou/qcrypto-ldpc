@@ -1,6 +1,18 @@
 LDPC using Aff3ct {#ldpc_aff3ct}
 ====
 
+- [LDPC using Aff3ct {#ldpc_aff3ct}](#ldpc-using-aff3ct-ldpc_aff3ct)
+- [What is Aff3ct?](#what-is-aff3ct)
+- [Why should we use Aff3ct?](#why-should-we-use-aff3ct)
+- [What needs to be done to incorporate it into qCyrpto?](#what-needs-to-be-done-to-incorporate-it-into-qcyrpto)
+	- [1. Understand how LDPC works](#1-understand-how-ldpc-works)
+	- [2. Setting up Aff3ct on your computer and linking it to your code](#2-setting-up-aff3ct-on-your-computer-and-linking-it-to-your-code)
+	- [3. Learning how Aff3ct works](#3-learning-how-aff3ct-works)
+	- [4. Incorporating Aff3ct into qCrypto](#4-incorporating-aff3ct-into-qcrypto)
+- [What's already in place in ldpc_examples](#whats-already-in-place-in-ldpc_examples)
+- [Improving the reconciliation efficiency](#improving-the-reconciliation-efficiency)
+- [Improving the parity-check matrix](#improving-the-parity-check-matrix)
+
 # What is Aff3ct?
 
 From  their readme:
@@ -97,6 +109,108 @@ I've laid down the groundwork on how to use Aff3ct for LDPC (as I'm typing this 
 * main.cpp.alist-backup: Used for simulating matrices that come in alist format.
 	* There's a great list of such matrices [here](http://www.inference.org.uk/mackay/codes/data.html). However some matrices can cause problems (Try to run them with the simulator executable first to ensure it works properly), see [issue #73](https://github.com/aff3ct/aff3ct/issues/73).
 * main.cpp.dvb: Used for simulating dvb matrices and decoder algorithms. 
+
+## What is happening in the Aff3ct examples
+1. Read in LDPC Matrix
+2. Selecting a LDPC decoding module
+3. Execution:
+```
+m.source ->generate    	(b.ref_bits);              // Random generation of bits on Alice side
+m.encoder->encode      	(b.ref_bits, b.enc_bits);  // Encoding these bits using the LDPC encoder (which was initialized with the LDPC matrix)
+m.modem->modulate		(b.enc_bits, b.symbols);      // Converting the vector of integers into a vector of floats (Not necessary on actual qCrypto stack)
+m.channel->add_noise	(b.symbols, b.noisy_symbols); // Randomly introducing errors into the bits. In qCrypto, this step is not necessary
+m.modem->demodulate		(b.noisy_symbols, b.LLRs); // This is on Bob's side. Demodulation is basically taking the bits (on Bob's side), taking QBER to calculate the LLR and producing an output where all bits are now floats.
+for (size_t i = p.K; i < p.N; i++)                 // Correcting the LLR of the parity bits. Basically separate demodulation for the parity bits, since we know they are always correct
+{
+   b.LLRs[i] = ((b.enc_bits[i] == 1) ? -CONFIRMED_BIT_LLR : CONFIRMED_BIT_LLR);
+}
+m.decoder->decode_siho 	(b.LLRs, b.dec_bits);      // Decoding
+                                                   // Todo: verification using CRC
+(*(m.decoder)).reset();                            // Make sure to reset the decoder or it will cause issues in AFF3CT
+```
+
+# Improving the reconciliation efficiency
+1. There are many factors at play that affect the reconciliation efficiency of LDPC and by extension a lot of ways to go about doing it (with various trade-offs). Below I outline the steps for LDPC and the optimizations that can be made.
+   1. Parity Check Matrix selection
+      1. Create your own or choose an existing standard?
+         1. *Creating your own*: More freedom, better results at peak performance
+            1. Tasks:
+               1. Optimize Degree Distribution
+               2. Construct Matrix
+               3. Shortening / Puncturing (Optional)
+            2. How many matrices should you have (to support each threshold at the best code rate)?
+               1. Storage space constraints and time constraints (time to calculate degree distributions)
+               2. If you only want 1 matrix at every 0.01% BER step, you can just refer to https://arxiv.org/pdf/0901.2140.pdf Table I. However, this coarse precision will mean jagged reconciliation efficiency (See their Fig. 1). To counter this you can either:
+                  1. Increase # of matrices
+                  2. Shorten and/or puncture
+   		 2. To create a matrix: 
+              1. Optimizing symbol & check node degree distributions using differential evolution / density evolution
+                  1. Density evolution, hybrid-DE, gaussian approximation (GA) (in order of optimality)
+                     1. Density evolution: Probably plenty of implementations online, but you gotta be technically advanced
+                     2. hybrid-DE: I've only seen a paper mention this, i doubt there's a readily available impl. for this
+                     3. GA has the worst optimality but I've found implementations for it
+               1. Using the optimized symbol & check node degree distributions, use PEG to construct the binary matrix
+                  1. Considerations: 
+                     1. Nonbinary LDPC codes?
+                        1. Unresearched, but supposedly good for small-moderate LDPC codes
+                     2. Multi-edge LDPC codes?
+                        1. Unresearched
+                     3. Quasi-cyclic LDPC codes?
+                        1. Faster matrix construction & calculation, but poorer reconciliation efficiency in general
+                        2. Need to consider lifting size and methodology.
+                           1. PSD-PEG: Directly construct the base matrix together with PEG
+                              1. Already implemented as psd-peg.py
+                           2. Simulated Annealing lifting: https://github.com/Lcrypto/Simulated-annealing-lifting-QC-LDPC
+                              1. Supposedly state-of-the-art but unresearched
+                     4. A combination of the above options?
+                        1. There are multi-edge QC codes, or nonbinary QC codes etc
+      3. *Choosing an existing standard (specifically, DVB S2)*: Less development time, less memory / space needed
+         1. Tasks:
+            1. Choosing the standard (DVB S2 is already implemented, 5G was tried but sucked)
+            2. Optimize Shortening / Puncturing Pattern
+    1. Shortening / Puncturing: To do or not?
+         1. This may depend on your approach. If you plan to create like a matrix for every 0.001% BER step to handle various QBERS you don't really need to do shortening / puncturing.
+         2. However if you're using a standard you'll *have* to do shortening / puncturing since the matrices provided will definitely have a precision that is too coarse.
+            1. Shortening OR puncturing?
+               1. Shortening: reduce message size, so you're looking at decreasing the code rate. This means you start with a matrix of higher code rate and decrease the code rate
+                  1. 
+               2. Puncturing: reduce parity bits, so you're looking at increasing the code rate. Start with matrix of lower code rate and increase the code rate. Once you have the puncturing pattern, save on both sides.
+                  1. Random (randomly puncture with PRNG). 
+                  2. Rate-Compatible Punctured DVB-S2 LDPC Codes for DVB-SH Applications by Smolnikar et al
+                     * I have no idea what he's talking about w.r.t. depuncturing. Shouldn't the number of depunctured bits be equal to the number of punctured bits?
+                     * I can't access reference #4.
+                     * Section 3 step 5: "If the required puncturing rate is higher, then randomly puncture the remaining parity check bits." So basically, if I'm not assigning any info bits as padded bits, I just devolve into random puncturing. Thank you for wasting my time
+                     * THis does bring up a question: How much padded bits should I add when puncturing (to trade off)
+                  2. For IRA LDPC codes: Design of Rate-Compatible Punctured Repeat-Accumulate Codes by Shiva Kumar Planjery 
+                     * Describes how you can puncture repetition, parity & systematic bits. The problem is that I don't understand what he's talking about; how do you puncture a bit, and then expect the tanner graph on the other side to convert it into a "super node"? 
+                  3. Optimized Puncturing of the Check Matrix for Rate-Compatible LDPC Codes by Liang Zhang et al 
+                     * Take a high rate LDPC code and puncture info bits to lower the rate.
+                     * Method of puncturing (See pg2): "...use  the backward   node   puncturing   algorithm   to   puncture   the information  bits  in  the  codeword.  That  is,  starting  from the  last  column  of  the  check  matrix,  several  columns  in the checkmatrix (m is the number of check matrix rows) are deleted in multiples of m, so as to obtain the required codeword  with  a  low  code  rate."
+                        1. Why in multiples of m?
+                           * Okay this one I have no idea lol.
+                        2. Why from the last column? Why not the first? Heck, why not at random?
+                           * Most likely with the PEG construction algorithm in mind
+                        3. What is the proportion of info-bits to parity bits?
+                        4. The word "deleted" implies we're literally creating another matrix... That wouldn't be puncturing..
+                  4. RATE-ADAPTIVE TECHNIQUES FOR FREE-SPACE OPTICAL CHANNELS BY LINYAN LIU, B.Sc.
+                     * Pg 31 outlines puncturing pattern. PI refers to proportion of symbol nodes with degree dj (pg32) to be punctured.
+                     * Some optimal puncturing proportions were recommended
+                     * I am not sure at all how to perform their linear programming optimization
+                        * That kind of reduces the useability of this paper lol
+                     * Then okay... so we have these proportions...What next? randomly puncture based on the proportions? Omg... they literally missed out this crucial part in their paper...
+                     * Also, "As mentioned in Section 3.1.4, PNs of DVB-S2 LDPC codes are of degree 1 or 2. Traditional random puncturing method only punctures the PNs without considering the structure of codes. Since there is only one PN of degree 1, the total puncture ratio p is only determined by π2 for traditional random puncturing.". So for optimized puncturing ratio, we literally puncture a whole chunk of the info bits before the parity bits? Interesting
+                  5. NOVEL INTENTIONAL PUNCTURING SCHEMES FOR FINITE-LENGTH IRREGULAR LDPC CODES by Jingjing Liu, Rodrigo C. de Lamare
+                     * Not gonna lie, this was easily the clearest paper (to me) out of all the papers above.
+                     * Provides 2 algorithms for puncturing, both of which are complicated and foreign to me
+                     * Then provides a "Simulation-Based Puncturing Scheme" which trumps the two algorithms (LOL). Now this is something I can understand! Basically simulate as many patterns as possible and choose the best one.
+
+
+
+                  
+   2. Decoding algorithm:
+      1. Algorithm type (I stick with BP Flooding SPA in AFF3CT because it's the best)
+      2. Number of iterations 
+         1. Depending on the matrix you use this may have little - significant effect. If you're using a QC LDPC code you might find the # of iterations may not have a significant effect. If you're using a matrix made purely from PEG you may find a few hundred iterations (or more) can have a significant effect.
 
 # Improving the parity-check matrix
 1.	Puncture DVB S2 matrices
